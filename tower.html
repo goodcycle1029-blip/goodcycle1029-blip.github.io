@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#0b1020" />
 <meta name="description" content="한 번만 톡 누르면 되는 원터치 타워 쌓기 게임. 오늘의 랭킹에서 내 순위를 확인해 보세요." />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="원터치 타워" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="manifest" id="pwaManifest" href="./manifest-tower.json" />
+<link rel="apple-touch-icon" id="pwaTouchIcon" href="./icon-tower-192.png" />
 <title>원터치 타워 · 오늘의 랭킹</title>
 <style>
   :root{
@@ -307,8 +313,38 @@
     border-radius:99px;padding:1px 5px;letter-spacing:.02em;
   }
   .lb-gap{font-size:10px;color:rgba(160,180,215,.5);text-align:center;padding:1px 0}
+  .lb-empty{font-size:11.5px;color:rgba(180,196,226,.6);text-align:center;padding:8px 4px}
 
   .disclaimer{font-size:10px;color:rgba(170,186,218,.45);text-align:center;line-height:1.5;margin:6px 0 0}
+
+  /* ---------- 점수 공유 버튼 ---------- */
+  .share-btn{
+    display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;
+    border-radius:16px;border:1px solid rgba(126,224,255,.42);
+    background:linear-gradient(135deg,rgba(126,224,255,.17),rgba(169,139,255,.17));
+    color:#eaf6ff;font-family:inherit;font-size:15px;font-weight:800;letter-spacing:-.01em;
+    box-shadow:0 10px 24px rgba(70,150,255,.12);
+  }
+  .share-btn:active{transform:translateY(1px)}
+
+  /* ---------- 홈 화면에 추가 ---------- */
+  .install-row{
+    display:flex;align-items:center;justify-content:center;gap:7px;width:100%;height:46px;
+    border-radius:14px;border:1px dashed rgba(150,180,230,.34);
+    background:rgba(255,255,255,.035);color:#cfe0ff;
+    font-family:inherit;font-size:13px;font-weight:700;
+  }
+  .install-row:active{transform:translateY(1px)}
+
+  /* ---------- 토스트 ---------- */
+  #toast{
+    position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));z-index:60;
+    transform:translate(-50%,12px);max-width:86vw;padding:11px 16px;border-radius:999px;
+    font-size:12.5px;font-weight:800;color:#08101f;text-align:center;
+    background:linear-gradient(90deg,#baf3ff,#cbb8ff);box-shadow:0 16px 38px rgba(0,0,0,.55);
+    opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;
+  }
+  #toast.on{opacity:1;transform:translate(-50%,0)}
 </style>
 </head>
 <body>
@@ -333,6 +369,7 @@
     <div id="overlay" class="overlay"></div>
   </div>
 </div>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script>
 /* =========================================================================
@@ -394,6 +431,33 @@ const AD_CONFIG = {
 };
 /* ========================================================================= */
 
+/* =========================================================================
+   LEADERBOARD_CONFIG  ──  실시간 순위표(공유 랭킹) 연결 스위치
+   -------------------------------------------------------------------------
+   ① 지금은 mode: 'local' — 서버 없이 이 기기 기록 + 오늘의 분포로 순위를 계산합니다.
+      (아래 supabaseUrl·supabaseAnonKey 가 비어 있어도 자동으로 이 방식으로 동작합니다.)
+
+   ② 실제 실시간 랭킹을 켜려면
+      - Supabase 프로젝트를 만들고 tower_scores 테이블을 준비한 뒤(SUPABASE_SETUP.md 참고)
+      - mode 를 'supabase' 로 바꾸고
+      - supabaseUrl 에 프로젝트 주소(예: https://abcdefghijk.supabase.co)
+      - supabaseAnonKey 에 anon public 키(공개되어도 되는 키, service_role 키는 절대 넣지 마세요)
+      를 채우면 됩니다.
+
+   ③ 이 상태에서는 게임 오버 때마다 점수·닉네임이 자동 저장되고,
+      실제 TOP 10 · 내 등수 · 참가자 수를 서버에서 받아 보여 줍니다.
+      서버가 잠시 안 되면 조용히 기존 local 순위로 돌아가므로 게임은 항상 정상 동작합니다.
+   ========================================================================= */
+const LEADERBOARD_CONFIG = {
+  mode: 'local',                    // 'local' | 'supabase'
+  supabaseUrl: '',                  // 예: 'https://abcdefghijk.supabase.co'
+  supabaseAnonKey: '',              // anon public 키
+  tableName: 'tower_scores',        // Supabase 테이블 이름
+  topN: 10,                         // 순위표에 보여 줄 명수
+  timeoutMs: 6000                   // 서버 응답을 기다리는 최대 시간(ms)
+};
+/* ========================================================================= */
+
 (function () {
   'use strict';
 
@@ -410,6 +474,48 @@ const AD_CONFIG = {
     return n;
   }
   function fmt(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+  function pctTxt(p) {
+    if (p === null || p === undefined || !isFinite(p)) return '';
+    if (p < 0.1) return '0.1% 미만';
+    if (p < 10) return (Math.round(p * 10) / 10).toFixed(1) + '%';
+    return Math.round(p) + '%';
+  }
+
+  var toastEl = document.getElementById('toast');
+  var toastTimer = 0;
+  function toast(msg) {
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add('on');
+    if (toastTimer) window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(function () { toastEl.classList.remove('on'); }, 2400);
+  }
+
+  function legacyCopy(text) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      ta.style.left = '0';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, text.length);
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) { return false; }
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return legacyCopy(text); });
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
 
   /* =========================================================
      1. 저장소 (localStorage)
@@ -544,7 +650,186 @@ const AD_CONFIG = {
   }
 
   /* =========================================================
-     2-2. 아이템 블록 3종 정의
+     2-2. 실시간 순위표 (LEADERBOARD_CONFIG)
+     ========================================================= */
+  var SHARE_URL = 'https://goodcycle1029-blip.github.io/tower.html';
+
+  var LB = (function () {
+    var conf = (typeof LEADERBOARD_CONFIG === 'object' && LEADERBOARD_CONFIG) || {};
+    var baseUrl = String(conf.supabaseUrl || '').replace(/\/+$/, '');
+    var apiKey = String(conf.supabaseAnonKey || '');
+    var table = String(conf.tableName || 'tower_scores').replace(/[^A-Za-z0-9_]/g, '') || 'tower_scores';
+    var topN = Math.max(3, Math.min(50, parseInt(conf.topN, 10) || 10));
+    var timeoutMs = Math.max(1500, Math.min(20000, parseInt(conf.timeoutMs, 10) || 6000));
+    var live = (conf.mode === 'supabase') && /^https?:\/\//i.test(baseUrl) && apiKey.length > 20;
+    var view = null;          // 서버에서 받아 둔 오늘의 순위
+    var lastSubmit = null;    // 저장 요청(순위 조회 전에 끝나도록 기다림)
+
+    function today() {
+      var d = new Date();
+      var m = d.getMonth() + 1, dd = d.getDate();
+      return d.getFullYear() + '-' + (m < 10 ? '0' + m : m) + '-' + (dd < 10 ? '0' + dd : dd);
+    }
+
+    // 같은 기기의 기록을 한 줄로 묶기 위한 무작위 식별자 (기기 밖으로 나가는 개인정보 없음)
+    function deviceId() {
+      var k = 'oneTouchTower.device';
+      var v = '';
+      try { v = window.localStorage.getItem(k) || ''; } catch (e) {}
+      if (!v || v.length < 8) {
+        v = 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+        try { window.localStorage.setItem(k, v); } catch (e) {}
+      }
+      return v;
+    }
+
+    function cleanName(v) {
+      return String(v || '').replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '').slice(0, 12) || '플레이어';
+    }
+
+    function call(query, opts) {
+      opts = opts || {};
+      var headers = {
+        'apikey': apiKey,
+        'Authorization': 'Bearer ' + apiKey,
+        'Accept': 'application/json'
+      };
+      var prefer = [];
+      if (opts.count) prefer.push('count=exact');
+      if (opts.prefer) prefer.push(opts.prefer);
+      if (prefer.length) headers['Prefer'] = prefer.join(',');
+
+      var init = { method: opts.method || 'GET', headers: headers, cache: 'no-store' };
+      if (opts.body) {
+        headers['Content-Type'] = 'application/json';
+        init.body = JSON.stringify(opts.body);
+      }
+
+      var ctrl = null, timer = 0;
+      try {
+        if (window.AbortController) {
+          ctrl = new AbortController();
+          init.signal = ctrl.signal;
+          timer = window.setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, timeoutMs);
+        }
+      } catch (e) {}
+
+      return fetch(baseUrl + '/rest/v1/' + table + (query ? '?' + query : ''), init).then(function (res) {
+        if (timer) window.clearTimeout(timer);
+        return res;
+      }, function (err) {
+        if (timer) window.clearTimeout(timer);
+        throw err;
+      });
+    }
+
+    // 응답 헤더 Content-Range(0-9/1240)에서 전체 개수를 꺼냅니다
+    function totalOf(res) {
+      var range = '';
+      try { range = res.headers.get('Content-Range') || res.headers.get('content-range') || ''; } catch (e) {}
+      var m = /\/(\d+)\s*$/.exec(range);
+      return m ? parseInt(m[1], 10) : null;
+    }
+
+    // 게임 오버 시 자동 저장 — 같은 기기·같은 날짜는 한 줄로 유지하고 더 높은 기록만 반영
+    function submit(score, nickname) {
+      if (!live) return Promise.resolve(null);
+      var s = Math.max(0, Math.floor(score || 0));
+      var name = cleanName(nickname);
+      var day = today();
+      var dev = deviceId();
+      var mineQ = 'day=eq.' + day + '&device_id=eq.' + encodeURIComponent(dev)
+        + '&select=id,score,nickname&limit=1';
+
+      lastSubmit = call(mineQ).then(function (res) {
+        if (!res.ok) throw new Error('read ' + res.status);
+        return res.json();
+      }).then(function (rows) {
+        var row = (rows && rows[0]) || null;
+        if (row && Number(row.score) >= s && String(row.nickname || '') === name) return null;
+        if (row) {
+          return call('id=eq.' + encodeURIComponent(row.id), {
+            method: 'PATCH',
+            body: { nickname: name, score: s },
+            prefer: 'return=minimal'
+          });
+        }
+        return call('', {
+          method: 'POST',
+          body: { nickname: name, score: s, day: day, device_id: dev },
+          prefer: 'return=minimal'
+        });
+      }).catch(function () {
+        // 읽기·수정이 막힌 설정이면 단순 저장 한 번만 시도 (실패해도 게임은 계속)
+        return call('', {
+          method: 'POST',
+          body: { nickname: name, score: s, day: day, device_id: dev },
+          prefer: 'return=minimal'
+        }).catch(function () { return null; });
+      });
+
+      return lastSubmit;
+    }
+
+    // 오늘의 TOP N · 내 등수 · 참가자 수를 서버에서 가져옵니다
+    function refresh(score) {
+      if (!live || navigator.onLine === false) return Promise.resolve(null);
+      var s = Math.max(0, Math.floor(score || 0));
+      var day = today();
+
+      var gate = lastSubmit ? lastSubmit.catch(function () { return null; }) : Promise.resolve(null);
+
+      return gate.then(function () {
+        var topQ = 'day=eq.' + day + '&select=nickname,score&order=score.desc&limit=' + topN;
+        var rankQ = 'day=eq.' + day + '&score=gt.' + s + '&select=id&limit=1';
+        return Promise.all([
+          call(topQ, { count: true }).then(function (res) {
+            if (!res.ok) throw new Error('top ' + res.status);
+            return res.json().then(function (rows) {
+              return { rows: rows || [], total: totalOf(res) };
+            });
+          }),
+          call(rankQ, { count: true }).then(function (res) {
+            if (!res.ok) throw new Error('rank ' + res.status);
+            return { total: totalOf(res) };
+          })
+        ]);
+      }).then(function (out) {
+        var top = out[0].rows.map(function (r) {
+          return {
+            name: String(r.nickname || '플레이어').slice(0, 12),
+            score: Math.max(0, Math.floor(Number(r.score) || 0))
+          };
+        });
+        var total = out[0].total;
+        var better = out[1].total;
+        if (total === null) total = better;
+        var rank = (better === null) ? null : better + 1;
+        view = {
+          day: day,
+          top: top,
+          total: total,
+          rank: rank,
+          pct: (rank && total) ? (rank / total) * 100 : null,
+          score: s,
+          at: Date.now()
+        };
+        return view;
+      }).catch(function () {
+        return null;   // 서버가 안 되면 조용히 local 순위 유지
+      });
+    }
+
+    return {
+      live: live,
+      submit: submit,
+      refresh: refresh,
+      cached: function () { return (view && view.day === today()) ? view : null; }
+    };
+  })();
+
+  /* =========================================================
+     2-3. 아이템 블록 3종 정의
      ========================================================= */
   var ITEM_CFG = {
     WIDE: {
@@ -1065,6 +1350,7 @@ const AD_CONFIG = {
     G.prevBest = store.best;
     G.ending = 0.85;
     saveRun(G.finalScore);
+    if (LB.live && navigator.onLine !== false) LB.submit(G.finalScore, store.nickname);   // 게임 오버 시 자동 순위 등록
     if (tapHint) tapHint.classList.remove('on');
     updateHud();
     updateAdLock();
@@ -1670,8 +1956,31 @@ const AD_CONFIG = {
   }, true);
 
   /* =========================================================
-     12. 랭킹 표
+     12. 점수 공유 · 랭킹 표
      ========================================================= */
+  function shareScore(score, pct) {
+    var p = pctTxt(pct);
+    var text = '원터치 타워 ' + score + '층 달성!' + (p ? ' (상위 ' + p + ')' : '')
+      + ' 나보다 높이 쌓을 수 있어? 👉 ' + SHARE_URL;
+
+    function fallback() {
+      copyText(text).then(function (ok) {
+        toast(ok ? '복사됐어요! 카톡에 붙여넣기 하세요' : '공유가 막혀 있어요. 주소창의 주소를 복사해 주세요');
+      });
+    }
+
+    if (navigator.share) {
+      try {
+        navigator.share({ title: '원터치 타워', text: text }).catch(function (err) {
+          if (err && err.name === 'AbortError') return;   // 사용자가 공유 시트를 그냥 닫은 경우
+          fallback();
+        });
+        return;
+      } catch (e) { /* 공유를 못 쓰는 환경이면 복사로 */ }
+    }
+    fallback();
+  }
+
   function lbRow(rank, entry) {
     var row = el('div', 'lb-row' + (entry.mine ? ' mine' : ''));
     row.appendChild(el('span', 'lb-rank', String(rank)));
@@ -1682,8 +1991,41 @@ const AD_CONFIG = {
     return row;
   }
 
-  function fillLeaderboard(container) {
+  function fillLeaderboard(container, view) {
     container.innerHTML = '';
+
+    // 서버(실시간 랭킹)에서 받은 순위가 있으면 그걸 보여 줍니다
+    if (view && view.top) {
+      var topN = view.top.length;
+      container.appendChild(el('div', 'lb-title', '오늘의 TOP ' + Math.max(1, Math.min(10, topN))));
+      var rows = el('div', 'lb-list');
+      if (!topN) {
+        rows.appendChild(el('div', 'lb-empty', '아직 오늘 기록이 없어요 — 첫 기록을 남겨 보세요'));
+      }
+      for (var i = 0; i < topN; i++) {
+        var t = view.top[i];
+        rows.appendChild(lbRow(i + 1, {
+          name: t.name,
+          score: t.score,
+          mine: !!(store.nickname && t.name === store.nickname)
+        }));
+      }
+      container.appendChild(rows);
+
+      if (view.rank && view.rank > topN) {
+        container.appendChild(el('div', 'lb-title', '내 순위'));
+        var near = el('div', 'lb-list');
+        if (view.rank > topN + 1) near.appendChild(el('div', 'lb-gap', '· · ·'));
+        near.appendChild(lbRow(view.rank, {
+          name: store.nickname || '플레이어',
+          score: view.score,
+          mine: true
+        }));
+        container.appendChild(near);
+      }
+      return;
+    }
+
     var pool = sortedPool();
     var myIndex = -1;
     for (var i = 0; i < pool.length; i++) {
@@ -1754,9 +2096,18 @@ const AD_CONFIG = {
 
     if (store.records.length > 0) {
       var rr = rankFor(store.best);
+      var lv = LB.cached();
       var stats = el('div', 'start-stats');
       stats.appendChild(el('b', '', '내 최고 ' + store.best + '층'));
-      stats.appendChild(el('span', '', '오늘 ' + fmt(rr.total) + '명 중 ' + fmt(rr.rank) + '위'));
+      if (LB.live) {
+        if (lv && lv.rank && lv.score === store.best && lv.total) {
+          stats.appendChild(el('span', '', '오늘 ' + fmt(lv.total) + '명 중 ' + fmt(lv.rank) + '위'));
+        } else {
+          stats.appendChild(el('span', '', '오늘의 랭킹에 기록 중'));
+        }
+      } else {
+        stats.appendChild(el('span', '', '오늘 ' + fmt(rr.total) + '명 중 ' + fmt(rr.rank) + '위'));
+      }
       card.appendChild(stats);
     }
 
@@ -1768,9 +2119,13 @@ const AD_CONFIG = {
     });
     card.appendChild(startBtn);
 
+    if (installReady) card.appendChild(installRow());
+
     card.appendChild(el('p', 'mini', '손이 불편해도 괜찮아요 · 버튼을 정확히 누를 필요 없이 화면 아무 곳이나 터치하면 됩니다'));
-    card.appendChild(el('p', 'start-today', '오늘의 랭킹 · 실시간 순위'));
-    card.appendChild(el('p', 'disclaimer', '순위는 매일 새로 집계됩니다 · 내 기록은 이 기기에 저장돼요'));
+    card.appendChild(el('p', 'start-today', '오늘의 랭킹 · 순위 집계 중'));
+    card.appendChild(el('p', 'disclaimer', LB.live
+      ? '순위는 매일 새로 집계됩니다 · 최고 기록은 이 기기에도 남아요'
+      : '순위는 매일 새로 집계됩니다 · 내 기록은 이 기기에 저장돼요'));
 
     overlay.appendChild(card);
     overlay.classList.add('show', 'start-mode');
@@ -1780,9 +2135,10 @@ const AD_CONFIG = {
 
   function showGameOver() {
     var score = G.finalScore;
-    var r = rankFor(score);
+    var local = rankFor(score);
     var best = Math.max(store.best, score);
     var prevBest = G.prevBest;
+    var storeNote = LB.live ? '순위표에 저장됩니다' : '기록은 이 기기에 저장됩니다';
 
     overlay.innerHTML = '';
     var card = el('div', 'card over');
@@ -1790,15 +2146,34 @@ const AD_CONFIG = {
     card.appendChild(el('div', 'go-kicker', '무너졌어요'));
     if (G.endReason) card.appendChild(el('div', 'go-reason', G.endReason));
 
+    // 순위 표시는 처음엔 바로 계산한 값을 보여 주고, 서버 순위가 오면 그 값으로 바꿉니다
+    var shown = { rank: null, total: null, pct: null };
+    var rankNum = el('span', 'rank-num', '—');
+    var rankSub = el('div', 'rank-sub', '순위 집계 중');
+    var pctChip = el('div', 'pct-chip', '상위 —');
+    var tierEl = el('div', 'tier-msg', '');
+
     var wrap = el('div', 'rank-wrap');
     var big = el('div', 'rank-big');
-    big.appendChild(el('span', 'rank-num', String(r.rank)));
+    big.appendChild(rankNum);
     big.appendChild(el('span', 'rank-unit', '위'));
     wrap.appendChild(big);
-    wrap.appendChild(el('div', 'rank-sub', '오늘 참가한 ' + fmt(r.total) + '명 중'));
-    wrap.appendChild(el('div', 'pct-chip', '상위 ' + r.pct.toFixed(1) + '%'));
+    wrap.appendChild(rankSub);
+    wrap.appendChild(pctChip);
     card.appendChild(wrap);
-    card.appendChild(el('div', 'tier-msg', tierMsg(r.pct)));
+    card.appendChild(tierEl);
+
+    function applyRank(v) {
+      if (!v) return;
+      if (v.rank) { rankNum.textContent = fmt(v.rank); shown.rank = v.rank; }
+      if (v.total) { rankSub.textContent = '오늘 참가한 ' + fmt(v.total) + '명 중'; shown.total = v.total; }
+      if (v.pct !== null && v.pct !== undefined && isFinite(v.pct)) {
+        pctChip.textContent = '상위 ' + pctTxt(v.pct);
+        tierEl.textContent = tierMsg(v.pct);
+        shown.pct = v.pct;
+      }
+    }
+    applyRank(local);
 
     var chips = el('div', 'score-row');
     var c1 = el('div', 'score-chip');
@@ -1819,6 +2194,15 @@ const AD_CONFIG = {
     }
     card.appendChild(chips);
 
+    // 내 점수 공유 (카톡·링크)
+    var shareBtn = el('button', 'share-btn', '📤 내 점수 공유하기');
+    shareBtn.type = 'button';
+    shareBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      shareScore(score, shown.pct);
+    });
+    card.appendChild(shareBtn);
+
     // 결과창 배너 (AD_CONFIG)
     var resultAd = el('div', 'ad-result');
     card.appendChild(resultAd);
@@ -1838,7 +2222,7 @@ const AD_CONFIG = {
     saveBtn.type = 'button';
     nick.appendChild(saveBtn);
     var nickMsg = el('div', 'nick-msg', store.nickname
-      ? '등록됨: ' + store.nickname + ' · 기록은 이 기기에 저장됩니다'
+      ? '등록됨: ' + store.nickname + ' · ' + storeNote
       : '닉네임을 등록하면 순위표에 내 기록이 표시됩니다');
     nick.appendChild(nickMsg);
     card.appendChild(nick);
@@ -1849,9 +2233,18 @@ const AD_CONFIG = {
       var v = String(input.value || '').replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '').slice(0, 10);
       store.nickname = v || '플레이어';
       saveStore();
-      nickMsg.textContent = '등록됨: ' + store.nickname + ' · 기록은 이 기기에 저장됩니다';
+      nickMsg.textContent = '등록됨: ' + store.nickname + ' · ' + storeNote;
       fillLeaderboard(lbWrap);
       updateHud();
+      if (LB.live) {
+        LB.submit(score, store.nickname).then(function () {
+          return LB.refresh(score);
+        }).then(function (v) {
+          if (!v || !v.rank) return;
+          applyRank(v);
+          fillLeaderboard(lbWrap, v);
+        });
+      }
     };
     saveBtn.addEventListener('click', function (e) {
       e.stopPropagation();
@@ -1942,13 +2335,24 @@ const AD_CONFIG = {
     fillLeaderboard(lbWrap);
     card.appendChild(lbWrap);
 
-    card.appendChild(el('p', 'disclaimer', '오늘의 랭킹 · 내 기록은 이 기기에 저장됩니다'));
+    if (installReady) card.appendChild(installRow());
+
+    card.appendChild(el('p', 'disclaimer', '오늘의 랭킹 · 순위는 매일 새로 집계됩니다 · 내 기록은 ' + (LB.live ? '순위표와' : '') + ' 이 기기에 저장'));
 
     overlay.appendChild(card);
     overlay.classList.add('show');
     overlay.classList.remove('start-mode');
     overlay.scrollTop = 0;
     updateAdLock();
+
+    // 서버 순위(실시간 랭킹)가 연결돼 있으면 진짜 TOP 10·내 등수로 바꿉니다
+    if (LB.live) {
+      LB.refresh(score).then(function (v) {
+        if (!v || !v.rank) return;
+        applyRank(v);
+        fillLeaderboard(lbWrap, v);
+      });
+    }
   }
 
   /* =========================================================
@@ -2009,6 +2413,103 @@ const AD_CONFIG = {
   }
 
   /* =========================================================
+     14-2. PWA — 홈 화면에 추가(앱처럼 열기)
+     ========================================================= */
+  var installReady = false;
+  var deferredPrompt = null;
+
+  // 루트에 올린 파일을 쓰되, /tower/ · /drop/ 하위 복사본에서는 한 단계 위에서 찾습니다
+  function pwaBase() {
+    var p = location.pathname;
+    if (/\/(?:tower|drop)\/(?:index\.html)?$/i.test(p)) return '../';
+    return './';
+  }
+
+  function installRow() {
+    var btn = el('button', 'install-row', '📲 홈 화면에 추가 — 앱처럼 열기');
+    btn.type = 'button';
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      promptInstall();
+    });
+    return btn;
+  }
+
+  // 설치 안내는 주요 버튼 바로 아래에 놓습니다
+  function placeInstallRow() {
+    var card = overlay.querySelector('.card');
+    if (!card || card.querySelector('.install-row')) return;
+    var row = installRow();
+    var anchor = card.querySelector('.btn.primary');
+    if (anchor && anchor.parentNode === card && anchor.nextSibling) {
+      card.insertBefore(row, anchor.nextSibling);
+    } else {
+      card.appendChild(row);
+    }
+  }
+
+  function promptInstall() {
+    if (!deferredPrompt) {
+      toast('브라우저 메뉴에서 \'홈 화면에 추가\'를 눌러 주세요');
+      return;
+    }
+    try {
+      deferredPrompt.prompt();
+      var res = deferredPrompt.userChoice;
+      if (res && res.then) {
+        res.then(function () {
+          deferredPrompt = null;
+          installReady = false;
+          var row = overlay.querySelector('.install-row');
+          if (row && row.parentNode) row.parentNode.removeChild(row);
+        }).catch(function () {});
+      }
+    } catch (e) {
+      toast('브라우저 메뉴에서 \'홈 화면에 추가\'를 눌러 주세요');
+    }
+  }
+
+  function initPWA() {
+    var base = pwaBase();
+    var manifest = document.getElementById('pwaManifest');
+    var touch = document.getElementById('pwaTouchIcon');
+    if (manifest && base !== './') manifest.setAttribute('href', base + 'manifest-tower.json');
+    if (touch && base !== './') touch.setAttribute('href', base + 'icon-tower-192.png');
+
+    try {
+      if ('serviceWorker' in navigator) {
+        var secure = location.protocol === 'https:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+        if (secure) {
+          window.addEventListener('load', function () {
+            navigator.serviceWorker.register(base + 'sw.js').catch(function () {});
+          });
+        }
+      }
+    } catch (e) {}
+
+    window.addEventListener('beforeinstallprompt', function (e) {
+      try { e.preventDefault(); } catch (err) {}
+      deferredPrompt = e;
+      installReady = true;
+      placeInstallRow();
+    });
+
+    window.addEventListener('appinstalled', function () {
+      deferredPrompt = null;
+      installReady = false;
+      var row = overlay.querySelector('.install-row');
+      if (row && row.parentNode) row.parentNode.removeChild(row);
+      toast('홈 화면에 추가됐어요');
+    });
+
+    try {
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+        installReady = false;
+      }
+    } catch (e) {}
+  }
+
+  /* =========================================================
      15. 메인 루프
      ========================================================= */
   function loop(ts) {
@@ -2033,6 +2534,7 @@ const AD_CONFIG = {
   setupScene();
   setMuted(store.muted);
   updateHud();
+  initPWA();
   showStart();
   window.requestAnimationFrame(loop);
 
@@ -2075,6 +2577,9 @@ const AD_CONFIG = {
     baseSpeed: baseSpeed,
     continueGame: doContinue,
     adConfig: AD_CONFIG,
+    leaderboard: LB,
+    leaderboardConfig: LEADERBOARD_CONFIG,
+    shareUrl: SHARE_URL,
     fillAdSlot: fillAdSlot,
     adSlots: { bottom: '#adBanner' },
     _G: G,

@@ -1,0 +1,30 @@
+{
+  "id": "./pop.html",
+  "name": "30초 풍선 톡톡 · POP 30!",
+  "short_name": "풍선 톡톡",
+  "description": "30초 동안 떠오르는 풍선을 톡톡 터뜨리는 원터치 킬링타임 게임. 황금 풍선 +50, 시계 풍선 +3초, 폭탄은 피하세요.",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "./pop.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "fullscreen"],
+  "orientation": "portrait",
+  "background_color": "#0b0a18",
+  "theme_color": "#0b0a18",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "./icon-pop-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-pop-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

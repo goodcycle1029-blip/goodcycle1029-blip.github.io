@@ -6,6 +6,12 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#090D13">
 <meta name="description" content="느긋한 숫자블록 — 시간 제한도 타이밍 압박도 없이, 열을 한 번 톡 누르면 블록이 내려앉고 같은 숫자가 합쳐지는 원터치 퍼즐.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="숫자블록">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" id="pwaManifest" href="./manifest-drop.json">
+<link rel="apple-touch-icon" id="pwaTouchIcon" href="./icon-drop-192.png">
 <title>느긋한 숫자블록 · SLOW NUMBER DROP</title>
 <style>
 :root{
@@ -207,6 +213,8 @@ h1,h2,h3,p{margin:0}
 .myrank b{font-weight:900;color:#D8FFB0}
 .resbtns{display:grid;grid-template-columns:1.25fr 1fr;gap:8px;margin:18px 0 0}
 .resbtns .btn{width:100%}
+.btn-share{margin:16px 0 0;border-color:rgba(143,233,200,.45);
+  background:linear-gradient(135deg,rgba(143,233,200,.16),rgba(155,217,255,.14));color:#EAF7FF}
 
 /* ---------- ad ---------- */
 .adslot{display:flex;justify-content:center;align-items:center;flex-direction:column;margin:20px 0 0}
@@ -279,6 +287,7 @@ button:focus-visible, .input:focus-visible, #board:focus-visible{outline:2px sol
       <div class="homebtns">
         <button class="btn btn-primary big" id="startBtn">시작하기</button>
         <button class="btn big hidden" id="resumeBtn">이어서 하기</button>
+        <button class="btn btn-ghost hidden" id="installBtn" type="button">📲 홈 화면에 추가 — 앱처럼 열기</button>
       </div>
       <div class="statrow">
         <div class="stat"><span>최고 점수</span><b id="homeBest">0</b></div>
@@ -286,7 +295,7 @@ button:focus-visible, .input:focus-visible, #board:focus-visible{outline:2px sol
         <div class="stat"><span>해 온 판</span><b id="homePlays">0</b></div>
       </div>
       <div id="homeAd" class="adslot"></div>
-      <p class="tiny">기록은 이 기기(브라우저)에만 저장돼요 · 순위는 표본 시뮬레이션 기준</p>
+      <p class="tiny" id="homeTiny">오늘의 랭킹 · 순위 집계 중</p>
     </section>
 
     <!-- ============ 플레이 ============ -->
@@ -337,15 +346,16 @@ button:focus-visible, .input:focus-visible, #board:focus-visible{outline:2px sol
         <div class="rankmeta"><span id="resPct">상위 —</span><span id="resTotal">—</span></div>
       </div>
       <div class="nickbox" id="nickBox"></div>
-      <div class="sec"><h2>TOP 10</h2><span>표본 순위 · 이 기기 기록</span></div>
+      <div class="sec"><h2>TOP 10</h2><span>오늘의 랭킹 · 순위 집계 중</span></div>
       <div id="lb" class="lb"></div>
       <div id="myRank" class="myrank hidden"></div>
+      <button class="btn btn-share" id="shareBtn" type="button">📤 내 점수 공유하기</button>
       <div class="resbtns">
         <button class="btn btn-primary" id="againBtn">한 번 더</button>
         <button class="btn" id="toHomeBtn">홈으로</button>
       </div>
       <div id="resultAd" class="adslot"></div>
-      <p class="tiny">프로토타입 순위예요 — 실제 참가자 집계는 서버가 붙으면 그대로 교체됩니다</p>
+      <p class="tiny" id="resTiny">오늘의 랭킹 · 순위는 매일 새로 집계됩니다</p>
     </section>
   </main>
 </div>
@@ -375,6 +385,25 @@ var AD_CONFIG = {
   },
   custom_html: { home: '', play: '', result: '' },
   allowPlayClick: false
+};
+
+/* ============================================================
+   실시간 순위표(공유 랭킹) 연결 스위치 — LEADERBOARD_CONFIG
+   ------------------------------------------------------------
+   mode:'local'    → 서버 없이 이 기기 기록 + 오늘의 분포로 순위를 계산합니다.
+                     (supabaseUrl·supabaseAnonKey 가 비어 있어도 이 방식으로 동작)
+   mode:'supabase' → 아래 주소·anon 키를 채우면 게임 오버 때마다 점수·닉네임이 자동 저장되고,
+                     실제 TOP 10 · 내 등수 · 참가자 수를 서버에서 받아 보여 줍니다.
+                     서버가 잠시 안 되면 조용히 local 순위로 돌아갑니다.
+   tableName: Supabase 테이블 이름 (숫자블록은 drop_scores)
+   ============================================================ */
+var LEADERBOARD_CONFIG = {
+  mode: 'local',                 // 'local' | 'supabase'
+  supabaseUrl: '',               // 예: 'https://abcdefghijk.supabase.co'
+  supabaseAnonKey: '',           // anon public 키 (service_role 키는 쓰지 마세요)
+  tableName: 'drop_scores',
+  topN: 10,
+  timeoutMs: 6000
 };
 
 (function () {
@@ -463,6 +492,218 @@ function saveEntry(n, s) {
   store.set(K.entries, list.slice(0, 60));
 }
 function getName() { var n = store.get(K.name, ''); return typeof n === 'string' ? n : ''; }
+
+/* ================= 실시간 순위표 (LEADERBOARD_CONFIG) ================= */
+var SHARE_URL = 'https://goodcycle1029-blip.github.io/drop.html';
+var REMOTE = null;   // 서버에서 받아 둔 오늘의 순위
+
+var LB = (function () {
+  var conf = (typeof LEADERBOARD_CONFIG === 'object' && LEADERBOARD_CONFIG) || {};
+  var baseUrl = String(conf.supabaseUrl || '').replace(/\/+$/, '');
+  var apiKey = String(conf.supabaseAnonKey || '');
+  var table = String(conf.tableName || 'drop_scores').replace(/[^A-Za-z0-9_]/g, '') || 'drop_scores';
+  var topN = Math.max(3, Math.min(50, parseInt(conf.topN, 10) || 10));
+  var timeoutMs = Math.max(1500, Math.min(20000, parseInt(conf.timeoutMs, 10) || 6000));
+  var live = (conf.mode === 'supabase') && /^https?:\/\//i.test(baseUrl) && apiKey.length > 20;
+  var view = null;
+  var lastSubmit = null;
+
+  function today() {
+    var d = new Date();
+    var m = d.getMonth() + 1, dd = d.getDate();
+    return d.getFullYear() + '-' + (m < 10 ? '0' + m : m) + '-' + (dd < 10 ? '0' + dd : dd);
+  }
+
+  // 같은 기기의 기록을 한 줄로 묶기 위한 무작위 식별자 (개인정보 없음)
+  function deviceId() {
+    var k = 'slowdrop.device.v1';
+    var v = store.get(k, '');
+    if (typeof v !== 'string') v = '';
+    if (!v || v.length < 8) {
+      v = 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+      store.set(k, v);
+    }
+    return v;
+  }
+
+  function cleanName(v) {
+    return String(v || '').replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '').slice(0, 12) || '플레이어';
+  }
+
+  function call(query, opts) {
+    opts = opts || {};
+    var headers = {
+      'apikey': apiKey,
+      'Authorization': 'Bearer ' + apiKey,
+      'Accept': 'application/json'
+    };
+    var prefer = [];
+    if (opts.count) prefer.push('count=exact');
+    if (opts.prefer) prefer.push(opts.prefer);
+    if (prefer.length) headers['Prefer'] = prefer.join(',');
+
+    var init = { method: opts.method || 'GET', headers: headers, cache: 'no-store' };
+    if (opts.body) {
+      headers['Content-Type'] = 'application/json';
+      init.body = JSON.stringify(opts.body);
+    }
+
+    var ctrl = null, timer = 0;
+    try {
+      if (window.AbortController) {
+        ctrl = new AbortController();
+        init.signal = ctrl.signal;
+        timer = window.setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, timeoutMs);
+      }
+    } catch (e) {}
+
+    return fetch(baseUrl + '/rest/v1/' + table + (query ? '?' + query : ''), init).then(function (res) {
+      if (timer) window.clearTimeout(timer);
+      return res;
+    }, function (err) {
+      if (timer) window.clearTimeout(timer);
+      throw err;
+    });
+  }
+
+  function totalOf(res) {
+    var range = '';
+    try { range = res.headers.get('Content-Range') || res.headers.get('content-range') || ''; } catch (e) {}
+    var m = /\/(\d+)\s*$/.exec(range);
+    return m ? parseInt(m[1], 10) : null;
+  }
+
+  // 게임 오버 시 자동 저장 — 같은 기기·같은 날짜는 한 줄 유지, 더 높은 기록만 반영
+  function submit(score, nickname) {
+    if (!live) return Promise.resolve(null);
+    var s = Math.max(0, Math.floor(score || 0));
+    var name = cleanName(nickname);
+    var day = today();
+    var dev = deviceId();
+    var mineQ = 'day=eq.' + day + '&device_id=eq.' + encodeURIComponent(dev)
+      + '&select=id,score,nickname&limit=1';
+
+    lastSubmit = call(mineQ).then(function (res) {
+      if (!res.ok) throw new Error('read ' + res.status);
+      return res.json();
+    }).then(function (rows) {
+      var row = (rows && rows[0]) || null;
+      if (row && Number(row.score) >= s && String(row.nickname || '') === name) return null;
+      if (row) {
+        return call('id=eq.' + encodeURIComponent(row.id), {
+          method: 'PATCH',
+          body: { nickname: name, score: s },
+          prefer: 'return=minimal'
+        });
+      }
+      return call('', {
+        method: 'POST',
+        body: { nickname: name, score: s, day: day, device_id: dev },
+        prefer: 'return=minimal'
+      });
+    }).catch(function () {
+      return call('', {
+        method: 'POST',
+        body: { nickname: name, score: s, day: day, device_id: dev },
+        prefer: 'return=minimal'
+      }).catch(function () { return null; });
+    });
+
+    return lastSubmit;
+  }
+
+  function refresh(score) {
+    if (!live || navigator.onLine === false) return Promise.resolve(null);
+    var s = Math.max(0, Math.floor(score || 0));
+    var day = today();
+    var gate = lastSubmit ? lastSubmit.catch(function () { return null; }) : Promise.resolve(null);
+
+    return gate.then(function () {
+      var topQ = 'day=eq.' + day + '&select=nickname,score&order=score.desc&limit=' + topN;
+      var rankQ = 'day=eq.' + day + '&score=gt.' + s + '&select=id&limit=1';
+      return Promise.all([
+        call(topQ, { count: true }).then(function (res) {
+          if (!res.ok) throw new Error('top ' + res.status);
+          return res.json().then(function (rows) { return { rows: rows || [], total: totalOf(res) }; });
+        }),
+        call(rankQ, { count: true }).then(function (res) {
+          if (!res.ok) throw new Error('rank ' + res.status);
+          return { total: totalOf(res) };
+        })
+      ]);
+    }).then(function (out) {
+      var top = out[0].rows.map(function (r) {
+        return {
+          name: String(r.nickname || '플레이어').slice(0, 12),
+          score: Math.max(0, Math.floor(Number(r.score) || 0))
+        };
+      });
+      var total = out[0].total, better = out[1].total;
+      if (total === null) total = better;
+      var rank = (better === null) ? null : better + 1;
+      view = {
+        day: day, top: top, total: total, rank: rank,
+        pct: (rank && total) ? (rank / total) * 100 : null,
+        score: s, at: Date.now()
+      };
+      return view;
+    }).catch(function () { return null; });
+  }
+
+  return {
+    live: live,
+    submit: submit,
+    refresh: refresh,
+    cached: function () { return (view && view.day === today()) ? view : null; }
+  };
+})();
+
+/* ================= 점수 공유 ================= */
+function legacyCopy(text) {
+  try {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    ta.style.left = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch (e) { return false; }
+}
+function copyText(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return legacyCopy(text); });
+  }
+  return Promise.resolve(legacyCopy(text));
+}
+function shareScore(score, pct) {
+  var p = pctTxt(pct);
+  var text = '느긋한 숫자블록 ' + fmt(score) + '점' + (p ? ' (상위 ' + p + ')' : '')
+    + ' 시간제한 없이 도전해 봐! 👉 ' + SHARE_URL;
+
+  function fallback() {
+    copyText(text).then(function (ok) {
+      toast(ok ? '복사됐어요! 카톡에 붙여넣기 하세요' : '공유가 막혀 있어요. 주소창의 주소를 복사해 주세요');
+    });
+  }
+
+  if (navigator.share) {
+    try {
+      navigator.share({ title: '느긋한 숫자블록', text: text }).catch(function (err) {
+        if (err && err.name === 'AbortError') return;
+        fallback();
+      });
+      return;
+    } catch (e) {}
+  }
+  fallback();
+}
 
 /* ================= 사운드 ================= */
 var actx = null;
@@ -824,6 +1065,7 @@ function endGame() {
   store.set(K.plays, (store.get(K.plays, 0) || 0) + 1);
   var name = getName();
   if (name) saveEntry(name, S.score);
+  if (LB.live && navigator.onLine !== false) LB.submit(S.score, name);   // 게임 오버 시 자동 순위 등록
   var rk = rankOf(S.score);
   var br = store.get(K.bestRank, 0) || 0;
   if (!br || rk < br) store.set(K.bestRank, rk);
@@ -839,6 +1081,7 @@ function endGame() {
 }
 function renderResult() {
   var rk = rankOf(S.score), pct = rk / SIM_TOTAL * 100;
+  if (REMOTE && REMOTE.score !== S.score) REMOTE = null;
   $('#resBadge').textContent = LAST.newBest ? 'NEW BEST' : 'GAME OVER';
   $('#resScore').textContent = fmt(S.score);
   $('#resSub').textContent = LAST.newBest
@@ -858,6 +1101,28 @@ function renderResult() {
   renderNick();
   renderLb();
   renderAds();
+
+  // 실시간 랭킹이 연결돼 있으면 서버 순위로 바꿉니다
+  if (LB.live) {
+    LB.refresh(S.score).then(function (v) {
+      if (!v || !v.rank || mode !== 'result') return;
+      applyRemoteRank(v);
+    });
+  }
+}
+
+function applyRemoteRank(v) {
+  REMOTE = v;
+  var pct = v.pct;
+  $('#resRank').innerHTML = fmt(v.rank) + '<small>위</small>';
+  if (pct !== null && pct !== undefined) {
+    $('#resPct').textContent = '상위 ' + pctTxt(pct);
+    var bar = $('#resBar');
+    if (bar) bar.style.width = Math.max(2, Math.min(100, 100 - pct)).toFixed(1) + '%';
+  }
+  if (v.total) $('#resTotal').textContent = '전체 ' + fmt(v.total) + '명 중';
+  if (S.score >= (store.get(K.best, 0) || 0)) store.set(K.bestRank, v.rank);
+  renderLb();
 }
 function renderNick() {
   var box = $('#nickBox'), name = getName();
@@ -888,9 +1153,47 @@ function submitNick() {
   renderLb();
   renderHome();
   toast('순위표에 기록했어요');
+  if (LB.live) {
+    LB.submit(S.score, v).then(function () {
+      return LB.refresh(S.score);
+    }).then(function (view) {
+      if (view && view.rank && mode === 'result') applyRemoteRank(view);
+    });
+  }
 }
 function renderLb() {
   var name = getName(), rows = [], i;
+  var box = $('#myRank');
+
+  // 서버 순위가 있으면 실제 TOP 10
+  if (REMOTE && REMOTE.top) {
+    var medals0 = ['🥇', '🥈', '🥉'];
+    var htmlR = '<div class="lrow head"><span>순위</span><span>닉네임</span><span>점수</span></div>';
+    if (!REMOTE.top.length) {
+      htmlR += '<div class="lrow"><span class="no">—</span><span class="nm">아직 오늘 기록이 없어요</span><span class="sc">—</span></div>';
+    }
+    REMOTE.top.forEach(function (row, idx) {
+      var me = !!(name && row.name === name);
+      htmlR += '<div class="lrow' + (idx < 3 ? ' top' : '') + (me ? ' me' : '') + '">'
+        + '<span class="no">' + (idx < 3 ? medals0[idx] : (idx + 1)) + '</span>'
+        + '<span class="nm">' + esc(row.name) + '</span>'
+        + '<span class="sc">' + fmt(row.score) + '</span></div>';
+    });
+    $('#lb').innerHTML = htmlR;
+
+    var inTop = REMOTE.top.some(function (r) { return name && r.name === name; });
+    if (REMOTE.rank && !inTop) {
+      box.classList.remove('hidden');
+      box.innerHTML = '<span>내 기록 <b>' + esc(name || '플레이어') + '</b></span>'
+        + '<span><b>' + fmt(REMOTE.score) + '점</b> · ' + fmt(REMOTE.rank) + '위'
+        + (REMOTE.pct !== null && REMOTE.pct !== undefined ? ' · 상위 ' + pctTxt(REMOTE.pct) : '') + '</span>';
+    } else {
+      box.classList.add('hidden');
+      box.innerHTML = '';
+    }
+    return;
+  }
+
   for (i = 0; i < 10; i++) rows.push({ n: SIM_NAMES[i] || ('플레이어 ' + (i + 1)), s: SIM[i], sim: true });
   entries().forEach(function (e) { if (e && e.n) rows.push({ n: e.n, s: e.s || 0, sim: false }); });
   rows.sort(function (a, b) { if (b.s !== a.s) return b.s - a.s; return a.sim ? 1 : -1; });
@@ -905,7 +1208,6 @@ function renderLb() {
       + '<span class="sc">' + fmt(row.s) + '</span></div>';
   });
   $('#lb').innerHTML = html;
-  var box = $('#myRank');
   var mine = null;
   entries().forEach(function (e) { if (e && e.n === name) mine = e; });
   var inTop = top.some(function (r) { return name && r.n === name; });
@@ -1118,6 +1420,11 @@ function bindEvents() {
   $('#cleanBtn').addEventListener('click', useCleanup);
   $('#againBtn').addEventListener('click', function () { newGame(); });
   $('#toHomeBtn').addEventListener('click', goHome);
+  $('#shareBtn').addEventListener('click', function () {
+    var pct = (REMOTE && REMOTE.score === S.score && REMOTE.pct !== null && REMOTE.pct !== undefined)
+      ? REMOTE.pct : (rankOf(S.score) / SIM_TOTAL * 100);
+    shareScore(S.score, pct);
+  });
   $('#soundBtn').addEventListener('click', function () {
     var m = !isMuted();
     store.set(K.sound, m);
@@ -1175,6 +1482,71 @@ function updateSoundBtn() {
   b.setAttribute('aria-label', m ? '소리 켜기' : '소리 끄기');
 }
 
+/* ================= PWA (홈 화면에 추가) ================= */
+var deferredPrompt = null;
+
+function pwaBase() {
+  var p = location.pathname;
+  if (/\/(?:tower|drop)\/(?:index\.html)?$/i.test(p)) return '../';
+  return './';
+}
+
+function initPWA() {
+  var base = pwaBase();
+  var m = document.getElementById('pwaManifest');
+  var t = document.getElementById('pwaTouchIcon');
+  if (m && base !== './') m.setAttribute('href', base + 'manifest-drop.json');
+  if (t && base !== './') t.setAttribute('href', base + 'icon-drop-192.png');
+
+  var installBtn = $('#installBtn');
+  window.addEventListener('beforeinstallprompt', function (e) {
+    try { e.preventDefault(); } catch (err) {}
+    deferredPrompt = e;
+    if (installBtn) installBtn.classList.remove('hidden');
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', function () {
+      if (!deferredPrompt) { toast('브라우저 메뉴에서 \'홈 화면에 추가\'를 눌러 주세요'); return; }
+      try {
+        deferredPrompt.prompt();
+        var res = deferredPrompt.userChoice;
+        if (res && res.then) {
+          res.then(function () {
+            deferredPrompt = null;
+            installBtn.classList.add('hidden');
+          }).catch(function () {});
+        }
+      } catch (err) {
+        toast('브라우저 메뉴에서 \'홈 화면에 추가\'를 눌러 주세요');
+      }
+    });
+  }
+
+  window.addEventListener('appinstalled', function () {
+    deferredPrompt = null;
+    if (installBtn) installBtn.classList.add('hidden');
+    toast('홈 화면에 추가됐어요');
+  });
+
+  try {
+    if ('serviceWorker' in navigator) {
+      var secure = location.protocol === 'https:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+      if (secure) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register(base + 'sw.js').catch(function () {});
+        });
+      }
+    }
+  } catch (e) {}
+
+  try {
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+      if (installBtn) installBtn.classList.add('hidden');
+    }
+  } catch (e) {}
+}
+
 /* ================= 시작 ================= */
 function boot() {
   boardEl = $('#board');
@@ -1193,10 +1565,20 @@ function boot() {
   prepareLayer();
   renderAds();
   bindEvents();
+  initPWA();
   updateSoundBtn();
   renderHome();
   renderHud();
   renderPreviews();
+
+  var ht = $('#homeTiny');
+  if (ht) {
+    ht.textContent = LB.live
+      ? '오늘의 랭킹 · 순위 집계 중 · 최고 기록은 이 기기에도 남아요'
+      : '기록은 이 기기에 저장돼요 · 오늘의 랭킹 · 순위 집계 중';
+  }
+  var rt = $('#resTiny');
+  if (rt) rt.textContent = '오늘의 랭킹 · 순위는 매일 새로 집계됩니다';
 
   var g = loadGame();
   if (g && isValidSave(g)) {
@@ -1241,6 +1623,11 @@ window.__DropProto = {
   setCleanups: function (n) { S.cleanups = n; renderHud(); },
   setScore: function (n) { S.score = n; renderHud(); },
   rankOf: rankOf,
+  leaderboard: LB,
+  leaderboardConfig: LEADERBOARD_CONFIG,
+  shareScore: shareScore,
+  shareUrl: SHARE_URL,
+  remote: function () { return REMOTE; },
   simTotal: SIM_TOTAL,
   simTop: function (n) { return Array.prototype.slice.call(SIM, 0, n || 10); },
   endGame: endGame,

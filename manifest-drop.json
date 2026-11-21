@@ -1,0 +1,30 @@
+{
+  "id": "./drop.html",
+  "name": "느긋한 숫자블록 · SLOW NUMBER DROP",
+  "short_name": "숫자블록",
+  "description": "시간 제한도 타이밍 압박도 없이, 열을 한 번 톡 누르면 블록이 내려앉고 같은 숫자가 합쳐지는 원터치 퍼즐.",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "./drop.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "fullscreen"],
+  "orientation": "portrait",
+  "background_color": "#090d13",
+  "theme_color": "#090d13",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "./icon-drop-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-drop-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
