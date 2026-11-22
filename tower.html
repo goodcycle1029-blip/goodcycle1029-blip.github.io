@@ -1024,6 +1024,360 @@
 
    ③ 광고를 잠시 끄고 싶으면 mode: 'none' 으로 두면 자리가 비워집니다.
    ========================================================================= */
+/* ============================================================
+   실시간 랭킹 · 🇰🇷 KOREA vs 🇯🇵 JAPAN 친선 챌린지
+   Google 스프레드시트 + Apps Script 웹앱 연동 (무료)
+   ------------------------------------------------------------
+   · 순위표에는 [국기] 닉네임 · 점수 만 표시합니다(개인정보 없음).
+   · 팀(KR/JP/GL)은 접속 언어에 맞춰 기본 선택되고, 버튼으로 바꿀 수 있습니다.
+   · 서버가 잠시 응답하지 않아도 게임과 기기 기록은 그대로 동작합니다.
+   ============================================================ */
+var RANK_CONF = {
+  mode: 'gas',              /* 'gas' | 'local' */
+  url: 'https://script.google.com/macros/s/AKfycby55wfXxEK61LluaqGxTD5xc8K0jZpEJqubKXo-N0Msv0-BYO8TvISTJhj-P_0u5C58/exec',
+  game: 'tower',         /* pop | tower | drop */
+  timeout: 8000
+};
+
+var RANK_FLAG = { KR: '🇰🇷', JP: '🇯🇵', GL: '🌍' };
+var RANK_NAME = { KR: 'KOREA', JP: 'JAPAN', GL: 'GLOBAL' };
+var RANK_STR = {
+  ko: {
+    titleA: 'KOREA', titleB: 'JAPAN', vs: 'vs', badge: '친선 챌린지',
+    line: '{n}명 · 최고 {b}점', sum: '합계', global: '그 외 지역', globalLine: '{n}명 · 최고 {b}점',
+    cheer: '오늘은 어느 쪽이 더 높이 올라갈까요? 😄',
+    pick: '내 팀', note: '서로 응원하는 친선 대결이에요',
+    empty: '아직 기록이 없어요 — 첫 기록의 주인공이 되어 보세요',
+    live: '실시간 랭킹', people: '명', only: '닉네임과 점수만 표시돼요', rk: '{r}위 · {n}명 중', colName: '닉네임', colScore: '점수', rankUnit: '위', pct: '상위 {p}'
+  },
+  en: {
+    titleA: 'KOREA', titleB: 'JAPAN', vs: 'vs', badge: 'Friendly Challenge',
+    line: '{n} players · best {b}', sum: 'Total', global: 'Rest of the world', globalLine: '{n} players · best {b}',
+    cheer: 'Who climbs higher today? 😄',
+    pick: 'My team', note: 'A friendly match — cheer each other on',
+    empty: 'No records yet — be the first one up there',
+    live: 'Live ranking', people: 'players', only: 'nickname and score only', rk: '#{r} of {n}', colName: 'PLAYER', colScore: 'SCORE', rankUnit: '', pct: 'Top {p}'
+  },
+  ja: {
+    titleA: 'KOREA', titleB: 'JAPAN', vs: 'vs', badge: '親善チャレンジ',
+    line: '{n}人 · 最高 {b}点', sum: '合計', global: 'その他の地域', globalLine: '{n}人 · 最高 {b}点',
+    cheer: '今日はどちらが高く登るでしょうか？ 😄',
+    pick: 'マイチーム', note: 'お互いを応援する親善対決です',
+    empty: 'まだ記録がありません — 最初の記録を作ってみましょう',
+    live: 'リアルタイムランキング', people: '人', only: 'ニックネームとスコアのみ表示', rk: '{r}位 · {n}人中', colName: 'プレイヤー', colScore: 'スコア', rankUnit: '位', pct: '上位 {p}'
+  },
+  zh: {
+    titleA: 'KOREA', titleB: 'JAPAN', vs: 'vs', badge: '友谊挑战',
+    line: '{n}人 · 最高 {b}分', sum: '合计', global: '其他地区', globalLine: '{n}人 · 最高 {b}分',
+    cheer: '今天哪一边爬得更高呢？ 😄',
+    pick: '我的队伍', note: '互相加油的友谊对决',
+    empty: '还没有记录 — 来创造第一条记录吧',
+    live: '实时排行榜', people: '人', only: '只显示昵称和分数', rk: '第{r}名 · 共{n}人', colName: '昵称', colScore: '分数', rankUnit: '名', pct: '前 {p}'
+  }
+};
+
+var GasRank = (function () {
+  var seq = 0;
+
+  function on() {
+    return RANK_CONF.mode === 'gas' && /^https:\/\//.test(String(RANK_CONF.url || ''));
+  }
+  function todayKST() {
+    try { return new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10); } catch (e) { return ''; }
+  }
+  function jsonp(params) {
+    return new Promise(function (resolve, reject) {
+      if (!on()) { reject(new Error('off')); return; }
+      var cb = '__gasRank' + (++seq) + '_' + Date.now();
+      var s = document.createElement('script');
+      var done = false;
+      var timer = setTimeout(function () { finish(); reject(new Error('timeout')); }, RANK_CONF.timeout);
+      function finish() {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        try { delete window[cb]; } catch (e) { window[cb] = undefined; }
+        if (s.parentNode) s.parentNode.removeChild(s);
+      }
+      window[cb] = function (data) { finish(); resolve(data); };
+      var q = [];
+      for (var k in (params || {})) {
+        if (Object.prototype.hasOwnProperty.call(params, k) && params[k] !== undefined && params[k] !== null && params[k] !== '') {
+          q.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k]));
+        }
+      }
+      q.push('callback=' + cb);
+      q.push('t=' + Date.now());
+      s.src = RANK_CONF.url + '?' + q.join('&');
+      s.onerror = function () { finish(); reject(new Error('net')); };
+      document.body.appendChild(s);
+    });
+  }
+  function top(limit, score, day) {
+    var p = { game: RANK_CONF.game, limit: limit || 10 };
+    if (score !== null && score !== undefined) p.score = score;
+    if (day) p.day = day;
+    return jsonp(p).then(function (v) { return (v && v.ok) ? v : null; }, function () { return null; });
+  }
+  function submit(nickname, score, team, day) {
+    if (!on() || !nickname) return Promise.resolve(null);
+    var p = { submit: 1, game: RANK_CONF.game, nickname: nickname, score: Math.max(0, Math.floor(score || 0)) };
+    if (team) p.team = team;
+    if (day) p.day = day;
+    return jsonp(p).then(function (v) { return (v && v.ok) ? v : post(p); }, function () { return post(p); });
+  }
+  function post(p) {
+    try {
+      return fetch(RANK_CONF.url, {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-store',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ game: p.game, nickname: p.nickname, score: p.score, team: p.team || '', day: p.day || '' })
+      }).then(function (r) { return r.ok ? r.json() : null; }, function () { return null; })
+        .catch(function () { return null; });
+    } catch (e) { return Promise.resolve(null); }
+  }
+  return { on: on, top: top, submit: submit, today: todayKST };
+})();
+
+/* ---------------- 팀 선택 · 요약 바 ---------------- */
+var RankUI = (function () {
+  var KEY = 'mg.team.v1';
+
+  function lang() {
+    try { if (window.MG_I18N && window.MG_I18N.lang) return window.MG_I18N.lang; } catch (e) {}
+    var l = String((navigator.languages && navigator.languages[0]) || navigator.language || 'ko').toLowerCase();
+    if (l.indexOf('ko') === 0) return 'ko';
+    if (l.indexOf('ja') === 0) return 'ja';
+    if (l.indexOf('zh') === 0) return 'zh';
+    if (l.indexOf('en') === 0) return 'en';
+    return 'ko';
+  }
+  function S() { return RANK_STR[lang()] || RANK_STR.ko; }
+  function defaultTeam() {
+    var l = lang();
+    return l === 'ko' ? 'KR' : (l === 'ja' ? 'JP' : 'GL');
+  }
+  function get() {
+    var v = '';
+    try { v = localStorage.getItem(KEY) || ''; } catch (e) {}
+    return RANK_FLAG[v] ? v : defaultTeam();
+  }
+  function set(t) {
+    if (!RANK_FLAG[t]) return get();
+    try { localStorage.setItem(KEY, t); } catch (e) {}
+    sync();
+    return t;
+  }
+  function fmt(n) {
+    try { return String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); } catch (e) { return String(n || 0); }
+  }
+  function fill(tpl, n, b) {
+    return String(tpl).replace('{n}', fmt(n || 0)).replace('{b}', fmt(b || 0));
+  }
+
+  /* 팀 요약 바 — 친선 스포츠 톤 */
+  function bar(teams) {
+    if (!teams) return '';
+    var t = teams || {};
+    var kr = t.KR || { count: 0, best: 0, sum: 0 };
+    var jp = t.JP || { count: 0, best: 0, sum: 0 };
+    var gl = t.GL || { count: 0, best: 0, sum: 0 };
+    var s = S();
+    function side(code, d) {
+      return '<div class="mgtb-side mgtb-' + code.toLowerCase() + '">'
+        + '<span class="mgtb-flag" aria-hidden="true">' + RANK_FLAG[code] + '</span>'
+        + '<span class="mgtb-body"><b>' + RANK_NAME[code] + '</b>'
+        + '<i>' + fill(s.line, d.count, d.best) + '</i></span></div>';
+    }
+    var html = '<div class="mgteambar mg-lang" role="group" aria-label="' + s.badge + '">'
+      + '<div class="mgtb-head"><span class="mgtb-flag">' + RANK_FLAG.KR + '</span><b>' + s.titleA + '</b>'
+      + '<em>' + s.vs + '</em>'
+      + '<span class="mgtb-flag">' + RANK_FLAG.JP + '</span><b>' + s.titleB + '</b>'
+      + '<span class="mgtb-badge">' + s.badge + '</span></div>'
+      + '<div class="mgtb-grid">' + side('KR', kr)
+      + '<div class="mgtb-mid">' + s.vs + '</div>'
+      + side('JP', jp) + '</div>'
+      + '<div class="mgtb-sums">' + s.sum + ' ' + RANK_FLAG.KR + ' ' + fmt(kr.sum) + ' · '
+      + RANK_FLAG.JP + ' ' + fmt(jp.sum) + '</div>';
+    if (gl.count) {
+      html += '<div class="mgtb-gl">' + RANK_FLAG.GL + ' ' + s.global + ' · '
+        + fill(s.globalLine, gl.count, gl.best) + '</div>';
+    }
+    html += '<div class="mgtb-foot">' + s.cheer + '</div></div>';
+    return html;
+  }
+
+  /* 팀 선택 버튼 */
+  function picker() {
+    var cur = get(), s = S();
+    var out = '<div class="mgpick mg-lang"><span class="mgpick-lab">' + s.pick + '</span>';
+    ['KR', 'JP', 'GL'].forEach(function (c) {
+      out += '<button type="button" class="mgpick-btn' + (c === cur ? ' on' : '') + '" data-team="' + c + '"'
+        + ' aria-pressed="' + (c === cur ? 'true' : 'false') + '">'
+        + '<span aria-hidden="true">' + RANK_FLAG[c] + '</span>'
+        + '<span>' + RANK_NAME[c] + '</span></button>';
+    });
+    return out + '<span class="mgpick-note">' + s.note + '</span></div>';
+  }
+
+  function sync() {
+    var cur = get();
+    var list = document.querySelectorAll('.mgpick-btn');
+    for (var i = 0; i < list.length; i++) {
+      var on = list[i].getAttribute('data-team') === cur;
+      list[i].className = 'mgpick-btn' + (on ? ' on' : '');
+      list[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+  }
+
+  function bind() {
+    if (bind._on) return;
+    bind._on = true;
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      while (t && t !== document && !(t.getAttribute && t.getAttribute('data-team'))) t = t.parentNode;
+      if (!t || t === document) return;
+      var code = t.getAttribute('data-team');
+      if (!RANK_FLAG[code]) return;
+      e.preventDefault();
+      e.stopPropagation();
+      set(code);
+      try { window.dispatchEvent(new CustomEvent('mg-team', { detail: { team: code } })); } catch (err) {}
+    });
+    try {
+      window.addEventListener('mg-lang', function () {
+        sync();
+        try { window.dispatchEvent(new CustomEvent('mg-team', { detail: { team: get() } })); } catch (err) {}
+      });
+    } catch (e) {}
+  }
+
+  function flag(team) { return RANK_FLAG[team] || ''; }
+  function rankBig(rank) { return S().rankUnit ? fmt(rank) + S().rankUnit : '#' + fmt(rank); }
+  function pctLine(rank, total) {
+    if (!rank || !total) return '';
+    var p = Math.max(0.1, Math.round((rank / total) * 1000) / 10);
+    return String(S().pct).replace('{p}', p + '%');
+  }
+  function rankLine(rank, total) {
+    return String(S().rk).replace('{r}', fmt(rank || 0)).replace('{n}', fmt(total || 0));
+  }
+
+  return { lang: lang, s: S, team: get, setTeam: set, bar: bar, picker: picker, bind: bind, sync: sync, flag: flag, fmt: fmt, rankLine: rankLine, rankBig: rankBig, pctLine: pctLine };
+})();
+
+/* ---------------- 광고 문의 슬롯 ---------------- */
+var RankAd = (function () {
+  var CONTACT = { email: 'goodcycle1029@gmail.com', subject: '[AD] 광고·협찬 문의' };
+  var T = {
+    ko: { inq: 'AD · 광고·협찬 문의', sub: '이 자리에 광고가 들어갑니다', cta: '메일', copy: '복사', copied: '메일 주소를 복사했어요' },
+    en: { inq: 'AD / Sponsor Slot', sub: 'Ad space available', cta: 'Contact', copy: 'Copy', copied: 'Email address copied' },
+    ja: { inq: 'AD / スポンサー枠', sub: '広告掲載できます', cta: '問い合わせ', copy: 'コピー', copied: 'メールアドレスをコピーしました' },
+    zh: { inq: 'AD / 赞助位', sub: '可在此投放广告', cta: '咨询', copy: '复制', copied: '邮箱地址已复制' }
+  };
+  function lang() { return RankUI.lang(); }
+  function t() { return T[lang()] || T.en; }
+  function mailto() { return 'mailto:' + CONTACT.email + '?subject=' + encodeURIComponent(CONTACT.subject); }
+  function inquiry(off, compact) {
+    var s = t();
+    return '<div class="mgadq' + (compact ? ' compact' : '') + ' mg-lang">'
+      + '<a class="mgadq-a" href="' + mailto() + '" rel="noopener">'
+      + '<span class="mgadq-badge">AD</span>'
+      + '<span class="mgadq-ico" aria-hidden="true">📢</span>'
+      + '<span class="mgadq-t"><b>' + s.inq + '</b><i>' + s.sub + '</i></span>'
+      + '<span class="mgadq-cta">' + s.cta + ' →</span></a>'
+      + (compact ? '' : '<div class="mgadq-mail"><span>' + CONTACT.email + '</span>'
+        + '<button type="button" class="mgadq-copy" data-mail="' + CONTACT.email + '">' + s.copy + '</button></div>')
+      + '</div>';
+  }
+  function bind() {
+    if (bind._on) return;
+    bind._on = true;
+    document.addEventListener('click', function (e) {
+      var n = e.target;
+      while (n && n !== document && !(n.className && String(n.className).indexOf('mgadq-copy') >= 0)) n = n.parentNode;
+      if (!n || n === document) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var mail = n.getAttribute('data-mail') || CONTACT.email;
+      var done = function () {
+        var old = n.textContent;
+        n.textContent = t().copied;
+        setTimeout(function () { n.textContent = old; }, 1800);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(mail).then(done, function () {});
+        return;
+      }
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = mail;
+        ta.style.position = 'fixed'; ta.style.top = '-1000px';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        done();
+      } catch (err) {}
+    });
+  }
+  return { lang: lang, inquiry: inquiry, bind: bind, email: CONTACT.email, mailto: mailto };
+})();
+
+/* 공용 스타일 (친선 대결 바 · 팀 선택 버튼 · 광고 문의 슬롯) */
+(function () {
+  if (document.getElementById('mgRankStyle')) return;
+  var css = [
+    '.mgteambar{margin:10px 0 12px;padding:11px 12px 10px;border-radius:16px;border:1px solid rgba(255,255,255,.14);',
+    'background:linear-gradient(120deg,rgba(111,208,255,.16),rgba(255,255,255,.04) 46%,rgba(255,143,192,.16));',
+    'box-shadow:0 12px 30px -24px rgba(0,0,0,.9);text-align:center;line-height:1.25}',
+    '.mgteambar .mgtb-head{display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:900;letter-spacing:-.01em;flex-wrap:wrap}',
+    '.mgteambar .mgtb-head b{font-size:12px}', '.mgteambar .mgtb-head em{font-style:normal;font-size:10.5px;font-weight:900;color:rgba(255,255,255,.62);padding:0 2px}',
+    '.mgteambar .mgtb-flag{font-size:14px;line-height:1}',
+    '.mgteambar .mgtb-badge{margin-left:4px;font-size:9px;font-weight:900;letter-spacing:.04em;padding:2px 7px;border-radius:999px;',
+    'background:rgba(255,255,255,.14);color:rgba(255,255,255,.82)}',
+    '.mgteambar .mgtb-grid{display:flex;align-items:stretch;gap:6px;margin-top:9px}',
+    '.mgteambar .mgtb-side{flex:1;display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:12px;text-align:left;',
+    'background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);min-width:0}',
+    '.mgteambar .mgtb-kr{background:linear-gradient(120deg,rgba(111,208,255,.2),rgba(255,255,255,.03))}',
+    '.mgteambar .mgtb-jp{background:linear-gradient(120deg,rgba(255,143,192,.2),rgba(255,255,255,.03))}',
+    '.mgteambar .mgtb-side .mgtb-flag{font-size:17px}',
+    '.mgteambar .mgtb-body{display:flex;flex-direction:column;min-width:0}',
+    '.mgteambar .mgtb-body b{font-size:11px;font-weight:900;letter-spacing:.02em}',
+    '.mgteambar .mgtb-body i{font-style:normal;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.66);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.mgteambar .mgtb-mid{display:grid;place-items:center;font-size:10px;font-weight:900;color:rgba(255,255,255,.5);flex:none;padding:0 2px}',
+    '.mgteambar .mgtb-sums{margin-top:7px;font-size:9.5px;font-weight:800;color:rgba(255,255,255,.62);font-variant-numeric:tabular-nums}',
+    '.mgteambar .mgtb-gl{margin-top:4px;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.55)}',
+    '.mgteambar .mgtb-foot{margin-top:6px;font-size:9.5px;font-weight:800;color:rgba(255,255,255,.72)}',
+    '.mgpick{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin:8px 0 2px}',
+    '.mgpick-lab{font-size:10px;font-weight:900;letter-spacing:.04em;color:rgba(255,255,255,.56);margin-right:2px}',
+    '.mgpick-btn{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;border-radius:999px;cursor:pointer;',
+    'border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:rgba(255,255,255,.86);font-size:10.5px;font-weight:900;font-family:inherit}',
+    '.mgpick-btn.on{background:rgba(126,224,255,.22);border-color:rgba(126,224,255,.6);color:#fff}',
+    '.mgpick-note{font-size:9.5px;font-weight:700;color:rgba(255,255,255,.45);margin-left:2px}',
+    '.mglb-flag{margin-right:4px}',
+    '.mgadq{display:flex;flex-direction:column;align-items:center;gap:4px;width:320px;max-width:100%;margin:6px 0 0}',
+    '.mgadq-a{position:relative;display:flex;align-items:center;gap:8px;width:100%;min-height:46px;padding:6px 9px;border-radius:12px;',
+    'text-decoration:none;color:rgba(255,255,255,.92);background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.28)}',
+    '.mgadq-badge{position:absolute;top:3px;right:6px;font-size:6.5px;font-weight:900;letter-spacing:.08em;color:rgba(255,255,255,.45)}',
+    '.mgadq-ico{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:14px;background:rgba(255,255,255,.1);flex:none}',
+    '.mgadq-t{display:flex;flex-direction:column;line-height:1.2;min-width:0;text-align:left}',
+    '.mgadq-t b{font-size:12px;font-weight:900;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.mgadq-t i{font-style:normal;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.mgadq-cta{margin-left:auto;flex:none;font-size:10px;font-weight:900;padding:5px 8px;border-radius:8px;background:rgba(255,255,255,.14);color:#fff;white-space:nowrap}',
+    '.mgadq-mail{display:flex;align-items:center;gap:6px;font-size:9px;font-weight:700;color:rgba(255,255,255,.5)}',
+    '.mgadq.compact{width:100%;height:100%;margin:0;justify-content:center}',
+    '.mgadq.compact .mgadq-a{height:100%;min-height:0;border-radius:11px}',
+    '.mgadq-copy{border:1px solid rgba(255,255,255,.22);border-radius:7px;padding:1px 6px;font-size:8.5px;font-weight:800;color:rgba(255,255,255,.7);background:transparent;font-family:inherit;cursor:pointer}'
+  ].join('');
+  var st = document.createElement('style');
+  st.id = 'mgRankStyle';
+  st.textContent = css;
+  (document.head || document.documentElement).appendChild(st);
+})();
+
+
 const AD_CONFIG = {
   mode: 'self',            // 'self' | 'custom_html' | 'none'
 
@@ -1078,10 +1432,7 @@ const AD_CONFIG = {
       서버가 잠시 안 되면 조용히 기존 local 순위로 돌아가므로 게임은 항상 정상 동작합니다.
    ========================================================================= */
 const LEADERBOARD_CONFIG = {
-  mode: 'local',                    // 'local' | 'supabase'
-  supabaseUrl: '',                  // 예: 'https://abcdefghijk.supabase.co'
-  supabaseAnonKey: '',              // anon public 키
-  tableName: 'tower_scores',        // Supabase 테이블 이름
+  mode: 'gas',                      // 'gas'(구글 시트 실시간 랭킹) | 'local'
   topN: 10,                         // 순위표에 보여 줄 명수
   timeoutMs: 6000                   // 서버 응답을 기다리는 최대 시간(ms)
 };
@@ -1285,167 +1636,41 @@ const LEADERBOARD_CONFIG = {
 
   var LB = (function () {
     var conf = (typeof LEADERBOARD_CONFIG === 'object' && LEADERBOARD_CONFIG) || {};
-    var baseUrl = String(conf.supabaseUrl || '').replace(/\/+$/, '');
-    var apiKey = String(conf.supabaseAnonKey || '');
-    var table = String(conf.tableName || 'tower_scores').replace(/[^A-Za-z0-9_]/g, '') || 'tower_scores';
     var topN = Math.max(3, Math.min(50, parseInt(conf.topN, 10) || 10));
-    var timeoutMs = Math.max(1500, Math.min(20000, parseInt(conf.timeoutMs, 10) || 6000));
-    var live = (conf.mode === 'supabase') && /^https?:\/\//i.test(baseUrl) && apiKey.length > 20;
-    var view = null;          // 서버에서 받아 둔 오늘의 순위
-    var lastSubmit = null;    // 저장 요청(순위 조회 전에 끝나도록 기다림)
+    var live = GasRank.on();
+    var view = null, lastSubmit = null;
 
-    function today() {
-      var d = new Date();
-      var m = d.getMonth() + 1, dd = d.getDate();
-      return d.getFullYear() + '-' + (m < 10 ? '0' + m : m) + '-' + (dd < 10 ? '0' + dd : dd);
-    }
-
-    // 같은 기기의 기록을 한 줄로 묶기 위한 무작위 식별자 (기기 밖으로 나가는 개인정보 없음)
-    function deviceId() {
-      var k = 'oneTouchTower.device';
-      var v = '';
-      try { v = window.localStorage.getItem(k) || ''; } catch (e) {}
-      if (!v || v.length < 8) {
-        v = 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
-        try { window.localStorage.setItem(k, v); } catch (e) {}
-      }
-      return v;
-    }
-
-    function cleanName(v) {
-      return String(v || '').replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '').slice(0, 12) || '플레이어';
-    }
-
-    function call(query, opts) {
-      opts = opts || {};
-      var headers = {
-        'apikey': apiKey,
-        'Authorization': 'Bearer ' + apiKey,
-        'Accept': 'application/json'
+    function map(v) {
+      if (!v) return null;
+      return {
+        day: v.day,
+        top: (v.top || []).map(function (r) {
+          return { name: r.nickname, score: r.score, team: r.team };
+        }),
+        teams: v.teams || null,
+        total: v.total || 0,
+        rank: (v.rank === undefined || v.rank === null) ? null : v.rank,
+        pct: (v.rank && v.total) ? (v.rank / v.total) * 100 : null,
+        score: (v.score === undefined ? null : v.score),
+        at: Date.now()
       };
-      var prefer = [];
-      if (opts.count) prefer.push('count=exact');
-      if (opts.prefer) prefer.push(opts.prefer);
-      if (prefer.length) headers['Prefer'] = prefer.join(',');
-
-      var init = { method: opts.method || 'GET', headers: headers, cache: 'no-store' };
-      if (opts.body) {
-        headers['Content-Type'] = 'application/json';
-        init.body = JSON.stringify(opts.body);
-      }
-
-      var ctrl = null, timer = 0;
-      try {
-        if (window.AbortController) {
-          ctrl = new AbortController();
-          init.signal = ctrl.signal;
-          timer = window.setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, timeoutMs);
-        }
-      } catch (e) {}
-
-      return fetch(baseUrl + '/rest/v1/' + table + (query ? '?' + query : ''), init).then(function (res) {
-        if (timer) window.clearTimeout(timer);
-        return res;
-      }, function (err) {
-        if (timer) window.clearTimeout(timer);
-        throw err;
-      });
     }
 
-    // 응답 헤더 Content-Range(0-9/1240)에서 전체 개수를 꺼냅니다
-    function totalOf(res) {
-      var range = '';
-      try { range = res.headers.get('Content-Range') || res.headers.get('content-range') || ''; } catch (e) {}
-      var m = /\/(\d+)\s*$/.exec(range);
-      return m ? parseInt(m[1], 10) : null;
-    }
-
-    // 게임 오버 시 자동 저장 — 같은 기기·같은 날짜는 한 줄로 유지하고 더 높은 기록만 반영
     function submit(score, nickname) {
       if (!live) return Promise.resolve(null);
-      var s = Math.max(0, Math.floor(score || 0));
-      var name = cleanName(nickname);
-      var day = today();
-      var dev = deviceId();
-      var mineQ = 'day=eq.' + day + '&device_id=eq.' + encodeURIComponent(dev)
-        + '&select=id,score,nickname&limit=1';
-
-      lastSubmit = call(mineQ).then(function (res) {
-        if (!res.ok) throw new Error('read ' + res.status);
-        return res.json();
-      }).then(function (rows) {
-        var row = (rows && rows[0]) || null;
-        if (row && Number(row.score) >= s && String(row.nickname || '') === name) return null;
-        if (row) {
-          return call('id=eq.' + encodeURIComponent(row.id), {
-            method: 'PATCH',
-            body: { nickname: name, score: s },
-            prefer: 'return=minimal'
-          });
-        }
-        return call('', {
-          method: 'POST',
-          body: { nickname: name, score: s, day: day, device_id: dev },
-          prefer: 'return=minimal'
-        });
-      }).catch(function () {
-        // 읽기·수정이 막힌 설정이면 단순 저장 한 번만 시도 (실패해도 게임은 계속)
-        return call('', {
-          method: 'POST',
-          body: { nickname: name, score: s, day: day, device_id: dev },
-          prefer: 'return=minimal'
-        }).catch(function () { return null; });
-      });
-
+      var nm = String(nickname || '').replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '').slice(0, 12);
+      if (!nm) return Promise.resolve(null);
+      lastSubmit = GasRank.submit(nm, score, RankUI.team());
       return lastSubmit;
     }
 
-    // 오늘의 TOP N · 내 등수 · 참가자 수를 서버에서 가져옵니다
     function refresh(score) {
       if (!live || navigator.onLine === false) return Promise.resolve(null);
-      var s = Math.max(0, Math.floor(score || 0));
-      var day = today();
-
       var gate = lastSubmit ? lastSubmit.catch(function () { return null; }) : Promise.resolve(null);
-
-      return gate.then(function () {
-        var topQ = 'day=eq.' + day + '&select=nickname,score&order=score.desc&limit=' + topN;
-        var rankQ = 'day=eq.' + day + '&score=gt.' + s + '&select=id&limit=1';
-        return Promise.all([
-          call(topQ, { count: true }).then(function (res) {
-            if (!res.ok) throw new Error('top ' + res.status);
-            return res.json().then(function (rows) {
-              return { rows: rows || [], total: totalOf(res) };
-            });
-          }),
-          call(rankQ, { count: true }).then(function (res) {
-            if (!res.ok) throw new Error('rank ' + res.status);
-            return { total: totalOf(res) };
-          })
-        ]);
-      }).then(function (out) {
-        var top = out[0].rows.map(function (r) {
-          return {
-            name: String(r.nickname || '플레이어').slice(0, 12),
-            score: Math.max(0, Math.floor(Number(r.score) || 0))
-          };
-        });
-        var total = out[0].total;
-        var better = out[1].total;
-        if (total === null) total = better;
-        var rank = (better === null) ? null : better + 1;
-        view = {
-          day: day,
-          top: top,
-          total: total,
-          rank: rank,
-          pct: (rank && total) ? (rank / total) * 100 : null,
-          score: s,
-          at: Date.now()
-        };
+      return gate.then(function () { return GasRank.top(topN, score); }).then(function (v) {
+        if (!v) return null;
+        view = map(v);
         return view;
-      }).catch(function () {
-        return null;   // 서버가 안 되면 조용히 local 순위 유지
       });
     }
 
@@ -1453,9 +1678,10 @@ const LEADERBOARD_CONFIG = {
       live: live,
       submit: submit,
       refresh: refresh,
-      cached: function () { return (view && view.day === today()) ? view : null; }
+      cached: function () { return view; }
     };
   })();
+
 
   /* =========================================================
      2-3. 아이템 블록 3종 정의
@@ -2532,6 +2758,12 @@ const LEADERBOARD_CONFIG = {
       return;
     }
 
+    if (RankAd.lang() !== 'ko') {
+      slot.classList.remove('ad-empty');
+      slot.innerHTML = '<div class="ad-shell" style="height:100%">' + RankAd.inquiry(false, kind === 'bottom') + '</div>';
+      return;
+    }
+
     var list = adListFor(kind);
     if (!list.length) {
       slot.classList.add('ad-empty');
@@ -2547,6 +2779,7 @@ const LEADERBOARD_CONFIG = {
       }
       slot.innerHTML = '';
       slot.appendChild(buildSelfAd(list[idx % list.length], kind));
+      if (kind === 'result') slot.insertAdjacentHTML('beforeend', RankAd.inquiry(false));
       idx += 1;
     };
     show(true);
@@ -2559,6 +2792,32 @@ const LEADERBOARD_CONFIG = {
   function mountAds() {
     fillAdSlot(adBanner, 'bottom');
   }
+
+  var START_TEAMS = null;
+  function paintStartBars() {
+    var els = document.querySelectorAll('[data-rankbar-start]');
+    for (var i = 0; i < els.length; i++) els[i].innerHTML = RankUI.bar(START_TEAMS);
+  }
+  function loadStartTeams() {
+    if (!LB.live) return;
+    if (START_TEAMS) { paintStartBars(); return; }
+    GasRank.top(10).then(function (v) {
+      if (!v) return;
+      START_TEAMS = v.teams;
+      paintStartBars();
+    });
+  }
+
+  RankUI.bind(); RankAd.bind();
+  window.addEventListener('mg-lang', function () {
+    try { RankUI.sync(); } catch (e) {}
+    try { if (adBanner) fillAdSlot(adBanner, 'bottom'); } catch (e) {}
+    try { paintStartBars(); } catch (e) {}
+    try {
+      var boards = document.querySelectorAll('.lb');
+      for (var i = 0; i < boards.length; i++) fillLeaderboard(boards[i], LB.cached());
+    } catch (e) {}
+  });
 
   // 게임 진행 중에는 배너를 잠그고(터치 이탈 방지), 시작·결과 화면에서만 클릭 허용
   function updateAdLock() {
@@ -2613,7 +2872,7 @@ const LEADERBOARD_CONFIG = {
   function lbRow(rank, entry) {
     var row = el('div', 'lb-row' + (entry.mine ? ' mine' : ''));
     row.appendChild(el('span', 'lb-rank', String(rank)));
-    row.appendChild(el('span', 'lb-name', entry.name));
+    row.appendChild(el('span', 'lb-name', (entry.team ? RankUI.flag(entry.team) + ' ' : '') + entry.name));
     var sc = el('span', 'lb-score', entry.score + '층');
     if (entry.mine) sc.appendChild(el('span', 'lb-me-tag', '나'));
     row.appendChild(sc);
@@ -2625,6 +2884,7 @@ const LEADERBOARD_CONFIG = {
 
     // 서버(실시간 랭킹)에서 받은 순위가 있으면 그걸 보여 줍니다
     if (view && view.top) {
+      if (view.teams) container.insertAdjacentHTML('beforeend', RankUI.bar(view.teams));
       var topN = view.top.length;
       container.appendChild(el('div', 'lb-title', '오늘의 TOP ' + Math.max(1, Math.min(10, topN))));
       var rows = el('div', 'lb-list');
@@ -2636,6 +2896,7 @@ const LEADERBOARD_CONFIG = {
         rows.appendChild(lbRow(i + 1, {
           name: t.name,
           score: t.score,
+          team: t.team,
           mine: !!(store.nickname && t.name === store.nickname)
         }));
       }
@@ -2648,6 +2909,7 @@ const LEADERBOARD_CONFIG = {
         near.appendChild(lbRow(view.rank, {
           name: store.nickname || '플레이어',
           score: view.score,
+          team: RankUI.team(),
           mine: true
         }));
         container.appendChild(near);
@@ -2723,6 +2985,10 @@ const LEADERBOARD_CONFIG = {
     }
     card.appendChild(legend);
 
+    var startBar = el('div', 'start-rankbar');
+    startBar.setAttribute('data-rankbar-start', '1');
+    card.appendChild(startBar);
+
     if (store.records.length > 0) {
       var rr = rankFor(store.best);
       var lv = LB.cached();
@@ -2751,7 +3017,7 @@ const LEADERBOARD_CONFIG = {
     if (installReady) card.appendChild(installRow());
 
     card.appendChild(el('p', 'mini', '손이 불편해도 괜찮아요 · 버튼을 정확히 누를 필요 없이 화면 아무 곳이나 터치하면 됩니다'));
-    card.appendChild(el('p', 'start-today', '오늘의 랭킹 · 순위 집계 중'));
+    loadStartTeams();
     card.appendChild(el('p', 'disclaimer', LB.live
       ? '순위는 매일 새로 집계됩니다 · 최고 기록은 이 기기에도 남아요'
       : '순위는 매일 새로 집계됩니다 · 내 기록은 이 기기에 저장돼요'));
@@ -2854,6 +3120,9 @@ const LEADERBOARD_CONFIG = {
       ? '등록됨: ' + store.nickname + ' · ' + storeNote
       : '닉네임을 등록하면 순위표에 내 기록이 표시됩니다');
     nick.appendChild(nickMsg);
+    var pickWrap = el('div', 'nick-pick');
+    pickWrap.innerHTML = RankUI.picker();
+    nick.appendChild(pickWrap);
     card.appendChild(nick);
 
     var lbWrap = el('div', 'lb');

@@ -852,14 +852,407 @@
     <div id="notice">테스트용 로컬+시뮬레이션 랭킹 · 실제 출시 시 실시간 DB 연동</div>
     <div id="tapHint" class="tap-hint">화면 아무 곳이나 한 번 터치</div>
 
-    <div id="adBanner" class="ad-slot" aria-hidden="true">
-      <span class="ad-tag">AD</span>
-      <span class="ad-text">하단 고정 배너 광고 자리 <b>320×50</b></span>
-    </div>
+    <div id="adBanner" class="ad-slot" aria-hidden="true"></div>
 
     <div id="overlay" class="overlay"></div>
   </div>
 </div>
+
+<script>
+/* ============================================================
+   실시간 랭킹 · 🇰🇷 KOREA vs 🇯🇵 JAPAN 친선 챌린지
+   Google 스프레드시트 + Apps Script 웹앱 연동 (무료)
+   ------------------------------------------------------------
+   · 순위표에는 [국기] 닉네임 · 점수 만 표시합니다(개인정보 없음).
+   · 팀(KR/JP/GL)은 접속 언어에 맞춰 기본 선택되고, 버튼으로 바꿀 수 있습니다.
+   · 서버가 잠시 응답하지 않아도 게임과 기기 기록은 그대로 동작합니다.
+   ============================================================ */
+var RANK_CONF = {
+  mode: 'gas',              /* 'gas' | 'local' */
+  url: 'https://script.google.com/macros/s/AKfycby55wfXxEK61LluaqGxTD5xc8K0jZpEJqubKXo-N0Msv0-BYO8TvISTJhj-P_0u5C58/exec',
+  game: 'tower',         /* pop | tower | drop */
+  timeout: 8000
+};
+
+var RANK_FLAG = { KR: '🇰🇷', JP: '🇯🇵', GL: '🌍' };
+var RANK_NAME = { KR: 'KOREA', JP: 'JAPAN', GL: 'GLOBAL' };
+var RANK_STR = {
+  ko: {
+    titleA: 'KOREA', titleB: 'JAPAN', vs: 'vs', badge: '친선 챌린지',
+    line: '{n}명 · 최고 {b}점', sum: '합계', global: '그 외 지역', globalLine: '{n}명 · 최고 {b}점',
+    cheer: '오늘은 어느 쪽이 더 높이 올라갈까요? 😄',
+    pick: '내 팀', note: '서로 응원하는 친선 대결이에요',
+    empty: '아직 기록이 없어요 — 첫 기록의 주인공이 되어 보세요',
+    live: '실시간 랭킹', people: '명', only: '닉네임과 점수만 표시돼요', rk: '{r}위 · {n}명 중', colName: '닉네임', colScore: '점수', rankUnit: '위', pct: '상위 {p}'
+  },
+  en: {
+    titleA: 'KOREA', titleB: 'JAPAN', vs: 'vs', badge: 'Friendly Challenge',
+    line: '{n} players · best {b}', sum: 'Total', global: 'Rest of the world', globalLine: '{n} players · best {b}',
+    cheer: 'Who climbs higher today? 😄',
+    pick: 'My team', note: 'A friendly match — cheer each other on',
+    empty: 'No records yet — be the first one up there',
+    live: 'Live ranking', people: 'players', only: 'nickname and score only', rk: '#{r} of {n}', colName: 'PLAYER', colScore: 'SCORE', rankUnit: '', pct: 'Top {p}'
+  },
+  ja: {
+    titleA: 'KOREA', titleB: 'JAPAN', vs: 'vs', badge: '親善チャレンジ',
+    line: '{n}人 · 最高 {b}点', sum: '合計', global: 'その他の地域', globalLine: '{n}人 · 最高 {b}点',
+    cheer: '今日はどちらが高く登るでしょうか？ 😄',
+    pick: 'マイチーム', note: 'お互いを応援する親善対決です',
+    empty: 'まだ記録がありません — 最初の記録を作ってみましょう',
+    live: 'リアルタイムランキング', people: '人', only: 'ニックネームとスコアのみ表示', rk: '{r}位 · {n}人中', colName: 'プレイヤー', colScore: 'スコア', rankUnit: '位', pct: '上位 {p}'
+  },
+  zh: {
+    titleA: 'KOREA', titleB: 'JAPAN', vs: 'vs', badge: '友谊挑战',
+    line: '{n}人 · 最高 {b}分', sum: '合计', global: '其他地区', globalLine: '{n}人 · 最高 {b}分',
+    cheer: '今天哪一边爬得更高呢？ 😄',
+    pick: '我的队伍', note: '互相加油的友谊对决',
+    empty: '还没有记录 — 来创造第一条记录吧',
+    live: '实时排行榜', people: '人', only: '只显示昵称和分数', rk: '第{r}名 · 共{n}人', colName: '昵称', colScore: '分数', rankUnit: '名', pct: '前 {p}'
+  }
+};
+
+var GasRank = (function () {
+  var seq = 0;
+
+  function on() {
+    return RANK_CONF.mode === 'gas' && /^https:\/\//.test(String(RANK_CONF.url || ''));
+  }
+  function todayKST() {
+    try { return new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10); } catch (e) { return ''; }
+  }
+  function jsonp(params) {
+    return new Promise(function (resolve, reject) {
+      if (!on()) { reject(new Error('off')); return; }
+      var cb = '__gasRank' + (++seq) + '_' + Date.now();
+      var s = document.createElement('script');
+      var done = false;
+      var timer = setTimeout(function () { finish(); reject(new Error('timeout')); }, RANK_CONF.timeout);
+      function finish() {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        try { delete window[cb]; } catch (e) { window[cb] = undefined; }
+        if (s.parentNode) s.parentNode.removeChild(s);
+      }
+      window[cb] = function (data) { finish(); resolve(data); };
+      var q = [];
+      for (var k in (params || {})) {
+        if (Object.prototype.hasOwnProperty.call(params, k) && params[k] !== undefined && params[k] !== null && params[k] !== '') {
+          q.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k]));
+        }
+      }
+      q.push('callback=' + cb);
+      q.push('t=' + Date.now());
+      s.src = RANK_CONF.url + '?' + q.join('&');
+      s.onerror = function () { finish(); reject(new Error('net')); };
+      document.body.appendChild(s);
+    });
+  }
+  function top(limit, score, day) {
+    var p = { game: RANK_CONF.game, limit: limit || 10 };
+    if (score !== null && score !== undefined) p.score = score;
+    if (day) p.day = day;
+    return jsonp(p).then(function (v) { return (v && v.ok) ? v : null; }, function () { return null; });
+  }
+  function submit(nickname, score, team, day) {
+    if (!on() || !nickname) return Promise.resolve(null);
+    var p = { submit: 1, game: RANK_CONF.game, nickname: nickname, score: Math.max(0, Math.floor(score || 0)) };
+    if (team) p.team = team;
+    if (day) p.day = day;
+    return jsonp(p).then(function (v) { return (v && v.ok) ? v : post(p); }, function () { return post(p); });
+  }
+  function post(p) {
+    try {
+      return fetch(RANK_CONF.url, {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-store',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ game: p.game, nickname: p.nickname, score: p.score, team: p.team || '', day: p.day || '' })
+      }).then(function (r) { return r.ok ? r.json() : null; }, function () { return null; })
+        .catch(function () { return null; });
+    } catch (e) { return Promise.resolve(null); }
+  }
+  return { on: on, top: top, submit: submit, today: todayKST };
+})();
+
+/* ---------------- 팀 선택 · 요약 바 ---------------- */
+var RankUI = (function () {
+  var KEY = 'mg.team.v1';
+
+  function lang() {
+    try { if (window.MG_I18N && window.MG_I18N.lang) return window.MG_I18N.lang; } catch (e) {}
+    var l = String((navigator.languages && navigator.languages[0]) || navigator.language || 'ko').toLowerCase();
+    if (l.indexOf('ko') === 0) return 'ko';
+    if (l.indexOf('ja') === 0) return 'ja';
+    if (l.indexOf('zh') === 0) return 'zh';
+    if (l.indexOf('en') === 0) return 'en';
+    return 'ko';
+  }
+  function S() { return RANK_STR[lang()] || RANK_STR.ko; }
+  function defaultTeam() {
+    var l = lang();
+    return l === 'ko' ? 'KR' : (l === 'ja' ? 'JP' : 'GL');
+  }
+  function get() {
+    var v = '';
+    try { v = localStorage.getItem(KEY) || ''; } catch (e) {}
+    return RANK_FLAG[v] ? v : defaultTeam();
+  }
+  function set(t) {
+    if (!RANK_FLAG[t]) return get();
+    try { localStorage.setItem(KEY, t); } catch (e) {}
+    sync();
+    return t;
+  }
+  function fmt(n) {
+    try { return String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); } catch (e) { return String(n || 0); }
+  }
+  function fill(tpl, n, b) {
+    return String(tpl).replace('{n}', fmt(n || 0)).replace('{b}', fmt(b || 0));
+  }
+
+  /* 팀 요약 바 — 친선 스포츠 톤 */
+  function bar(teams) {
+    if (!teams) return '';
+    var t = teams || {};
+    var kr = t.KR || { count: 0, best: 0, sum: 0 };
+    var jp = t.JP || { count: 0, best: 0, sum: 0 };
+    var gl = t.GL || { count: 0, best: 0, sum: 0 };
+    var s = S();
+    function side(code, d) {
+      return '<div class="mgtb-side mgtb-' + code.toLowerCase() + '">'
+        + '<span class="mgtb-flag" aria-hidden="true">' + RANK_FLAG[code] + '</span>'
+        + '<span class="mgtb-body"><b>' + RANK_NAME[code] + '</b>'
+        + '<i>' + fill(s.line, d.count, d.best) + '</i></span></div>';
+    }
+    var html = '<div class="mgteambar mg-lang" role="group" aria-label="' + s.badge + '">'
+      + '<div class="mgtb-head"><span class="mgtb-flag">' + RANK_FLAG.KR + '</span><b>' + s.titleA + '</b>'
+      + '<em>' + s.vs + '</em>'
+      + '<span class="mgtb-flag">' + RANK_FLAG.JP + '</span><b>' + s.titleB + '</b>'
+      + '<span class="mgtb-badge">' + s.badge + '</span></div>'
+      + '<div class="mgtb-grid">' + side('KR', kr)
+      + '<div class="mgtb-mid">' + s.vs + '</div>'
+      + side('JP', jp) + '</div>'
+      + '<div class="mgtb-sums">' + s.sum + ' ' + RANK_FLAG.KR + ' ' + fmt(kr.sum) + ' · '
+      + RANK_FLAG.JP + ' ' + fmt(jp.sum) + '</div>';
+    if (gl.count) {
+      html += '<div class="mgtb-gl">' + RANK_FLAG.GL + ' ' + s.global + ' · '
+        + fill(s.globalLine, gl.count, gl.best) + '</div>';
+    }
+    html += '<div class="mgtb-foot">' + s.cheer + '</div></div>';
+    return html;
+  }
+
+  /* 팀 선택 버튼 */
+  function picker() {
+    var cur = get(), s = S();
+    var out = '<div class="mgpick mg-lang"><span class="mgpick-lab">' + s.pick + '</span>';
+    ['KR', 'JP', 'GL'].forEach(function (c) {
+      out += '<button type="button" class="mgpick-btn' + (c === cur ? ' on' : '') + '" data-team="' + c + '"'
+        + ' aria-pressed="' + (c === cur ? 'true' : 'false') + '">'
+        + '<span aria-hidden="true">' + RANK_FLAG[c] + '</span>'
+        + '<span>' + RANK_NAME[c] + '</span></button>';
+    });
+    return out + '<span class="mgpick-note">' + s.note + '</span></div>';
+  }
+
+  function sync() {
+    var cur = get();
+    var list = document.querySelectorAll('.mgpick-btn');
+    for (var i = 0; i < list.length; i++) {
+      var on = list[i].getAttribute('data-team') === cur;
+      list[i].className = 'mgpick-btn' + (on ? ' on' : '');
+      list[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+  }
+
+  function bind() {
+    if (bind._on) return;
+    bind._on = true;
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      while (t && t !== document && !(t.getAttribute && t.getAttribute('data-team'))) t = t.parentNode;
+      if (!t || t === document) return;
+      var code = t.getAttribute('data-team');
+      if (!RANK_FLAG[code]) return;
+      e.preventDefault();
+      e.stopPropagation();
+      set(code);
+      try { window.dispatchEvent(new CustomEvent('mg-team', { detail: { team: code } })); } catch (err) {}
+    });
+    try {
+      window.addEventListener('mg-lang', function () {
+        sync();
+        try { window.dispatchEvent(new CustomEvent('mg-team', { detail: { team: get() } })); } catch (err) {}
+      });
+    } catch (e) {}
+  }
+
+  function flag(team) { return RANK_FLAG[team] || ''; }
+  function rankBig(rank) { return S().rankUnit ? fmt(rank) + S().rankUnit : '#' + fmt(rank); }
+  function pctLine(rank, total) {
+    if (!rank || !total) return '';
+    var p = Math.max(0.1, Math.round((rank / total) * 1000) / 10);
+    return String(S().pct).replace('{p}', p + '%');
+  }
+  function rankLine(rank, total) {
+    return String(S().rk).replace('{r}', fmt(rank || 0)).replace('{n}', fmt(total || 0));
+  }
+
+  return { lang: lang, s: S, team: get, setTeam: set, bar: bar, picker: picker, bind: bind, sync: sync, flag: flag, fmt: fmt, rankLine: rankLine, rankBig: rankBig, pctLine: pctLine };
+})();
+
+/* ---------------- 광고 문의 슬롯 ---------------- */
+var RankAd = (function () {
+  var CONTACT = { email: 'goodcycle1029@gmail.com', subject: '[AD] 광고·협찬 문의' };
+  var T = {
+    ko: { inq: 'AD · 광고·협찬 문의', sub: '이 자리에 광고가 들어갑니다', cta: '메일', copy: '복사', copied: '메일 주소를 복사했어요' },
+    en: { inq: 'AD / Sponsor Slot', sub: 'Ad space available', cta: 'Contact', copy: 'Copy', copied: 'Email address copied' },
+    ja: { inq: 'AD / スポンサー枠', sub: '広告掲載できます', cta: '問い合わせ', copy: 'コピー', copied: 'メールアドレスをコピーしました' },
+    zh: { inq: 'AD / 赞助位', sub: '可在此投放广告', cta: '咨询', copy: '复制', copied: '邮箱地址已复制' }
+  };
+  function lang() { return RankUI.lang(); }
+  function t() { return T[lang()] || T.en; }
+  function mailto() { return 'mailto:' + CONTACT.email + '?subject=' + encodeURIComponent(CONTACT.subject); }
+  function inquiry(off, compact) {
+    var s = t();
+    return '<div class="mgadq' + (compact ? ' compact' : '') + ' mg-lang">'
+      + '<a class="mgadq-a" href="' + mailto() + '" rel="noopener">'
+      + '<span class="mgadq-badge">AD</span>'
+      + '<span class="mgadq-ico" aria-hidden="true">📢</span>'
+      + '<span class="mgadq-t"><b>' + s.inq + '</b><i>' + s.sub + '</i></span>'
+      + '<span class="mgadq-cta">' + s.cta + ' →</span></a>'
+      + (compact ? '' : '<div class="mgadq-mail"><span>' + CONTACT.email + '</span>'
+        + '<button type="button" class="mgadq-copy" data-mail="' + CONTACT.email + '">' + s.copy + '</button></div>')
+      + '</div>';
+  }
+  function bind() {
+    if (bind._on) return;
+    bind._on = true;
+    document.addEventListener('click', function (e) {
+      var n = e.target;
+      while (n && n !== document && !(n.className && String(n.className).indexOf('mgadq-copy') >= 0)) n = n.parentNode;
+      if (!n || n === document) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var mail = n.getAttribute('data-mail') || CONTACT.email;
+      var done = function () {
+        var old = n.textContent;
+        n.textContent = t().copied;
+        setTimeout(function () { n.textContent = old; }, 1800);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(mail).then(done, function () {});
+        return;
+      }
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = mail;
+        ta.style.position = 'fixed'; ta.style.top = '-1000px';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        done();
+      } catch (err) {}
+    });
+  }
+  return { lang: lang, inquiry: inquiry, bind: bind, email: CONTACT.email, mailto: mailto };
+})();
+
+/* 공용 스타일 (친선 대결 바 · 팀 선택 버튼 · 광고 문의 슬롯) */
+(function () {
+  if (document.getElementById('mgRankStyle')) return;
+  var css = [
+    '.mgteambar{margin:10px 0 12px;padding:11px 12px 10px;border-radius:16px;border:1px solid rgba(255,255,255,.14);',
+    'background:linear-gradient(120deg,rgba(111,208,255,.16),rgba(255,255,255,.04) 46%,rgba(255,143,192,.16));',
+    'box-shadow:0 12px 30px -24px rgba(0,0,0,.9);text-align:center;line-height:1.25}',
+    '.mgteambar .mgtb-head{display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:900;letter-spacing:-.01em;flex-wrap:wrap}',
+    '.mgteambar .mgtb-head b{font-size:12px}', '.mgteambar .mgtb-head em{font-style:normal;font-size:10.5px;font-weight:900;color:rgba(255,255,255,.62);padding:0 2px}',
+    '.mgteambar .mgtb-flag{font-size:14px;line-height:1}',
+    '.mgteambar .mgtb-badge{margin-left:4px;font-size:9px;font-weight:900;letter-spacing:.04em;padding:2px 7px;border-radius:999px;',
+    'background:rgba(255,255,255,.14);color:rgba(255,255,255,.82)}',
+    '.mgteambar .mgtb-grid{display:flex;align-items:stretch;gap:6px;margin-top:9px}',
+    '.mgteambar .mgtb-side{flex:1;display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:12px;text-align:left;',
+    'background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);min-width:0}',
+    '.mgteambar .mgtb-kr{background:linear-gradient(120deg,rgba(111,208,255,.2),rgba(255,255,255,.03))}',
+    '.mgteambar .mgtb-jp{background:linear-gradient(120deg,rgba(255,143,192,.2),rgba(255,255,255,.03))}',
+    '.mgteambar .mgtb-side .mgtb-flag{font-size:17px}',
+    '.mgteambar .mgtb-body{display:flex;flex-direction:column;min-width:0}',
+    '.mgteambar .mgtb-body b{font-size:11px;font-weight:900;letter-spacing:.02em}',
+    '.mgteambar .mgtb-body i{font-style:normal;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.66);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.mgteambar .mgtb-mid{display:grid;place-items:center;font-size:10px;font-weight:900;color:rgba(255,255,255,.5);flex:none;padding:0 2px}',
+    '.mgteambar .mgtb-sums{margin-top:7px;font-size:9.5px;font-weight:800;color:rgba(255,255,255,.62);font-variant-numeric:tabular-nums}',
+    '.mgteambar .mgtb-gl{margin-top:4px;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.55)}',
+    '.mgteambar .mgtb-foot{margin-top:6px;font-size:9.5px;font-weight:800;color:rgba(255,255,255,.72)}',
+    '.mgpick{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin:8px 0 2px}',
+    '.mgpick-lab{font-size:10px;font-weight:900;letter-spacing:.04em;color:rgba(255,255,255,.56);margin-right:2px}',
+    '.mgpick-btn{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;border-radius:999px;cursor:pointer;',
+    'border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:rgba(255,255,255,.86);font-size:10.5px;font-weight:900;font-family:inherit}',
+    '.mgpick-btn.on{background:rgba(126,224,255,.22);border-color:rgba(126,224,255,.6);color:#fff}',
+    '.mgpick-note{font-size:9.5px;font-weight:700;color:rgba(255,255,255,.45);margin-left:2px}',
+    '.mglb-flag{margin-right:4px}',
+    '.mgadq{display:flex;flex-direction:column;align-items:center;gap:4px;width:320px;max-width:100%;margin:6px 0 0}',
+    '.mgadq-a{position:relative;display:flex;align-items:center;gap:8px;width:100%;min-height:46px;padding:6px 9px;border-radius:12px;',
+    'text-decoration:none;color:rgba(255,255,255,.92);background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.28)}',
+    '.mgadq-badge{position:absolute;top:3px;right:6px;font-size:6.5px;font-weight:900;letter-spacing:.08em;color:rgba(255,255,255,.45)}',
+    '.mgadq-ico{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:14px;background:rgba(255,255,255,.1);flex:none}',
+    '.mgadq-t{display:flex;flex-direction:column;line-height:1.2;min-width:0;text-align:left}',
+    '.mgadq-t b{font-size:12px;font-weight:900;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.mgadq-t i{font-style:normal;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.mgadq-cta{margin-left:auto;flex:none;font-size:10px;font-weight:900;padding:5px 8px;border-radius:8px;background:rgba(255,255,255,.14);color:#fff;white-space:nowrap}',
+    '.mgadq-mail{display:flex;align-items:center;gap:6px;font-size:9px;font-weight:700;color:rgba(255,255,255,.5)}',
+    '.mgadq.compact{width:100%;height:100%;margin:0;justify-content:center}',
+    '.mgadq.compact .mgadq-a{height:100%;min-height:0;border-radius:11px}',
+    '.mgadq-copy{border:1px solid rgba(255,255,255,.22);border-radius:7px;padding:1px 6px;font-size:8.5px;font-weight:800;color:rgba(255,255,255,.7);background:transparent;font-family:inherit;cursor:pointer}'
+  ].join('');
+  var st = document.createElement('style');
+  st.id = 'mgRankStyle';
+  st.textContent = css;
+  (document.head || document.documentElement).appendChild(st);
+})();
+
+</script>
+
+<script>
+(function () {
+  function render() {
+    var host = document.getElementById('adBanner');
+    if (!host) return;
+    RankAd.bind();
+    if (RankAd.lang() === 'ko') {
+      host.innerHTML = '<div class="ad-idx">'
+        + '<a class="ad-idx-brand" href="https://smartstore.naver.com/japanmartbox" target="_blank" rel="noopener noreferrer sponsored">'
+        + '<span class="ad-idx-tag">AD</span>📦 재팬마트박스 · 일본 인기 상품 <b>→</b></a>'
+        + '<a class="ad-idx-inq" href="' + RankAd.mailto() + '">광고·협찬 문의</a>'
+        + '</div>';
+    } else {
+      host.innerHTML = RankAd.inquiry(false, true);
+    }
+    host.style.pointerEvents = 'auto';
+    host.style.border = '0';
+    host.style.background = 'transparent';
+  }
+  function style() {
+    if (document.getElementById('mgAdIdxStyle')) return;
+    var st = document.createElement('style');
+    st.id = 'mgAdIdxStyle';
+    st.textContent = '.ad-idx{display:flex;align-items:center;gap:6px;width:100%;height:100%}'
+      + '.ad-idx-brand{position:relative;display:flex;align-items:center;gap:5px;flex:1 1 auto;min-width:0;height:100%;padding:0 8px;'
+      + 'border-radius:10px;text-decoration:none;color:#22102A;font-size:10.5px;font-weight:900;'
+      + 'background:linear-gradient(100deg,#FFD9E9,#FFC0DB 46%,#C8B4FF);border:1px solid rgba(255,255,255,.4);'
+      + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+      + '.ad-idx-tag{position:absolute;top:3px;right:6px;font-size:6px;font-weight:900;letter-spacing:.08em;color:rgba(34,16,42,.45)}'
+      + '.ad-idx-inq{flex:0 0 auto;height:100%;display:flex;align-items:center;padding:0 9px;border-radius:10px;'
+      + 'text-decoration:none;font-size:9.5px;font-weight:900;color:rgba(232,240,255,.86);'
+      + 'background:rgba(255,255,255,.08);border:1px dashed rgba(255,255,255,.32);white-space:nowrap}';
+    (document.head || document.documentElement).appendChild(st);
+  }
+  style(); render();
+  window.addEventListener('mg-lang', render);
+  window.addEventListener('load', render);
+})();
+</script>
 
 <script>
 (function () {
