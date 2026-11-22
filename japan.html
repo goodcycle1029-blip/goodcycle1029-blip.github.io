@@ -2295,8 +2295,8 @@ const REFUND_OPTS = [
   var EDGE = ['#d92f6c', '#e04d85', '#e96f9c'];
 
   function makePetal(init) {
-    var blossom = Math.random() < 0.2;                  /* 꽃송이(5장) 20% 섞기 */
-    var r = blossom ? rand(6, 9) : rand(5.4, 10);       /* 기존 3.4~8 → 약 1.5배, 글자는 가리지 않게 */
+    var blossom = Math.random() < 0.22;                 /* 꽃송이(5장) 22% 섞기 */
+    var r = blossom ? rand(5.2, 7.6) : rand(4.6, 8.2);  /* 큰 꽃잎만 살짝 다듬어 4.6~8.2 로 조화롭게 */
     var k = Math.floor(Math.random() * 3);
     return {
       x: Math.random() * (W || 390),
@@ -2304,20 +2304,20 @@ const REFUND_OPTS = [
       r: r,
       blossom: blossom,
       rot: Math.random() * Math.PI * 2,
-      rotV: rand(-0.6, 0.6),
-      vy: rand(15, 32),
-      vx: rand(-12, 12),
-      sway: rand(16, 42),
+      rotV: rand(-0.36, 0.36),                        /* 회전도 천천히 0.6 → 0.36 */
+      vy: rand(9.5, 20.5),                            /* 하강 15~32 → 9.5~20.5 (약 35% 감속) */
+      vx: rand(-7, 7),                                /* 좌우 흐름도 12 → 7 로 잦아들게 */
+      sway: rand(10, 27),                             /* 흔들림 진폭 16~42 → 10~27 */
       ph: Math.random() * Math.PI * 2,
-      phV: rand(0.4, 0.95),
-      a: rand(0.72, 0.93),                            /* 투명도 0.72~0.93 */
+      phV: rand(0.26, 0.62),                          /* 흔들림 주기 0.4~0.95 → 0.26~0.62 (약 35% 느리게) */
+      a: rand(0.72, 0.93),                            /* 투명도 0.72~0.93 유지 */
       col: PINK[k],
       edge: EDGE[k]
     };
   }
   function buildPetals() {
-    var n = reduce ? 12 : Math.round((W * H) / 4900);
-    n = Math.max(60, Math.min(84, n));                /* 휴대폰(390×844)에서 약 67장 */
+    var n = reduce ? 10 : Math.round((W * H) / 13200);
+    n = Math.max(18, Math.min(30, n));                /* 휴대폰(390×844)에서 약 25장 — 67장에서 절반 이상 축소 */
     petals = [];
     for (var i = 0; i < n; i++) petals.push(makePetal(true));
   }
