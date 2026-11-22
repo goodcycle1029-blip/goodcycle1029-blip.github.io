@@ -2101,7 +2101,14 @@ function updatePush() {
 function pushTick() {
   if (mode !== 'play' || !S || S.over || S.busy) return;
   if (document.hidden) return;
-  PUSH.left -= 100;
+  /* 블록이 높이 쌓일수록 게이지가 빨리 준다 */
+  var rate = 100, c, high = 0;
+  for (c = 0; c < COLS; c++) {
+    if (S.grid[0][c]) high = 2;
+    else if (S.grid[1][c] && high < 1) high = 1;
+  }
+  if (high === 2) rate = 150; else if (high === 1) rate = 122;
+  PUSH.left -= rate;
   var lv = 1 + Math.floor(S.moves / 10);
   if (lv !== PUSH.level) {
     PUSH.level = lv;
