@@ -1,452 +1,402 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-<meta name="theme-color" content="#0b1020" />
-<title>원터치 타워 · 랭킹 시제품</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#070A16">
+<title>재팬마트박스 놀이터 · 미니게임 3종 + 일본 초보여행 해결사</title>
+<meta name="description" content="풍선 톡톡·고양이 타워 쌓기·숫자 콤보 팡, 그리고 일본 초보여행 원클릭 해결사까지 — 한 번의 탭으로 바로 시작. 모두 무료, 설치 없이.">
+<meta property="og:title" content="재팬마트박스 놀이터 · 한 번의 탭으로 바로 시작">
+<meta property="og:description" content="미니게임 3종 + 일본 초보여행 원클릭 해결사. 모두 무료, 설치 없이.">
+<meta property="og:type" content="website">
+<link rel="manifest" href="./manifest-portal.json">
+<link rel="apple-touch-icon" href="./icon-portal-192.png">
 <style>
   :root{
     --ink:#eaf0ff;
     --dim:#9fb0d0;
-    --line:rgba(255,255,255,.14);
-    --accent:#7ee0ff;
-    --accent2:#a98bff;
-    --warn:#ff9a7b;
+    --line:rgba(255,255,255,.13);
+    --cy:#7ee0ff;
+    --vi:#a98bff;
+    --pk:#ff8fc0;
+    --mn:#8ff0c0;
+    --r:16px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{
-    margin:0;padding:0;height:100%;background:#070a16;color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
-    overflow:hidden;overscroll-behavior:none;touch-action:manipulation;
-    user-select:none;-webkit-user-select:none;
+  html{background:#070a16}
+  body{
+    margin:0;color:var(--ink);background:#070a16;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,"Liberation Sans","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR","Hiragino Sans","Yu Gothic","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;min-height:100dvh;
+    display:flex;flex-direction:column;
+    padding:calc(10px + env(safe-area-inset-top)) 14px calc(10px + env(safe-area-inset-bottom));
+    overflow-x:hidden;
   }
-  #app{position:fixed;inset:0}
-  #stage{position:relative;width:100%;height:100%;overflow:hidden}
-  #game{display:block;width:100%;height:100%}
+  /* 배경: 어두운 남색 + 은은한 오로라 (움직임은 최소) */
+  body::before{
+    content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(46% 32% at 12% -4%, rgba(126,224,255,.18), transparent 70%),
+      radial-gradient(40% 30% at 92% 4%, rgba(169,139,255,.16), transparent 72%),
+      radial-gradient(60% 34% at 50% 104%, rgba(255,143,192,.10), transparent 70%),
+      linear-gradient(180deg,#080c19,#070a16 55%,#070a16);
+  }
+  .shell{position:relative;z-index:1;display:flex;flex-direction:column;gap:10px;flex:1;min-height:0;max-width:1080px;width:100%;margin:0 auto}
 
-  /* ---------- HUD ---------- */
-  #hud{
-    position:absolute;top:0;left:0;right:0;z-index:6;
-    display:flex;align-items:flex-start;gap:10px;
-    padding:calc(8px + env(safe-area-inset-top)) 14px 0;
-    pointer-events:none;
+  /* ---------- 상단: 브랜드 + 언어 ---------- */
+  .top{display:flex;align-items:center;gap:10px;flex:none}
+  .brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;min-width:0}
+  .brand-ico{
+    width:34px;height:34px;flex:none;border-radius:11px;display:grid;place-items:center;font-size:17px;
+    background:linear-gradient(140deg,rgba(126,224,255,.3),rgba(169,139,255,.3));
+    border:1px solid rgba(255,255,255,.18);box-shadow:0 6px 18px -10px rgba(126,224,255,.9)
   }
-  .hud-score{
-    font-size:46px;font-weight:800;line-height:.92;letter-spacing:-.03em;
-    font-variant-numeric:tabular-nums;text-shadow:0 6px 26px rgba(0,0,0,.5);
+  .brand-t{display:flex;flex-direction:column;min-width:0}
+  .brand-t b{font-size:13.5px;font-weight:900;letter-spacing:-.01em;line-height:1.15;white-space:nowrap}
+  .brand-t i{font-style:normal;font-size:9.5px;font-weight:800;color:var(--dim);letter-spacing:.08em;white-space:nowrap}
+  .lang{margin-left:auto;display:flex;gap:4px;flex:none}
+  .lg{
+    -webkit-appearance:none;appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.05);
+    color:var(--ink);border-radius:10px;min-height:34px;padding:5px 8px;font:inherit;font-size:11.5px;font-weight:900;
+    letter-spacing:.04em;line-height:1;display:flex;align-items:center;gap:5px;cursor:pointer;
+    transition:background .15s,border-color .15s,transform .1s
   }
-  .hud-score small{font-size:15px;font-weight:700;color:var(--dim);margin-left:5px;letter-spacing:0}
-  .hud-mid{flex:1;padding-top:4px;min-width:0}
-  .combo-tag{
-    display:inline-block;font-size:12px;font-weight:800;color:#08101f;
-    background:linear-gradient(90deg,#7ee0ff,#a98bff);
-    padding:3px 9px;border-radius:99px;opacity:.28;
-    transition:opacity .18s ease,transform .18s ease;
-  }
-  .combo-tag.on{opacity:1;transform:scale(1.06)}
-  .hud-best{font-size:12px;color:var(--dim);margin-top:5px;letter-spacing:.01em}
-  .hud-best b{color:var(--ink)}
-  .icon-btn{
-    pointer-events:auto;width:44px;height:44px;flex:0 0 44px;border-radius:14px;
-    border:1px solid var(--line);background:rgba(10,16,32,.55);color:var(--ink);
-    font-size:18px;line-height:1;display:grid;place-items:center;
-    -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
-  }
-  .icon-btn:active{transform:scale(.95)}
-
-  #notice{
-    position:absolute;left:15px;right:15px;z-index:6;pointer-events:none;
-    top:calc(74px + env(safe-area-inset-top));
-    font-size:10.5px;line-height:1.35;color:rgba(188,203,232,.58);letter-spacing:.005em;
+  .lg .nm{display:none;white-space:nowrap;font-weight:800;letter-spacing:0}
+  .lg:active{transform:scale(.95)}
+  .lg.on{
+    background:linear-gradient(120deg,rgba(126,224,255,.3),rgba(169,139,255,.26));
+    border-color:rgba(126,224,255,.6);box-shadow:0 0 0 1px rgba(126,224,255,.18) inset
   }
 
-  /* ---------- 광고 자리 ---------- */
-  .ad-slot{
-    border:1.5px dashed rgba(140,172,222,.42);border-radius:10px;
-    background:rgba(10,18,36,.38);color:rgba(190,205,235,.62);
-    display:flex;align-items:center;justify-content:center;gap:8px;
-  }
-  #adBanner{
-    position:absolute;left:50%;bottom:calc(6px + env(safe-area-inset-bottom));
-    transform:translateX(-50%);width:320px;max-width:calc(100% - 20px);height:50px;
-    z-index:7;pointer-events:none;font-size:11px;line-height:1;
-  }
-  .ad-tag{
-    font-size:9px;font-weight:800;letter-spacing:.08em;
-    border:1px solid rgba(140,172,222,.5);border-radius:4px;padding:1px 4px;
-  }
-  .ad-text b{color:rgba(232,240,255,.85)}
-  .ad-note{font-size:10px;color:rgba(180,196,226,.5)}
-
-  .tap-hint{
-    position:absolute;left:0;right:0;z-index:5;pointer-events:none;
-    bottom:calc(70px + env(safe-area-inset-bottom));
-    text-align:center;font-size:13px;color:rgba(232,240,255,.75);
-    opacity:0;transition:opacity .35s ease;
-    text-shadow:0 2px 12px rgba(0,0,0,.6);
-  }
-  .tap-hint.on{opacity:1}
-
-  /* ---------- 오버레이 ---------- */
-  .overlay{
-    position:absolute;inset:0;z-index:20;display:none;
-    overflow-y:auto;-webkit-overflow-scrolling:touch;
-    padding:calc(18px + env(safe-area-inset-top)) 14px calc(78px + env(safe-area-inset-bottom));
-    background:radial-gradient(120% 80% at 50% 0%,rgba(26,22,54,.86),rgba(5,8,18,.94));
-  }
-  .overlay.show{display:block}
-  .card{width:100%;max-width:420px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
-
-  /* 시작 화면 */
-  .brand{
-    align-self:center;font-size:10px;font-weight:800;letter-spacing:.16em;
-    color:rgba(200,215,245,.6);border:1px solid var(--line);border-radius:99px;padding:5px 12px;
-  }
-  .game-title{
-    margin:8px 0 0;text-align:center;font-size:40px;line-height:1.1;letter-spacing:-.04em;font-weight:900;
-    background:linear-gradient(180deg,#ffffff,#8fd8ff 70%,#a98bff);
+  /* ---------- 소개 문구 ---------- */
+  .hero{flex:none;margin:2px 0 0}
+  .hero h1{
+    margin:0;font-size:clamp(19px,5.3vw,26px);font-weight:900;letter-spacing:-.03em;line-height:1.2;
+    background:linear-gradient(96deg,#eaf0ff 8%,var(--cy) 42%,var(--vi) 74%,var(--pk) 96%);
     -webkit-background-clip:text;background-clip:text;color:transparent;
+    overflow-wrap:anywhere
   }
-  .tagline{margin:0;text-align:center;font-size:13.5px;color:var(--dim)}
-  .how{
-    display:flex;flex-direction:column;gap:8px;margin-top:8px;
-    background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:16px;padding:14px;
-  }
-  .how-row{display:flex;align-items:center;gap:10px;font-size:13px;color:#dfe8ff}
-  .how-row span{
-    flex:0 0 20px;width:20px;height:20px;border-radius:99px;display:grid;place-items:center;
-    font-size:11px;font-weight:800;color:#08101f;background:linear-gradient(180deg,#9ff0ff,#5fd0f5);
-  }
-  .how-row b{color:#fff}
-  .start-stats{
-    display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
-    font-size:12.5px;color:var(--dim);
-  }
-  .start-stats b{color:var(--ink);font-size:14px}
-  .mini{font-size:11px;color:rgba(180,196,226,.62);text-align:center;line-height:1.5;margin:2px 0 0}
+  .hero p{margin:6px 0 0;font-size:12px;font-weight:700;color:var(--dim);line-height:1.4;overflow-wrap:anywhere}
 
-  /* 일본 여행 가이드로 가는 배너 */
-  .jp-link{
-    display:flex;align-items:center;gap:10px;width:100%;text-decoration:none;
-    padding:12px 14px;border-radius:16px;color:var(--ink);
-    background:linear-gradient(135deg,rgba(126,224,255,.16),rgba(169,139,255,.16));
-    border:1px solid rgba(126,224,255,.34);box-shadow:0 8px 24px rgba(0,0,0,.25)
+  /* ---------- 4개 서비스 카드 ---------- */
+  .menu{
+    flex:1 1 auto;min-height:0;display:grid;gap:9px;align-content:center;
+    grid-template-columns:1fr;grid-template-rows:repeat(4,minmax(78px,1fr))
   }
-  .jp-link:active{transform:scale(.99)}
-  .jp-link .flag{
-    width:34px;height:34px;border-radius:10px;flex:0 0 auto;display:grid;place-items:center;
-    background:linear-gradient(135deg,#2a4a75,#1f3a5f);border:1px solid rgba(126,224,255,.35);
-    color:#fff;font-size:17px;font-weight:800;line-height:1
+  .card{
+    position:relative;display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:var(--r);
+    text-decoration:none;color:inherit;overflow:hidden;isolation:isolate;
+    background:rgba(255,255,255,.045);border:1px solid var(--line);
+    box-shadow:0 14px 34px -26px rgba(0,0,0,.9);
+    transition:transform .12s ease,border-color .18s ease,background .18s ease
   }
-  .jp-link .jp-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-  .jp-link .jp-tx b{font-size:13.5px;font-weight:800;color:#fff;letter-spacing:-.02em}
-  .jp-link .jp-tx span{font-size:10.5px;font-weight:600;color:var(--dim);line-height:1.35}
-  .jp-link .ar{flex:0 0 auto;font-size:14px;font-weight:800;color:var(--accent)}
-  .jp-link.sm{padding:9px 12px;border-radius:13px;margin-top:2px}
-  .jp-link.sm .flag{width:28px;height:28px;border-radius:9px;font-size:14px}
-  .jp-link.sm .jp-tx b{font-size:12px}
-  .jp-link.sm .jp-tx span{font-size:10px}
-
-  /* 버튼 */
-  .btn{
-    border:0;border-radius:16px;height:54px;padding:0 18px;
-    font-family:inherit;font-size:16px;font-weight:800;letter-spacing:-.01em;
-    color:#08101f;background:linear-gradient(180deg,#9ff0ff,#5fd0f5);
-    box-shadow:0 10px 24px rgba(80,200,255,.18);
-    display:flex;align-items:center;justify-content:center;
+  .card::after{
+    content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
+    background:radial-gradient(120% 120% at 0% 0%,var(--tint,rgba(255,255,255,.06)),transparent 62%)
   }
-  .btn:active{transform:translateY(1px)}
-  .btn.big{height:58px;font-size:17px;border-radius:18px}
-  .btn.ghost{background:rgba(255,255,255,.07);color:var(--ink);border:1px solid var(--line);box-shadow:none}
-  .btn.small{height:44px;font-size:13px;padding:0 14px;border-radius:12px;box-shadow:none}
-  .btn[disabled]{opacity:.45}
-  .btn-row{display:flex;gap:10px}
-  .btn-row .btn{flex:1}
-
-  /* 게임오버 화면 */
-  .go-kicker{text-align:center;font-size:13px;font-weight:800;color:var(--dim);letter-spacing:.04em}
-  .go-reason{text-align:center;font-size:11.5px;color:rgba(180,196,226,.6);margin-top:-6px}
-  .rank-wrap{
-    background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
-    border:1px solid var(--line);border-radius:22px;
-    padding:16px 14px 14px;display:flex;flex-direction:column;align-items:center;gap:6px;
+  .card:hover{border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.07)}
+  .card:active{transform:scale(.985)}
+  .card:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+  .card[data-k="pop"]{--tint:rgba(255,143,192,.26)}
+  .card[data-k="tower"]{--tint:rgba(126,224,255,.24)}
+  .card[data-k="drop"]{--tint:rgba(143,240,192,.22)}
+  .card[data-k="japan"]{--tint:rgba(150,160,255,.26)}
+  .card .ico{
+    width:50px;height:50px;flex:none;border-radius:15px;display:grid;place-items:center;font-size:25px;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14)
   }
-  .rank-big{display:flex;align-items:flex-end;justify-content:center;gap:5px;font-weight:900;letter-spacing:-.04em}
-  .rank-num{
-    font-size:78px;line-height:.86;
-    background:linear-gradient(180deg,#ffffff,#8fd8ff);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
+  .card .txt{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+  .card .nm{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .card .nm b{font-size:16px;font-weight:900;letter-spacing:-.02em;line-height:1.22;overflow-wrap:anywhere}
+  .card .chip{
+    font-style:normal;font-size:9.5px;font-weight:900;letter-spacing:.04em;padding:2px 7px;border-radius:999px;
+    background:rgba(255,255,255,.13);color:rgba(235,242,255,.86);white-space:nowrap
   }
-  .rank-unit{font-size:24px;color:var(--dim);padding-bottom:10px}
-  .rank-sub{font-size:13px;color:var(--dim)}
-  .pct-chip{
-    margin-top:2px;font-size:13px;font-weight:800;color:#08101f;
-    background:linear-gradient(90deg,#7ee0ff,#a98bff);border-radius:99px;padding:4px 12px;
-  }
-  .tier-msg{text-align:center;font-size:12.5px;color:#dfe8ff;margin-top:-2px}
-  .score-row{display:flex;justify-content:center;gap:8px}
-  .score-chip{
-    flex:1;background:rgba(255,255,255,.05);border:1px solid var(--line);
-    border-radius:14px;padding:8px 6px;text-align:center;
-  }
-  .score-chip b{display:block;font-size:19px;font-weight:800;line-height:1.2}
-  .score-chip span{font-size:11px;color:var(--dim)}
-  .score-chip.good b{color:#8ff0c0}
-
-  .nick{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:2px}
-  .nick-label{font-size:11.5px;color:var(--dim);flex:0 0 auto}
-  .nick-input{
-    flex:1 1 120px;min-width:0;height:44px;border-radius:12px;
-    border:1px solid var(--line);background:rgba(8,14,28,.7);color:var(--ink);
-    font-family:inherit;font-size:14px;padding:0 12px;outline:none;
-  }
-  .nick-input:focus{border-color:rgba(126,224,255,.6)}
-  .nick-msg{flex:1 1 100%;font-size:11px;color:rgba(180,196,226,.62);line-height:1.4}
-
-  .reward{display:flex;flex-direction:column;gap:8px}
-  .reward-slot{
-    height:120px;flex-direction:column;gap:6px;border-radius:14px;
-    background:linear-gradient(135deg,rgba(80,120,220,.12),rgba(160,110,255,.12));
-  }
-  .reward-slot .ad-tag{align-self:center}
-  .reward-status{font-size:11.5px;color:var(--dim);text-align:center;min-height:16px}
-  .reward-done{
-    font-size:11.5px;color:rgba(180,196,226,.6);text-align:center;
-    border:1px dashed rgba(140,172,222,.3);border-radius:12px;padding:10px;
+  .card .ds{font-size:11.5px;font-weight:700;color:var(--dim);line-height:1.32;overflow-wrap:anywhere}
+  .card .go{
+    margin-left:auto;flex:none;width:27px;height:27px;border-radius:9px;display:grid;place-items:center;
+    font-size:13px;font-weight:900;color:rgba(255,255,255,.78);background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.1)
   }
 
-  .lb{display:flex;flex-direction:column;gap:5px;margin-top:4px}
-  .lb-title{font-size:11px;font-weight:800;letter-spacing:.08em;color:rgba(188,203,232,.7);margin-top:6px}
-  .lb-list{display:flex;flex-direction:column;gap:2px}
-  .lb-row{
-    display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:8px;
-    padding:6px 10px;border-radius:9px;font-size:13px;
-    background:rgba(255,255,255,.025);
+  /* ---------- 광고: 재팬마트박스 배너 + 협찬 문의 슬롯 ---------- */
+  .ads{flex:none;display:grid;gap:7px}
+  .promo{
+    position:relative;display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:14px;
+    text-decoration:none;color:#22102A;overflow:hidden;
+    background:linear-gradient(100deg,#FFD9E9,#FFC0DB 46%,#C8B4FF);
+    border:1px solid rgba(255,255,255,.4);box-shadow:0 12px 26px -20px rgba(255,143,192,.9)
   }
-  .lb-row.mine{background:rgba(126,224,255,.14);outline:1px solid rgba(126,224,255,.35)}
-  .lb-rank{color:rgba(160,180,215,.85);font-weight:700;font-variant-numeric:tabular-nums;font-size:12px}
-  .lb-row.mine .lb-rank{color:#bfefff}
-  .lb-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e6eeff}
-  .lb-score{font-weight:800;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:6px}
-  .lb-me-tag{
-    font-size:9px;font-weight:800;color:#08101f;background:#7ee0ff;
-    border-radius:99px;padding:1px 5px;letter-spacing:.02em;
+  .promo .pico{
+    width:32px;height:32px;flex:none;border-radius:10px;display:grid;place-items:center;font-size:17px;
+    background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.7)
   }
-  .lb-gap{font-size:10px;color:rgba(160,180,215,.5);text-align:center;padding:1px 0}
+  .promo .ptx{display:flex;flex-direction:column;min-width:0}
+  .promo .ptx b{font-size:12.5px;font-weight:900;letter-spacing:-.02em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .promo .ptx i{font-style:normal;font-size:10px;font-weight:800;color:rgba(34,16,42,.64);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .promo .pcta{
+    margin-left:auto;flex:none;font-size:10.5px;font-weight:900;padding:6px 10px;border-radius:9px;
+    background:#2c1442;color:#fff;white-space:nowrap
+  }
+  .adtag{
+    position:absolute;top:3px;right:7px;font-size:6.5px;font-weight:900;letter-spacing:.1em;
+    color:rgba(34,16,42,.42);pointer-events:none
+  }
+  .inq{
+    position:relative;display:flex;flex-direction:column;gap:4px;padding:9px 11px;border-radius:14px;
+    border:1px dashed rgba(140,172,222,.42);background:rgba(10,18,36,.52)
+  }
+  .inq-a{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink)}
+  .inq-a .iico{width:29px;height:29px;flex:none;border-radius:9px;display:grid;place-items:center;font-size:14px;background:rgba(255,255,255,.08)}
+  .inq-tx{display:flex;flex-direction:column;min-width:0}
+  .inq-tx b{font-size:12px;font-weight:900;letter-spacing:-.01em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .inq-tx i{font-style:normal;font-size:9.5px;font-weight:700;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .inq .icta{margin-left:auto;flex:none;font-size:10px;font-weight:900;padding:5px 9px;border-radius:8px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.12);color:#fff;white-space:nowrap}
+  .inq .adtag{color:rgba(200,214,240,.45)}
+  .inq-mail{display:flex;align-items:center;gap:6px;font-size:9.5px;font-weight:700;color:rgba(180,196,226,.62);padding-left:1px;flex-wrap:wrap}
+  .inq-mail button{
+    -webkit-appearance:none;appearance:none;font:inherit;font-size:9px;font-weight:800;cursor:pointer;
+    border:1px solid rgba(255,255,255,.22);background:transparent;color:rgba(255,255,255,.72);
+    border-radius:7px;padding:1px 7px
+  }
+  .inq-mail button:active{transform:scale(.96)}
 
-  .retry-ad{height:100px;flex-direction:column;gap:4px;border-radius:14px;margin-top:4px}
-  .disclaimer{font-size:10px;color:rgba(170,186,218,.45);text-align:center;line-height:1.5;margin:6px 0 0}
+  /* ---------- 아래 문구 ---------- */
+  .foot{
+    flex:none;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;
+    font-size:9.5px;font-weight:700;color:rgba(159,176,208,.62);text-align:center;padding-top:1px
+  }
+  .foot b{font-weight:800}
+  .foot span.dot{opacity:.5}
+
+  /* ---------- 넓은 화면: 2×2 카드 + 오른쪽 광고 기둥 ---------- */
+  @media (min-width:820px){
+    body{padding:26px 28px 22px}
+    .shell{
+      display:grid;grid-template-columns:minmax(0,1fr) 300px;
+      grid-template-areas:"top top" "hero ads" "menu ads" "foot foot";
+      column-gap:22px;row-gap:14px;flex:0 0 auto;margin:auto;align-content:start
+    }
+    .top{grid-area:top}
+    .hero{grid-area:hero;margin-bottom:2px}
+    .hero h1{font-size:30px}
+    .hero p{font-size:13.5px}
+    .menu{grid-area:menu;grid-template-columns:1fr 1fr;grid-template-rows:repeat(2,minmax(150px,200px))}
+    .ads{grid-area:ads;align-self:stretch;display:flex;flex-direction:column;gap:10px;align-content:start}
+    .inq{display:flex;flex-direction:column;justify-content:space-between;flex:1;min-height:150px}
+    .foot{grid-area:foot;margin-top:6px;font-size:10.5px}
+    .lg .nm{display:inline}
+    .lg{min-height:36px;font-size:12px;padding:6px 10px}
+    .card{padding:18px;gap:14px}
+    .card .ico{width:56px;height:56px;border-radius:17px;font-size:28px}
+    .card .nm b{font-size:18px}
+    .card .ds{font-size:12.5px}
+    .card .chip{font-size:10.5px;padding:2px 8px}
+    .card .go{width:32px;height:32px;font-size:14px}
+    .promo{padding:14px;border-radius:16px}
+    .promo .pico{width:38px;height:38px;font-size:19px;border-radius:12px}
+    .promo .ptx b{font-size:14.5px}
+    .promo .ptx i{font-size:11px}
+    .promo .pcta{font-size:11.5px;padding:7px 11px}
+    .inq{padding:14px;border-radius:16px}
+    .inq-a .iico{width:34px;height:34px;font-size:16px;border-radius:11px}
+    .inq-tx b{font-size:13.5px}
+    .inq-tx i{font-size:11px}
+    .inq-mail{font-size:10.5px;margin-top:2px}
+  }
+  /* 화면이 낮은 휴대폰: 카드가 조금 낮아져도 네 개가 한 화면에 */
+  @media (max-width:819px) and (max-height:720px){
+    .hero p{font-size:11.5px}
+    .card{padding:10px 12px}
+    .card .ico{width:44px;height:44px;border-radius:13px;font-size:22px}
+    .card .nm b{font-size:15px}
+    .card .ds{font-size:11px}
+    .promo{padding:8px 10px}
+    .promo .pico{width:28px;height:28px;font-size:15px}
+    .promo .ptx b{font-size:12px}
+    .promo .ptx i{font-size:9.5px}
+    .inq{padding:8px 10px}
+    .inq-a .iico{width:26px;height:26px;font-size:13px}
+    .inq-tx b{font-size:11.5px}
+    .inq-tx i{font-size:9px}
+    .foot{font-size:9px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important}
+  }
 </style>
 </head>
 <body>
+<div class="shell">
+
+  <header class="top">
+    <a class="brand" href="./index.html" aria-label="재팬마트박스 놀이터">
+      <span class="brand-ico" aria-hidden="true">📦</span>
+      <span class="brand-t"><b data-i18n="brand">재팬마트박스</b><i data-i18n="brandSub">미니게임 놀이터</i></span>
+    </a>
+    <div class="lang" id="langBar" role="group" aria-label="언어">
+      <button type="button" class="lg on" data-lang="ko" aria-label="한국어" title="한국어">KO<span class="nm">한국어</span></button>
+      <button type="button" class="lg" data-lang="en" aria-label="English" title="English">EN<span class="nm">English</span></button>
+      <button type="button" class="lg" data-lang="ja" aria-label="日本語" title="日本語">JA<span class="nm">日本語</span></button>
+      <button type="button" class="lg" data-lang="zh" aria-label="中文" title="中文">ZH<span class="nm">中文</span></button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1 data-i18n="h1">한 번의 탭으로, 바로 시작</h1>
+    <p data-i18n="sub">미니게임 3종 + 일본 초보여행 해결사 · 모두 무료, 설치 없이</p>
+  </section>
+
+  <main class="menu" aria-label="서비스 목록">
+    <a class="card" data-k="pop" href="./pop.html" data-aria="c1n">
+      <span class="ico" aria-hidden="true">🎈</span>
+      <span class="txt">
+        <span class="nm"><b data-i18n="c1n">30초 풍선 톡톡</b><em class="chip" data-i18n="c1c">30초</em></span>
+        <span class="ds" data-i18n="c1d">떠오르는 풍선을 30초 동안 톡톡</span>
+      </span>
+      <span class="go" aria-hidden="true">→</span>
+    </a>
+
+    <a class="card" data-k="tower" href="./tower.html" data-aria="c2n">
+      <span class="ico" aria-hidden="true">🐱</span>
+      <span class="txt">
+        <span class="nm"><b data-i18n="c2n">고양이 타워 쌓기</b><em class="chip" data-i18n="c2c">무한</em></span>
+        <span class="ds" data-i18n="c2d">한 번씩 톡 — 타이밍에 맞춰 블록 쌓기</span>
+      </span>
+      <span class="go" aria-hidden="true">→</span>
+    </a>
+
+    <a class="card" data-k="drop" href="./drop.html" data-aria="c3n">
+      <span class="ico" aria-hidden="true">💥</span>
+      <span class="txt">
+        <span class="nm"><b data-i18n="c3n">숫자 콤보 팡!</b><em class="chip" data-i18n="c3c">타임어택</em></span>
+        <span class="ds" data-i18n="c3d">같은 숫자를 이어 터뜨려 콤보</span>
+      </span>
+      <span class="go" aria-hidden="true">→</span>
+    </a>
+
+    <a class="card" data-k="japan" href="./japan.html" data-aria="c4n">
+      <span class="ico" aria-hidden="true">🇯🇵</span>
+      <span class="txt">
+        <span class="nm"><b data-i18n="c4n">일본 초보여행 원클릭 해결사</b><em class="chip" data-i18n="c4c">여행</em></span>
+        <span class="ds" data-i18n="c4d">표·환승·말하기·쇼핑 한 화면</span>
+      </span>
+      <span class="go" aria-hidden="true">→</span>
+    </a>
+  </main>
+
+  <aside class="ads">
+    <a class="promo" href="https://smartstore.naver.com/japanmartbox" target="_blank" rel="noopener noreferrer sponsored">
+      <span class="adtag" aria-hidden="true">AD</span>
+      <span class="pico" aria-hidden="true">📦</span>
+      <span class="ptx"><b data-i18n="promoTitle">재팬마트박스</b><i data-i18n="promoDesc">일본 인기 상품 · 구매대행</i></span>
+      <span class="pcta" data-i18n="promoCta">구경하기 →</span>
+    </a>
+
+    <div class="inq">
+      <span class="adtag" aria-hidden="true">AD</span>
+      <a class="inq-a" id="inqLink" href="mailto:goodcycle1029@gmail.com?subject=%5BAD%5D%20%EA%B4%91%EA%B3%A0%C2%B7%ED%98%91%EC%B0%AC%20%EB%AC%B8%EC%9D%98" rel="noopener">
+        <span class="iico" aria-hidden="true">📢</span>
+        <span class="inq-tx"><b data-i18n="inq">AD · 광고·협찬 문의</b><i data-i18n="inqSub">이 자리에 광고가 들어갑니다</i></span>
+        <span class="icta" data-i18n="inqCta">메일 →</span>
+      </a>
+      <div class="inq-mail">
+        <span>goodcycle1029@gmail.com</span>
+        <button type="button" id="copyMail" data-mail="goodcycle1029@gmail.com" data-i18n="copy">복사</button>
+      </div>
+    </div>
+  </aside>
+
+  <footer class="foot">
+    <span data-i18n="foot">무료 · 설치 없이 · 기록은 이 기기에 저장</span>
+    <span class="dot" aria-hidden="true">·</span>
+    <span>© <b data-i18n="brand">재팬마트박스</b></span>
+  </footer>
+
+</div>
+
 <script>
 /* ==========================================================================
-   미니게임 다국어(한국어 🇰🇷 · English 🇺🇸 · 日本語 🇯🇵 · 中文 🇨🇳)
-   --------------------------------------------------------------------------
-   · 처음 열면 브라우저 언어를 보고 골라 보여 주고, 위쪽 깃발 버튼으로 바꿀 수 있습니다.
-   · 바꾼 언어는 이 기기에 기억됩니다(localStorage 'mg.lang.v1').
-   · 화면에 새로 그려지는 글자도 자동으로 바뀝니다. 게임 규칙·점수 계산은 건드리지 않습니다.
+   대문 메뉴판 다국어 (한국어 · English · 日本語 · 中文)
+   · 미니게임 3종과 같은 키(localStorage 'mg.lang.v1')를 써서, 여기서 고른 언어가
+     게임 화면에서도 그대로 이어집니다.
+   · HTML을 그대로 열어도(자바스크립트 없이) 한국어 메뉴는 정상 동작합니다.
    ========================================================================== */
 (function (w, d) {
   'use strict';
   var KEY = 'mg.lang.v1';
-  var LANGS = [
-    { c: 'ko', flag: '🇰🇷', name: '한국어' },
-    { c: 'en', flag: '🇺🇸', name: 'English' },
-    { c: 'ja', flag: '🇯🇵', name: '日本語' },
-    { c: 'zh', flag: '🇨🇳', name: '中文' }
-  ];
-  var DICT = {
-"PROTOTYPE · 시제품":{"en":"PROTOTYPE","ja":"PROTOTYPE・試作","zh":"PROTOTYPE · 原型"},
-"· 25% 넓어짐":{"en":" · 25% wider","ja":"・25%広がる","zh":" · 加宽 25%"},
-"⏱ 슬로우":{"en":"⏱ Slow ","ja":"⏱ スロウ ","zh":"⏱ 减速 "},
-"가을":{"en":"Autumn","ja":"秋","zh":"秋天"},
-"개발자":{"en":"Dev","ja":"開発者","zh":"开发者"},
-"거북":{"en":"Turtle","ja":"かめ","zh":"乌龟"},
-"겨울":{"en":"Winter","ja":"冬","zh":"冬天"},
-"겹치지 않는 부분은 잘려 나가요":{"en":"The part that overhangs gets cut off","ja":"はみ出した部分は切り落とされます","zh":"没对上的部分会被切掉"},
-"고수":{"en":"Pro","ja":"達人","zh":"高手"},
-"고양이":{"en":"Cat","ja":"ねこ","zh":"猫"},
-"광고":{"en":"Ad","ja":"広告","zh":"广告"},
-"광고 보고 이어하기 (1회)":{"en":"Watch an ad to continue (×1)","ja":"広告を見てコンティニュー（1回）","zh":"看广告继续（1 次）"},
-"광고 시청 중 (시제품: 모의 재생)":{"en":"Watching ad (prototype: simulated)","ja":"広告視聴中（試作：モック再生）","zh":"正在观看广告（原型：模拟播放）"},
-"광고 재생 중…":{"en":"Playing ad… ","ja":"広告を再生中… ","zh":"广告播放中… "},
-"구경하기":{"en":"Browse","ja":"見てみる","zh":"去看看"},
-"구름":{"en":"Cloud","ja":"雲","zh":"云朵"},
-"기록은 이 기기에 저장됩니다":{"en":"Scores stay on this device","ja":"記録はこの端末に保存されます","zh":"成绩保存在本设备"},
-"기사":{"en":"Knight","ja":"騎士","zh":"骑士"},
-"나":{"en":"me","ja":"自分","zh":"我"},
-"내 기록":{"en":"My record ","ja":"自分の記録 ","zh":"我的记录 "},
-"내 주변 순위":{"en":"Ranks around me","ja":"自分の周辺順位","zh":"我附近的排名"},
-"내 최고":{"en":"My best","ja":"自己ベスト","zh":"我的最佳"},
-"네온":{"en":"Neon","ja":"ネオン","zh":"霓虹"},
-"노을":{"en":"Sunset","ja":"夕焼け","zh":"晚霞"},
-"느긋한 숫자블록":{"en":"Slow Number Drop","ja":"のんびり数字ブロック","zh":"慢悠悠数字方块"},
-"닉네임":{"en":"Name","ja":"ニックネーム","zh":"昵称"},
-"닉네임을 등록하면 순위표에 내 기록이 표시됩니다":{"en":"Register a name and your scores appear on the board","ja":"ニックネームを登録すると順位表に自分の記録が表示されます","zh":"登记昵称后你的成绩会显示在排行榜上"},
-"다람쥐":{"en":"Squirrel","ja":"りす","zh":"松鼠"},
-"다시 도전":{"en":"Try again","ja":"もう一度挑戦","zh":"再挑战"},
-"다음 여행 전에 한 번 열어 보세요":{"en":"Open it once before your next trip","ja":"次の旅行の前に一度開いてみてください","zh":"下次旅行前打开看看吧"},
-"다음 판엔 더 높이 쌓아봐요":{"en":"Stack higher next run","ja":"次のプレイはもっと高く積んでみよう","zh":"下一局叠得更高吧"},
-"달빛":{"en":"Moonlight","ja":"月光","zh":"月光"},
-"도전자":{"en":"Challenger","ja":"挑戦者","zh":"挑战者"},
-"등록":{"en":"Save","ja":"登録","zh":"登记"},
-"딸기":{"en":"Berry","ja":"いちご","zh":"草莓"},
-"랭킹 닉네임":{"en":"Ranking name","ja":"ランキング名","zh":"排行榜昵称"},
-"러버":{"en":"Lover","ja":"ラバー","zh":"爱好者"},
-"레몬":{"en":"Lemon","ja":"レモン","zh":"柠檬"},
-"마스터":{"en":"Master","ja":"マスター","zh":"大师"},
-"명 중":{"en":"players","ja":"人中","zh":"人中"},
-"모래":{"en":"Sand","ja":"砂","zh":"沙"},
-"무너졌어요":{"en":"It collapsed!","ja":"崩れた！","zh":"倒塌了！"},
-"민트":{"en":"Mint","ja":"ミント","zh":"薄荷"},
-"바닐라":{"en":"Vanilla","ja":"バニラ","zh":"香草"},
-"바다":{"en":"Ocean","ja":"海","zh":"大海"},
-"바로가기":{"en":"Go","ja":"開く","zh":"前往"},
-"번개":{"en":"Bolt","ja":"いなずま","zh":"闪电"},
-"별빛":{"en":"Starlight","ja":"星光","zh":"星光"},
-"보기":{"en":"View","ja":"見る","zh":"查看"},
-"보상형 광고 자리":{"en":"Rewarded ad slot","ja":"リワード広告枠","zh":"激励广告位"},
-"복숭아":{"en":"Peach","ja":"桃","zh":"桃子"},
-"봄비":{"en":"SpringRain","ja":"春雨","zh":"春雨"},
-"블록이 너무 좁아졌어요":{"en":"The block got too narrow","ja":"ブロックが狭くなりすぎました","zh":"方块变得太窄了"},
-"블록이 좌우로 움직여요":{"en":"The block slides left and right","ja":"ブロックが左右に動きます","zh":"方块会左右移动"},
-"빗나갔어요":{"en":"Missed","ja":"外しました","zh":"没对上"},
-"상위":{"en":"Top ","ja":"上位","zh":"前 "},
-"상위 15% — 충분히 잘하고 있어요":{"en":"Top 15% — you are doing well","ja":"上位15% — 十分上手です","zh":"前 15% — 已经很不错了"},
-"상위 40% — 평균보다 위예요":{"en":"Top 40% — above average","ja":"上位40% — 平均より上です","zh":"前 40% — 高于平均"},
-"상위 5% 진입 — 손끝이 아주 매끄러웠어요":{"en":"Top 5% — beautifully smooth taps","ja":"上位5%入り — 指先がとても滑らかでした","zh":"进入前 5% — 手感很顺"},
-"상위 —":{"en":"Top —","ja":"上位 —","zh":"前 —"},
-"새벽":{"en":"Dawn","ja":"夜明け","zh":"黎明"},
-"소나기":{"en":"Shower","ja":"通り雨","zh":"阵雨"},
-"소리 끄기":{"en":"Sound off","ja":"音をオフ","zh":"关闭声音"},
-"소리 켜기":{"en":"Sound on","ja":"音をオン","zh":"开启声音"},
-"소리 켜기/끄기":{"en":"Sound on/off","ja":"音のオン・オフ","zh":"声音开/关"},
-"손이 불편해도 괜찮아요 · 버튼을 정확히 누를 필요 없이 화면 아무 곳이나 터치하면 됩니다":{"en":"Hands tired? No problem — no need to hit a button, just touch anywhere on the screen","ja":"手が不自由でも大丈夫・ボタンを正確に押す必要はなく、画面のどこかを触ればOKです","zh":"手不方便也没关系 · 不用准确按到按钮，点屏幕任意位置就行"},
-"수집가":{"en":"Collector","ja":"収集家","zh":"收藏家"},
-"순위":{"en":"Rank","ja":"順位","zh":"排名"},
-"순위표에":{"en":"Saved to the board as ","ja":"順位表に ","zh":"排行榜已记录为 "},
-"숫":{"en":"N","ja":"数","zh":"数"},
-"숫자블록":{"en":"Number Drop","ja":"数字ブロック","zh":"数字方块"},
-"숲":{"en":"Forest","ja":"森","zh":"森林"},
-"슬로우":{"en":"Slow","ja":"スロウ","zh":"减速"},
-"시작하기":{"en":"Start","ja":"スタート","zh":"开始"},
-"시제품: 실제 광고 없이 3초 대기 후 이어집니다":{"en":"Prototype: no real ad, continues after a 3-second wait","ja":"試作：実際の広告はなく、3秒待つと続きます","zh":"原型：没有真实广告，等 3 秒后继续"},
-"쌓기":{"en":"Stacker","ja":"つみ","zh":"叠叠"},
-"여름":{"en":"Summer","ja":"夏","zh":"夏天"},
-"여행자":{"en":"Traveler","ja":"旅人","zh":"旅行者"},
-"연쇄":{"en":" chain","ja":"連鎖","zh":"连击"},
-"연쇄 합체!":{"en":"Chain merge!","ja":"連鎖合体！","zh":"连锁合并！"},
-"연습생":{"en":"Trainee","ja":"練習生","zh":"练习生"},
-"예: 300×250 · 실제 출시 시 AdMob/AdSense 연결":{"en":"e.g. 300×250 · AdMob/AdSense in the real release","ja":"例：300×250・正式リリース時にAdMob/AdSense接続","zh":"例：300×250 · 正式发布时接入 AdMob/AdSense"},
-"예: 320×100":{"en":"e.g. 320×100","ja":"例：320×100","zh":"例：320×100"},
-"예: 새벽타워":{"en":"e.g. DawnTower","ja":"例：夜明けタワー","zh":"例：黎明塔"},
-"오늘":{"en":"Today","ja":"今日","zh":"今日"},
-"오늘의 TOP":{"en":"Today's TOP ","ja":"今日のTOP ","zh":"今日 TOP "},
-"요정":{"en":"Fairy","ja":"妖精","zh":"妖精"},
-"우주":{"en":"Cosmos","ja":"宇宙","zh":"宇宙"},
-"원터치 타워":{"en":"One-Touch Tower","ja":"ワンタッチタワー","zh":"一键叠塔"},
-"원터치 타워 · 랭킹 시제품":{"en":"One-Touch Tower · Ranking Prototype","ja":"ワンタッチタワー・ランキング試作","zh":"一键叠塔 · 排行榜原型"},
-"위":{"en":"","ja":"位","zh":"名"},
-"은하":{"en":"Galaxy","ja":"銀河","zh":"银河"},
-"이 기기에 저장":{"en":" on this device","ja":" この端末に保存","zh":" 本设备"},
-"이번 기록":{"en":"This run","ja":"今回の記録","zh":"本次成绩"},
-"이번 판 이어하기 사용 완료":{"en":"Continue already used this run","ja":"今回のコンティニューは使用済み","zh":"本局已使用过继续"},
-"이번 판 점수":{"en":"Score this run","ja":"今回のスコア","zh":"本局得分"},
-"이번 판 점수 · 최고":{"en":"Score this run · best ","ja":"今回のスコア・ベスト ","zh":"本局得分 · 最佳 "},
-"이어하기":{"en":"Continue","ja":"コンティニュー","zh":"继续"},
-"이어하기 (1회)":{"en":"Continue (×1)","ja":"コンティニュー（1回）","zh":"继续（1 次）"},
-"이제 몸이 풀렸어요. 한 판만 더!":{"en":"You are warmed up — one more run!","ja":"体がほぐれました。もう1回！","zh":"已经热身好了 — 再来一局！"},
-"일본 초보여행 원클릭 해결사":{"en":"Japan for First-Timers","ja":"日本の初めて旅行ガイド","zh":"日本新手旅行指南"},
-"장인":{"en":"Artisan","ja":"職人","zh":"匠人"},
-"재도전 화면 광고 자리":{"en":"Retry screen ad slot","ja":"再挑戦画面の広告枠","zh":"重试页面广告位"},
-"전설급 기록이에요. 전체 1% 안쪽!":{"en":"Legendary — you are in the top 1%!","ja":"伝説級です。全体の1%以内！","zh":"传奇级！进入前 1%！"},
-"전체":{"en":"of ","ja":"全","zh":"共 "},
-"점":{"en":"pts","ja":"点","zh":"分"},
-"점수":{"en":"Score","ja":"スコア","zh":"分数"},
-"제주":{"en":"Jeju","ja":"済州","zh":"济州"},
-"처음으로":{"en":"Home","ja":"最初へ","zh":"返回首页"},
-"초":{"en":"s","ja":"秒","zh":"秒"},
-"초보":{"en":"Rookie","ja":"初心者","zh":"新手"},
-"초코":{"en":"Choco","ja":"チョコ","zh":"巧克力"},
-"최고":{"en":"Best","ja":"最高","zh":"最高"},
-"최고 경신":{"en":"New best","ja":"自己ベスト更新","zh":"刷新纪录"},
-"층":{"en":"F","ja":"階","zh":"层"},
-"층 뒤":{"en":" floors away","ja":"階あと","zh":" 层后"},
-"카페":{"en":"Cafe","ja":"カフェ","zh":"咖啡"},
-"콤보 보너스 +":{"en":"Combo bonus +","ja":"コンボボーナス+","zh":"连击加成 +"},
-"타워":{"en":"Tower","ja":"タワー","zh":"塔"},
-"테스트용 로컬+시뮬레이션 랭킹 · 실제 출시 시 실시간 DB 연동":{"en":"Test build: local + simulated ranking · live DB in the real release","ja":"テスト用のローカル＋シミュレーション順位・正式リリース時はリアルタイムDB連携","zh":"测试用本地＋模拟排名 · 正式发布时接入实时数据库"},
-"테스트용 로컬+시뮬레이션 랭킹(1,248명) + 내 기록 · 실제 출시 시 실시간 DB 연동":{"en":"Test build: local + simulated ranking (1,248 players) + my scores · live DB in the real release","ja":"テスト用のローカル＋シミュレーション順位（1,248人）＋自分の記録・正式リリース時はリアルタイムDB連携","zh":"测试用本地＋模拟排名（1,248人）＋我的成绩 · 正式发布时接入实时数据库"},
-"토끼":{"en":"Rabbit","ja":"うさぎ","zh":"兔子"},
-"펭귄":{"en":"Penguin","ja":"ペンギン","zh":"企鹅"},
-"표 끊기·환승·말하기·쇼핑을 한 화면에 · 무료":{"en":"Tickets, transfers, phrases and shopping in one screen · free","ja":"切符・乗換・会話・買い物を1画面に・無料","zh":"买票·换乘·对话·购物一屏搞定 · 免费"},
-"플레이어":{"en":"Player ","ja":"プレイヤー ","zh":"玩家 "},
-"하늘":{"en":"Sky","ja":"空","zh":"天空"},
-"하단 고정 배너 광고 자리":{"en":"Fixed bottom banner slot","ja":"下部固定バナー広告枠","zh":"底部固定横幅广告位"},
-"학생":{"en":"Student","ja":"学生","zh":"学生"},
-"한 번만 톡 — 타이밍에 맞춰 블록을 쌓는 게임":{"en":"One tap — stack the blocks with the right timing","ja":"1回タップ — タイミングよくブロックを積むゲーム","zh":"只点一次 — 看准时机叠方块的游戏"},
-"한강":{"en":"HanRiver","ja":"漢江","zh":"汉江"},
-"화면 아무 곳이나 한 번 터치":{"en":"Tap anywhere once","ja":"画面のどこかを1回タッチ","zh":"在屏幕任意位置点一下"},
-"화면 아무 곳이나 한 번 터치 (PC는 스페이스바)":{"en":"Tap anywhere once (press Space on PC)","ja":"画面のどこかを1回タッチ（PCはスペースキー）","zh":"在屏幕任意位置点一下（电脑按空格键）"},
-"🎁 아이템":{"en":"🎁 Item ","ja":"🎁 アイテム ","zh":"🎁 道具 "}
-};
-  var PAT = [
-[/^30초 풍선 톡톡 ([\d,]+)점 \(상위 (.+)\)! 너도 30초만 해봐 👉 (\S+)$/,{"en":"Balloon Pop 30 — $1 pts (top $2)! Try 30 seconds too 👉 $3","ja":"30秒バルーンぽんぽん $1点（上位$2）！あなたも30秒だけやってみて 👉 $3","zh":"30秒气球弹弹 $1分（前 $2）！你也来30秒试试 👉 $3"}],
-[/^([\d,]+)콤보 · 보너스 \+([\d,]+)$/,{"en":"Combo ×$1 · bonus +$2","ja":"$1コンボ・ボーナス+$2","zh":"$1连击 · 加成 +$2"}],
-[/^상위 ([\d.]+)%$/,{"en":"Top $1%","ja":"上位$1%","zh":"前 $1%"}],
-[/^상위 ([\d.]+)% 미만$/,{"en":"Top $1%","ja":"上位$1%","zh":"前 $1%"}],
-[/^([\d,]+)점$/,{"en":"$1 pts","ja":"$1点","zh":"$1分"}],
-[/^([\d,]+)점 \(상위 ([\d.]+)%\)$/,{"en":"$1 pts (top $2%)","ja":"$1点（上位$2%）","zh":"$1分（前 $2%）"}],
-[/^최고 ([\d,]+)점$/,{"en":"best $1 pts","ja":"ベスト$1点","zh":"最佳 $1分"}],
-[/^([\d,]+)위$/,{"en":"#$1","ja":"$1位","zh":"第$1名"}],
-[/^([\d,]+)초$/,{"en":"$1s","ja":"$1秒","zh":"$1秒"}],
-[/^([\d,]+)연쇄$/,{"en":"$1 chain","ja":"$1連鎖","zh":"$1连锁"}],
-[/^([\d,]+)연쇄 합체!$/,{"en":"$1-chain merge!","ja":"$1連鎖合体！","zh":"$1连锁合并！"}],
-[/^맨 위 블록 (\d+)개를 정리했어요$/,{"en":"Cleared $1 block(s) from the top","ja":"一番上のブロックを$1個整理しました","zh":"整理了最上面 $1 个方块"}],
-[/^새 최고 기록이에요 \(지난 최고 ([\d,]+)\)$/,{"en":"New best score (previous best $1)","ja":"自己ベスト更新（前回のベスト $1）","zh":"新纪录（上次最高 $1）"}],
-[/^이번 판 점수 · 최고 ([\d,]+)$/,{"en":"Score this run · best $1","ja":"今回のスコア・ベスト $1","zh":"本局得分 · 最佳 $1"}],
-[/^상위 ([\d.]+%)$/,{"en":"Top $1","ja":"上位$1","zh":"前 $1"}],
-[/^전체 ([\d,]+)명 중$/,{"en":"of $1 players","ja":"全$1人中","zh":"共 $1 人中"}],
-[/^점<\/b> · ([\d,]+)위 · 상위 ([\d.]+%)$/,{"en":"pts</b> · #$1 · top $2","ja":"点</b>・$1位・上位$2","zh":"分</b> · 第$1名 · 前 $2"}],
-[/^느긋한 숫자블록 ([\d,]+)점 \(상위 (.+)\) 시간제한 없이 도전해 봐! 👉 (\S+)$/,{"en":"Slow Number Drop — $1 pts (top $2) — no time limit, try it! 👉 $3","ja":"のんびり数字ブロック $1点（上位$2）時間制限なしで挑戦してみて！👉 $3","zh":"慢悠悠数字方块 $1分（前 $2）没有时间限制，来挑战吧！👉 $3"}],
-[/^느긋한 숫자블록 ([\d,]+)점 시간제한 없이 도전해 봐! 👉 (\S+)$/,{"en":"Slow Number Drop — $1 pts — no time limit, try it! 👉 $2","ja":"のんびり数字ブロック $1点 時間制限なしで挑戦してみて！👉 $2","zh":"慢悠悠数字方块 $1分 没有时间限制，来挑战吧！👉 $2"}],
-[/^플레이어 (\d+)$/,{"en":"Player $1","ja":"プレイヤー $1","zh":"玩家 $1"}],
-[/^원터치 타워 ([\d,]+)층 달성! \(상위 (.+)\) 나보다 높이 쌓을 수 있어\? 👉 (\S+)$/,{"en":"One-Touch Tower — $1F reached! (top $2) Can you stack higher? 👉 $3","ja":"ワンタッチタワー $1階達成！（上位$2）もっと高く積める？👉 $3","zh":"一键叠塔 达到 $1 层！（前 $2）你能叠得更高吗？👉 $3"}],
-[/^원터치 타워 ([\d,]+)층 달성! 나보다 높이 쌓을 수 있어\? 👉 (\S+)$/,{"en":"One-Touch Tower — $1F reached! Can you stack higher? 👉 $2","ja":"ワンタッチタワー $1階達成！もっと高く積める？👉 $2","zh":"一键叠塔 达到 $1 层！你能叠得更高吗？👉 $2"}],
-[/^콤보 보너스 \+([\d,]+)$/,{"en":"Combo bonus +$1","ja":"コンボボーナス+$1","zh":"连击加成 +$1"}],
-[/^폭 \+([\d,]+) · 25% 넓어짐$/,{"en":"Width +$1 · 25% wider","ja":"幅+$1・25%広がる","zh":"宽度 +$1 · 加宽 25%"}],
-[/^⏱ 슬로우 (\d+)층$/,{"en":"⏱ Slow $1 floors","ja":"⏱ スロウ$1階","zh":"⏱ 减速 $1 层"}],
-[/^🎁 아이템 (\d+)층 뒤$/,{"en":"🎁 Item $1 floors away","ja":"🎁 アイテム$1階あと","zh":"🎁 道具 $1 层后"}],
-[/^오늘의 TOP (\d+)$/,{"en":"Today's TOP $1","ja":"今日のTOP $1","zh":"今日 TOP $1"}],
-[/^등록됨: (.+?) · (.+)$/,{"en":"Saved: $1 · $2","ja":"登録済み：$1・$2","zh":"已记录：$1 · $2"}],
-[/^구경하기 →$/,{"en":"Browse →","ja":"見てみる →","zh":"去看看 →"}],
-[/^바로가기 →$/,{"en":"Go →","ja":"開く →","zh":"前往 →"}],
-[/^· ([\d,]+)위 · 상위 (.+)$/,{"en":"· #$1 · top $2","ja":"・$1位・上位$2","zh":"· 第$1名 · 前 $2"}],
-[/^상위 —$/,{"en":"Top —","ja":"上位 —","zh":"前 —"}],
-[/^상위 (.+)$/,{"en":"Top $1","ja":"上位$1","zh":"前 $1"}],
-[/^오늘 ([\d,]+)명 중 ([\d,]+)위$/,{"en":"rank $2 of $1 players today","ja":"今日$1人中$2位","zh":"今日 $1 人中第 $2 名"}],
-[/^오늘 참가한 ([\d,]+)명 중$/,{"en":"of $1 players today","ja":"今日の参加$1人中","zh":"今日参与者 $1 人中"}],
-[/^내 최고 ([\d,]+)층$/,{"en":"My best $1F","ja":"自己ベスト$1階","zh":"我的最佳 $1 层"}],
-[/^([\d,]+)층$/,{"en":"$1F","ja":"$1階","zh":"$1层"}],
-[/^\+([\d,]+)층$/,{"en":"+$1F","ja":"+$1階","zh":"+$1 层"}],
-[/^콤보 ×(\d+)$/,{"en":"Combo ×$1","ja":"コンボ×$1","zh":"连击 ×$1"}],
-[/^준비 중… (\d+)$/,{"en":"Getting ready… $1","ja":"準備中… $1","zh":"准备中… $1"}]
-];
-  var NAME_A = ["새벽", "구름", "레몬", "복숭아", "초코", "네온", "달빛", "소나기", "모래", "은하", "딸기", "고양이", "펭귄", "한강", "제주", "별빛", "노을", "민트", "바닐라", "카페", "우주", "번개", "거북", "다람쥐", "토끼", "하늘", "바다", "숲", "겨울", "여름", "봄비", "가을"];
-  var NAME_B = ["타워", "쌓기", "장인", "초보", "고수", "러버", "마스터", "도전자", "기사", "연습생", "요정", "수집가", "여행자", "개발자", "학생"];
-  var HANGUL = /[\uac00-\ud7a3]/;
-  var ATTRS = ['placeholder', 'aria-label', 'title', 'alt', 'content'];
-  var lang = 'ko', titleKo = null, ready = false;
+  var ORDER = ['ko', 'en', 'ja', 'zh'];
+  var I18N = {
+    ko: {
+      brand: '재팬마트박스', brandSub: '미니게임 놀이터',
+      h1: '한 번의 탭으로, 바로 시작',
+      sub: '미니게임 3종 + 일본 초보여행 해결사 · 모두 무료, 설치 없이',
+      c1n: '30초 풍선 톡톡', c1c: '30초', c1d: '떠오르는 풍선을 30초 동안 톡톡',
+      c2n: '고양이 타워 쌓기', c2c: '무한', c2d: '한 번씩 톡 — 타이밍에 맞춰 블록 쌓기',
+      c3n: '숫자 콤보 팡!', c3c: '타임어택', c3d: '같은 숫자를 이어 터뜨려 콤보',
+      c4n: '일본 초보여행 원클릭 해결사', c4c: '여행', c4d: '표·환승·말하기·쇼핑 한 화면',
+      promoTitle: '재팬마트박스', promoDesc: '일본 인기 상품 · 구매대행', promoCta: '구경하기 →',
+      inq: 'AD · 광고·협찬 문의', inqSub: '이 자리에 광고가 들어갑니다', inqCta: '메일 →',
+      copy: '복사', copied: '복사했어요',
+      foot: '무료 · 설치 없이 · 기록은 이 기기에 저장',
+      lang: '언어', menu: '서비스 목록', go: '바로 시작'
+    },
+    en: {
+      brand: 'Japan Mart Box', brandSub: 'MINI GAME PLAYGROUND',
+      h1: 'One tap, straight into it',
+      sub: '3 mini games + a Japan first-timer helper · all free, no install',
+      c1n: 'Balloon Pop 30', c1c: '30 sec', c1d: 'Pop the rising balloons for 30 seconds',
+      c2n: 'Cat Tower Stack', c2c: 'Endless', c2d: 'One tap — stack blocks with the right timing',
+      c3n: 'Number Combo Bang!', c3c: 'Time attack', c3d: 'Link matching numbers and blow them up',
+      c4n: 'Japan First-Timer Helper', c4c: 'Travel', c4d: 'Tickets, transfers, phrases and shopping in one screen',
+      promoTitle: 'Japan Mart Box', promoDesc: 'Popular Japan goods · buying service', promoCta: 'Browse →',
+      inq: 'AD / Sponsor Slot', inqSub: 'Ad space available here', inqCta: 'Contact →',
+      copy: 'Copy', copied: 'Copied',
+      foot: 'Free · no install · scores stay on this device',
+      lang: 'Language', menu: 'Services', go: 'Start'
+    },
+    ja: {
+      brand: 'Japan Mart Box', brandSub: 'ミニゲーム プレイグラウンド',
+      h1: 'ワンタップですぐスタート',
+      sub: 'ミニゲーム3種＋日本の初めて旅行ガイド・すべて無料、インストール不要',
+      c1n: '30秒バルーンぽんぽん', c1c: '30秒', c1d: '上がってくる風船を30秒ぽんぽん',
+      c2n: 'ねこタワーつみ', c2c: 'エンドレス', c2d: 'ワンタップ — タイミングよくブロックを積む',
+      c3n: '数字コンボパン！', c3c: 'タイムアタック', c3d: '同じ数字をつないでパンと消す',
+      c4n: '日本の初めて旅行ガイド', c4c: '旅行', c4d: '切符・乗換・会話・買い物を1画面に',
+      promoTitle: 'Japan Mart Box', promoDesc: '日本の人気商品・購入代行', promoCta: '見てみる →',
+      inq: 'AD / スポンサー枠', inqSub: 'ここに広告を掲載できます', inqCta: '問い合わせ →',
+      copy: 'コピー', copied: 'コピーしました',
+      foot: '無料・インストール不要・記録はこの端末に保存',
+      lang: '言語', menu: 'サービス一覧', go: 'スタート'
+    },
+    zh: {
+      brand: 'Japan Mart Box', brandSub: '小游戏乐园',
+      h1: '一点即玩，立刻开始',
+      sub: '3 款小游戏 ＋ 日本新手旅行助手 · 全部免费，免安装',
+      c1n: '30秒气球弹弹', c1c: '30秒', c1d: '30 秒内点掉升起的气球',
+      c2n: '猫咪叠塔', c2c: '无尽', c2d: '一点一下 — 看准时机叠方块',
+      c3n: '数字连击砰！', c3c: '限时', c3d: '连接相同数字，砰地炸开',
+      c4n: '日本新手旅行助手', c4c: '旅行', c4d: '买票·换乘·对话·购物一屏搞定',
+      promoTitle: 'Japan Mart Box', promoDesc: '日本人气商品 · 代购服务', promoCta: '去看看 →',
+      inq: 'AD / 赞助位', inqSub: '此处可投放广告', inqCta: '咨询 →',
+      copy: '复制', copied: '已复制',
+      foot: '免费 · 免安装 · 成绩保存在本设备',
+      lang: '语言', menu: '服务列表', go: '开始'
+    }
+  };
 
-  function known(c) { for (var i = 0; i < LANGS.length; i++) if (LANGS[i].c === c) return true; return false; }
+  function known(c) { return ORDER.indexOf(c) >= 0; }
 
   function pickLang() {
+    var q = '';
+    try { q = (new URLSearchParams(location.search)).get('lang') || ''; } catch (e) {}
+    q = String(q).toLowerCase();
+    if (q && known(q.slice(0, 2))) return q.slice(0, 2);
     var saved = null;
     try { saved = w.localStorage.getItem(KEY); } catch (e) {}
     if (saved && known(saved)) return saved;
-    var list = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || 'en'];
+    var list = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || 'ko'];
     for (var i = 0; i < list.length; i++) {
       var l = String(list[i] || '').toLowerCase();
       if (l.indexOf('ko') === 0) return 'ko';
@@ -454,2078 +404,103 @@
       if (l.indexOf('zh') === 0) return 'zh';
       if (l.indexOf('en') === 0) return 'en';
     }
-    return 'en';
-  }
-
-  /* -------- 글자 하나 번역 -------- */
-  function nick(s) {
-    if (!NAME_A || !NAME_A.length) return '';
-    for (var i = 0; i < NAME_A.length; i++) {
-      var a = NAME_A[i];
-      if (a && s.indexOf(a) === 0) {
-        var rest = s.slice(a.length);
-        if (rest && NAME_B.indexOf(rest) >= 0) {
-          var ta = DICT[a] ? DICT[a][lang] : '', tb = DICT[rest] ? DICT[rest][lang] : '';
-          if (ta && tb) return ta + tb;
-        }
-      }
-    }
-    return '';
-  }
-
-  function core(s, depth) {
-    var hit = DICT[s];
-    if (hit && typeof hit[lang] === 'string') return hit[lang];
-    if (depth < 3) {
-      for (var i = 0; i < PAT.length; i++) {
-        var m = PAT[i][0].exec(s);
-        if (!m) continue;
-        var tpl = PAT[i][1][lang];
-        if (!tpl) continue;
-        var caps = [];
-        for (var k = 1; k < m.length; k++) caps.push(m[k] ? core(String(m[k]).replace(/^\s+|\s+$/g, ''), depth + 1) : '');
-        var out = tpl.replace(/\$(\d)/g, function (_, n) {
-          var v = caps[Number(n) - 1];
-          return v === undefined ? '' : v;
-        });
-        if (out) return out;
-      }
-      var nm = nick(s);
-      if (nm) return nm;
-      var parts = byParts(s);
-      if (parts) return parts;
-    }
-    return s;
-  }
-
-  /* 사전 낱말이 이어 붙은 문장(예: 광고 aria-label)을 마지막 수단으로 조각조각 바꾼다.
-     한국어가 하나도 남지 않을 때만 채택해 어색한 반쪽 번역을 피한다. */
-  var KEYS = null;
-  function byParts(s) {
-    if (!KEYS) {
-      KEYS = [];
-      for (var k in DICT) if (DICT.hasOwnProperty(k)) KEYS.push(k);
-      KEYS.sort(function (a, b) { return b.length - a.length; });
-    }
-    var out = s, hit = false;
-    for (var i = 0; i < KEYS.length; i++) {
-      var k = KEYS[i];
-      if (k.length < 2 || out.indexOf(k) < 0) continue;
-      var rep = DICT[k][lang];
-      if (rep === undefined || rep === null) continue;
-      out = out.split(k).join(rep);
-      hit = true;
-    }
-    if (!hit || HANGUL.test(out)) return '';
-    return out;
-  }
-
-  function tr(str) {
-    if (!str || lang === 'ko' || !HANGUL.test(str)) return str;
-    var m = /^(\s*)([\s\S]*?)(\s*)$/.exec(str);
-    if (!m) return str;
-    var body = m[2];
-    if (!body) return str;
-    var out = core(body, 0);
-    return out === body ? str : m[1] + out + m[3];
-  }
-
-  /* -------- 화면에 반영 -------- */
-  function isSkipped(node) {
-    var p = node.parentNode;
-    while (p && p.nodeType === 1) {
-      var n = p.nodeName;
-      if (n === 'SCRIPT' || n === 'STYLE' || n === 'NOSCRIPT' || n === 'TEXTAREA') return true;
-      if (p.className && String(p.className).indexOf('mg-lang') >= 0) return true;
-      p = p.parentNode;
-    }
-    return false;
-  }
-
-  function applyText(node) {
-    var v = node.nodeValue;
-    if (!v) return;
-    if (lang === 'ko') {
-      if (node.__mgKo !== undefined && node.__mgOut === v) {
-        node.nodeValue = node.__mgKo;
-        node.__mgOut = null;
-      }
-      return;
-    }
-    /* 이미 우리가 바꿔 둔 글자면 원문(한국어)에서 다시 번역한다(영→일→중으로 연달아 바꿀 때) */
-    var src = v;
-    if (node.__mgKo !== undefined && node.__mgOut === v) src = node.__mgKo;
-    if (!HANGUL.test(src)) return;
-    if (isSkipped(node)) return;
-    var out = tr(src);
-    if (out !== src) {
-      node.__mgKo = src;
-      node.__mgOut = out;
-      if (node.nodeValue !== out) node.nodeValue = out;   /* 같은 값으로 다시 쓰면 감시가 끝없이 돌아 무한반복이 된다 */
-    }
-  }
-
-  function applyAttr(el) {
-    if (!el || el.nodeType !== 1) return;
-    for (var i = 0; i < ATTRS.length; i++) {
-      var a = ATTRS[i];
-      var v = el.getAttribute(a);
-      if (!v) continue;
-      var saved = el.__mgKoA && el.__mgKoA[a] !== undefined && el.__mgOutA && el.__mgOutA[a] === v;
-      if (saved && lang === 'ko') { el.setAttribute(a, el.__mgKoA[a]); continue; }
-      if (lang === 'ko') continue;
-      var src = saved ? el.__mgKoA[a] : v;
-      if (!HANGUL.test(src)) continue;
-      var out = tr(src);
-      if (out === src || v === out) continue;
-      el.__mgKoA = el.__mgKoA || {};
-      el.__mgOutA = el.__mgOutA || {};
-      el.__mgKoA[a] = src;
-      el.__mgOutA[a] = out;
-      el.setAttribute(a, out);
-    }
-  }
-
-  function applyNode(root) {
-    if (!root) return;
-    if (root.nodeType === 3) { applyText(root); return; }
-    if (root.nodeType !== 1 && root.nodeType !== 9) return;
-    if (root.nodeType === 1) applyAttr(root);
-    var walker = d.createTreeWalker(root, 4 /* SHOW_TEXT */, null, false);
-    var n = walker.nextNode();
-    while (n) { applyText(n); n = walker.nextNode(); }
-    if (root.querySelectorAll) {
-      var els = root.querySelectorAll('[placeholder],[aria-label],[title],[alt],meta[content]');
-      for (var i = 0; i < els.length; i++) applyAttr(els[i]);
-    }
-  }
-
-  function applyTitle() {
-    if (titleKo === null) titleKo = d.title;
-    d.title = (lang === 'ko') ? titleKo : tr(titleKo);
-  }
-
-  function setHtmlLang() {
-    try { d.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-Hans' : lang); } catch (e) {}
-  }
-
-  /* -------- 언어 바꾸기 -------- */
-  function setLang(c, save) {
-    if (!known(c)) return;
-    lang = c;
-    if (save !== false) { try { w.localStorage.setItem(KEY, c); } catch (e) {} }
-    setHtmlLang();
-    applyNode(d.body);
-    applyTitle();
-    mountOverlay();
-    syncButtons();
-    try { w.dispatchEvent(new w.CustomEvent('mg-lang', { detail: { lang: lang } })); } catch (e) {}
-  }
-
-  /* -------- 언어 버튼 (헤더 + 시작·결과 카드 위) -------- */
-  var CSS = [
-    '#mgLang{position:relative;flex:0 0 auto;display:flex;align-items:center;pointer-events:auto;z-index:40;-webkit-tap-highlight-color:transparent}',
-    '.mg-lang-btn{width:38px;height:38px;padding:0;border-radius:12px;border:1px solid rgba(255,255,255,.18);',
-    'background:rgba(10,16,32,.62);color:#eaf0ff;font-size:17px;line-height:1;display:grid;place-items:center;cursor:pointer;',
-    '-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(0,0,0,.22);transition:transform .12s ease}',
-    '.mg-lang-btn:active{transform:scale(.94)}',
-    '.mg-lang-row{display:flex;justify-content:flex-end;align-items:center;gap:6px}',
-    '.mg-lang-fixed{position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;z-index:40}',
-    '.mg-lang-row .mg-lang-btn{width:36px;height:36px;border-radius:11px;font-size:16px;background:rgba(20,26,44,.8);border-color:rgba(255,255,255,.26)}',
-    '.mg-lang-menu{position:fixed;z-index:2147483000;display:none;flex-direction:column;gap:2px;padding:6px;border-radius:14px;',
-    'border:1px solid rgba(255,255,255,.2);background:rgba(14,20,34,.97);box-shadow:0 18px 44px rgba(0,0,0,.6);',
-    '-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);min-width:150px}',
-    '.mg-lang-menu.open{display:flex}',
-    '.mg-lang-item{display:flex;align-items:center;gap:9px;width:100%;border:0;background:transparent;color:#eaf0ff;',
-    'font-family:inherit;font-size:13.5px;font-weight:700;padding:9px 12px;border-radius:10px;cursor:pointer;text-align:left;white-space:nowrap}',
-    '.mg-lang-item:hover,.mg-lang-item.on{background:rgba(126,224,255,.18)}',
-    '.mg-lang-item .fl{font-size:15px;line-height:1}',
-    /* 긴 번역문이 좁은 칸에서 넘치지 않도록 (일본어·중국어는 띄어쓰기가 없어 잘리지 않음) */
-    '.how span,.how b{overflow-wrap:anywhere}'
-  ].join('');
-
-  var buttons = [], menu = null, menuOwner = null, cssIn = false;
-
-  function ensureCss() {
-    if (cssIn) return;
-    cssIn = true;
-    var st = d.createElement('style');
-    st.id = 'mgLangStyle';
-    st.textContent = CSS;
-    (d.head || d.documentElement).appendChild(st);
-  }
-
-  function ensureMenu() {
-    if (menu) return menu;
-    menu = d.createElement('div');
-    menu.className = 'mg-lang-menu mg-lang';
-    menu.setAttribute('role', 'menu');
-    for (var i = 0; i < LANGS.length; i++) {
-      (function (L) {
-        var b = d.createElement('button');
-        b.type = 'button';
-        b.className = 'mg-lang-item mg-lang';
-        b.setAttribute('role', 'menuitem');
-        b.setAttribute('data-lang', L.c);
-        b.innerHTML = '<span class="fl">' + L.flag + '</span><span>' + L.name + '</span>';
-        b.addEventListener('click', function (e) {
-          e.preventDefault(); e.stopPropagation();
-          setLang(L.c);
-          closeMenu();
-          if (menuOwner) menuOwner.setAttribute('aria-expanded', 'false');
-        });
-        b.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
-        menu.appendChild(b);
-      })(LANGS[i]);
-    }
-    menu.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
-    d.body.appendChild(menu);
-    return menu;
-  }
-
-  function syncButtons() {
-    for (var i = 0; i < buttons.length; i++) {
-      var b = buttons[i], cur = LANGS[0];
-      for (var j = 0; j < LANGS.length; j++) if (LANGS[j].c === lang) cur = LANGS[j];
-      b.textContent = cur.flag;
-      b.setAttribute('aria-label', 'Language: ' + cur.name);
-      b.setAttribute('title', cur.name);
-    }
-    if (!menu) return;
-    var items = menu.querySelectorAll('.mg-lang-item');
-    for (var k = 0; k < items.length; k++) {
-      var on = items[k].getAttribute('data-lang') === lang;
-      items[k].className = 'mg-lang-item mg-lang' + (on ? ' on' : '');
-      items[k].setAttribute('aria-current', on ? 'true' : 'false');
-    }
-  }
-
-  function closeMenu() {
-    if (menu) menu.className = 'mg-lang-menu mg-lang';
-    if (menuOwner) menuOwner.setAttribute('aria-expanded', 'false');
-    menuOwner = null;
-  }
-
-  function openMenu(btn) {
-    ensureMenu();
-    var r = btn.getBoundingClientRect();
-    menu.className = 'mg-lang-menu mg-lang open';
-    menu.style.top = Math.round(r.bottom + 6) + 'px';
-    menu.style.right = Math.max(8, Math.round(w.innerWidth - r.right)) + 'px';
-    menu.style.left = 'auto';
-    menuOwner = btn;
-    btn.setAttribute('aria-expanded', 'true');
-  }
-
-  function addButton(host, small) {
-    ensureCss();
-    var btn = d.createElement('button');
-    btn.type = 'button';
-    btn.className = 'mg-lang-btn mg-lang';
-    btn.setAttribute('aria-haspopup', 'true');
-    btn.setAttribute('aria-expanded', 'false');
-    btn.addEventListener('click', function (e) {
-      e.preventDefault(); e.stopPropagation();
-      if (menuOwner === btn) { closeMenu(); return; }
-      openMenu(btn);
-    });
-    btn.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
-    host.appendChild(btn);
-    buttons.push(btn);
-    var cur = LANGS[0];
-    for (var i = 0; i < LANGS.length; i++) if (LANGS[i].c === lang) cur = LANGS[i];
-    btn.textContent = cur.flag;
-    btn.setAttribute('aria-label', 'Language: ' + cur.name);
-    btn.setAttribute('title', cur.name);
-    return btn;
-  }
-
-  /* 시작·결과 카드가 떠 있는 동안에는 헤더 쪽 버튼을 잠시 감춘다(반투명 배경에 비쳐 보이지 않게) */
-  function syncHeaderHost() {
-    var host = d.getElementById('mgLang');
-    if (!host) return;
-    var ov = d.querySelector('#overlay.show, .overlay.show');
-    host.style.visibility = ov ? 'hidden' : 'visible';
-  }
-
-  /* 시작·게임오버 화면(#overlay)이 떠 있을 때도 쓸 수 있게 오버레이 위에 같은 버튼을 하나 더 둔다.
-     카드 안에 넣지 않고 화면 오른쪽 위에 고정해 레이아웃을 건드리지 않는다. */
-  function mountOverlay() {
-    /* 사라진 버튼(오버레이가 다시 그려지며 지워진 것)은 목록에서 정리 */
-    var alive = [];
-    for (var b = 0; b < buttons.length; b++) if (d.body.contains(buttons[b])) alive.push(buttons[b]);
-    buttons = alive;
-    var ov = d.querySelector('#overlay, .overlay');
-    if (ov && !ov.querySelector('.mg-lang-row')) {
-      var row = d.createElement('div');
-      row.className = 'mg-lang-row mg-lang-fixed mg-lang';
-      addButton(row, true);
-      ov.insertBefore(row, ov.firstChild);
-    }
-    syncHeaderHost();
-  }
-
-  function mountHeader() {
-    var host = d.getElementById('mgLang');
-    if (host && !host.__mgLangDone) {
-      host.__mgLangDone = true;
-      addButton(host, false);
-    }
-  }
-
-  function onDocClick(e) {
-    if (!menu || menu.className.indexOf('open') < 0) return;
-    var t = e.target;
-    while (t) {
-      if (t === menu || t === menuOwner) return;
-      t = t.parentNode;
-    }
-    closeMenu();
-  }
-
-  /* -------- 새로 그려지는 글자 감시 -------- */
-  function watch() {
-    if (!w.MutationObserver) return;
-    var mo = new w.MutationObserver(function (muts) {
-      for (var i = 0; i < muts.length; i++) {
-        var m = muts[i];
-        if (m.type === 'characterData') applyText(m.target);
-        else if (m.type === 'attributes') applyAttr(m.target);
-        else if (m.addedNodes) {
-          for (var j = 0; j < m.addedNodes.length; j++) applyNode(m.addedNodes[j]);
-        }
-      }
-      mountOverlay();
-      applyTitle();
-    });
-    mo.observe(d.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS });
-  }
-
-  function boot() {
-    if (ready) return;
-    ready = true;
-    titleKo = d.title;
-    lang = pickLang();
-    mountHeader();
-    mountOverlay();
-    d.addEventListener('click', onDocClick, true);
-    d.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') closeMenu();
-    });
-    w.addEventListener('resize', closeMenu);
-    setHtmlLang();
-    applyNode(d.body);
-    applyTitle();
-    syncButtons();
-    watch();
-  }
-
-  w.MG_I18N = {
-    get lang() { return lang; },
-    setLang: function (c) { setLang(c); },
-    /** 화면 밖(캔버스·공유 문구 등)에서 쓸 번역 */
-    s: function (str) { return tr(str); },
-    apply: function () { applyNode(d.body); applyTitle(); }
-  };
-
-  if (d.readyState === 'loading') d.addEventListener('DOMContentLoaded', boot);
-  else boot();
-})(window, document);
-</script>
-
-
-
-<div id="app">
-  <div id="stage">
-    <canvas id="game"></canvas>
-
-    <div id="hud">
-      <div class="hud-score"><span id="floorNum">0</span><small>층</small></div>
-      <div class="hud-mid">
-        <div id="comboTag" class="combo-tag">콤보 ×0</div>
-        <div class="hud-best">최고 <b id="bestNum">0</b>층</div>
-      </div>
-      <button id="muteBtn" class="icon-btn" type="button" aria-label="소리 켜기/끄기" aria-pressed="false">🔊</button>
-      <div id="mgLang"></div>
-    </div>
-
-    <div id="notice">테스트용 로컬+시뮬레이션 랭킹 · 실제 출시 시 실시간 DB 연동</div>
-    <div id="tapHint" class="tap-hint">화면 아무 곳이나 한 번 터치</div>
-
-    <div id="adBanner" class="ad-slot" aria-hidden="true"></div>
-
-    <div id="overlay" class="overlay"></div>
-  </div>
-</div>
-
-<script>
-/* ============================================================
-   실시간 랭킹 · 🇰🇷 KOREA vs 🇯🇵 JAPAN 친선 챌린지
-   Google 스프레드시트 + Apps Script 웹앱 연동 (무료)
-   ------------------------------------------------------------
-   · 순위표에는 [국기] 닉네임 · 점수 만 표시합니다(개인정보 없음).
-   · 팀(KR/JP/GL)은 접속 언어에 맞춰 기본 선택되고, 버튼으로 바꿀 수 있습니다.
-   · 서버가 잠시 응답하지 않아도 게임과 기기 기록은 그대로 동작합니다.
-   ============================================================ */
-var RANK_CONF = {
-  mode: 'gas',              /* 'gas' | 'local' */
-  url: 'https://script.google.com/macros/s/AKfycby55wfXxEK61LluaqGxTD5xc8K0jZpEJqubKXo-N0Msv0-BYO8TvISTJhj-P_0u5C58/exec',
-  game: 'tower',         /* pop | tower | drop */
-  timeout: 8000
-};
-
-var RANK_FLAG = { KR: '🇰🇷', JP: '🇯🇵', GL: '🌍' };
-var RANK_NAME = { KR: 'KOREA', JP: 'JAPAN', GL: 'GLOBAL' };
-var RANK_STR = {
-  ko: {
-    titleA: 'KOREA', titleB: 'JAPAN', vs: 'vs', badge: '친선 챌린지',
-    line: '{n}명 · 최고 {b}점', sum: '합계', global: '그 외 지역', globalLine: '{n}명 · 최고 {b}점',
-    cheer: '오늘은 어느 쪽이 더 높이 올라갈까요? 😄',
-    pick: '내 팀', note: '서로 응원하는 친선 대결이에요',
-    empty: '아직 기록이 없어요 — 첫 기록의 주인공이 되어 보세요',
-    live: '실시간 랭킹', people: '명', only: '닉네임과 점수만 표시돼요', rk: '{r}위 · {n}명 중', colName: '닉네임', colScore: '점수', rankUnit: '위', pct: '상위 {p}'
-  },
-  en: {
-    titleA: 'KOREA', titleB: 'JAPAN', vs: 'vs', badge: 'Friendly Challenge',
-    line: '{n} players · best {b}', sum: 'Total', global: 'Rest of the world', globalLine: '{n} players · best {b}',
-    cheer: 'Who climbs higher today? 😄',
-    pick: 'My team', note: 'A friendly match — cheer each other on',
-    empty: 'No records yet — be the first one up there',
-    live: 'Live ranking', people: 'players', only: 'nickname and score only', rk: '#{r} of {n}', colName: 'PLAYER', colScore: 'SCORE', rankUnit: '', pct: 'Top {p}'
-  },
-  ja: {
-    titleA: 'KOREA', titleB: 'JAPAN', vs: 'vs', badge: '親善チャレンジ',
-    line: '{n}人 · 最高 {b}点', sum: '合計', global: 'その他の地域', globalLine: '{n}人 · 最高 {b}点',
-    cheer: '今日はどちらが高く登るでしょうか？ 😄',
-    pick: 'マイチーム', note: 'お互いを応援する親善対決です',
-    empty: 'まだ記録がありません — 最初の記録を作ってみましょう',
-    live: 'リアルタイムランキング', people: '人', only: 'ニックネームとスコアのみ表示', rk: '{r}位 · {n}人中', colName: 'プレイヤー', colScore: 'スコア', rankUnit: '位', pct: '上位 {p}'
-  },
-  zh: {
-    titleA: 'KOREA', titleB: 'JAPAN', vs: 'vs', badge: '友谊挑战',
-    line: '{n}人 · 最高 {b}分', sum: '合计', global: '其他地区', globalLine: '{n}人 · 最高 {b}分',
-    cheer: '今天哪一边爬得更高呢？ 😄',
-    pick: '我的队伍', note: '互相加油的友谊对决',
-    empty: '还没有记录 — 来创造第一条记录吧',
-    live: '实时排行榜', people: '人', only: '只显示昵称和分数', rk: '第{r}名 · 共{n}人', colName: '昵称', colScore: '分数', rankUnit: '名', pct: '前 {p}'
-  }
-};
-
-var GasRank = (function () {
-  var seq = 0;
-
-  function on() {
-    return RANK_CONF.mode === 'gas' && /^https:\/\//.test(String(RANK_CONF.url || ''));
-  }
-  function todayKST() {
-    try { return new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10); } catch (e) { return ''; }
-  }
-  function jsonp(params) {
-    return new Promise(function (resolve, reject) {
-      if (!on()) { reject(new Error('off')); return; }
-      var cb = '__gasRank' + (++seq) + '_' + Date.now();
-      var s = document.createElement('script');
-      var done = false;
-      var timer = setTimeout(function () { finish(); reject(new Error('timeout')); }, RANK_CONF.timeout);
-      function finish() {
-        if (done) return;
-        done = true;
-        clearTimeout(timer);
-        try { delete window[cb]; } catch (e) { window[cb] = undefined; }
-        if (s.parentNode) s.parentNode.removeChild(s);
-      }
-      window[cb] = function (data) { finish(); resolve(data); };
-      var q = [];
-      for (var k in (params || {})) {
-        if (Object.prototype.hasOwnProperty.call(params, k) && params[k] !== undefined && params[k] !== null && params[k] !== '') {
-          q.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k]));
-        }
-      }
-      q.push('callback=' + cb);
-      q.push('t=' + Date.now());
-      s.src = RANK_CONF.url + '?' + q.join('&');
-      s.onerror = function () { finish(); reject(new Error('net')); };
-      document.body.appendChild(s);
-    });
-  }
-  function top(limit, score, day) {
-    var p = { game: RANK_CONF.game, limit: limit || 10 };
-    if (score !== null && score !== undefined) p.score = score;
-    if (day) p.day = day;
-    return jsonp(p).then(function (v) { return (v && v.ok) ? v : null; }, function () { return null; });
-  }
-  function submit(nickname, score, team, day) {
-    if (!on() || !nickname) return Promise.resolve(null);
-    var p = { submit: 1, game: RANK_CONF.game, nickname: nickname, score: Math.max(0, Math.floor(score || 0)) };
-    if (team) p.team = team;
-    if (day) p.day = day;
-    return jsonp(p).then(function (v) { return (v && v.ok) ? v : post(p); }, function () { return post(p); });
-  }
-  function post(p) {
-    try {
-      return fetch(RANK_CONF.url, {
-        method: 'POST',
-        mode: 'cors',
-        cache: 'no-store',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ game: p.game, nickname: p.nickname, score: p.score, team: p.team || '', day: p.day || '' })
-      }).then(function (r) { return r.ok ? r.json() : null; }, function () { return null; })
-        .catch(function () { return null; });
-    } catch (e) { return Promise.resolve(null); }
-  }
-  return { on: on, top: top, submit: submit, today: todayKST };
-})();
-
-/* ---------------- 팀 선택 · 요약 바 ---------------- */
-var RankUI = (function () {
-  var KEY = 'mg.team.v1';
-
-  function lang() {
-    try { if (window.MG_I18N && window.MG_I18N.lang) return window.MG_I18N.lang; } catch (e) {}
-    var l = String((navigator.languages && navigator.languages[0]) || navigator.language || 'ko').toLowerCase();
-    if (l.indexOf('ko') === 0) return 'ko';
-    if (l.indexOf('ja') === 0) return 'ja';
-    if (l.indexOf('zh') === 0) return 'zh';
-    if (l.indexOf('en') === 0) return 'en';
     return 'ko';
   }
-  function S() { return RANK_STR[lang()] || RANK_STR.ko; }
-  function defaultTeam() {
-    var l = lang();
-    return l === 'ko' ? 'KR' : (l === 'ja' ? 'JP' : 'GL');
-  }
-  function get() {
-    var v = '';
-    try { v = localStorage.getItem(KEY) || ''; } catch (e) {}
-    return RANK_FLAG[v] ? v : defaultTeam();
-  }
-  function set(t) {
-    if (!RANK_FLAG[t]) return get();
-    try { localStorage.setItem(KEY, t); } catch (e) {}
-    sync();
-    return t;
-  }
-  function fmt(n) {
-    try { return String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); } catch (e) { return String(n || 0); }
-  }
-  function fill(tpl, n, b) {
-    return String(tpl).replace('{n}', fmt(n || 0)).replace('{b}', fmt(b || 0));
-  }
 
-  /* 팀 요약 바 — 친선 스포츠 톤 */
-  function bar(teams) {
-    if (!teams) return '';
-    var t = teams || {};
-    var kr = t.KR || { count: 0, best: 0, sum: 0 };
-    var jp = t.JP || { count: 0, best: 0, sum: 0 };
-    var gl = t.GL || { count: 0, best: 0, sum: 0 };
-    var s = S();
-    function side(code, d) {
-      return '<div class="mgtb-side mgtb-' + code.toLowerCase() + '">'
-        + '<span class="mgtb-flag" aria-hidden="true">' + RANK_FLAG[code] + '</span>'
-        + '<span class="mgtb-body"><b>' + RANK_NAME[code] + '</b>'
-        + '<i>' + fill(s.line, d.count, d.best) + '</i></span></div>';
+  var lang = 'ko';
+
+  function apply(c) {
+    lang = known(c) ? c : 'ko';
+    var T = I18N[lang] || I18N.ko;
+    var nodes = d.querySelectorAll('[data-i18n]');
+    for (var i = 0; i < nodes.length; i++) {
+      var k = nodes[i].getAttribute('data-i18n');
+      if (T[k] != null) nodes[i].textContent = T[k];
     }
-    var html = '<div class="mgteambar mg-lang" role="group" aria-label="' + s.badge + '">'
-      + '<div class="mgtb-head"><span class="mgtb-flag">' + RANK_FLAG.KR + '</span><b>' + s.titleA + '</b>'
-      + '<em>' + s.vs + '</em>'
-      + '<span class="mgtb-flag">' + RANK_FLAG.JP + '</span><b>' + s.titleB + '</b>'
-      + '<span class="mgtb-badge">' + s.badge + '</span></div>'
-      + '<div class="mgtb-grid">' + side('KR', kr)
-      + '<div class="mgtb-mid">' + s.vs + '</div>'
-      + side('JP', jp) + '</div>'
-      + '<div class="mgtb-sums">' + s.sum + ' ' + RANK_FLAG.KR + ' ' + fmt(kr.sum) + ' · '
-      + RANK_FLAG.JP + ' ' + fmt(jp.sum) + '</div>';
-    if (gl.count) {
-      html += '<div class="mgtb-gl">' + RANK_FLAG.GL + ' ' + s.global + ' · '
-        + fill(s.globalLine, gl.count, gl.best) + '</div>';
+    /* 카드의 읽어 주는 이름: "서비스 이름 — 바로 시작" */
+    var cards = d.querySelectorAll('.card[data-aria]');
+    for (var j = 0; j < cards.length; j++) {
+      var key = cards[j].getAttribute('data-aria');
+      var name = T[key] || '';
+      cards[j].setAttribute('aria-label', name + ' — ' + T.go);
     }
-    html += '<div class="mgtb-foot">' + s.cheer + '</div></div>';
-    return html;
-  }
-
-  /* 팀 선택 버튼 */
-  function picker() {
-    var cur = get(), s = S();
-    var out = '<div class="mgpick mg-lang"><span class="mgpick-lab">' + s.pick + '</span>';
-    ['KR', 'JP', 'GL'].forEach(function (c) {
-      out += '<button type="button" class="mgpick-btn' + (c === cur ? ' on' : '') + '" data-team="' + c + '"'
-        + ' aria-pressed="' + (c === cur ? 'true' : 'false') + '">'
-        + '<span aria-hidden="true">' + RANK_FLAG[c] + '</span>'
-        + '<span>' + RANK_NAME[c] + '</span></button>';
-    });
-    return out + '<span class="mgpick-note">' + s.note + '</span></div>';
-  }
-
-  function sync() {
-    var cur = get();
-    var list = document.querySelectorAll('.mgpick-btn');
-    for (var i = 0; i < list.length; i++) {
-      var on = list[i].getAttribute('data-team') === cur;
-      list[i].className = 'mgpick-btn' + (on ? ' on' : '');
-      list[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+    var bar = d.getElementById('langBar');
+    if (bar) {
+      bar.setAttribute('aria-label', T.lang);
+      var bt = bar.querySelectorAll('.lg');
+      for (var b = 0; b < bt.length; b++) {
+        var on = bt[b].getAttribute('data-lang') === lang;
+        bt[b].className = 'lg' + (on ? ' on' : '');
+        bt[b].setAttribute('aria-pressed', on ? 'true' : 'false');
+      }
     }
+    d.documentElement.setAttribute('lang', lang);
+    try { w.localStorage.setItem(KEY, lang); } catch (e) {}
   }
 
-  function bind() {
-    if (bind._on) return;
-    bind._on = true;
-    document.addEventListener('click', function (e) {
+  /* 언어 버튼 */
+  var bar = d.getElementById('langBar');
+  if (bar) {
+    bar.addEventListener('click', function (e) {
       var t = e.target;
-      while (t && t !== document && !(t.getAttribute && t.getAttribute('data-team'))) t = t.parentNode;
-      if (!t || t === document) return;
-      var code = t.getAttribute('data-team');
-      if (!RANK_FLAG[code]) return;
+      while (t && t !== bar && !(t.getAttribute && t.getAttribute('data-lang'))) t = t.parentNode;
+      if (!t || t === bar) return;
       e.preventDefault();
-      e.stopPropagation();
-      set(code);
-      try { window.dispatchEvent(new CustomEvent('mg-team', { detail: { team: code } })); } catch (err) {}
+      apply(t.getAttribute('data-lang'));
     });
-    try {
-      window.addEventListener('mg-lang', function () {
-        sync();
-        try { window.dispatchEvent(new CustomEvent('mg-team', { detail: { team: get() } })); } catch (err) {}
-      });
-    } catch (e) {}
   }
 
-  function flag(team) { return RANK_FLAG[team] || ''; }
-  function rankBig(rank) { return S().rankUnit ? fmt(rank) + S().rankUnit : '#' + fmt(rank); }
-  function pctLine(rank, total) {
-    if (!rank || !total) return '';
-    var p = Math.max(0.1, Math.round((rank / total) * 1000) / 10);
-    return String(S().pct).replace('{p}', p + '%');
-  }
-  function rankLine(rank, total) {
-    return String(S().rk).replace('{r}', fmt(rank || 0)).replace('{n}', fmt(total || 0));
-  }
-
-  return { lang: lang, s: S, team: get, setTeam: set, bar: bar, picker: picker, bind: bind, sync: sync, flag: flag, fmt: fmt, rankLine: rankLine, rankBig: rankBig, pctLine: pctLine };
-})();
-
-/* ---------------- 광고 문의 슬롯 ---------------- */
-var RankAd = (function () {
-  var CONTACT = { email: 'goodcycle1029@gmail.com', subject: '[AD] 광고·협찬 문의' };
-  var T = {
-    ko: { inq: 'AD · 광고·협찬 문의', sub: '이 자리에 광고가 들어갑니다', cta: '메일', copy: '복사', copied: '메일 주소를 복사했어요' },
-    en: { inq: 'AD / Sponsor Slot', sub: 'Ad space available', cta: 'Contact', copy: 'Copy', copied: 'Email address copied' },
-    ja: { inq: 'AD / スポンサー枠', sub: '広告掲載できます', cta: '問い合わせ', copy: 'コピー', copied: 'メールアドレスをコピーしました' },
-    zh: { inq: 'AD / 赞助位', sub: '可在此投放广告', cta: '咨询', copy: '复制', copied: '邮箱地址已复制' }
-  };
-  function lang() { return RankUI.lang(); }
-  function t() { return T[lang()] || T.en; }
-  function mailto() { return 'mailto:' + CONTACT.email + '?subject=' + encodeURIComponent(CONTACT.subject); }
-  function inquiry(off, compact) {
-    var s = t();
-    return '<div class="mgadq' + (compact ? ' compact' : '') + ' mg-lang">'
-      + '<a class="mgadq-a" href="' + mailto() + '" rel="noopener">'
-      + '<span class="mgadq-badge">AD</span>'
-      + '<span class="mgadq-ico" aria-hidden="true">📢</span>'
-      + '<span class="mgadq-t"><b>' + s.inq + '</b><i>' + s.sub + '</i></span>'
-      + '<span class="mgadq-cta">' + s.cta + ' →</span></a>'
-      + (compact ? '' : '<div class="mgadq-mail"><span>' + CONTACT.email + '</span>'
-        + '<button type="button" class="mgadq-copy" data-mail="' + CONTACT.email + '">' + s.copy + '</button></div>')
-      + '</div>';
-  }
-  function bind() {
-    if (bind._on) return;
-    bind._on = true;
-    document.addEventListener('click', function (e) {
-      var n = e.target;
-      while (n && n !== document && !(n.className && String(n.className).indexOf('mgadq-copy') >= 0)) n = n.parentNode;
-      if (!n || n === document) return;
+  /* 메일 주소 복사 */
+  var cp = d.getElementById('copyMail');
+  if (cp) {
+    cp.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
-      var mail = n.getAttribute('data-mail') || CONTACT.email;
+      var mail = cp.getAttribute('data-mail');
+      var T = I18N[lang] || I18N.ko;
+      var back = null;
       var done = function () {
-        var old = n.textContent;
-        n.textContent = t().copied;
-        setTimeout(function () { n.textContent = old; }, 1800);
+        cp.textContent = T.copied;
+        clearTimeout(back);
+        back = setTimeout(function () { cp.textContent = T.copy; }, 1800);
+      };
+      var show = function () {
+        /* 복사가 막힌 브라우저: 주소를 버튼 자리에 잠깐 보여 줘 손으로 선택할 수 있게 */
+        cp.textContent = mail;
+        clearTimeout(back);
+        back = setTimeout(function () { cp.textContent = T.copy; }, 2600);
       };
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(mail).then(done, function () {});
+        navigator.clipboard.writeText(mail).then(done, function () { legacy(); });
         return;
       }
-      try {
-        var ta = document.createElement('textarea');
-        ta.value = mail;
-        ta.style.position = 'fixed'; ta.style.top = '-1000px';
-        document.body.appendChild(ta); ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        done();
-      } catch (err) {}
-    });
-  }
-  return { lang: lang, inquiry: inquiry, bind: bind, email: CONTACT.email, mailto: mailto };
-})();
-
-/* 공용 스타일 (친선 대결 바 · 팀 선택 버튼 · 광고 문의 슬롯) */
-(function () {
-  if (document.getElementById('mgRankStyle')) return;
-  var css = [
-    '.mgteambar{margin:10px 0 12px;padding:11px 12px 10px;border-radius:16px;border:1px solid rgba(255,255,255,.14);',
-    'background:linear-gradient(120deg,rgba(111,208,255,.16),rgba(255,255,255,.04) 46%,rgba(255,143,192,.16));',
-    'box-shadow:0 12px 30px -24px rgba(0,0,0,.9);text-align:center;line-height:1.25}',
-    '.mgteambar .mgtb-head{display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:900;letter-spacing:-.01em;flex-wrap:wrap}',
-    '.mgteambar .mgtb-head b{font-size:12px}', '.mgteambar .mgtb-head em{font-style:normal;font-size:10.5px;font-weight:900;color:rgba(255,255,255,.62);padding:0 2px}',
-    '.mgteambar .mgtb-flag{font-size:14px;line-height:1}',
-    '.mgteambar .mgtb-badge{margin-left:4px;font-size:9px;font-weight:900;letter-spacing:.04em;padding:2px 7px;border-radius:999px;',
-    'background:rgba(255,255,255,.14);color:rgba(255,255,255,.82)}',
-    '.mgteambar .mgtb-grid{display:flex;align-items:stretch;gap:6px;margin-top:9px}',
-    '.mgteambar .mgtb-side{flex:1;display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:12px;text-align:left;',
-    'background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);min-width:0}',
-    '.mgteambar .mgtb-kr{background:linear-gradient(120deg,rgba(111,208,255,.2),rgba(255,255,255,.03))}',
-    '.mgteambar .mgtb-jp{background:linear-gradient(120deg,rgba(255,143,192,.2),rgba(255,255,255,.03))}',
-    '.mgteambar .mgtb-side .mgtb-flag{font-size:17px}',
-    '.mgteambar .mgtb-body{display:flex;flex-direction:column;min-width:0}',
-    '.mgteambar .mgtb-body b{font-size:11px;font-weight:900;letter-spacing:.02em}',
-    '.mgteambar .mgtb-body i{font-style:normal;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.66);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
-    '.mgteambar .mgtb-mid{display:grid;place-items:center;font-size:10px;font-weight:900;color:rgba(255,255,255,.5);flex:none;padding:0 2px}',
-    '.mgteambar .mgtb-sums{margin-top:7px;font-size:9.5px;font-weight:800;color:rgba(255,255,255,.62);font-variant-numeric:tabular-nums}',
-    '.mgteambar .mgtb-gl{margin-top:4px;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.55)}',
-    '.mgteambar .mgtb-foot{margin-top:6px;font-size:9.5px;font-weight:800;color:rgba(255,255,255,.72)}',
-    '.mgpick{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin:8px 0 2px}',
-    '.mgpick-lab{font-size:10px;font-weight:900;letter-spacing:.04em;color:rgba(255,255,255,.56);margin-right:2px}',
-    '.mgpick-btn{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;border-radius:999px;cursor:pointer;',
-    'border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:rgba(255,255,255,.86);font-size:10.5px;font-weight:900;font-family:inherit}',
-    '.mgpick-btn.on{background:rgba(126,224,255,.22);border-color:rgba(126,224,255,.6);color:#fff}',
-    '.mgpick-note{font-size:9.5px;font-weight:700;color:rgba(255,255,255,.45);margin-left:2px}',
-    '.mglb-flag{margin-right:4px}',
-    '.mgadq{display:flex;flex-direction:column;align-items:center;gap:4px;width:320px;max-width:100%;margin:6px 0 0}',
-    '.mgadq-a{position:relative;display:flex;align-items:center;gap:8px;width:100%;min-height:46px;padding:6px 9px;border-radius:12px;',
-    'text-decoration:none;color:rgba(255,255,255,.92);background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.28)}',
-    '.mgadq-badge{position:absolute;top:3px;right:6px;font-size:6.5px;font-weight:900;letter-spacing:.08em;color:rgba(255,255,255,.45)}',
-    '.mgadq-ico{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:14px;background:rgba(255,255,255,.1);flex:none}',
-    '.mgadq-t{display:flex;flex-direction:column;line-height:1.2;min-width:0;text-align:left}',
-    '.mgadq-t b{font-size:12px;font-weight:900;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
-    '.mgadq-t i{font-style:normal;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
-    '.mgadq-cta{margin-left:auto;flex:none;font-size:10px;font-weight:900;padding:5px 8px;border-radius:8px;background:rgba(255,255,255,.14);color:#fff;white-space:nowrap}',
-    '.mgadq-mail{display:flex;align-items:center;gap:6px;font-size:9px;font-weight:700;color:rgba(255,255,255,.5)}',
-    '.mgadq.compact{width:100%;height:100%;margin:0;justify-content:center}',
-    '.mgadq.compact .mgadq-a{height:100%;min-height:0;border-radius:11px}',
-    '.mgadq-copy{border:1px solid rgba(255,255,255,.22);border-radius:7px;padding:1px 6px;font-size:8.5px;font-weight:800;color:rgba(255,255,255,.7);background:transparent;font-family:inherit;cursor:pointer}'
-  ].join('');
-  var st = document.createElement('style');
-  st.id = 'mgRankStyle';
-  st.textContent = css;
-  (document.head || document.documentElement).appendChild(st);
-})();
-
-</script>
-
-<script>
-(function () {
-  function render() {
-    var host = document.getElementById('adBanner');
-    if (!host) return;
-    RankAd.bind();
-    if (RankAd.lang() === 'ko') {
-      host.innerHTML = '<div class="ad-idx">'
-        + '<a class="ad-idx-brand" href="https://smartstore.naver.com/japanmartbox" target="_blank" rel="noopener noreferrer sponsored">'
-        + '<span class="ad-idx-tag">AD</span>📦 재팬마트박스 · 일본 인기 상품 <b>→</b></a>'
-        + '<a class="ad-idx-inq" href="' + RankAd.mailto() + '">광고·협찬 문의</a>'
-        + '</div>';
-    } else {
-      host.innerHTML = RankAd.inquiry(false, true);
-    }
-    host.style.pointerEvents = 'auto';
-    host.style.border = '0';
-    host.style.background = 'transparent';
-  }
-  function style() {
-    if (document.getElementById('mgAdIdxStyle')) return;
-    var st = document.createElement('style');
-    st.id = 'mgAdIdxStyle';
-    st.textContent = '.ad-idx{display:flex;align-items:center;gap:6px;width:100%;height:100%}'
-      + '.ad-idx-brand{position:relative;display:flex;align-items:center;gap:5px;flex:1 1 auto;min-width:0;height:100%;padding:0 8px;'
-      + 'border-radius:10px;text-decoration:none;color:#22102A;font-size:10.5px;font-weight:900;'
-      + 'background:linear-gradient(100deg,#FFD9E9,#FFC0DB 46%,#C8B4FF);border:1px solid rgba(255,255,255,.4);'
-      + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
-      + '.ad-idx-tag{position:absolute;top:3px;right:6px;font-size:6px;font-weight:900;letter-spacing:.08em;color:rgba(34,16,42,.45)}'
-      + '.ad-idx-inq{flex:0 0 auto;height:100%;display:flex;align-items:center;padding:0 9px;border-radius:10px;'
-      + 'text-decoration:none;font-size:9.5px;font-weight:900;color:rgba(232,240,255,.86);'
-      + 'background:rgba(255,255,255,.08);border:1px dashed rgba(255,255,255,.32);white-space:nowrap}';
-    (document.head || document.documentElement).appendChild(st);
-  }
-  style(); render();
-  window.addEventListener('mg-lang', render);
-  window.addEventListener('load', render);
-})();
-</script>
-
-<script>
-(function () {
-  'use strict';
-
-  /* =========================================================
-     0. 작은 도우미들
-     ========================================================= */
-  var $ = function (sel) { return document.querySelector(sel); };
-  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
-  function lerp(a, b, t) { return a + (b - a) * t; }
-  function el(tag, cls, text) {
-    var n = document.createElement(tag);
-    if (cls) n.className = cls;
-    if (text !== undefined && text !== null) n.textContent = String(text);
-    return n;
-  }
-  function fmt(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
-
-  /* =========================================================
-     1. 저장소 (localStorage)
-     ========================================================= */
-  var STORE_KEY = 'oneTouchTower.v1';
-  var store = { nickname: '', records: [], best: 0, muted: false };
-
-  function loadStore() {
-    try {
-      var raw = window.localStorage.getItem(STORE_KEY);
-      if (!raw) return;
-      var o = JSON.parse(raw);
-      if (!o || typeof o !== 'object') return;
-      if (typeof o.nickname === 'string') store.nickname = o.nickname.slice(0, 12);
-      if (Object.prototype.toString.call(o.records) === '[object Array]') {
-        store.records = o.records.filter(function (r) {
-          return r && typeof r.score === 'number' && isFinite(r.score);
-        }).slice(0, 40).map(function (r) {
-          return {
-            id: String(r.id || (String(r.at) + '_' + Math.random())),
-            score: Math.max(0, Math.floor(r.score)),
-            at: Number(r.at) || 0
-          };
-        });
+      legacy();
+      function legacy() {
+        try {
+          var ta = d.createElement('textarea');
+          ta.value = mail;
+          ta.style.position = 'fixed'; ta.style.top = '-1000px';
+          d.body.appendChild(ta); ta.select();
+          var ok = d.execCommand('copy');
+          d.body.removeChild(ta);
+          if (ok) done(); else show();
+        } catch (err) { show(); }
       }
-      if (typeof o.best === 'number' && isFinite(o.best)) store.best = Math.max(0, Math.floor(o.best));
-      store.muted = !!o.muted;
-    } catch (e) {
-      /* 사생활 보호 모드 등 저장소가 없는 환경에서는 조용히 기록 없이 진행 */
-    }
-  }
-
-  function saveStore() {
-    try {
-      window.localStorage.setItem(STORE_KEY, JSON.stringify({
-        nickname: store.nickname,
-        records: store.records,
-        best: store.best,
-        muted: store.muted
-      }));
-    } catch (e) { /* 저장 실패해도 게임은 계속 */ }
-  }
-
-  /* =========================================================
-     2-1. 시뮬레이션 글로벌 랭킹 (시제품용 고정 분포)
-     ========================================================= */
-  var FAKE_COUNT = 1248;
-  var GLOBAL = [];
-
-  function mulberry32(a) {
-    return function () {
-      a |= 0; a = (a + 0x6D2B79F5) | 0;
-      var t = Math.imul(a ^ (a >>> 15), 1 | a);
-      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  }
-
-  var NAME_A = ['새벽', '구름', '레몬', '복숭아', '초코', '네온', '달빛', '소나기', '모래', '은하',
-    '딸기', '고양이', '펭귄', '한강', '제주', '별빛', '노을', '민트', '바닐라', '카페',
-    '우주', '번개', '거북', '다람쥐', '토끼', '하늘', '바다', '숲', '겨울', '여름',
-    '봄비', '가을'];
-  var NAME_B = ['타워', '쌓기', '장인', '초보', '고수', '러버', '마스터', '도전자', '기사',
-    '연습생', '요정', '수집가', '여행자', '개발자', '학생'];
-
-  function buildGlobal() {
-    var rnd = mulberry32(20261121);
-    var used = {};
-    GLOBAL = [];
-    for (var i = 0; i < FAKE_COUNT; i++) {
-      // 실제 플레이처럼 낮은 층에 몰리고 위로 갈수록 급격히 줄어드는 분포
-      var u = rnd();
-      var score = 2 + Math.floor(-Math.log(1 - u * 0.9995) * 6.1);
-      if (rnd() < 0.01) score += Math.floor(rnd() * 16);
-      if (score < 1) score = 1;
-
-      var name = NAME_A[Math.floor(rnd() * NAME_A.length)] + NAME_B[Math.floor(rnd() * NAME_B.length)];
-      if (used[name]) { used[name] += 1; name = name + used[name]; } else { used[name] = 1; }
-
-      GLOBAL.push({ name: name, score: score });
-    }
-    // 상위 10명은 '고수' 구간으로 채워 현실적인 TOP 10 모양 만들기
-    GLOBAL.sort(function (a, b) { return b.score - a.score; });
-    var elite = [82, 71, 64, 59, 55, 52, 50, 48, 46, 44, 42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26];
-    for (var k = 0; k < elite.length && k < GLOBAL.length; k++) GLOBAL[k].score = elite[k];
-    GLOBAL.sort(function (a, b) { return b.score - a.score; });
-  }
-
-  function poolWithMe() {
-    var pool = [];
-    for (var i = 0; i < GLOBAL.length; i++) {
-      pool.push({ name: GLOBAL[i].name, score: GLOBAL[i].score, mine: false });
-    }
-    if (store.records.length > 0) {
-      pool.push({ name: store.nickname || '플레이어', score: store.best, mine: true });
-    }
-    return pool;
-  }
-
-  // 점수 하나의 '전체 등수' 계산: 나보다 높은 점수 인원 + 1
-  function rankFor(score) {
-    var pool = poolWithMe();
-    var better = 0;
-    for (var i = 0; i < pool.length; i++) { if (pool[i].score > score) better++; }
-    var rank = better + 1;
-    if (rank > pool.length) rank = pool.length; // 최하위는 전체 인원으로 고정
-    return { rank: rank, total: pool.length, pct: (rank / pool.length) * 100 };
-  }
-
-  function sortedPool() {
-    var pool = poolWithMe();
-    pool.sort(function (a, b) {
-      if (b.score !== a.score) return b.score - a.score;
-      if (a.mine !== b.mine) return a.mine ? -1 : 1;
-      return 0;
     });
-    return pool;
   }
 
-  function tierMsg(pct) {
-    if (pct <= 1) return '전설급 기록이에요. 전체 1% 안쪽!';
-    if (pct <= 5) return '상위 5% 진입 — 손끝이 아주 매끄러웠어요';
-    if (pct <= 15) return '상위 15% — 충분히 잘하고 있어요';
-    if (pct <= 40) return '상위 40% — 평균보다 위예요';
-    if (pct <= 70) return '이제 몸이 풀렸어요. 한 판만 더!';
-    return '다음 판엔 더 높이 쌓아봐요';
-  }
+  apply(pickLang());
 
-  /* =========================================================
-     3. 화면 요소
-     ========================================================= */
-  var canvas = $('#game');
-  var ctx = canvas.getContext('2d');
-  var stage = $('#stage');
-  var overlay = $('#overlay');
-  var floorNum = $('#floorNum');
-  var bestNum = $('#bestNum');
-  var comboTag = $('#comboTag');
-  var muteBtn = $('#muteBtn');
-  var tapHint = $('#tapHint');
-  var rewardTimer = null;
-
-  /* =========================================================
-     4. 게임 상태
-     ========================================================= */
-  var G = {
-    state: 'ready',            // ready | playing | over
-    blocks: [], moving: null,
-    cuts: [], parts: [], floats: [],
-    level: 0, combo: 0, bestCombo: 0, score: 0,
-    cam: 0, camTarget: 0, time: 0, shake: 0,
-    width: 360, height: 640, dpr: 1,
-    blockH: 26, baseW: 220, dir: 1,
-    spawnTimer: 0, ending: 0, endReason: '', finalScore: 0, prevBest: 0,
-    continues: 0, lastT: 0, hintShown: false
-  };
-
-  /* =========================================================
-     5. 사운드 (Web Audio API)
-     ========================================================= */
-  var actx = null;
-
-  function ensureAudio() {
-    if (!actx) {
-      var AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return;
-      try { actx = new AC(); } catch (e) { actx = null; return; }
-    }
-    if (actx.state === 'suspended' && actx.resume) {
-      try { actx.resume(); } catch (e) {}
-    }
-  }
-
-  function tone(opt) {
-    if (store.muted || !actx) return;
-    var freq = opt.freq || 440;
-    var dur = opt.dur || 0.09;
-    var type = opt.type || 'sine';
-    var gain = typeof opt.gain === 'number' ? opt.gain : 0.055;
-    var delay = opt.delay || 0;
-    var slideTo = opt.slideTo || 0;
-    try {
-      var t0 = actx.currentTime + delay;
-      var osc = actx.createOscillator();
-      var g = actx.createGain();
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, t0);
-      if (slideTo) osc.frequency.exponentialRampToValueAtTime(Math.max(40, slideTo), t0 + dur);
-      g.gain.setValueAtTime(0.0001, t0);
-      g.gain.exponentialRampToValueAtTime(gain, t0 + 0.012);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-      osc.connect(g);
-      g.connect(actx.destination);
-      osc.start(t0);
-      osc.stop(t0 + dur + 0.03);
-    } catch (e) {}
-  }
-
-  function sfxTick() { tone({ freq: 300, dur: 0.05, type: 'triangle', gain: 0.03 }); }
-  function sfxPlace(level) {
-    tone({ freq: 200 + Math.min(level, 26) * 7, dur: 0.09, type: 'triangle', gain: 0.05 });
-  }
-  function sfxPerfect(combo) {
-    var base = 620 + Math.min(combo, 10) * 30;
-    tone({ freq: base, dur: 0.08, type: 'sine', gain: 0.055 });
-    tone({ freq: base * 1.5, dur: 0.1, type: 'sine', gain: 0.045, delay: 0.065 });
-  }
-  function sfxBonus() {
-    tone({ freq: 880, dur: 0.09, type: 'sine', gain: 0.05 });
-    tone({ freq: 1170, dur: 0.09, type: 'sine', gain: 0.045, delay: 0.07 });
-    tone({ freq: 1560, dur: 0.12, type: 'sine', gain: 0.04, delay: 0.14 });
-  }
-  function sfxFail() {
-    tone({ freq: 220, dur: 0.42, type: 'sawtooth', gain: 0.06, slideTo: 55 });
-    tone({ freq: 110, dur: 0.5, type: 'sine', gain: 0.05, slideTo: 45, delay: 0.04 });
-  }
-
-  function setMuted(m) {
-    store.muted = !!m;
-    saveStore();
-    muteBtn.textContent = store.muted ? '🔇' : '🔊';
-    muteBtn.setAttribute('aria-pressed', store.muted ? 'true' : 'false');
-    muteBtn.setAttribute('aria-label', store.muted ? '소리 켜기' : '소리 끄기');
-  }
-
-  muteBtn.addEventListener('click', function (e) {
-    e.stopPropagation();
-    if (!actx) ensureAudio();
-    setMuted(!store.muted);
-    if (!store.muted) sfxTick();
-  });
-
-  /* =========================================================
-     6. 크기 / 무대 준비
-     ========================================================= */
-  var STARS = [];
-  function buildStars() {
-    var rnd = mulberry32(777);
-    STARS = [];
-    for (var i = 0; i < 74; i++) {
-      STARS.push({ x: rnd(), y: rnd(), r: 0.6 + rnd() * 1.5, tw: rnd() * 6.28, sp: 0.4 + rnd() * 0.5 });
-    }
-  }
-
-  function resize() {
-    var r = stage.getBoundingClientRect ? stage.getBoundingClientRect() : null;
-    var W = Math.max(280, Math.round((r && r.width) || window.innerWidth || 360));
-    var H = Math.max(360, Math.round((r && r.height) || window.innerHeight || 640));
-    var oldW = G.width;
-    // 화면 폭이 바뀌면(회전 등) 탑이 화면 가운데를 유지하도록 좌표를 함께 옮김
-    if (G.state !== 'ready' && oldW && oldW !== W && G.blocks.length) {
-      var dx = (W - oldW) / 2;
-      for (var bi = 0; bi < G.blocks.length; bi++) G.blocks[bi].x += dx;
-      if (G.moving) G.moving.x += dx;
-    }
-    G.width = W;
-    G.height = H;
-    G.dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.round(W * G.dpr);
-    canvas.height = Math.round(H * G.dpr);
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
-    ctx.setTransform(G.dpr, 0, 0, G.dpr, 0, 0);
-    if (G.state === 'ready') setupScene();
-  }
-
-  // 시작 화면 / 첫 세팅용 미리보기 무대
-  function setupScene() {
-    G.blockH = clamp(Math.round(G.height * 0.042), 20, 30);
-    G.baseW = clamp(Math.round(Math.min(G.width * 0.64, 300)), 120, 300);
-    G.blocks = [{ x: Math.round((G.width - G.baseW) / 2), y: 0, w: G.baseW, level: 0, flash: 0 }];
-    G.level = 0;
-    G.combo = 0;
-    G.cam = G.height * 0.78;
-    G.camTarget = G.cam;
-    G.cuts = [];
-    G.parts = [];
-    G.floats = [];
-    G.moving = null;
-    G.dir = 1;
-    G.spawnTimer = 0.1;
-    G.shake = 0;
-    updateHud();
-  }
-
-  /* =========================================================
-     7. 게임 진행
-     ========================================================= */
-  function newGame() {
-    ensureAudio();
-    G.blockH = clamp(Math.round(G.height * 0.042), 20, 30);
-    G.baseW = clamp(Math.round(Math.min(G.width * 0.64, 300)), 120, 300);
-    G.blocks = [{ x: Math.round((G.width - G.baseW) / 2), y: 0, w: G.baseW, level: 0, flash: 0 }];
-    G.cuts = [];
-    G.parts = [];
-    G.floats = [];
-    G.level = 0;
-    G.combo = 0;
-    G.bestCombo = 0;
-    G.score = 0;
-    G.cam = G.height * 0.78;
-    G.camTarget = G.cam;
-    G.shake = 0;
-    G.continues = 0;
-    G.ending = 0;
-    G.endReason = '';
-    G.finalScore = 0;
-    G.dir = 1;
-    G.moving = null;
-    G.spawnTimer = 0.18;
-    G.state = 'playing';
-    G.hintShown = true;
-
-    hideOverlay();
-    updateHud();
-    if (tapHint) {
-      tapHint.textContent = '화면 아무 곳이나 한 번 터치';
-      tapHint.classList.add('on');
-    }
-  }
-
-  function spawnMoving() {
-    var top = G.blocks[G.blocks.length - 1];
-    if (!top) return;
-    var w = Math.max(12, top.w);
-    var gap = clamp(Math.round(G.height * 0.14), 70, 130);
-    G.dir = -G.dir;
-    var fromLeft = G.dir > 0;
-    var speed = clamp(G.width * (0.52 + G.level * 0.035), G.width * 0.45, G.width * 2.0);
-    G.moving = {
-      x: fromLeft ? 0 : (G.width - w),
-      y: top.y - G.blockH - gap,
-      w: w,
-      h: G.blockH,
-      vx: fromLeft ? speed : -speed,
-      vy: 0,
-      dropping: false,
-      level: G.level
-    };
-  }
-
-  function tapDrop() {
-    if (G.state !== 'playing') return;
-    var m = G.moving;
-    if (!m || m.dropping) return;
-    ensureAudio();
-    m.dropping = true;
-    m.vy = 480;
-    sfxTick();
-    if (tapHint) tapHint.classList.remove('on');
-  }
-
-  function addCut(x, y, w, h, vx, vy, vr, level) {
-    if (w <= 0.5) return;
-    G.cuts.push({ x: x, y: y, w: w, h: h, vx: vx, vy: vy, rot: 0, vr: vr, a: 1, level: level });
-  }
-
-  function sparkle(x, y, n, color) {
-    for (var i = 0; i < n; i++) {
-      var a = Math.random() * Math.PI * 2;
-      var sp = 50 + Math.random() * 200;
-      G.parts.push({
-        x: x, y: y,
-        vx: Math.cos(a) * sp,
-        vy: Math.sin(a) * sp - 70,
-        life: 0.45 + Math.random() * 0.45,
-        max: 0.9,
-        color: color,
-        r: 1.2 + Math.random() * 2.6
+  /* 홈 화면에 추가한 앱도 새 화면을 바로 받도록 서비스워커 등록 */
+  try {
+    if ('serviceWorker' in navigator) {
+      var secure = location.protocol === 'https:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+      if (secure) w.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js').catch(function () {});
       });
     }
-  }
-
-  function dust(x, y, n) {
-    for (var i = 0; i < n; i++) {
-      var a = Math.random() * Math.PI;
-      var sp = 20 + Math.random() * 70;
-      G.parts.push({
-        x: x, y: y,
-        vx: Math.cos(a) * sp * 1.6,
-        vy: -Math.abs(Math.sin(a)) * sp * 0.5,
-        life: 0.3 + Math.random() * 0.3,
-        max: 0.6,
-        color: 'rgba(220,232,255,0.75)',
-        r: 1 + Math.random() * 2
-      });
-    }
-  }
-
-  function floatText(text, x, y, color, size) {
-    G.floats.push({ text: text, x: x, y: y, color: color, size: size || 18, life: 1.15, max: 1.15 });
-  }
-
-  function resolveDrop() {
-    var m = G.moving;
-    var top = G.blocks[G.blocks.length - 1];
-    if (!m || !top) return;
-
-    var off = m.x - top.x;
-    var tol = clamp(Math.min(top.w, m.w) * 0.14, 4, 9);
-    var left = Math.max(top.x, m.x);
-    var right = Math.min(top.x + top.w, m.x + m.w);
-    var overlap = right - left;
-
-    // 1) 완전히 빗나감
-    if (overlap <= 0.5) {
-      addCut(m.x, m.y, m.w, m.h, m.vx * 0.45, -120, (m.vx > 0 ? 1 : -1) * 2.6, G.level);
-      floatText('MISS', G.width * 0.5, m.y - 8, '#ff9a7b', 24);
-      G.shake = 10;
-      sfxFail();
-      G.moving = null;
-      endGame('빗나갔어요');
-      return;
-    }
-
-    var perfect = Math.abs(off) <= tol;
-    var newX = perfect ? top.x : left;
-    var newW = perfect ? top.w : overlap;
-
-    if (perfect) {
-      // 정확히 겹침 → 폭 유지, 콤보 증가
-      G.combo += 1;
-      if (G.combo > G.bestCombo) G.bestCombo = G.combo;
-      floatText('PERFECT!', newX + newW * 0.5, m.y - 26, '#7ee0ff', 20);
-      sparkle(newX + newW * 0.5, m.y + G.blockH * 0.5, 14, 'rgba(159,243,255,0.95)');
-      sfxPerfect(G.combo);
-
-      // 5콤보마다 블록 폭 살짝 회복
-      if (G.combo % 5 === 0) {
-        var grow = Math.min(8, G.baseW - newW);
-        if (grow > 0.5) {
-          newW += grow;
-          newX = clamp(newX - grow * 0.5, 0, G.width - newW);
-          floatText('콤보 보너스 +' + Math.round(grow), newX + newW * 0.5, m.y - 54, '#ffe07a', 13);
-          sfxBonus();
-          sparkle(newX + newW * 0.5, m.y + G.blockH * 0.5, 10, 'rgba(255,224,122,0.9)');
-        }
-      }
-    } else {
-      // 2) 어긋난 부분은 잘려서 떨어짐
-      if (off > 0) {
-        addCut(right, m.y, (m.x + m.w) - right, m.h, 75, -70, 1.9, G.level);
-      } else {
-        addCut(m.x, m.y, left - m.x, m.h, -75, -70, -1.9, G.level);
-      }
-      G.combo = 0;
-      G.shake = 4.5;
-      dust(newX + newW * 0.5, m.y + G.blockH, 7);
-      sfxPlace(G.level);
-    }
-
-    var placed = { x: newX, y: m.y, w: newW, level: G.blocks.length, flash: 1 };
-    G.blocks.push(placed);
-    G.level = G.blocks.length - 1;
-    G.score = G.level;
-    G.moving = null;
-    G.spawnTimer = perfect ? 0.07 : 0.12;
-    updateHud();
-
-    // 폭이 너무 좁아지면 더 쌓을 수 없음
-    if (newW < 10) endGame('블록이 너무 좁아졌어요');
-  }
-
-  function endGame(reason) {
-    if (G.state !== 'playing') return;
-    G.state = 'over';
-    G.endReason = reason || '';
-    G.finalScore = Math.max(0, G.blocks.length - 1);
-    G.score = G.finalScore;
-    G.prevBest = store.best;
-    G.ending = 0.85;
-    saveRun(G.finalScore);
-    if (tapHint) tapHint.classList.remove('on');
-    updateHud();
-  }
-
-  function saveRun(score) {
-    store.records.unshift({
-      id: 'r' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-      score: score,
-      at: Date.now()
-    });
-    if (store.records.length > 40) store.records.length = 40;
-    if (score > store.best) store.best = score;
-    saveStore();
-  }
-
-  function doContinue() {
-    if (G.continues >= 1) return;
-    G.continues += 1;
-    G.state = 'playing';
-    G.ending = 0;
-    G.combo = 0;
-    var top = G.blocks[G.blocks.length - 1];
-    if (top) {
-      var target = Math.max(top.w, Math.round(G.baseW * 0.45));
-      target = Math.min(target, G.width);
-      var cx = top.x + top.w * 0.5;
-      top.w = target;
-      top.x = clamp(cx - target * 0.5, 0, G.width - target);
-      top.flash = 1;
-    }
-    G.moving = null;
-    G.spawnTimer = 0.25;
-    hideOverlay();
-    updateHud();
-    sfxBonus();
-  }
-
-  /* =========================================================
-     8. 프레임 갱신
-     ========================================================= */
-  function update(dt) {
-    G.time += dt;
-
-    if (G.state === 'playing') {
-      if (G.spawnTimer > 0) {
-        G.spawnTimer -= dt;
-        if (G.spawnTimer <= 0 && !G.moving) spawnMoving();
-      }
-      var m = G.moving;
-      if (m) {
-        if (!m.dropping) {
-          m.x += m.vx * dt;
-          if (m.x < 0) { m.x = 0; m.vx = Math.abs(m.vx); }
-          if (m.x + m.w > G.width) { m.x = G.width - m.w; m.vx = -Math.abs(m.vx); }
-        } else {
-          m.vy += 3200 * dt;
-          m.y += m.vy * dt;
-          var top = G.blocks[G.blocks.length - 1];
-          if (top) {
-            var rest = top.y - G.blockH;
-            if (m.y >= rest) {
-              m.y = rest;
-              resolveDrop();
-            }
-          }
-        }
-      }
-    } else if (G.state === 'ready') {
-      // 시작 화면 뒤에서 미리보기 블록이 움직임
-      if (G.spawnTimer > 0) {
-        G.spawnTimer -= dt;
-        if (G.spawnTimer <= 0 && !G.moving) spawnMoving();
-      }
-      var pm = G.moving;
-      if (pm && !pm.dropping) {
-        pm.x += pm.vx * dt;
-        if (pm.x < 0) { pm.x = 0; pm.vx = Math.abs(pm.vx); }
-        if (pm.x + pm.w > G.width) { pm.x = G.width - pm.w; pm.vx = -Math.abs(pm.vx); }
-      }
-    }
-
-    if (G.state === 'over' && G.ending > 0) {
-      G.ending -= dt;
-      if (G.ending <= 0) showGameOver();
-    }
-
-    // 카메라: 타워가 높아지면 부드럽게 따라 올라감
-    var topB = G.blocks[G.blocks.length - 1];
-    if (topB) {
-      G.camTarget = Math.max(G.height * 0.78, G.height * 0.62 - topB.y);
-      G.cam = lerp(G.cam, G.camTarget, 1 - Math.exp(-dt * 5));
-    }
-
-    // 잘려 떨어지는 조각
-    for (var i = G.cuts.length - 1; i >= 0; i--) {
-      var c = G.cuts[i];
-      c.vy += 2200 * dt;
-      c.x += c.vx * dt;
-      c.y += c.vy * dt;
-      c.rot += c.vr * dt;
-      c.a -= dt * 0.55;
-      if (c.y + G.cam > G.height + 80 || c.a <= 0) G.cuts.splice(i, 1);
-    }
-
-    // 파티클
-    for (var j = G.parts.length - 1; j >= 0; j--) {
-      var p = G.parts[j];
-      p.vy += 900 * dt;
-      p.x += p.vx * dt;
-      p.y += p.vy * dt;
-      p.life -= dt;
-      if (p.life <= 0) G.parts.splice(j, 1);
-    }
-
-    // 떠오르는 글자
-    for (var k = G.floats.length - 1; k >= 0; k--) {
-      var f = G.floats[k];
-      f.y -= dt * 46;
-      f.life -= dt;
-      if (f.life <= 0) G.floats.splice(k, 1);
-    }
-
-    // 블록 플래시 감쇠
-    for (var b = 0; b < G.blocks.length; b++) {
-      if (G.blocks[b].flash > 0) G.blocks[b].flash = Math.max(0, G.blocks[b].flash - dt * 4);
-    }
-
-    G.shake *= Math.exp(-dt * 9);
-    if (G.shake < 0.1) G.shake = 0;
-  }
-
-  /* =========================================================
-     9. 그리기
-     ========================================================= */
-  var SKIES = [
-    { at: 0, top: '#141c3a', mid: '#232a54', bot: '#3c2a5c', glow: '#7f6bff' },
-    { at: 12, top: '#1c1032', mid: '#3a1c4e', bot: '#6b2b4a', glow: '#ff8fb1' },
-    { at: 24, top: '#241127', mid: '#5a2236', bot: '#9c4a2f', glow: '#ffb56b' },
-    { at: 36, top: '#07202c', mid: '#0f3a44', bot: '#14614f', glow: '#5bf0c2' },
-    { at: 52, top: '#05142a', mid: '#0d2f56', bot: '#1a5c85', glow: '#7bd7ff' },
-    { at: 70, top: '#08081c', mid: '#1b1450', bot: '#3a1d6e', glow: '#c58bff' }
-  ];
-  var hexCache = {};
-
-  function hex2rgb(h) {
-    if (hexCache[h]) return hexCache[h];
-    var n = parseInt(h.slice(1), 16);
-    var o = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-    hexCache[h] = o;
-    return o;
-  }
-  function mixHex(a, b, t) {
-    var A = hex2rgb(a), B = hex2rgb(b);
-    return 'rgb(' + Math.round(lerp(A[0], B[0], t)) + ',' + Math.round(lerp(A[1], B[1], t)) + ',' + Math.round(lerp(A[2], B[2], t)) + ')';
-  }
-  function withAlpha(hex, a) {
-    var c = hex2rgb(hex);
-    return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')';
-  }
-  function skyAt(level) {
-    var i = 0;
-    while (i < SKIES.length - 1 && level >= SKIES[i + 1].at) i++;
-    var a = SKIES[i];
-    var b = SKIES[Math.min(i + 1, SKIES.length - 1)];
-    var t = (b.at === a.at) ? 0 : clamp((level - a.at) / (b.at - a.at), 0, 1);
-    t = t * t * (3 - 2 * t);
-    return {
-      top: mixHex(a.top, b.top, t),
-      mid: mixHex(a.mid, b.mid, t),
-      bot: mixHex(a.bot, b.bot, t),
-      glow: mixHex(a.glow, b.glow, t)
-    };
-  }
-
-  function rrect(x, y, w, h, r) {
-    var rr = Math.max(0, Math.min(r, Math.min(w, h) / 2));
-    ctx.beginPath();
-    ctx.moveTo(x + rr, y);
-    ctx.lineTo(x + w - rr, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + rr);
-    ctx.lineTo(x + w, y + h - rr);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - rr, y + h);
-    ctx.lineTo(x + rr, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - rr);
-    ctx.lineTo(x, y + rr);
-    ctx.quadraticCurveTo(x, y, x + rr, y);
-    ctx.closePath();
-  }
-
-  var FONT = '-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif';
-
-  function drawBlock(b, cam, moving) {
-    var x = b.x;
-    var y = b.y + cam;
-    var w = b.w;
-    var h = G.blockH;
-    if (y > G.height + 80 || y + h < -80) return;
-
-    var hue = (206 + (b.level || 0) * 6) % 360;
-    var grad = ctx.createLinearGradient(0, y, 0, y + h);
-    grad.addColorStop(0, 'hsl(' + hue + ',72%,74%)');
-    grad.addColorStop(0.55, 'hsl(' + hue + ',64%,60%)');
-    grad.addColorStop(1, 'hsl(' + hue + ',58%,44%)');
-
-    ctx.save();
-    ctx.shadowColor = moving ? 'rgba(120,220,255,0.55)' : 'rgba(0,0,0,0.4)';
-    ctx.shadowBlur = moving ? 22 : 12;
-    ctx.shadowOffsetY = moving ? 0 : 6;
-    rrect(x, y, w, h, Math.min(7, h / 3.5));
-    ctx.fillStyle = grad;
-    ctx.fill();
-    ctx.restore();
-
-    // 윗면 하이라이트
-    if (w > 8) {
-      ctx.fillStyle = 'rgba(255,255,255,0.55)';
-      ctx.fillRect(x + 3, y + 1.6, Math.max(0, w - 6), 1.6);
-    }
-    // 외곽선
-    ctx.strokeStyle = 'rgba(8,12,26,0.35)';
-    ctx.lineWidth = 1;
-    rrect(x, y, w, h, Math.min(7, h / 3.5));
-    ctx.stroke();
-
-    if (b.flash > 0) {
-      ctx.fillStyle = 'rgba(255,255,255,' + (0.5 * b.flash).toFixed(3) + ')';
-      rrect(x, y, w, h, Math.min(7, h / 3.5));
-      ctx.fill();
-    }
-  }
-
-  function render() {
-    var W = G.width;
-    var H = G.height;
-    ctx.setTransform(G.dpr, 0, 0, G.dpr, 0, 0);
-    ctx.clearRect(0, 0, W, H);
-
-    var sky = skyAt(G.level);
-
-    // 배경 그라데이션
-    var bg = ctx.createLinearGradient(0, 0, 0, H);
-    bg.addColorStop(0, sky.top);
-    bg.addColorStop(0.55, sky.mid);
-    bg.addColorStop(1, sky.bot);
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, W, H);
-
-    // 은은한 빛무리
-    var rad = ctx.createRadialGradient(W * 0.5, H * 0.44, 8, W * 0.5, H * 0.44, Math.max(W, H) * 0.8);
-    rad.addColorStop(0, withAlpha(hexOf(sky.glow), 0.20));
-    rad.addColorStop(1, withAlpha(hexOf(sky.glow), 0));
-    ctx.fillStyle = rad;
-    ctx.fillRect(0, 0, W, H);
-
-    // 별
-    for (var s = 0; s < STARS.length; s++) {
-      var st = STARS[s];
-      var sy = ((st.y * H) + G.cam * 0.05 * st.sp) % H;
-      if (sy < 0) sy += H;
-      var tw = 0.35 + 0.45 * (0.5 + 0.5 * Math.sin(G.time * 1.7 + st.tw));
-      ctx.beginPath();
-      ctx.arc(st.x * W, sy, st.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(226,236,255,' + tw.toFixed(3) + ')';
-      ctx.fill();
-    }
-
-    ctx.save();
-    var shx = (Math.random() - 0.5) * G.shake;
-    var shy = (Math.random() - 0.5) * G.shake;
-    ctx.translate(shx, shy);
-
-    var cam = G.cam;
-
-    // 바닥 받침
-    var base = G.blocks[0];
-    if (base) {
-      var bx = base.x, by = base.y + cam;
-      if (by < H + 100) {
-        var ped = ctx.createLinearGradient(0, by + G.blockH, 0, by + G.blockH + 90);
-        ped.addColorStop(0, withAlpha(hexOf(sky.glow), 0.16));
-        ped.addColorStop(1, withAlpha(hexOf(sky.glow), 0));
-        ctx.fillStyle = ped;
-        ctx.fillRect(bx - 26, by + G.blockH, base.w + 52, 90);
-      }
-    }
-
-    // 쌓인 블록
-    for (var i = 0; i < G.blocks.length; i++) drawBlock(G.blocks[i], cam, false);
-
-    // 조준 가이드 (움직이는 블록 아래로 점선)
-    var m = G.moving;
-    var top = G.blocks[G.blocks.length - 1];
-    if (m && top && !m.dropping) {
-      var cx = m.x + m.w * 0.5;
-      var y1 = m.y + cam + G.blockH;
-      var y2 = top.y + cam;
-      if (y2 > y1 + 4) {
-        ctx.save();
-        ctx.setLineDash([3, 6]);
-        ctx.strokeStyle = 'rgba(200,235,255,0.22)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(cx, y1);
-        ctx.lineTo(cx, y2);
-        ctx.stroke();
-        ctx.restore();
-      }
-    }
-
-    // 움직이는 블록
-    if (m) drawBlock({ x: m.x, y: m.y, w: m.w, level: m.level, flash: 0 }, cam, true);
-
-    // 잘려 떨어진 조각
-    for (var c = 0; c < G.cuts.length; c++) {
-      var p = G.cuts[c];
-      var py = p.y + cam;
-      if (py > H + 60) continue;
-      ctx.save();
-      ctx.globalAlpha = Math.max(0, p.a);
-      ctx.translate(p.x + p.w * 0.5, py + p.h * 0.5);
-      ctx.rotate(p.rot);
-      var hue = (206 + (p.level || 0) * 6) % 360;
-      var g2 = ctx.createLinearGradient(0, -p.h * 0.5, 0, p.h * 0.5);
-      g2.addColorStop(0, 'hsl(' + hue + ',70%,72%)');
-      g2.addColorStop(1, 'hsl(' + hue + ',55%,38%)');
-      ctx.fillStyle = g2;
-      rrect(-p.w * 0.5, -p.h * 0.5, p.w, p.h, 3);
-      ctx.fill();
-      ctx.restore();
-    }
-
-    // 파티클
-    for (var q = 0; q < G.parts.length; q++) {
-      var pt = G.parts[q];
-      var al = Math.max(0, pt.life / pt.max);
-      ctx.globalAlpha = al;
-      ctx.fillStyle = pt.color;
-      ctx.beginPath();
-      ctx.arc(pt.x, pt.y + cam, pt.r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-
-    // 떠오르는 글자
-    for (var f = 0; f < G.floats.length; f++) {
-      var ft = G.floats[f];
-      var fa = Math.max(0, ft.life / ft.max);
-      ctx.save();
-      ctx.globalAlpha = fa;
-      ctx.font = '800 ' + ft.size + 'px ' + FONT;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.shadowColor = 'rgba(0,0,0,0.5)';
-      ctx.shadowBlur = 8;
-      ctx.fillStyle = ft.color;
-      ctx.fillText(MG_I18N.s(ft.text), clamp(ft.x, 50, G.width - 50), ft.y + cam);
-      ctx.restore();
-    }
-
-    ctx.restore();
-
-    // 아래쪽 비네트
-    var vg = ctx.createLinearGradient(0, H * 0.72, 0, H);
-    vg.addColorStop(0, 'rgba(4,7,16,0)');
-    vg.addColorStop(1, 'rgba(4,7,16,0.55)');
-    ctx.fillStyle = vg;
-    ctx.fillRect(0, H * 0.72, W, H * 0.28);
-  }
-
-  // mixHex가 만든 'rgb(...)' 문자열에서 hex를 복원하기 위한 작은 도우미
-  function hexOf(rgbStr) {
-    var m = /rgb\((\d+),\s*(\d+),\s*(\d+)\)/.exec(rgbStr);
-    if (!m) return '#7f6bff';
-    var r = parseInt(m[1], 10), g = parseInt(m[2], 10), b = parseInt(m[3], 10);
-    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-  }
-
-  /* =========================================================
-     10. HUD
-     ========================================================= */
-  function updateHud() {
-    var shown = (G.state === 'over') ? G.finalScore : G.level;
-    floorNum.textContent = String(shown);
-    bestNum.textContent = String(Math.max(store.best, shown));
-    if (G.combo >= 2) {
-      comboTag.textContent = '콤보 ×' + G.combo;
-      comboTag.classList.add('on');
-    } else {
-      comboTag.textContent = '콤보 ×0';
-      comboTag.classList.remove('on');
-    }
-  }
-
-  /* =========================================================
-     11. 랭킹 표
-     ========================================================= */
-  function lbRow(rank, entry) {
-    var row = el('div', 'lb-row' + (entry.mine ? ' mine' : ''));
-    row.appendChild(el('span', 'lb-rank', String(rank)));
-    row.appendChild(el('span', 'lb-name', entry.name));
-    var sc = el('span', 'lb-score', entry.score + '층');
-    if (entry.mine) sc.appendChild(el('span', 'lb-me-tag', '나'));
-    row.appendChild(sc);
-    return row;
-  }
-
-  function fillLeaderboard(container) {
-    container.innerHTML = '';
-    var pool = sortedPool();
-    var myIndex = -1;
-    for (var i = 0; i < pool.length; i++) {
-      if (pool[i].mine) { myIndex = i; break; }
-    }
-
-    container.appendChild(el('div', 'lb-title', 'TOP 10'));
-    var top = el('div', 'lb-list');
-    var topN = Math.min(10, pool.length);
-    for (var k = 0; k < topN; k++) top.appendChild(lbRow(k + 1, pool[k]));
-    container.appendChild(top);
-
-    if (myIndex >= 0) {
-      container.appendChild(el('div', 'lb-title', '내 주변 순위'));
-      var near = el('div', 'lb-list');
-      var start = Math.max(0, myIndex - 2);
-      var end = Math.min(pool.length - 1, myIndex + 2);
-      if (start > 0) near.appendChild(el('div', 'lb-gap', '· · ·'));
-      for (var j = start; j <= end; j++) near.appendChild(lbRow(j + 1, pool[j]));
-      if (end < pool.length - 1) near.appendChild(el('div', 'lb-gap', '· · ·'));
-      container.appendChild(near);
-    }
-  }
-
-  /* =========================================================
-     12. 오버레이: 시작 / 게임오버
-     ========================================================= */
-  function hideOverlay() {
-    if (rewardTimer) { window.clearInterval(rewardTimer); rewardTimer = null; }
-    overlay.classList.remove('show');
-    overlay.innerHTML = '';
-  }
-
-  function showStart() {
-    overlay.innerHTML = '';
-    var card = el('div', 'card start');
-
-    card.appendChild(el('div', 'brand', 'PROTOTYPE · 시제품'));
-    card.appendChild(el('h1', 'game-title', '원터치 타워'));
-    card.appendChild(el('p', 'tagline', '한 번만 톡 — 타이밍에 맞춰 블록을 쌓는 게임'));
-
-    var how = el('div', 'how');
-    var steps = [
-      ['1', '블록이 좌우로 움직여요'],
-      ['2', '화면 아무 곳이나 한 번 터치 (PC는 스페이스바)'],
-      ['3', '겹치지 않는 부분은 잘려 나가요']
-    ];
-    for (var i = 0; i < steps.length; i++) {
-      var row = el('div', 'how-row');
-      row.appendChild(el('span', '', steps[i][0]));
-      var txt = el('div', '');
-      txt.appendChild(document.createTextNode(steps[i][1]));
-      row.appendChild(txt);
-      how.appendChild(row);
-    }
-    card.appendChild(how);
-
-    if (store.records.length > 0) {
-      var rr = rankFor(store.best);
-      var stats = el('div', 'start-stats');
-      stats.appendChild(el('b', '', '내 최고 ' + store.best + '층'));
-      stats.appendChild(el('span', '', '전체 ' + fmt(rr.total) + '명 중 ' + fmt(rr.rank) + '위'));
-      card.appendChild(stats);
-    }
-
-    var startBtn = el('button', 'btn primary big', '시작하기');
-    startBtn.type = 'button';
-    startBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      newGame();
-    });
-    card.appendChild(startBtn);
-
-    // 일본 여행 가이드(japan.html)로 가는 배너 — 게임 동작은 건드리지 않음
-    var jp = el('a', 'jp-link');
-    jp.href = 'japan.html';
-    jp.appendChild(el('span', 'flag', '旅'));
-    var jpTx = el('span', 'jp-tx');
-    jpTx.appendChild(el('b', '', '일본 초보여행 원클릭 해결사'));
-    jpTx.appendChild(el('span', '', '표 끊기·환승·말하기·쇼핑을 한 화면에 · 무료'));
-    jp.appendChild(jpTx);
-    jp.appendChild(el('span', 'ar', '→'));
-    card.appendChild(jp);
-
-    card.appendChild(el('p', 'mini', '손이 불편해도 괜찮아요 · 버튼을 정확히 누를 필요 없이 화면 아무 곳이나 터치하면 됩니다'));
-    card.appendChild(el('p', 'disclaimer', '테스트용 로컬+시뮬레이션 랭킹 · 실제 출시 시 실시간 DB 연동'));
-
-    overlay.appendChild(card);
-    overlay.classList.add('show');
-  }
-
-  function showGameOver() {
-    var score = G.finalScore;
-    var r = rankFor(score);
-    var best = Math.max(store.best, score);
-    var prevBest = G.prevBest;
-
-    overlay.innerHTML = '';
-    var card = el('div', 'card over');
-
-    card.appendChild(el('div', 'go-kicker', '무너졌어요'));
-    if (G.endReason) card.appendChild(el('div', 'go-reason', G.endReason));
-
-    var wrap = el('div', 'rank-wrap');
-    var big = el('div', 'rank-big');
-    big.appendChild(el('span', 'rank-num', String(r.rank)));
-    big.appendChild(el('span', 'rank-unit', '위'));
-    wrap.appendChild(big);
-    wrap.appendChild(el('div', 'rank-sub', '전체 ' + fmt(r.total) + '명 중'));
-    wrap.appendChild(el('div', 'pct-chip', '상위 ' + r.pct.toFixed(1) + '%'));
-    card.appendChild(wrap);
-    card.appendChild(el('div', 'tier-msg', tierMsg(r.pct)));
-
-    var chips = el('div', 'score-row');
-    var c1 = el('div', 'score-chip');
-    c1.appendChild(el('b', '', String(score) + '층'));
-    c1.appendChild(el('span', '', '이번 기록'));
-    chips.appendChild(c1);
-
-    var c2 = el('div', 'score-chip');
-    c2.appendChild(el('b', '', String(best) + '층'));
-    c2.appendChild(el('span', '', '내 최고'));
-    chips.appendChild(c2);
-
-    if (score > prevBest) {
-      var c3 = el('div', 'score-chip good');
-      c3.appendChild(el('b', '', '+' + (score - prevBest) + '층'));
-      c3.appendChild(el('span', '', '최고 경신'));
-      chips.appendChild(c3);
-    }
-    card.appendChild(chips);
-
-    // 닉네임 등록
-    var nick = el('div', 'nick');
-    nick.appendChild(el('label', 'nick-label', '랭킹 닉네임'));
-    var input = el('input', 'nick-input');
-    input.type = 'text';
-    input.maxLength = 10;
-    input.value = store.nickname || '';
-    input.placeholder = '예: 새벽타워';
-    input.setAttribute('aria-label', '랭킹 닉네임');
-    nick.appendChild(input);
-    var saveBtn = el('button', 'btn small', '등록');
-    saveBtn.type = 'button';
-    nick.appendChild(saveBtn);
-    var nickMsg = el('div', 'nick-msg', store.nickname
-      ? '등록됨: ' + store.nickname + ' · 기록은 이 기기에 저장됩니다'
-      : '닉네임을 등록하면 순위표에 내 기록이 표시됩니다');
-    nick.appendChild(nickMsg);
-    card.appendChild(nick);
-
-    var lbWrap = el('div', 'lb');
-
-    var applyNick = function () {
-      var v = String(input.value || '').replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '').slice(0, 10);
-      store.nickname = v || '플레이어';
-      saveStore();
-      nickMsg.textContent = '등록됨: ' + store.nickname + ' · 기록은 이 기기에 저장됩니다';
-      fillLeaderboard(lbWrap);
-      updateHud();
-    };
-    saveBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      applyNick();
-    });
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        e.stopPropagation();
-        e.preventDefault();
-        applyNick();
-        input.blur();
-      }
-    });
-
-    // 다시 도전 / 처음으로
-    var btnRow = el('div', 'btn-row');
-    var retry = el('button', 'btn primary', '다시 도전');
-    retry.type = 'button';
-    retry.addEventListener('click', function (e) {
-      e.stopPropagation();
-      newGame();
-    });
-    var home = el('button', 'btn ghost', '처음으로');
-    home.type = 'button';
-    home.addEventListener('click', function (e) {
-      e.stopPropagation();
-      G.state = 'ready';
-      setupScene();
-      hideOverlay();
-      showStart();
-    });
-    btnRow.appendChild(retry);
-    btnRow.appendChild(home);
-    card.appendChild(btnRow);
-
-    var jpGo = el('a', 'jp-link sm');
-    jpGo.href = 'japan.html';
-    jpGo.appendChild(el('span', 'flag', '旅'));
-    var jpGoTx = el('span', 'jp-tx');
-    jpGoTx.appendChild(el('b', '', '일본 초보여행 원클릭 해결사'));
-    jpGoTx.appendChild(el('span', '', '다음 여행 전에 한 번 열어 보세요'));
-    jpGo.appendChild(jpGoTx);
-    jpGo.appendChild(el('span', 'ar', '→'));
-    card.appendChild(jpGo);
-
-    // 보상형 광고 자리 (이어하기)
-    var reward = el('div', 'reward');
-    if (G.continues >= 1) {
-      reward.appendChild(el('div', 'reward-done', '이번 판 이어하기 사용 완료'));
-    } else {
-      var slot = el('div', 'ad-slot reward-slot');
-      slot.appendChild(el('span', 'ad-tag', 'AD'));
-      slot.appendChild(el('span', 'ad-text', '보상형 광고 자리'));
-      slot.appendChild(el('span', 'ad-note', '예: 300×250 · 실제 출시 시 AdMob/AdSense 연결'));
-      reward.appendChild(slot);
-
-      var rewardBtn = el('button', 'btn ghost', '광고 보고 이어하기 (1회)');
-      rewardBtn.type = 'button';
-      var status = el('div', 'reward-status', '시제품: 실제 광고 없이 3초 대기 후 이어집니다');
-      reward.appendChild(rewardBtn);
-      reward.appendChild(status);
-
-      var counting = false;
-      rewardBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        if (counting) return;
-        counting = true;
-        var left = 3;
-        rewardBtn.disabled = true;
-        rewardBtn.textContent = '광고 재생 중… ' + left;
-        status.textContent = '광고 시청 중 (시제품: 모의 재생)';
-        rewardTimer = window.setInterval(function () {
-          left -= 1;
-          if (left > 0) {
-            rewardBtn.textContent = '광고 재생 중… ' + left;
-          } else {
-            window.clearInterval(rewardTimer);
-            rewardTimer = null;
-            rewardBtn.disabled = false;
-            rewardBtn.textContent = '이어하기';
-            status.textContent = '블록 폭을 조금 회복하고 이어갑니다';
-            rewardBtn.addEventListener('click', function (ev) {
-              ev.stopPropagation();
-              doContinue();
-            });
-          }
-        }, 1000);
-      });
-    }
-    card.appendChild(reward);
-
-    fillLeaderboard(lbWrap);
-    card.appendChild(lbWrap);
-
-    // 재도전 화면 광고 자리
-    var retryAd = el('div', 'ad-slot retry-ad');
-    retryAd.appendChild(el('span', 'ad-tag', 'AD'));
-    retryAd.appendChild(el('span', 'ad-text', '재도전 화면 광고 자리'));
-    retryAd.appendChild(el('span', 'ad-note', '예: 320×100'));
-    card.appendChild(retryAd);
-
-    card.appendChild(el('p', 'disclaimer', '테스트용 로컬+시뮬레이션 랭킹(1,248명) + 내 기록 · 실제 출시 시 실시간 DB 연동'));
-
-    overlay.appendChild(card);
-    overlay.classList.add('show');
-    overlay.scrollTop = 0;
-  }
-
-  /* =========================================================
-     13. 입력
-     ========================================================= */
-  function isInside(node, sel) {
-    var n = node;
-    while (n && n !== document) {
-      if (n.classList && n.classList.contains(sel)) return true;
-      n = n.parentNode;
-    }
-    return false;
-  }
-
-  stage.addEventListener('pointerdown', function (e) {
-    var t = e.target;
-    if (t && t.tagName === 'INPUT') return;
-    if (isInside(t, 'overlay') || isInside(t, 'icon-btn') || isInside(t, 'mg-lang')) return;
-    if (G.state === 'playing') {
-      if (e.preventDefault) e.preventDefault();
-      tapDrop();
-    }
-  }, { passive: false });
-
-  // 마우스/터치 모두 지원하지 않는 환경 보조
-  stage.addEventListener('click', function (e) {
-    var t = e.target;
-    if (t && t.tagName === 'INPUT') return;
-    if (isInside(t, 'overlay') || isInside(t, 'icon-btn') || isInside(t, 'mg-lang')) return;
-    if (G.state === 'playing' && G.moving && !G.moving.dropping) tapDrop();
-  });
-
-  window.addEventListener('keydown', function (e) {
-    var t = e.target;
-    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
-    if (e.repeat) return;
-    var isSpace = (e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar');
-    var isEnter = (e.code === 'Enter' || e.key === 'Enter');
-    if (!isSpace && !isEnter) return;
-    if (G.state === 'playing') {
-      e.preventDefault();
-      tapDrop();
-    } else if (G.state === 'ready') {
-      e.preventDefault();
-      newGame();
-    }
-  });
-
-  document.addEventListener('visibilitychange', function () {
-    G.lastT = 0;
-  });
-
-  window.addEventListener('resize', function () {
-    resize();
-  });
-  if (window.ResizeObserver) {
-    try { new window.ResizeObserver(function () { resize(); }).observe(stage); } catch (e) {}
-  }
-
-  /* =========================================================
-     14. 메인 루프
-     ========================================================= */
-  function loop(ts) {
-    if (!G.lastT) G.lastT = ts;
-    var dt = (ts - G.lastT) / 1000;
-    G.lastT = ts;
-    if (!(dt > 0)) dt = 0;
-    if (dt > 0.05) dt = 0.05;
-    update(dt);
-    render();
-    window.requestAnimationFrame(loop);
-  }
-
-  /* =========================================================
-     15. 시작
-     ========================================================= */
-  loadStore();
-  buildGlobal();
-  buildStars();
-  resize();
-  setupScene();
-  setMuted(store.muted);
-  updateHud();
-  showStart();
-  window.requestAnimationFrame(loop);
-
-  // 시제품 검증용 훅 (게임 동작에는 영향 없음)
-  window.__TowerProto = {
-    start: newGame,
-    tap: tapDrop,
-    step: function (ms) { update(ms / 1000); render(); },
-    info: function () {
-      return {
-        state: G.state,
-        level: G.level,
-        blocks: G.blocks.length,
-        score: G.finalScore,
-        combo: G.combo,
-        moving: !!G.moving,
-        width: G.width,
-        topW: G.blocks.length ? G.blocks[G.blocks.length - 1].w : 0
-      };
-    },
-    rank: rankFor,
-    continueGame: doContinue,
-    _G: G,
-    _store: store
-  };
-})();
+  } catch (e) {}
+})(window, document);
 </script>
 </body>
 </html>
