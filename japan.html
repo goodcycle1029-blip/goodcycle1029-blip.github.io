@@ -521,6 +521,50 @@ select:focus{outline:2px solid var(--brand);outline-offset:1px}
 }
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
+/* ---------- 의견·제보 ---------- */
+.fb-open{
+  display:flex;gap:12px;align-items:center;width:100%;text-align:left;
+  background:linear-gradient(135deg,var(--brand-soft),#fbf6f1);border:1px solid #e1e8f2;
+  border-radius:18px;padding:13px 14px;box-shadow:var(--shadow)
+}
+.fb-open:active{transform:scale(.99)}
+.fb-open .ic{
+  width:40px;height:40px;border-radius:12px;background:var(--brand);color:#fff;
+  display:grid;place-items:center;font-size:19px;flex:0 0 auto
+}
+.fb-open .tx{flex:1;min-width:0}
+.fb-open .tx b{display:block;font-size:14px;font-weight:800;letter-spacing:-.02em}
+.fb-open .tx span{display:block;font-size:11.5px;color:var(--sub);line-height:1.35;margin-top:2px}
+.fb-open .ar{flex:0 0 auto;color:var(--sub);font-weight:800;font-size:15px}
+
+.overlay.fb{
+  background:rgba(11,17,28,.55);justify-content:center;
+  padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + var(--safe-b))
+}
+.fb-panel{
+  background:#fff;color:var(--ink);border-radius:22px;padding:18px;width:100%;max-width:420px;
+  max-height:100%;overflow:auto;box-shadow:var(--shadow-lg)
+}
+.fb-head{display:flex;align-items:center;gap:8px}
+.fb-head b{font-size:16px;font-weight:900;letter-spacing:-.02em}
+.fb-close{
+  margin-left:auto;width:34px;height:34px;border-radius:11px;background:#f4f2ee;color:var(--ink2);
+  display:grid;place-items:center;font-size:15px;flex:0 0 auto
+}
+.fb-intro{font-size:11.5px;color:var(--sub);line-height:1.5;margin-top:8px}
+.fb-types{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.fb-types .chip{height:36px;font-size:12.5px;padding:0 12px}
+.fb-label{display:block;font-size:12px;font-weight:800;color:var(--ink2);margin:15px 0 6px}
+.fb-text{
+  width:100%;min-height:118px;resize:vertical;border:1px solid var(--line);border-radius:12px;
+  padding:11px 12px;font-family:inherit;font-size:14px;line-height:1.5;background:#fbfaf8;color:var(--ink)
+}
+.fb-text:focus{outline:2px solid #dde7f3;border-color:#b9c8dc}
+.fb-count{font-size:11px;color:var(--sub);text-align:right;margin-top:4px}
+.fb-actions{display:grid;gap:8px;margin-top:12px}
+.fb-note{font-size:11px;color:var(--sub);line-height:1.45;margin-top:10px}
+.fb-note b{color:var(--ink2)}
+
 /* desktop nicety */
 @media(min-width:560px){
   .tabbar{max-width:480px;left:50%;right:auto;transform:translateX(-50%);border-radius:0}
@@ -633,6 +677,14 @@ body.has-adbar{padding-bottom:calc(146px + var(--safe-b))}
           </div>
           <a class="btn sm" href="https://smartstore.naver.com/japanmartbox" target="_blank" rel="noopener">스토어</a>
         </div>
+      </div>
+
+      <div class="sec" id="fbHomeCard" hidden>
+        <button class="fb-open" type="button" data-feedback-open>
+          <span class="ic">💬</span>
+          <span class="tx"><b>의견·정보 수정 제보하기</b><span>틀린 정보·불편한 점·추가할 기능을 알려주세요</span></span>
+          <span class="ar">›</span>
+        </button>
       </div>
     </section>
 
@@ -959,6 +1011,14 @@ body.has-adbar{padding-bottom:calc(146px + var(--safe-b))}
 
     <!-- ============ TIPS ============ -->
     <section class="page" id="page-tips" role="tabpanel" aria-label="실전 팁">
+      <div class="sec" id="fbTipsCard" hidden>
+        <button class="fb-open" type="button" data-feedback-open>
+          <span class="ic">💬</span>
+          <span class="tx"><b>의견·정보 수정 제보하기</b><span>틀린 정보·불편한 점·추가할 기능을 알려주세요</span></span>
+          <span class="ar">›</span>
+        </button>
+      </div>
+
       <div class="sec-head"><h2>🧭 현지 실전 팁</h2><span class="sub">알면 편한 것들</span></div>
       <div class="tipgrid" id="tipList"></div>
 
@@ -1068,6 +1128,29 @@ body.has-adbar{padding-bottom:calc(146px + var(--safe-b))}
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ===== 의견·정보 수정 제보 ===== -->
+<div class="overlay fb" id="feedbackModal" role="dialog" aria-modal="true" aria-labelledby="fbTitle">
+  <div class="fb-panel">
+    <div class="fb-head">
+      <b id="fbTitle">💬 의견 보내기</b>
+      <button class="fb-close" id="fbClose" type="button" aria-label="닫기">✕</button>
+    </div>
+    <p class="fb-intro">앱을 쓰다가 틀린 정보를 발견했거나, 불편한 점·추가하고 싶은 기능이 있으면 알려주세요. 다음 업데이트에 반영할게요.</p>
+
+    <div class="fb-types" id="fbTypes" role="radiogroup" aria-label="의견 유형"></div>
+
+    <label class="fb-label" for="fbText">내용</label>
+    <textarea class="fb-text" id="fbText" maxlength="500" placeholder="예) 신주쿠→시부야 요금이 199엔으로 나오는데 현장에서는 210엔이었어요."></textarea>
+    <div class="fb-count"><span id="fbCount">0</span> / <span id="fbMax">500</span>자</div>
+
+    <div class="fb-actions">
+      <button class="btn primary block" id="fbCopy" type="button">📋 내용 복사하기</button>
+      <a class="btn block" id="fbSend" href="https://pf.kakao.com/_qxlxmWX" target="_blank" rel="noopener">카카오톡 채널로 보내기</a>
+    </div>
+    <p class="fb-note">복사한 내용을 <b>카카오톡 채널 대화창에 붙여넣기</b> 해 주세요. 전화번호·이메일은 받지 않고, 입력한 내용은 이 기기에만 임시 저장됩니다.</p>
+  </div>
+</div>
 <script>
 /* 자동 생성: data/make_data.py — Yahoo!路線情報 조회 결과(2026-11-22) */
 const STATIONS = {"tokyo":[{"id":"shinjuku","ko":"신주쿠","jp":"新宿"},{"id":"shibuya","ko":"시부야","jp":"渋谷"},{"id":"tokyo","ko":"도쿄역","jp":"東京"},{"id":"asakusa","ko":"아사쿠사","jp":"浅草"},{"id":"ueno","ko":"우에노","jp":"上野"},{"id":"ginza","ko":"긴자","jp":"銀座"},{"id":"akihabara","ko":"아키하바라","jp":"秋葉原"},{"id":"ikebukuro","ko":"이케부쿠로","jp":"池袋"},{"id":"roppongi","ko":"롯폰기","jp":"六本木"},{"id":"odaiba","ko":"오다이바","jp":"台場"},{"id":"maihama","ko":"마이하마(디즈니)","jp":"舞浜"},{"id":"harajuku","ko":"하라주쿠","jp":"原宿"},{"id":"oshiage","ko":"스카이트리(오시아게)","jp":"押上"},{"id":"shinokubo","ko":"신오쿠보(한국타운)","jp":"新大久保"},{"id":"narita","ko":"나리타공항","jp":"成田空港"},{"id":"haneda","ko":"하네다공항","jp":"羽田空港"}],"osaka":[{"id":"namba","ko":"난바","jp":"難波"},{"id":"umeda","ko":"우메다","jp":"梅田"},{"id":"shinsaibashi","ko":"신사이바시","jp":"心斎橋"},{"id":"shinosaka","ko":"신오사카","jp":"新大阪"},{"id":"osakajo","ko":"오사카성","jp":"大阪城公園"},{"id":"usj","ko":"유니버설시티(USJ)","jp":"ユニバーサルシティ"},{"id":"kansai","ko":"간사이공항","jp":"関西空港"},{"id":"tennoji","ko":"텐노지","jp":"天王寺"},{"id":"kyoto","ko":"교토","jp":"京都"},{"id":"nara","ko":"나라","jp":"奈良"},{"id":"sannomiya","ko":"고베 산노미야","jp":"三宮"},{"id":"ebisucho","ko":"쓰텐카쿠(에비스초)","jp":"恵美須町"},{"id":"nihonbashi","ko":"닛폰바시(구로몬시장)","jp":"近鉄日本橋"}],"fukuoka":[{"id":"hakata","ko":"하카타","jp":"博多"},{"id":"tenjin","ko":"텐진","jp":"天神"},{"id":"fukuokaku","ko":"후쿠오카공항","jp":"福岡空港"},{"id":"nakasu","ko":"나카스카와바타","jp":"中洲川端"},{"id":"ohori","ko":"오호리코엔","jp":"大濠公園"},{"id":"kushida","ko":"쿠시다신사","jp":"櫛田神社前"},{"id":"dazaifu","ko":"다자이후","jp":"太宰府"},{"id":"meinohama","ko":"마리노아(메이노하마)","jp":"姪浜"}]};
@@ -1098,6 +1181,24 @@ const AD_CONFIG = {
      예) customHtml.fixed_banner = '<ins class="adsbygoogle" data-ad-client="ca-pub-XXXX" ...></ins>';
          (애드센스 로더 스크립트는 페이지 하단 AD_SLOT 주석 위치에 붙여 주세요) */
   customHtml: {}
+};
+
+/* ---------- 의견·정보 수정 제보 설정 ----------
+   여기 한 곳만 고치면 앱 전체(홈 카드·팁 탭 카드·모달)가 함께 바뀝니다.
+   formUrl 에 구글폼 주소를 넣으면 그 폼으로 보내고, 비워 두면
+   '내용 복사 → 재팬마트박스 카카오톡 채널에 붙여넣기' 방식으로 동작합니다. */
+const FEEDBACK_CONFIG = {
+  enabled: true,
+  formUrl: '',
+  kakaoUrl: 'https://pf.kakao.com/_qxlxmWX',
+  kakaoLabel: '카카오톡 채널로 보내기',
+  formLabel: '구글폼으로 보내기',
+  maxLength: 500,
+  types: [
+    { id: 'fix', ko: '정보 수정 제보', em: '✏️' },
+    { id: 'pain', ko: '불편한 점', em: '😣' },
+    { id: 'add', ko: '추가해 주세요', em: '➕' }
+  ]
 };
 
 /* ---------- 노선 이름 한글화 ---------- */
@@ -1898,6 +1999,127 @@ const REFUND_OPTS = [
     $('#hoodList').innerHTML = (HOODS[hoodCity] || []).map(h =>
       '<div class="hood-item"><div class="nm">' + h.nm + '<span>' + h.jp + '</span></div><p>' + h.d + '</p></div>'
     ).join('');
+  }
+
+  /* ---------------- 의견·정보 수정 제보 ---------------- */
+  const FB = (typeof FEEDBACK_CONFIG !== 'undefined' && FEEDBACK_CONFIG) ? FEEDBACK_CONFIG : { enabled: false };
+  const fbModal = $('#feedbackModal');
+  let fbType = 0;
+
+  function fbTypes() { return (FB.types && FB.types.length) ? FB.types : [{ id: 'fix', ko: '정보 수정 제보', em: '✏️' }]; }
+  function fbPanel() { return fbModal ? fbModal.querySelector('.fb-panel') : null; }
+
+  function renderFbTypes() {
+    const box = $('#fbTypes');
+    if (!box) return;
+    box.innerHTML = fbTypes().map((t, i) =>
+      '<button class="chip' + (i === fbType ? ' on' : '') + '" type="button" role="radio" data-fbt="' + i + '" aria-checked="' + (i === fbType) + '">' +
+      (t.em ? t.em + ' ' : '') + t.ko + '</button>'
+    ).join('');
+    $$('#fbTypes [data-fbt]').forEach(b => b.addEventListener('click', () => {
+      fbType = +b.dataset.fbt;
+      renderFbTypes();
+      fbSaveDraft();
+    }));
+  }
+
+  function fbSaveDraft() {
+    const ta = $('#fbText');
+    if (!ta) return;
+    store.set('jmb.fbDraft', { t: ta.value, y: fbType });
+  }
+
+  function fbOpen() {
+    if (!fbModal) return;
+    renderFbTypes();
+    const max = Number(FB.maxLength) || 500;
+    const ta = $('#fbText');
+    ta.maxLength = max;
+    if ($('#fbMax')) $('#fbMax').textContent = String(max);
+    const hasForm = !!(FB.formUrl && String(FB.formUrl).trim());
+    const send = $('#fbSend');
+    if (send) {
+      send.classList.remove('primary');
+      send.style.boxShadow = '';
+      send.href = hasForm ? FB.formUrl : (FB.kakaoUrl || 'https://pf.kakao.com/_qxlxmWX');
+      send.textContent = hasForm ? (FB.formLabel || '구글폼으로 보내기') : (FB.kakaoLabel || '카카오톡 채널로 보내기');
+    }
+    if ($('#fbCount')) $('#fbCount').textContent = String(ta.value.length);
+    fbModal.classList.add('show');
+    document.body.classList.add('no-scroll');
+  }
+  function fbClose() {
+    if (!fbModal) return;
+    fbModal.classList.remove('show');
+    if (!$('#phraseFull').classList.contains('show') && !$('#splitMode').classList.contains('show')) {
+      document.body.classList.remove('no-scroll');
+    }
+  }
+
+  function fbMessage() {
+    const t = fbTypes()[fbType] || fbTypes()[0];
+    const body = ($('#fbText').value || '').trim();
+    return '【일본 초보여행 해결사 의견】\n유형: ' + t.ko + '\n내용:\n' + body;
+  }
+
+  function fbCopyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).then(() => true).catch(() => fbCopyFallback(text));
+    }
+    return Promise.resolve(fbCopyFallback(text));
+  }
+  function fbCopyFallback(text) {
+    try {
+      const tmp = document.createElement('textarea');
+      tmp.value = text;
+      tmp.setAttribute('readonly', '');
+      tmp.style.position = 'fixed';
+      tmp.style.top = '-1000px';
+      tmp.style.opacity = '0';
+      document.body.appendChild(tmp);
+      tmp.select();
+      tmp.setSelectionRange(0, text.length);
+      const ok = document.execCommand('copy');
+      document.body.removeChild(tmp);
+      return ok;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  if (FB.enabled) {
+    ['#fbHomeCard', '#fbTipsCard'].forEach(sel => { const el = $(sel); if (el) el.removeAttribute('hidden'); });
+    $$('[data-feedback-open]').forEach(b => b.addEventListener('click', fbOpen));
+    $('#fbClose').addEventListener('click', fbClose);
+    fbModal.addEventListener('click', e => { if (e.target === fbModal) fbClose(); });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && fbModal.classList.contains('show')) fbClose();
+    });
+    const draft = store.get('jmb.fbDraft', null);
+    if (draft && typeof draft.t === 'string') {
+      $('#fbText').value = draft.t.slice(0, Number(FB.maxLength) || 500);
+      if (typeof draft.y === 'number' && draft.y >= 0 && draft.y < fbTypes().length) fbType = draft.y;
+    }
+    $('#fbText').addEventListener('input', () => {
+      $('#fbCount').textContent = String($('#fbText').value.length);
+      fbSaveDraft();
+    });
+    $('#fbCopy').addEventListener('click', () => {
+      const body = ($('#fbText').value || '').trim();
+      if (body.length < 2) { toast('내용을 조금만 적어 주세요'); $('#fbText').focus(); return; }
+      Promise.resolve(fbCopyText(fbMessage())).then(ok => {
+        if (ok) {
+          toast('복사했어요. 카카오톡 채널에 붙여넣어 주세요');
+          const send = $('#fbSend');
+          if (send) {
+            send.classList.add('primary');
+            send.style.boxShadow = '0 0 0 3px rgba(31,58,95,.14)';
+          }
+        } else {
+          toast('복사가 안 됐어요. 내용을 길게 눌러 직접 복사해 주세요');
+        }
+      });
+    });
   }
 
   /* ---------------- 시작 ---------------- */

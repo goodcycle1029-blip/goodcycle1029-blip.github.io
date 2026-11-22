@@ -126,6 +126,28 @@
   .start-stats b{color:var(--ink);font-size:14px}
   .mini{font-size:11px;color:rgba(180,196,226,.62);text-align:center;line-height:1.5;margin:2px 0 0}
 
+  /* 일본 여행 가이드로 가는 배너 */
+  .jp-link{
+    display:flex;align-items:center;gap:10px;width:100%;text-decoration:none;
+    padding:12px 14px;border-radius:16px;color:var(--ink);
+    background:linear-gradient(135deg,rgba(126,224,255,.16),rgba(169,139,255,.16));
+    border:1px solid rgba(126,224,255,.34);box-shadow:0 8px 24px rgba(0,0,0,.25)
+  }
+  .jp-link:active{transform:scale(.99)}
+  .jp-link .flag{
+    width:34px;height:34px;border-radius:10px;flex:0 0 auto;display:grid;place-items:center;
+    background:linear-gradient(135deg,#2a4a75,#1f3a5f);border:1px solid rgba(126,224,255,.35);
+    color:#fff;font-size:17px;font-weight:800;line-height:1
+  }
+  .jp-link .jp-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .jp-link .jp-tx b{font-size:13.5px;font-weight:800;color:#fff;letter-spacing:-.02em}
+  .jp-link .jp-tx span{font-size:10.5px;font-weight:600;color:var(--dim);line-height:1.35}
+  .jp-link .ar{flex:0 0 auto;font-size:14px;font-weight:800;color:var(--accent)}
+  .jp-link.sm{padding:9px 12px;border-radius:13px;margin-top:2px}
+  .jp-link.sm .flag{width:28px;height:28px;border-radius:9px;font-size:14px}
+  .jp-link.sm .jp-tx b{font-size:12px}
+  .jp-link.sm .jp-tx span{font-size:10px}
+
   /* 버튼 */
   .btn{
     border:0;border-radius:16px;height:54px;padding:0 18px;
@@ -1213,6 +1235,17 @@
     });
     card.appendChild(startBtn);
 
+    // 일본 여행 가이드(japan.html)로 가는 배너 — 게임 동작은 건드리지 않음
+    var jp = el('a', 'jp-link');
+    jp.href = 'japan.html';
+    jp.appendChild(el('span', 'flag', '旅'));
+    var jpTx = el('span', 'jp-tx');
+    jpTx.appendChild(el('b', '', '일본 초보여행 원클릭 해결사'));
+    jpTx.appendChild(el('span', '', '표 끊기·환승·말하기·쇼핑을 한 화면에 · 무료'));
+    jp.appendChild(jpTx);
+    jp.appendChild(el('span', 'ar', '→'));
+    card.appendChild(jp);
+
     card.appendChild(el('p', 'mini', '손이 불편해도 괜찮아요 · 버튼을 정확히 누를 필요 없이 화면 아무 곳이나 터치하면 됩니다'));
     card.appendChild(el('p', 'disclaimer', '테스트용 로컬+시뮬레이션 랭킹 · 실제 출시 시 실시간 DB 연동'));
 
@@ -1323,6 +1356,16 @@
     btnRow.appendChild(retry);
     btnRow.appendChild(home);
     card.appendChild(btnRow);
+
+    var jpGo = el('a', 'jp-link sm');
+    jpGo.href = 'japan.html';
+    jpGo.appendChild(el('span', 'flag', '旅'));
+    var jpGoTx = el('span', 'jp-tx');
+    jpGoTx.appendChild(el('b', '', '일본 초보여행 원클릭 해결사'));
+    jpGoTx.appendChild(el('span', '', '다음 여행 전에 한 번 열어 보세요'));
+    jpGo.appendChild(jpGoTx);
+    jpGo.appendChild(el('span', 'ar', '→'));
+    card.appendChild(jpGo);
 
     // 보상형 광고 자리 (이어하기)
     var reward = el('div', 'reward');
