@@ -678,6 +678,8 @@ body.has-adbar{padding-bottom:calc(178px + var(--safe-b))}
    ======================= */
 #sakura{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:38;display:block}
 #sakura[hidden]{display:none}
+/* PC 에서는 앱 폭(480px) 안에서만 날리게 */
+@media(min-width:560px){#sakura{left:50%;right:auto;margin-left:-240px;width:480px}}
 </style>
 </head>
 <body>
