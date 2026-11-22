@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0B0A18">
-<meta name="description" content="30초 동안 떠오르는 풍선을 톡톡 터뜨리는 원터치 킬링타임 게임. 황금 풍선 +50, 시계 풍선 +3초, 폭탄은 피하세요.">
+<meta name="description" content="30초 동안 떠오르는 풍선을 톡톡 터뜨리는 원터치 킬링타임 게임. 3단계로 빨라지고 마지막 10초는 피버 타임! 황금 풍선 +50, 시계 풍선 +3초, 폭탄은 피하세요.">
 <link rel="manifest" id="pwaManifest" href="./manifest-pop.json">
 <link rel="apple-touch-icon" id="pwaTouchIcon" href="./icon-pop-192.png">
 <title>30초 풍선 톡톡 · POP 30!</title>
@@ -262,10 +262,13 @@ button:focus-visible,.input:focus-visible,#stage:focus-visible{outline:2px solid
     { c: 'zh', flag: '🇨🇳', name: '中文' }
   ];
   var DICT = {
+"LV.2 스피드 업!":{"en":"LV.2 SPEED UP!","ja":"LV.2 スピードアップ！","zh":"LV.2 加速！"},
+"🔥 피버 타임!":{"en":"🔥 FEVER TIME!","ja":"🔥 フィーバータイム！","zh":"🔥 狂热时间！"},
+"작을수록 고득점":{"en":"Smaller scores higher","ja":"小さいほど高得点","zh":"越小分越高"},
 "+3초":{"en":"+3s","ja":"+3秒","zh":"+3秒"},
 "0.1% 미만":{"en":"under 0.1%","ja":"0.1%未満","zh":"低于0.1%"},
 "30초 · 원터치 · 킬링타임":{"en":"30 sec · one tap · quick fun","ja":"30秒・ワンタッチ・ひまつぶし","zh":"30秒 · 一键 · 杀时间"},
-"30초 동안 떠오르는 풍선을 톡톡 터뜨리는 원터치 킬링타임 게임. 황금 풍선 +50, 시계 풍선 +3초, 폭탄은 피하세요.":{"en":"A one-tap time killer: pop the balloons for 30 seconds. Golden balloon +50, clock balloon +3s, avoid the bombs.","ja":"30秒間に浮かぶバルーンをぽんぽん割るワンタッチひまつぶしゲーム。金のバルーン+50、時計のバルーン+3秒、爆弾はよけてください。","zh":"30秒内点破升起气球的一键小游戏。黄金气球+50，时钟气球+3秒，避开炸弹。"},
+"30초 동안 떠오르는 풍선을 톡톡 터뜨리는 원터치 킬링타임 게임. 3단계로 빨라지고 마지막 10초는 피버 타임! 황금 풍선 +50, 시계 풍선 +3초, 폭탄은 피하세요.":{"en":"A one-tap time killer: pop the balloons for 30 seconds. Three stages of speed, with fever time in the last 10 seconds! Golden balloon +50, clock balloon +3s, avoid the bombs.","ja":"30秒間に浮かぶバルーンをぽんぽん割るワンタッチひまつぶしゲーム。3段階で速くなり、最後の10秒はフィーバータイム！金のバルーン+50、時計のバルーン+3秒、爆弾はよけてください。","zh":"30秒内点破升起气球的一键小游戏。分3个阶段加速，最后10秒是狂热时间！黄金气球+50，时钟气球+3秒，避开炸弹。"},
 "30초 시작하기":{"en":"Start 30 seconds","ja":"30秒スタート","zh":"开始30秒"},
 "30초 풍선 톡톡":{"en":"Balloon Pop 30","ja":"30秒バルーンぽんぽん","zh":"30秒气球弹弹"},
 "30초 풍선 톡톡 · POP 30!":{"en":"Balloon Pop 30 · POP 30!","ja":"30秒バルーンぽんぽん・POP 30!","zh":"30秒气球弹弹 · POP 30!"},
@@ -308,7 +311,7 @@ button:focus-visible,.input:focus-visible,#stage:focus-visible{outline:2px solid
 "새 최고 기록이에요 (지난 최고":{"en":"New best score (previous best ","ja":"自己ベスト更新（前回のベスト ","zh":"新纪录（上次最高 "},
 "새벽":{"en":"Dawn","ja":"夜明け","zh":"黎明"},
 "새벽풍선":{"en":"DawnBalloon","ja":"夜明けバルーン","zh":"黎明气球"},
-"생각할 것 없이 떠오르는 풍선을 손가락으로 톡톡. 30초가 끝나면 내 순위가 바로 나와요.":{"en":"No thinking needed — just tap the balloons as they float up. When the 30 seconds are over, your rank shows up right away.","ja":"何も考えず、浮かんでくるバルーンを指でぽんぽん。30秒が終わると順位がすぐに出ます。","zh":"不用思考，飘上来的气球用手指点点就行。30秒一结束，马上就能看到你的排名。"},
+"생각할 것 없이 떠오르는 풍선을 손가락으로 톡톡. 뒤로 갈수록 빨라지고, 마지막 10초는 피버 타임!":{"en":"No thinking needed — just tap the balloons as they float up. They speed up as you go, and the last 10 seconds are fever time!","ja":"何も考えず、浮かんでくるバルーンを指でぽんぽん。だんだん速くなり、最後の10秒はフィーバータイム！","zh":"不用思考，飘上来的气球用手指点点就行。越到后面越快，最后10秒是狂热时间！"},
 "소리 끄기":{"en":"Sound off","ja":"音をオフ","zh":"关闭声音"},
 "소리 켜기":{"en":"Sound on","ja":"音をオン","zh":"开启声音"},
 "소리를 껐어요":{"en":"Sound off","ja":"音をオフにしました","zh":"已关闭声音"},
@@ -840,10 +843,10 @@ button:focus-visible,.input:focus-visible,#stage:focus-visible{outline:2px solid
       <div class="hero">
         <span class="hero-badge">30초 · 원터치 · 킬링타임</span>
         <h1>풍선을 <em>톡톡</em>,<br>딱 30초만</h1>
-        <p>생각할 것 없이 떠오르는 풍선을 손가락으로 톡톡. 30초가 끝나면 내 순위가 바로 나와요.</p>
+        <p>생각할 것 없이 떠오르는 풍선을 손가락으로 톡톡. 뒤로 갈수록 빨라지고, 마지막 10초는 피버 타임!</p>
       </div>
       <div class="legend">
-        <div><i>🎈</i><div class="txt"><b>일반 풍선</b><span>연속 콤보 보너스</span></div><span class="pts up">+10</span></div>
+        <div><i>🎈</i><div class="txt"><b>일반 풍선</b><span>작을수록 고득점</span></div><span class="pts up">7~15</span></div>
         <div><i>🌟</i><div class="txt"><b>황금 풍선</b><span>가끔 등장</span></div><span class="pts gold">+50</span></div>
         <div><i>⏰</i><div class="txt"><b>시계 풍선</b><span>시간 늘리기</span></div><span class="pts time">+3초</span></div>
         <div><i>💣</i><div class="txt"><b>폭탄 풍선</b><span>콤보 초기화</span></div><span class="pts down">-30</span></div>
@@ -1316,14 +1319,31 @@ var LEADERBOARD_CONFIG = {
 
 /* ================= 규칙 상수 ================= */
 var DURATION = 30;        /* 판 길이(초) */
-var POP = 10;             /* 일반 풍선 */
+var POP = 10;             /* 일반 풍선(중간 크기 기준) */
+var POP_SMALL = 15;       /* 작고 빠른 풍선 = 고득점 */
+var POP_BIG = 7;          /* 크고 느린 풍선 = 저득점 */
 var COMBO_STEP = 5;       /* 콤보 보너스 증가분 */
 var COMBO_CAP = 50;       /* 콤보 보너스 상한 */
 var GOLD = 50;            /* 황금 풍선 */
+var GOLD_FEVER = 70;      /* 피버 타임의 황금 풍선 */
 var CLOCK = 3;            /* 시계 풍선 시간 보너스(초) */
 var BOMB = -30;           /* 폭탄 풍선 */
-var MAX_BALLOONS = 9;
+var MAX_BALLOONS = 20;    /* 절대 상한 (단계별 상한은 STAGE.max) */
+var VMAX = 0.34;          /* 화면 높이 대비 상승 속도 상한(접근성) */
 var HIT_PAD = 10;         /* 손이 불편해도 맞도록 판정 반경 여유(px) */
+
+/* ================= 단계(레벨) 설계 =================
+   LV.1 (남은 30~20초) 워밍업 : 넉넉한 물량, 순한 속도, 폭탄 없음
+   LV.2 (남은 20~10초) 스피드 업 : 물량 증가 + 물결처럼 빨라졌다 느려지는 변속
+   LV.3 (마지막 10초) 피버 타임 : 대량 스폰 · 고득점 황금풍선 · 폭탄 등장
+   ================================================== */
+var STAGE = {
+  1: { gap: 0.30, max: 11, speed: 0.90, wave: 0.00, swing: 0.28, bomb: 0.00, gold: 0.07, clock: 0.055, txt: '' },
+  2: { gap: 0.225, max: 15, speed: 1.02, wave: 0.20, swing: 0.36, bomb: 0.06, gold: 0.09, clock: 0.05, txt: 'LV.2 스피드 업!' },
+  3: { gap: 0.135, max: 20, speed: 1.14, wave: 0.28, swing: 0.40, bomb: 0.09, gold: 0.13, clock: 0.035, txt: '🔥 피버 타임!' }
+};
+function levelOf(t) { return t > 20 ? 1 : (t > 10 ? 2 : 3); }
+function stageCfg() { return STAGE[S.level] || STAGE[1]; }
 
 var K = {
   best: 'pop30.best.v1',
@@ -1482,6 +1502,14 @@ function sndBomb() {
   noise(0.3, 260, 0.24);
 }
 function sndStart() { [523, 659, 784].forEach(function (f, i) { tone(f, 0.13, 'triangle', 0.07, i * 0.075); }); }
+function sndLevel(lv) {
+  if (lv >= 3) {
+    [523, 659, 784, 1046, 1318].forEach(function (f, i) { tone(f, 0.16, 'square', 0.05, i * 0.06); });
+    noise(0.22, 2400, 0.12);
+  } else {
+    [659, 880].forEach(function (f, i) { tone(f, 0.14, 'triangle', 0.06, i * 0.08); });
+  }
+}
 function sndOver() { [784, 659, 523, 392].forEach(function (f, i) { tone(f, 0.3, 'sine', 0.075, i * 0.13); }); }
 
 /* ================= 상태 ================= */
@@ -1495,19 +1523,22 @@ var COLORS = {
   blue:   { c: '#6FD0FF', l: '#C9F1FF', d: '#2C8BC9' },
   pink:   { c: '#FF8FC0', l: '#FFD8EA', d: '#C4487E' },
   yellow: { c: '#FFD75E', l: '#FFF2C4', d: '#C99A16' },
+  violet: { c: '#B48CFF', l: '#E8DCFF', d: '#6B48B8' },
   green:  { c: '#8FE9C8', l: '#D8FFF1', d: '#3FA482' },
   gold:   { c: '#FFC83D', l: '#FFF0B8', d: '#C2830B' },
   clock:  { c: '#7BE0D0', l: '#D6FFF8', d: '#2F9C8C' },
   bomb:   { c: '#4A4458', l: '#8C85A2', d: '#211D2B' }
 };
-var NORMAL_KEYS = ['blue', 'pink', 'yellow', 'green'];
+/* 노란색은 황금 풍선과 헷갈리기 쉬워 일반 풍선에서는 보라로 대신한다 */
+var NORMAL_KEYS = ['blue', 'pink', 'violet', 'green'];
 
 function fresh() {
   return {
     t: DURATION, score: 0, combo: 0, bestCombo: 0,
     pops: 0, golds: 0, clocks: 0, bombs: 0,
-    balloons: [], parts: [], texts: [], rings: [],
+    balloons: [], parts: [], texts: [], rings: [], banner: null,
     elapsed: 0, bonus: 0, endsAt: 0, spawnAcc: 0, nextId: 1,
+    level: 1, maxLevel: 1,
     running: false, over: false, paused: false, ended: false
   };
 }
@@ -1544,26 +1575,42 @@ function measure() {
 
 /* ================= 풍선 ================= */
 function chooseType() {
+  var c = stageCfg();
   var r = Math.random();
   if (S.elapsed < 1.6) return 'normal';      /* 시작 1.6초는 폭탄 없이 워밍업 */
-  if (r < 0.10) return 'bomb';
-  if (r < 0.16) return 'gold';
-  if (r < 0.22) return 'clock';
+  if (r < c.bomb) return 'bomb';
+  if (r < c.bomb + c.gold) return 'gold';
+  if (r < c.bomb + c.gold + c.clock) return 'clock';
   return 'normal';
 }
 function spawnBalloon(forceType) {
   if (!VW || !VH) return null;
   var type = forceType || chooseType();
+  var c = stageCfg();
   var key = (type === 'normal') ? NORMAL_KEYS[Math.floor(Math.random() * NORMAL_KEYS.length)] : type;
   var pal = COLORS[key] || COLORS.blue;
-  var r = rand(32, 42);                       /* 지름 64~84px */
-  var sway = rand(8, 18);
+
+  /* 크기 3종 — 작을수록 빠르고 점수가 높다 (작고 빠른 풍선 = 고득점) */
+  var tier = Math.random(), r, pts, spd;
+  if (tier < 0.28) { r = rand(25, 30); pts = POP_SMALL; spd = 1.32; }
+  else if (tier < 0.75) { r = rand(31, 38); pts = POP; spd = 1.00; }
+  else { r = rand(41, 47); pts = POP_BIG; spd = 0.80; }
+  if (type === 'gold') { r = rand(30, 37); spd = 1.24; }
+  else if (type === 'clock') { r = rand(32, 38); spd = 1.00; }
+  else if (type === 'bomb') { r = rand(33, 40); spd = 0.96; }
+
+  var sway = rand(8, 18) * (1 + 0.25 * (S.level - 1));
   var x = rand(r + 12 + sway, Math.max(r + 24, VW - r - 12 - sway));
+  var v = Math.min(VH * VMAX, VH * 0.175 * spd * c.speed);
   var b = {
-    id: S.nextId++, type: type, key: key, pal: pal,
+    id: S.nextId++, type: type, key: key, pal: pal, pts: pts,
     x: x, baseX: x, y: VH + r + 8, r: r,
-    v: VH * rand(0.155, 0.215) * (type === 'gold' ? 1.34 : 1),
+    v: v,
     phase: Math.random() * 6.28, sway: sway, wob: rand(0.8, 1.5),
+    /* 살랑 흔들림 + 물결 같은 가속/감속(빨랐다가 느렸다가) */
+    surgeAmp: (Math.random() < 0.72 ? rand(0.14, 0.34) : 0) * c.swing,
+    surgeW: rand(1.3, 2.4),
+    seed: Math.random() * 6.28,
     born: S.elapsed
   };
   S.balloons.push(b);
@@ -1622,20 +1669,21 @@ function popBalloon(b, idx) {
   } else if (b.type === 'gold') {
     S.golds++;
     S.combo++;
-    S.score += GOLD;
+    var goldPts = (S.level >= 3) ? GOLD_FEVER : GOLD;
+    S.score += goldPts;
     sndGold();
     burst(b, 24);
-    floatText(b.x, b.y, '+' + GOLD, '#FFE48A');
+    floatText(b.x, b.y, '+' + goldPts, '#FFE48A');
     showCombo();
   } else {
     S.combo++;
     S.pops++;
     var bonus = Math.min(COMBO_CAP, (S.combo - 1) * COMBO_STEP);
-    var gain = POP + bonus;
+    var gain = (b.pts || POP) + bonus;
     S.score += gain;
     sndPop(S.combo);
     burst(b, 12);
-    floatText(b.x, b.y, '+' + gain, bonus > 0 ? '#FFE2F1' : '#EAF7FF');
+    floatText(b.x, b.y, '+' + gain, bonus > 0 ? '#FFE2F1' : (b.pts > POP ? '#FFF3C8' : '#EAF7FF'));
     showCombo();
   }
   if (S.combo > S.bestCombo) S.bestCombo = S.combo;
@@ -1662,7 +1710,18 @@ function hideCombo() { if (comboPill) comboPill.classList.remove('on'); }
 
 /* ================= 진행 ================= */
 function spawnInterval() {
-  return 0.60 - 0.22 * Math.min(1, S.elapsed / 22);
+  var c = stageCfg();
+  /* 같은 단계 안에서도 조금씩 쿵더해진다 */
+  if (S.level === 1) return c.gap - 0.002 * Math.max(0, Math.min(10, 30 - S.t));
+  if (S.level === 2) return c.gap - 0.003 * Math.max(0, Math.min(10, 20 - S.t));
+  return c.gap;
+}
+function setLevel(lv) {
+  if (!S || !STAGE[lv] || S.level === lv) return;
+  S.level = lv;
+  if (lv > S.maxLevel) S.maxLevel = lv;
+  var txt = STAGE[lv].txt;
+  if (txt) { S.banner = { text: txt, life: 0, max: 1.9, level: lv }; sndLevel(lv); }
 }
 function step(dt, left) {
   if (!S || S.over || !S.running || S.paused) return;
@@ -1672,24 +1731,34 @@ function step(dt, left) {
   if (S.t <= 0) { S.t = 0; timeUp(); return; }
   S.elapsed = Math.max(0, (DURATION + S.bonus) - S.t);
 
+  setLevel(levelOf(S.t));
+  var c = stageCfg();
+
   S.spawnAcc += dt;
   var guard = 0;
-  while (S.spawnAcc >= spawnInterval() && guard++ < 6) {
+  while (S.spawnAcc >= spawnInterval() && guard++ < 8) {
     S.spawnAcc -= spawnInterval();
-    if (S.balloons.length < MAX_BALLOONS) spawnBalloon();
+    if (S.balloons.length < Math.min(MAX_BALLOONS, c.max)) spawnBalloon();
     else { S.spawnAcc = 0; break; }
   }
 
+  /* 화면 전체가 함께 빨라졌다 느려지는 물결(변속) + 풍선마다 다른 가감속 */
+  var wave = 1 + c.wave * Math.sin(S.elapsed * 1.9 - 0.6);
+  var vCap = VH * VMAX;
   for (var i = S.balloons.length - 1; i >= 0; i--) {
     var b = S.balloons[i];
-    b.y -= b.v * dt;
     b.phase += b.wob * dt;
     b.x = b.baseX + Math.sin(b.phase) * b.sway;
+    var eff = b.v * wave * (1 + b.surgeAmp * Math.sin(b.phase * b.surgeW + b.seed));
+    if (eff > vCap) eff = vCap;
+    if (eff < VH * 0.09) eff = VH * 0.09;
+    b.y -= eff * dt;
     if (b.y + b.r * 1.15 < -6) {
       S.balloons.splice(i, 1);
       if (b.type !== 'bomb' && S.combo > 0) { S.combo = 0; hideCombo(); }
     }
   }
+  if (S.banner) { S.banner.life += dt; if (S.banner.life >= S.banner.max) S.banner = null; }
 
   for (var p = S.parts.length - 1; p >= 0; p--) {
     var q = S.parts[p];
@@ -1818,6 +1887,16 @@ function draw() {
   if (!ctx || mode !== 'play') return;
   ctx.clearRect(0, 0, VW, VH);
   var i, b;
+  /* 피버 타임: 화면 테두리가 붉게 꿈틀대 긴장감을 준다 */
+  if (S.level >= 3) {
+    var pulse = RM ? 0.5 : (0.5 + 0.5 * Math.sin(S.elapsed * 6.2));
+    var fg = ctx.createRadialGradient(VW / 2, VH / 2, Math.min(VW, VH) * 0.22,
+      VW / 2, VH / 2, Math.max(VW, VH) * 0.82);
+    fg.addColorStop(0, 'rgba(255,110,90,0)');
+    fg.addColorStop(1, 'rgba(255,86,120,' + (0.10 + 0.11 * pulse).toFixed(3) + ')');
+    ctx.fillStyle = fg;
+    ctx.fillRect(0, 0, VW, VH);
+  }
   for (i = 0; i < S.rings.length; i++) {
     var rg = S.rings[i], k = rg.life / rg.max;
     ctx.beginPath();
@@ -1850,6 +1929,41 @@ function draw() {
     ctx.fillText(MG_I18N.s(t.text), t.x, t.y - 30 * k3);
   }
   ctx.globalAlpha = 1;
+  drawBanner();
+}
+
+/* 단계가 바뀔 때 캔버스 상단에 짧게 뜨는 안내 (LV.2 · 피버 타임) */
+function drawBanner() {
+  var bn = S.banner;
+  if (!bn || !ctx) return;
+  var k = bn.life / bn.max;
+  var a = k < 0.12 ? k / 0.12 : (k > 0.72 ? Math.max(0, (1 - k) / 0.28) : 1);
+  var pop = k < 0.18 ? 0.82 + 0.18 * (k / 0.18) : (k < 0.3 ? 1.06 - 0.06 * ((k - 0.18) / 0.12) : 1);
+  var txt = MG_I18N.s(bn.text);
+  var fs = Math.round(Math.max(16, Math.min(27, VW * 0.072)));
+  var y = Math.max(58, VH * 0.14);
+  ctx.save();
+  ctx.globalAlpha = a;
+  ctx.translate(VW / 2, y);
+  ctx.scale(pop, pop);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = '900 ' + fs + 'px "Pretendard","Noto Sans CJK KR",system-ui,sans-serif';
+  ctx.lineWidth = Math.max(3, fs * 0.22);
+  ctx.strokeStyle = 'rgba(12,8,24,.72)';
+  ctx.strokeText(txt, 0, 0);
+  if (bn.level >= 3) {
+    var g = ctx.createLinearGradient(-VW / 2, 0, VW / 2, 0);
+    g.addColorStop(0, '#FFD75E');
+    g.addColorStop(0.5, '#FFF3C8');
+    g.addColorStop(1, '#FF8FC0');
+    ctx.fillStyle = g;
+  } else {
+    ctx.fillStyle = '#BFE9FF';
+  }
+  ctx.fillText(txt, 0, 0);
+  ctx.restore();
+  ctx.globalAlpha = 1;
 }
 
 /* ================= HUD ================= */
@@ -1873,6 +1987,9 @@ function startGame() {
   renderHud._t = renderHud._s = renderHud._p = renderHud._low = null;
   hideCombo();
   if (stageHint) { stageHint.textContent = '풍선을 톡톡 눌러 보세요'; stageHint.classList.remove('off'); }
+  /* 첫 터뜨림이 없어도 3초쯤 지나면 화면을 가리지 않게 안내를 닫는다 */
+  clearTimeout(startGame._hint);
+  startGame._hint = setTimeout(function () { if (stageHint) stageHint.classList.add('off'); }, 3000);
   measure();
   renderHud();
   show('play');
@@ -2367,8 +2484,12 @@ window.__PopProto = {
       running: S.running, over: S.over, paused: S.paused, manual: MANUAL, ended: S.ended,
       endsIn: (S.endsAt - perfNow()) / 1000, frames: FRAMES, hidden: !!document.hidden,
       vis: document.visibilityState,
+      level: S.level, maxLevel: S.maxLevel, banner: S.banner ? S.banner.text : null,
+      bannerAlpha: S.banner ? +(S.banner.life / S.banner.max).toFixed(3) : null,
       vw: VW, vh: VH, balloons: S.balloons.length,
-      list: S.balloons.map(function (b) { return { type: b.type, key: b.key, x: b.x, y: b.y, r: b.r }; })
+      list: S.balloons.map(function (b) {
+        return { type: b.type, key: b.key, x: b.x, y: b.y, r: b.r, v: b.v, pts: b.pts, surgeAmp: b.surgeAmp };
+      })
     };
   },
   start: startGame,
@@ -2413,6 +2534,10 @@ window.__PopProto = {
   setTime: function (v) { S.t = v; S.endsAt = perfNow() + v * 1000; LAST_T = null; renderHud(); },
   setScore: function (v) { S.score = v; renderHud(); },
   setElapsed: function (v) { S.elapsed = v; },
+  stage: function () {
+    return { level: S.level, cfg: stageCfg(), maxLevel: S.maxLevel, levelOf: levelOf };
+  },
+  setLevel: function (v) { setLevel(v); draw(); },
   config: function () { return { ad: AD_CONFIG, lb: LEADERBOARD_CONFIG }; }
 };
 
