@@ -2415,25 +2415,52 @@ const REFUND_OPTS = [
     if (ctx) ctx.clearRect(0, 0, W, H);
   }
 
-  /* ---------------- 🎵 벚꽃 노래 (WAV 합성) ---------------- */
+  /* ---------------- 🎵 벚꽃 노래 (WAV 합성) ----------------
+     멜로디: 일본 민요 〈사쿠라 사쿠라(さくらさくら)〉 (전통곡·작곡자 미상, 퍼블릭 도메인)
+     음계: 미야코부시 5음계(A B C E F) — 도·솔이 없어 일본 정서가 그대로 납니다
+     14마디 × 4박 = 56박, 한 박 0.35초 → 약 19.6초 자연 루프
+     편성: 맑은 오르골 멜로디 + 따뜻한 저음 화음 패드 + 낮은 베이스
+     ========================================================= */
   var SR = 22050;          /* 샘플레이트 */
-  var LOOP = 16;           /* 16초 루프 */
-  var BEAT = 0.5;          /* 120 BPM */
-  var BASE = 293.66;       /* D4 */
-  /* 일본풍 5음계(D E G A B) 멜로디 — [반음, 박] 8마디 = 32박 = 16초 */
+  var BEAT = 0.35;         /* 한 박 0.35초 */
+  var LOOP = 19.6;         /* 56박 = 약 19.6초 루프 */
+  var NOTE = {
+    A3: 220.00, B3: 246.94, C4: 261.63, E4: 329.63, F4: 349.23,
+    A4: 440.00, B4: 493.88, C5: 523.25
+  };
+  /* 〈사쿠라 사쿠라〉 멜로디 — [음이름, 박] / 한 마디 = 4박 */
   var MEL = [
-    [14, 1], [12, 1], [9, 1], [7, 1],
-    [5, 1], [7, 1], [9, 2],
-    [12, 1], [14, 1], [12, 1], [9, 1],
-    [7, 2], [5, 1], [2, 1],
-    [5, 1], [7, 1], [9, 1], [12, 1],
-    [14, 1.5], [12, 0.5], [9, 1], [7, 1],
-    [9, 1], [7, 1], [5, 2],
-    [2, 1], [5, 1], [0, 2]
+    /* さくら さくら */
+    ['A4', 1], ['A4', 1], ['B4', 2],
+    ['A4', 1], ['A4', 1], ['B4', 2],
+    /* やよいの そらは */
+    ['A4', 1], ['B4', 1], ['C5', 1], ['B4', 1],
+    ['A4', 1], ['B4', 0.5], ['A4', 0.5], ['F4', 2],
+    /* みわたす かぎり */
+    ['E4', 1], ['C4', 1], ['E4', 1], ['F4', 1],
+    ['E4', 1], ['E4', 0.5], ['C4', 0.5], ['B3', 2],
+    /* かすみか くもか */
+    ['A4', 1], ['B4', 1], ['C5', 1], ['B4', 1],
+    ['A4', 1], ['B4', 0.5], ['A4', 0.5], ['F4', 2],
+    /* においぞ いずる */
+    ['E4', 1], ['C4', 1], ['E4', 1], ['F4', 1],
+    ['E4', 1], ['E4', 0.5], ['C4', 0.5], ['B3', 2],
+    /* いざや いざや */
+    ['A4', 1], ['A4', 1], ['B4', 2],
+    ['A4', 1], ['A4', 1], ['B4', 2],
+    /* みに ゆかん */
+    ['E4', 1], ['F4', 1], ['B4', 0.5], ['A4', 0.5], ['F4', 1],
+    ['E4', 4]
   ];
-  var ROOTS = [0, 5, 9, 7, 5, 9, 5, 0];   /* 마디별 베이스(한 옥타브 아래) */
+  /* 마디별 따뜻한 저음 화음 — 음계 안의 음만 골라 부드럽게 */
+  var CHORDS = {
+    A: [110.00, 164.81, 220.00, 261.63],   /* A2 E3 A3 C4 */
+    F: [87.31, 130.81, 174.61, 220.00],    /* F2 C3 F3 A3 */
+    E: [82.41, 123.47, 164.81, 246.94]     /* E2 B2 E3 B3 */
+  };
+  var BARS = ['A', 'A', 'A', 'F', 'A', 'E', 'A', 'F', 'A', 'E', 'A', 'A', 'F', 'E'];
 
-  function freqOf(semi) { return BASE * Math.pow(2, semi / 12); }
+  function freqOf(name) { return NOTE[name] || 440; }
 
   /* 오르골 한 음: 4개 배음 + 지수 감쇠, 루프 끝 여운은 앞머리로 감아 끊김 없음 */
   function addBell(buf, startSec, freq, dur, gain) {
@@ -2456,6 +2483,33 @@ const REFUND_OPTS = [
         if (i < atk) s *= i / atk;
         buf[j] += s;
         env *= dec;
+        if (++j === n) j = 0;
+      }
+    }
+  }
+  /* 따뜻한 저음 화음 패드: 천천히 부풀었다 잦아드는 사인 패드 */
+  function addPad(buf, startSec, freqs, dur, gain) {
+    var n = buf.length;
+    var total = Math.floor((dur + 0.55) * SR);
+    var j0 = Math.floor(startSec * SR) % n;
+    var atk = Math.floor(0.24 * SR);
+    var rel = Math.floor(0.45 * SR);
+    var sus = total - atk - rel; if (sus < 0) sus = 0;
+    for (var f = 0; f < freqs.length; f++) {
+      var freq = freqs[f], g = gain / Math.sqrt(freqs.length);
+      var w = 2 * Math.PI * freq / SR, w2 = w * 2;
+      var c2 = 2 * Math.cos(w), ym1 = -Math.sin(w), y0 = 0;
+      var c2b = 2 * Math.cos(w2), yb1 = -Math.sin(w2), yb0 = 0;
+      var j = j0;
+      for (var i = 0; i < total; i++) {
+        var y = c2 * y0 - ym1; ym1 = y0; y0 = y;
+        var yb = c2b * yb0 - yb1; yb1 = yb0; yb0 = yb;
+        var env;
+        if (i < atk) env = i / atk;
+        else if (i < atk + sus) env = 1;
+        else env = 1 - (i - atk - sus) / rel;
+        if (env < 0) env = 0;
+        buf[j] += (y + 0.16 * yb) * env * g;
         if (++j === n) j = 0;
       }
     }
@@ -2485,17 +2539,14 @@ const REFUND_OPTS = [
     for (var i = 0; i < MEL.length; i++) {
       var f = freqOf(MEL[i][0]), beats = MEL[i][1];
       addBell(buf, t, f, beats * BEAT, 0.30);
-      if (i % 2 === 0) addBell(buf, t, f * 2, beats * BEAT * 0.5, 0.055);  /* 옥타브 위 반짝임 */
+      if (i % 2 === 0) addBell(buf, t, f * 2, beats * BEAT * 0.5, 0.05);  /* 옥타브 위 반짝임 */
       t += beats * BEAT;
     }
-    var bar = BEAT * 4;
-    for (var b = 0; b < ROOTS.length; b++) {
-      addBass(buf, b * bar, freqOf(ROOTS[b] - 24), 0.17);
-    }
-    for (var c = 0; c < ROOTS.length; c += 2) {
-      var cf = freqOf(ROOTS[c] - 12);
-      addBell(buf, c * bar, cf, 2.2, 0.05);
-      addBell(buf, c * bar, cf * 1.5, 2.2, 0.045);
+    /* 한 마디(1.4초)마다 저음 화음 패드 + 낮은 베이스로 따뜻하게 받쳐 줍니다 */
+    for (var b = 0; b < BARS.length; b++) {
+      var ch = CHORDS[BARS[b]];
+      addPad(buf, b * BEAT * 4, ch, BEAT * 4, 0.092);
+      addBass(buf, b * BEAT * 4, ch[0], 0.052);
     }
     var peak = 0, k, a;
     for (k = 0; k < n; k++) { a = buf[k] < 0 ? -buf[k] : buf[k]; if (a > peak) peak = a; }
@@ -2567,9 +2618,13 @@ const REFUND_OPTS = [
   }
 
   /* ---- Web Audio 대체 엔진 (<audio> 가 막힌 웹뷰용) ---- */
-  var actx = null, master = null, timer = null, nextT = 0, step = 0;
-  var SCALE = [293.66, 329.63, 392.0, 440.0, 493.88, 587.33, 659.25];
-  var BASS = [146.83, 164.81, 196.0, 130.81];
+  var actx = null, master = null, timer = null, nextT = 0, step = 0, lastBar = -1;
+  /* 각 음이 몇 번째 마디(0부터)에 속하는지 미리 계산 */
+  var MELBAR = (function () {
+    var out = [], beat = 0;
+    for (var i = 0; i < MEL.length; i++) { out.push(Math.floor(beat / 4 + 0.0001)); beat += MEL[i][1]; }
+    return out;
+  })();
   function makeImpulse(sec) {
     var len = Math.floor(actx.sampleRate * sec);
     var b = actx.createBuffer(2, len, actx.sampleRate);
@@ -2606,17 +2661,32 @@ const REFUND_OPTS = [
     o1.start(at); o1.stop(at + dur + 0.06);
     o2.start(at); o2.stop(at + dur + 0.06);
   }
+  function padChord(freqs, at, dur, gain) {
+    for (var i = 0; i < freqs.length; i++) {
+      var o = actx.createOscillator(), g = actx.createGain();
+      var amp = Math.max(gain / Math.sqrt(freqs.length), 0.0008);
+      o.type = 'sine'; o.frequency.value = freqs[i];
+      g.gain.setValueAtTime(0.0001, at);
+      g.gain.exponentialRampToValueAtTime(amp, at + dur * 0.35);
+      g.gain.exponentialRampToValueAtTime(0.0001, at + dur * 1.3);
+      o.connect(g); g.connect(master);
+      o.start(at); o.stop(at + dur * 1.4 + 0.05);
+    }
+  }
   function schedule() {
     if (!fallbackOn || !actx) return;
     var now = actx.currentTime;
     if (nextT < now + 0.05) nextT = now + 0.12;
     while (nextT < now + 0.9) {
-      var item = MEL[step % MEL.length];
+      var k = step % MEL.length;
+      var item = MEL[k];
       var dur = item[1] * BEAT;
-      var idx = Math.round(item[0] / 2);
-      bell(SCALE[Math.max(0, Math.min(SCALE.length - 1, idx))], nextT, Math.min(dur * 1.9, 2.4), 0.28);
-      if (step % 4 === 0) bell(freqOf(MEL[step % MEL.length][0] - 12), nextT, 2.1, 0.1);
-      if (step % 8 === 0) bell(BASS[Math.floor(step / 8) % BASS.length], nextT, 3.2, 0.2, 'triangle');
+      bell(freqOf(item[0]), nextT, Math.min(dur * 1.9, 2.2), 0.26);
+      var bar = MELBAR[k];
+      if (bar !== lastBar) {                      /* 마디가 바뀔 때 저음 화음 패드 */
+        padChord(CHORDS[BARS[bar % BARS.length]], nextT, BEAT * 4, 0.13);
+        lastBar = bar;
+      }
       nextT += dur;
       step++;
     }
@@ -2627,6 +2697,7 @@ const REFUND_OPTS = [
     fallbackOn = true;
     nextT = actx.currentTime + 0.2;
     step = 0;
+    lastBar = -1;
     var t = actx.currentTime;
     master.gain.cancelScheduledValues(t);
     master.gain.setValueAtTime(Math.max(master.gain.value, 0.0001), t);
