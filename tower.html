@@ -1660,14 +1660,14 @@ const LEADERBOARD_CONFIG = {
       if (!live) return Promise.resolve(null);
       var nm = String(nickname || '').replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '').slice(0, 12);
       if (!nm) return Promise.resolve(null);
-      lastSubmit = GasRank.submit(nm, score, RankUI.team());
+      lastSubmit = GasRank.submit(nm, score, RankUI.team(), GasRank.today());
       return lastSubmit;
     }
 
     function refresh(score) {
       if (!live || navigator.onLine === false) return Promise.resolve(null);
       var gate = lastSubmit ? lastSubmit.catch(function () { return null; }) : Promise.resolve(null);
-      return gate.then(function () { return GasRank.top(topN, score); }).then(function (v) {
+      return gate.then(function () { return GasRank.top(topN, score, GasRank.today()); }).then(function (v) {
         if (!v) return null;
         view = map(v);
         return view;
@@ -2801,7 +2801,7 @@ const LEADERBOARD_CONFIG = {
   function loadStartTeams() {
     if (!LB.live) return;
     if (START_TEAMS) { paintStartBars(); return; }
-    GasRank.top(10).then(function (v) {
+    GasRank.top(10, null, GasRank.today()).then(function (v) {
       if (!v) return;
       START_TEAMS = v.teams;
       paintStartBars();

@@ -2241,7 +2241,7 @@ function paintHomeBar(force) {
   var els = document.querySelectorAll('[data-rankbar-home]');
   function paint(t) { for (var i = 0; i < els.length; i++) els[i].innerHTML = RankUI.bar(t); }
   if (HOME_TEAMS && !force) { paint(HOME_TEAMS); return; }
-  GasRank.top(3).then(function (v) {
+  GasRank.top(3, null, GasRank.today()).then(function (v) {
     if (!v) return;
     HOME_TEAMS = v.teams;
     paint(HOME_TEAMS);

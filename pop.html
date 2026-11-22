@@ -1412,10 +1412,10 @@ function getName() { var n = store.get(K.name, ''); return typeof n === 'string'
 var Remote = {
   on: function () { return GasRank.on(); },
   submit: function (name, score) {
-    RANK_PENDING = GasRank.submit(name, score, RankUI.team());
+    RANK_PENDING = GasRank.submit(name, score, RankUI.team(), GasRank.today());
     return RANK_PENDING;
   },
-  top: function (n, score) { return GasRank.top(n || 10, score); }
+  top: function (n, score) { return GasRank.top(n || 10, score, GasRank.today()); }
 };
 
 /* ================= 사운드 ================= */
@@ -2111,7 +2111,7 @@ function paintHomeBar(teams) {
 function rankHomeBar(force) {
   if (!GasRank.on()) { paintHomeBar(null); return; }
   if (RANK_HOME && !force) { paintHomeBar(RANK_HOME); return; }
-  GasRank.top(3).then(function (v) {
+  GasRank.top(3, null, GasRank.today()).then(function (v) {
     if (!v) return;
     RANK_HOME = v.teams;
     paintHomeBar(RANK_HOME);
@@ -2119,7 +2119,7 @@ function rankHomeBar(force) {
 }
 function rankLive(score) {
   var start = RANK_PENDING || Promise.resolve(null);
-  return start.then(function () { return GasRank.top(10, score); }).then(function (v) {
+  return start.then(function () { return GasRank.top(10, score, GasRank.today()); }).then(function (v) {
     if (v) renderLiveLb(v);
     return v;
   });
