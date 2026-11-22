@@ -1950,6 +1950,7 @@ function renderResult() {
 function applyRemoteRank(v) {
   REMOTE = v;
   paintRankBars(v.teams);
+  HOME_TEAMS = v.teams;
   var subEl = document.getElementById('lbSub');
   if (subEl) subEl.textContent = RankUI.s().live;
   var pct = v.pct;
@@ -2234,12 +2235,16 @@ function paintRankBars(teams) {
   var els = document.querySelectorAll('[data-rankbar],[data-rankbar-home]');
   for (var i = 0; i < els.length; i++) els[i].innerHTML = RankUI.bar(teams);
 }
-function paintHomeBar() {
+var HOME_TEAMS = null;
+function paintHomeBar(force) {
   if (!GasRank.on()) { return; }
+  var els = document.querySelectorAll('[data-rankbar-home]');
+  function paint(t) { for (var i = 0; i < els.length; i++) els[i].innerHTML = RankUI.bar(t); }
+  if (HOME_TEAMS && !force) { paint(HOME_TEAMS); return; }
   GasRank.top(3).then(function (v) {
     if (!v) return;
-    var els = document.querySelectorAll('[data-rankbar-home]');
-    for (var i = 0; i < els.length; i++) els[i].innerHTML = RankUI.bar(v.teams);
+    HOME_TEAMS = v.teams;
+    paint(HOME_TEAMS);
   });
 }
 window.addEventListener('mg-lang', function () {
