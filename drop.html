@@ -299,7 +299,7 @@ button:focus-visible, .input:focus-visible, #board:focus-visible{outline:2px sol
 "내 최고 기록":{"en":"My best ","ja":"自己ベスト ","zh":"我的最佳 "},
 "내 최고 순위":{"en":"My best rank","ja":"自己最高順位","zh":"我的最高排名"},
 "놓은 블록":{"en":"Blocks dropped","ja":"落としたブロック","zh":"落下的方块"},
-"느긋한 숫자블록":{"en":"Slow Number Drop ","ja":"のんびり数字ブロック ","zh":"慢悠悠数字方块 "},
+"느긋한 숫자블록":{"en":"Slow Number Drop","ja":"のんびり数字ブロック","zh":"慢悠悠数字方块"},
 "느긋한 숫자블록 · SLOW NUMBER DROP":{"en":"Slow Number Drop","ja":"のんびり数字ブロック・SLOW NUMBER DROP","zh":"慢悠悠数字方块 · SLOW NUMBER DROP"},
 "느긋한 숫자블록 — 시간 제한도 타이밍 압박도 없이, 열을 한 번 톡 누르면 블록이 내려앉고 같은 숫자가 합쳐지는 원터치 퍼즐.":{"en":"Slow Number Drop — a one-touch puzzle with no timer and no timing pressure: tap a column once, the block drops, and equal numbers merge.","ja":"のんびり数字ブロック — 時間制限もタイミングの圧もなく、列を1回タップするとブロックが落ちて同じ数字が合体するワンタッチパズル。","zh":"慢悠悠数字方块 — 没有时间限制也没有节奏压力，点一下某一列方块就落下、相同数字合并的一键拼图。"},
 "느긋한고양이":{"en":"LazyCat","ja":"のんびり猫","zh":"慵懒猫"},
@@ -355,9 +355,8 @@ button:focus-visible, .input:focus-visible, #board:focus-visible{outline:2px sol
 "오늘의 랭킹 · 순위 집계 중":{"en":"Today's ranking · tallying","ja":"今日のランキング・集計中","zh":"今日排行 · 统计中"},
 "오늘의 랭킹 · 순위 집계 중 · 최고 기록은 이 기기에도 남아요":{"en":"Today's ranking · tallying · your best also stays on this device","ja":"今日のランキング・集計中・最高記録はこの端末にも残ります","zh":"今日排行 · 统计中 · 最佳成绩也会留在本设备"},
 "오늘의 랭킹 · 순위는 매일 새로 집계됩니다":{"en":"Today's ranking · recounted fresh every day","ja":"今日のランキング・毎日新しく集計されます","zh":"今日排行 · 每天重新统计"},
-"원터치 타워":{"en":"One-Touch Tower ","ja":"ワンタッチタワー ","zh":"一键叠塔 "},
+"원터치 타워":{"en":"One-Touch Tower","ja":"ワンタッチタワー","zh":"一键叠塔"},
 "위":{"en":"","ja":"位","zh":"名"},
-"위 · 상위":{"en":" · top ","ja":"位・上位","zh":" · 前 "},
 "이 게임은 자바스크립트가 필요합니다.":{"en":"This game needs JavaScript.","ja":"このゲームには JavaScript が必要です。","zh":"本游戏需要 JavaScript。"},
 "이 기기에 저장":{"en":" on this device","ja":" この端末に保存","zh":" 本设备"},
 "이 열은 가득 찼어요":{"en":"That column is full","ja":"この列はいっぱいです","zh":"这一列满了"},
@@ -374,7 +373,6 @@ button:focus-visible, .input:focus-visible, #board:focus-visible{outline:2px sol
 "전체":{"en":"of ","ja":"全","zh":"共 "},
 "전체 순위":{"en":"Overall rank","ja":"全体順位","zh":"总排名"},
 "점":{"en":"pts","ja":"点","zh":"分"},
-"점</b> ·":{"en":"pts</b> · ","ja":"点</b>・","zh":"分</b> · "},
 "점수":{"en":"Score","ja":"スコア","zh":"分数"},
 "정리권을 이미 다 썼어요":{"en":"No cleanup passes left","ja":"整理券はもう使い切りました","zh":"整理券已经用完了"},
 "정리할 블록이 없어요":{"en":"Nothing to clean up","ja":"整理するブロックがありません","zh":"没有可整理的方块"},
@@ -411,6 +409,7 @@ button:focus-visible, .input:focus-visible, #board:focus-visible{outline:2px sol
 "🧹 정리권":{"en":"🧹 Cleanup pass","ja":"🧹 整理券","zh":"🧹 整理券"}
 };
   var PAT = [
+[/^30초 풍선 톡톡 ([\d,]+)점 \(상위 (.+)\)! 너도 30초만 해봐 👉 (\S+)$/,{"en":"Balloon Pop 30 — $1 pts (top $2)! Try 30 seconds too 👉 $3","ja":"30秒バルーンぽんぽん $1点（上位$2）！あなたも30秒だけやってみて 👉 $3","zh":"30秒气球弹弹 $1分（前 $2）！你也来30秒试试 👉 $3"}],
 [/^([\d,]+)콤보 · 보너스 \+([\d,]+)$/,{"en":"Combo ×$1 · bonus +$2","ja":"$1コンボ・ボーナス+$2","zh":"$1连击 · 加成 +$2"}],
 [/^상위 ([\d.]+)%$/,{"en":"Top $1%","ja":"上位$1%","zh":"前 $1%"}],
 [/^상위 ([\d.]+)% 미만$/,{"en":"Top $1%","ja":"上位$1%","zh":"前 $1%"}],
@@ -427,9 +426,11 @@ button:focus-visible, .input:focus-visible, #board:focus-visible{outline:2px sol
 [/^상위 ([\d.]+%)$/,{"en":"Top $1","ja":"上位$1","zh":"前 $1"}],
 [/^전체 ([\d,]+)명 중$/,{"en":"of $1 players","ja":"全$1人中","zh":"共 $1 人中"}],
 [/^점<\/b> · ([\d,]+)위 · 상위 ([\d.]+%)$/,{"en":"pts</b> · #$1 · top $2","ja":"点</b>・$1位・上位$2","zh":"分</b> · 第$1名 · 前 $2"}],
-[/^느긋한 숫자블록 ([\d,]+)점(?: \(상위 ([\d.]+)%\))? 시간제한 없이 도전해 봐! 👉 (\S+)$/,{"en":"Slow Number Drop — $1 pts ($2) — try it, no time limit! 👉 $3","ja":"のんびり数字ブロック $1点（$2）時間制限なしで挑戦してみて！👉 $3","zh":"慢悠悠数字方块 $1分（$2）没有时间限制，来挑战吧！👉 $3"}],
+[/^느긋한 숫자블록 ([\d,]+)점 \(상위 (.+)\) 시간제한 없이 도전해 봐! 👉 (\S+)$/,{"en":"Slow Number Drop — $1 pts (top $2) — no time limit, try it! 👉 $3","ja":"のんびり数字ブロック $1点（上位$2）時間制限なしで挑戦してみて！👉 $3","zh":"慢悠悠数字方块 $1分（前 $2）没有时间限制，来挑战吧！👉 $3"}],
+[/^느긋한 숫자블록 ([\d,]+)점 시간제한 없이 도전해 봐! 👉 (\S+)$/,{"en":"Slow Number Drop — $1 pts — no time limit, try it! 👉 $2","ja":"のんびり数字ブロック $1点 時間制限なしで挑戦してみて！👉 $2","zh":"慢悠悠数字方块 $1分 没有时间限制，来挑战吧！👉 $2"}],
 [/^플레이어 (\d+)$/,{"en":"Player $1","ja":"プレイヤー $1","zh":"玩家 $1"}],
-[/^원터치 타워 ([\d,]+)층 달성!(?: \(상위 ([\d.]+%)\))? 나보다 높이 쌓을 수 있어\? 👉 (\S+)$/,{"en":"One-Touch Tower — $1F reached! ($2) Can you stack higher? 👉 $3","ja":"ワンタッチタワー $1階達成！（$2）もっと高く積める？👉 $3","zh":"一键叠塔 达到 $1 层！（$2）你能叠得更高吗？👉 $3"}],
+[/^원터치 타워 ([\d,]+)층 달성! \(상위 (.+)\) 나보다 높이 쌓을 수 있어\? 👉 (\S+)$/,{"en":"One-Touch Tower — $1F reached! (top $2) Can you stack higher? 👉 $3","ja":"ワンタッチタワー $1階達成！（上位$2）もっと高く積める？👉 $3","zh":"一键叠塔 达到 $1 层！（前 $2）你能叠得更高吗？👉 $3"}],
+[/^원터치 타워 ([\d,]+)층 달성! 나보다 높이 쌓을 수 있어\? 👉 (\S+)$/,{"en":"One-Touch Tower — $1F reached! Can you stack higher? 👉 $2","ja":"ワンタッチタワー $1階達成！もっと高く積める？👉 $2","zh":"一键叠塔 达到 $1 层！你能叠得更高吗？👉 $2"}],
 [/^콤보 보너스 \+([\d,]+)$/,{"en":"Combo bonus +$1","ja":"コンボボーナス+$1","zh":"连击加成 +$1"}],
 [/^폭 \+([\d,]+) · 25% 넓어짐$/,{"en":"Width +$1 · 25% wider","ja":"幅+$1・25%広がる","zh":"宽度 +$1 · 加宽 25%"}],
 [/^⏱ 슬로우 (\d+)층$/,{"en":"⏱ Slow $1 floors","ja":"⏱ スロウ$1階","zh":"⏱ 减速 $1 层"}],
@@ -847,6 +848,7 @@ button:focus-visible, .input:focus-visible, #board:focus-visible{outline:2px sol
   else boot();
 })(window, document);
 </script>
+
 
 
 <div id="app">
@@ -1286,7 +1288,7 @@ function shareScore(score, pct) {
 
   if (navigator.share) {
     try {
-      navigator.share({ title: '느긋한 숫자블록', text: text }).catch(function (err) {
+      navigator.share({ title: MG_I18N.s('느긋한 숫자블록'), text: text }).catch(function (err) {
         if (err && err.name === 'AbortError') return;
         fallback();
       });
