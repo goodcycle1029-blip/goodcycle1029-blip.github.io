@@ -348,6 +348,618 @@
 </style>
 </head>
 <body>
+<script>
+/* ==========================================================================
+   미니게임 다국어(한국어 🇰🇷 · English 🇺🇸 · 日本語 🇯🇵 · 中文 🇨🇳)
+   --------------------------------------------------------------------------
+   · 처음 열면 브라우저 언어를 보고 골라 보여 주고, 위쪽 깃발 버튼으로 바꿀 수 있습니다.
+   · 바꾼 언어는 이 기기에 기억됩니다(localStorage 'mg.lang.v1').
+   · 화면에 새로 그려지는 글자도 자동으로 바뀝니다. 게임 규칙·점수 계산은 건드리지 않습니다.
+   ========================================================================== */
+(function (w, d) {
+  'use strict';
+  var KEY = 'mg.lang.v1';
+  var LANGS = [
+    { c: 'ko', flag: '🇰🇷', name: '한국어' },
+    { c: 'en', flag: '🇺🇸', name: 'English' },
+    { c: 'ja', flag: '🇯🇵', name: '日本語' },
+    { c: 'zh', flag: '🇨🇳', name: '中文' }
+  ];
+  var DICT = {
+"0.1% 미만":{"en":"under 0.1%","ja":"0.1%未満","zh":"低于0.1%"},
+"5층 동안 천천히":{"en":"Slow for 5 floors","ja":"5階のあいだゆっくり","zh":"5 层内放慢"},
+"· 25% 넓어짐":{"en":" · 25% wider","ja":"・25%広がる","zh":" · 加宽 25%"},
+"· 일본 현지 직구 셀렉트샵":{"en":"· Direct-from-Japan select shop","ja":"・日本直輸入セレクトショップ","zh":"· 日本直邮精选店"},
+"· 재팬마트박스 스마트스토어":{"en":"· Japan Mart Box Smart Store","ja":"・Japan Mart Box スマートストア","zh":"· Japan Mart Box 智能商店"},
+"— 새 창에서 열기":{"en":" — opens in a new tab","ja":" — 新しいタブで開く","zh":" — 在新标签页打开"},
+"⏱ 슬로우":{"en":"⏱ Slow ","ja":"⏱ スロウ ","zh":"⏱ 减速 "},
+"가을":{"en":"Autumn","ja":"秋","zh":"秋天"},
+"개발자":{"en":"Dev","ja":"開発者","zh":"开发者"},
+"거북":{"en":"Turtle","ja":"かめ","zh":"乌龟"},
+"게임 오버":{"en":"Game over","ja":"ゲームオーバー","zh":"游戏结束"},
+"겨울":{"en":"Winter","ja":"冬","zh":"冬天"},
+"겹치지 않는 부분은 잘려 나가요":{"en":"The part that overhangs gets cut off","ja":"はみ出した部分は切り落とされます","zh":"没对上的部分会被切掉"},
+"고수":{"en":"Pro","ja":"達人","zh":"高手"},
+"고양이":{"en":"Cat","ja":"ねこ","zh":"猫"},
+"공유가 막혀 있어요. 주소창의 주소를 복사해 주세요":{"en":"Sharing is blocked. Please copy the address from the address bar","ja":"共有できません。アドレスバーのURLをコピーしてください","zh":"无法分享。请复制地址栏中的网址"},
+"광고":{"en":"Ad","ja":"広告","zh":"广告"},
+"구경하기":{"en":"Browse","ja":"見てみる","zh":"去看看"},
+"구름":{"en":"Cloud","ja":"雲","zh":"云朵"},
+"기록은 이 기기에 저장됩니다":{"en":"Scores stay on this device","ja":"記録はこの端末に保存されます","zh":"成绩保存在本设备"},
+"기사":{"en":"Knight","ja":"騎士","zh":"骑士"},
+"나":{"en":"me","ja":"自分","zh":"我"},
+"내 기록":{"en":"My record ","ja":"自分の記録 ","zh":"我的记录 "},
+"내 순위":{"en":"My rank","ja":"自分の順位","zh":"我的排名"},
+"내 순위 근처":{"en":"Ranks near me","ja":"自分の順位周辺","zh":"我附近的排名"},
+"내 최고":{"en":"My best","ja":"自己ベスト","zh":"我的最佳"},
+"네온":{"en":"Neon","ja":"ネオン","zh":"霓虹"},
+"노을":{"en":"Sunset","ja":"夕焼け","zh":"晚霞"},
+"닉네임":{"en":"Name","ja":"ニックネーム","zh":"昵称"},
+"닉네임을 등록하면 순위표에 내 기록이 표시됩니다":{"en":"Register a name and your scores appear on the board","ja":"ニックネームを登録すると順位表に自分の記録が表示されます","zh":"登记昵称后你的成绩会显示在排行榜上"},
+"다람쥐":{"en":"Squirrel","ja":"りす","zh":"松鼠"},
+"다시 도전":{"en":"Try again","ja":"もう一度挑戦","zh":"再挑战"},
+"다음 판엔 더 높이 쌓아봐요":{"en":"Stack higher next run","ja":"次のプレイはもっと高く積んでみよう","zh":"下一局叠得更高吧"},
+"달빛":{"en":"Moonlight","ja":"月光","zh":"月光"},
+"도전자":{"en":"Challenger","ja":"挑戦者","zh":"挑战者"},
+"등록":{"en":"Save","ja":"登録","zh":"登记"},
+"딸기":{"en":"Berry","ja":"いちご","zh":"草莓"},
+"랭킹 닉네임":{"en":"Ranking name","ja":"ランキング名","zh":"排行榜昵称"},
+"러버":{"en":"Lover","ja":"ラバー","zh":"爱好者"},
+"레몬":{"en":"Lemon","ja":"レモン","zh":"柠檬"},
+"마스터":{"en":"Master","ja":"マスター","zh":"大师"},
+"명 중":{"en":"players","ja":"人中","zh":"人中"},
+"모래":{"en":"Sand","ja":"砂","zh":"沙"},
+"무너졌어요":{"en":"It collapsed!","ja":"崩れた！","zh":"倒塌了！"},
+"민트":{"en":"Mint","ja":"ミント","zh":"薄荷"},
+"바닐라":{"en":"Vanilla","ja":"バニラ","zh":"香草"},
+"바다":{"en":"Ocean","ja":"海","zh":"大海"},
+"바로가기":{"en":"Go","ja":"開く","zh":"前往"},
+"번개":{"en":"Bolt","ja":"いなずま","zh":"闪电"},
+"별빛":{"en":"Starlight","ja":"星光","zh":"星光"},
+"보기":{"en":"View","ja":"見る","zh":"查看"},
+"복사됐어요! 카톡에 붙여넣기 하세요":{"en":"Copied! Paste it into your chat app","ja":"コピーしました！チャットに貼り付けてください","zh":"已复制！请粘贴到聊天软件"},
+"복숭아":{"en":"Peach","ja":"桃","zh":"桃子"},
+"봄비":{"en":"SpringRain","ja":"春雨","zh":"春雨"},
+"블록 폭을 조금 회복해 한 번 더 쌓아요":{"en":"Recover a little width and keep stacking","ja":"幅を少し戻してもう一度積めます","zh":"恢复一点宽度再继续叠"},
+"블록 폭을 회복하고 이어갑니다":{"en":"Width restored — carrying on","ja":"幅を戻して続けます","zh":"已恢复宽度，继续"},
+"블록이 너무 좁아졌어요":{"en":"The block got too narrow","ja":"ブロックが狭くなりすぎました","zh":"方块变得太窄了"},
+"블록이 좌우로 움직여요":{"en":"The block slides left and right","ja":"ブロックが左右に動きます","zh":"方块会左右移动"},
+"빗나갔어요":{"en":"Missed","ja":"外しました","zh":"没对上"},
+"살아남았어요":{"en":"You survived","ja":"生き残りました","zh":"你活下来了"},
+"상위":{"en":"Top ","ja":"上位","zh":"前 "},
+"상위 15% — 충분히 잘하고 있어요":{"en":"Top 15% — you are doing well","ja":"上位15% — 十分上手です","zh":"前 15% — 已经很不错了"},
+"상위 40% — 평균보다 위예요":{"en":"Top 40% — above average","ja":"上位40% — 平均より上です","zh":"前 40% — 高于平均"},
+"상위 5% 진입 — 손끝이 아주 매끄러웠어요":{"en":"Top 5% — beautifully smooth taps","ja":"上位5%入り — 指先がとても滑らかでした","zh":"进入前 5% — 手感很顺"},
+"상위 —":{"en":"Top —","ja":"上位 —","zh":"前 —"},
+"새벽":{"en":"Dawn","ja":"夜明け","zh":"黎明"},
+"소나기":{"en":"Shower","ja":"通り雨","zh":"阵雨"},
+"소리 끄기":{"en":"Sound off","ja":"音をオフ","zh":"关闭声音"},
+"소리 켜기":{"en":"Sound on","ja":"音をオン","zh":"开启声音"},
+"소리 켜기/끄기":{"en":"Sound on/off","ja":"音のオン・オフ","zh":"声音开/关"},
+"손이 불편해도 괜찮아요 · 버튼을 정확히 누를 필요 없이 화면 아무 곳이나 터치하면 됩니다":{"en":"Hands tired? No problem — no need to hit a button, just touch anywhere on the screen","ja":"手が不自由でも大丈夫・ボタンを正確に押す必要はなく、画面のどこかを触ればOKです","zh":"手不方便也没关系 · 不用准确按到按钮，点屏幕任意位置就行"},
+"수집가":{"en":"Collector","ja":"収集家","zh":"收藏家"},
+"순위":{"en":"Rank","ja":"順位","zh":"排名"},
+"순위 집계 중":{"en":"Tallying ranks","ja":"順位集計中","zh":"排名统计中"},
+"순위는 매일 새로 집계됩니다 · 내 기록은 이 기기에 저장돼요":{"en":"Ranks are recounted every day · your scores stay on this device","ja":"順位は毎日新しく集計されます・記録はこの端末に保存されます","zh":"排名每天重新统计 · 成绩保存在本设备"},
+"순위는 매일 새로 집계됩니다 · 최고 기록은 이 기기에도 남아요":{"en":"Ranks are recounted every day · your best also stays on this device","ja":"順位は毎日新しく集計されます・最高記録はこの端末にも残ります","zh":"排名每天重新统计 · 最佳成绩也会留在本设备"},
+"순위표에":{"en":"Saved to the board as ","ja":"順位表に ","zh":"排行榜已记录为 "},
+"순위표에 저장됩니다":{"en":"Saved to the ranking board","ja":"順位表に保存されます","zh":"保存到排行榜"},
+"순위표와":{"en":"to the board and","ja":"順位表と","zh":"排行榜和"},
+"숲":{"en":"Forest","ja":"森","zh":"森林"},
+"슬로우":{"en":"Slow","ja":"スロウ","zh":"减速"},
+"슬로우 5층":{"en":"Slow 5 floors","ja":"スロウ5階","zh":"减速 5 层"},
+"슬로우!":{"en":"Slow!","ja":"スロウ！","zh":"减速！"},
+"시작하기":{"en":"Start","ja":"スタート","zh":"开始"},
+"실드":{"en":"Shield","ja":"シールド","zh":"护盾"},
+"실드 1회":{"en":"Shield ×1","ja":"シールド1回","zh":"护盾 1 次"},
+"실드 발동!":{"en":"Shield used!","ja":"シールド発動！","zh":"护盾发动！"},
+"실드 장착!":{"en":"Shield on!","ja":"シールド装着！","zh":"护盾已装备！"},
+"쌓기":{"en":"Stacker","ja":"つみ","zh":"叠叠"},
+"아이템 블록을 쌓으면 확장·슬로우·실드!":{"en":"Stack item blocks for wide, slow and shield!","ja":"アイテムブロックを積むと拡張・スロウ・シールド！","zh":"叠上道具方块就有扩展·减速·护盾！"},
+"아직 오늘 기록이 없어요":{"en":"No records yet today","ja":"今日の記録はまだありません","zh":"今天还没有记录"},
+"아직 오늘 기록이 없어요 — 첫 기록을 남겨 보세요":{"en":"No records yet today — be the first","ja":"今日の記録はまだありません・最初の記録を作りましょう","zh":"今天还没有记录 · 来创造第一条吧"},
+"여름":{"en":"Summer","ja":"夏","zh":"夏天"},
+"여행자":{"en":"Traveler","ja":"旅人","zh":"旅行者"},
+"연습생":{"en":"Trainee","ja":"練習生","zh":"练习生"},
+"예: 새벽타워":{"en":"e.g. DawnTower","ja":"例：夜明けタワー","zh":"例：黎明塔"},
+"오늘":{"en":"Today","ja":"今日","zh":"今日"},
+"오늘의 TOP":{"en":"Today's TOP ","ja":"今日のTOP ","zh":"今日 TOP "},
+"오늘의 TOP 10":{"en":"Today's TOP 10","ja":"今日のTOP 10","zh":"今日 TOP 10"},
+"오늘의 랭킹 · 순위 집계 중":{"en":"Today's ranking · tallying","ja":"今日のランキング・集計中","zh":"今日排行 · 统计中"},
+"오늘의 랭킹 · 순위는 매일 새로 집계됩니다":{"en":"Today's ranking · recounted fresh every day","ja":"今日のランキング・毎日新しく集計されます","zh":"今日排行 · 每天重新统计"},
+"오늘의 랭킹 · 순위는 매일 새로 집계됩니다 · 내 기록은":{"en":"Today's ranking · recounted fresh every day · my scores are saved ","ja":"今日のランキング・毎日新しく集計されます・記録は","zh":"今日排行 · 每天重新统计 · 成绩保存在"},
+"오늘의 랭킹에 기록 중":{"en":"Recording to today's ranking","ja":"今日のランキングに記録中","zh":"正在记录到今日排行"},
+"요정":{"en":"Fairy","ja":"妖精","zh":"妖精"},
+"우주":{"en":"Cosmos","ja":"宇宙","zh":"宇宙"},
+"원터치 타워":{"en":"One-Touch Tower ","ja":"ワンタッチタワー ","zh":"一键叠塔 "},
+"원터치 타워 · 오늘의 랭킹":{"en":"One-Touch Tower · Today's Ranking","ja":"ワンタッチタワー・今日のランキング","zh":"一键叠塔 · 今日排行"},
+"위":{"en":"","ja":"位","zh":"名"},
+"은하":{"en":"Galaxy","ja":"銀河","zh":"银河"},
+"이 기기에 저장":{"en":" on this device","ja":" この端末に保存","zh":" 本设备"},
+"이미 최대 폭!":{"en":"Already at max width!","ja":"すでに最大幅！","zh":"已经是最大宽度！"},
+"이번 기록":{"en":"This run","ja":"今回の記録","zh":"本次成绩"},
+"이번 판 이어하기 사용 완료":{"en":"Continue already used this run","ja":"今回のコンティニューは使用済み","zh":"本局已使用过继续"},
+"이어하기":{"en":"Continue","ja":"コンティニュー","zh":"继续"},
+"이어하기 (1회)":{"en":"Continue (×1)","ja":"コンティニュー（1回）","zh":"继续（1 次）"},
+"이어하기 1회":{"en":"Continue ×1","ja":"コンティニュー1回","zh":"继续 1 次"},
+"이제 몸이 풀렸어요. 한 판만 더!":{"en":"You are warmed up — one more run!","ja":"体がほぐれました。もう1回！","zh":"已经热身好了 — 再来一局！"},
+"일본 공구·생활용품·인기 과자 직구":{"en":"Japanese tools, household goods & popular snacks, direct","ja":"日本の工具・生活用品・人気のお菓子を直送","zh":"日本工具·生活用品·人气零食直邮"},
+"잠시 기다리면 이어서 쌓을 수 있어요":{"en":"Wait a moment and you can keep stacking","ja":"少し待つと続けて積めます","zh":"稍等一下就能继续叠"},
+"장인":{"en":"Artisan","ja":"職人","zh":"匠人"},
+"재팬마트박스":{"en":"Japan Mart Box","ja":"Japan Mart Box","zh":"Japan Mart Box"},
+"전설급 기록이에요. 오늘의 1% 안쪽!":{"en":"Legendary — you are in the top 1% today!","ja":"伝説級です。今日の1%以内！","zh":"传奇级！进入今日前 1%！"},
+"전체":{"en":"of ","ja":"全","zh":"共 "},
+"점":{"en":"pts","ja":"点","zh":"分"},
+"점수":{"en":"Score","ja":"スコア","zh":"分数"},
+"제주":{"en":"Jeju","ja":"済州","zh":"济州"},
+"처음으로":{"en":"Home","ja":"最初へ","zh":"返回首页"},
+"초":{"en":"s","ja":"秒","zh":"秒"},
+"초보":{"en":"Rookie","ja":"初心者","zh":"新手"},
+"초코":{"en":"Choco","ja":"チョコ","zh":"巧克力"},
+"최고":{"en":"Best","ja":"最高","zh":"最高"},
+"최고 경신":{"en":"New best","ja":"自己ベスト更新","zh":"刷新纪录"},
+"층":{"en":"F","ja":"階","zh":"层"},
+"층 뒤":{"en":" floors away","ja":"階あと","zh":" 层后"},
+"카페":{"en":"Cafe","ja":"カフェ","zh":"咖啡"},
+"콤보 보너스 +":{"en":"Combo bonus +","ja":"コンボボーナス+","zh":"连击加成 +"},
+"타워":{"en":"Tower","ja":"タワー","zh":"塔"},
+"토끼":{"en":"Rabbit","ja":"うさぎ","zh":"兔子"},
+"펭귄":{"en":"Penguin","ja":"ペンギン","zh":"企鹅"},
+"폭 +":{"en":"Width +","ja":"幅+","zh":"宽度 +"},
+"플레이어":{"en":"Player ","ja":"プレイヤー ","zh":"玩家 "},
+"하늘":{"en":"Sky","ja":"空","zh":"天空"},
+"학생":{"en":"Student","ja":"学生","zh":"学生"},
+"한 번 더":{"en":"One more","ja":"もう一回","zh":"再来一次"},
+"한 번만 톡 — 타이밍에 맞춰 블록을 쌓는 게임":{"en":"One tap — stack the blocks with the right timing","ja":"1回タップ — タイミングよくブロックを積むゲーム","zh":"只点一次 — 看准时机叠方块的游戏"},
+"한 번은 살아나요":{"en":"Survives one miss","ja":"1回は生き残ります","zh":"可以复活一次"},
+"한강":{"en":"HanRiver","ja":"漢江","zh":"汉江"},
+"홈 화면에 추가됐어요":{"en":"Added to Home screen","ja":"ホーム画面に追加しました","zh":"已添加到主屏幕"},
+"화면 아무 곳이나 한 번 터치":{"en":"Tap anywhere once","ja":"画面のどこかを1回タッチ","zh":"在屏幕任意位置点一下"},
+"화면 아무 곳이나 한 번 터치 (PC는 스페이스바)":{"en":"Tap anywhere once (press Space on PC)","ja":"画面のどこかを1回タッチ（PCはスペースキー）","zh":"在屏幕任意位置点一下（电脑按空格键）"},
+"확장":{"en":"Wide","ja":"拡張","zh":"扩展"},
+"확장 +25%":{"en":"Wide +25%","ja":"拡張+25%","zh":"扩展 +25%"},
+"황금 확장":{"en":"Golden Wide","ja":"ゴールド拡張","zh":"黄金扩展"},
+"황금 확장!":{"en":"Golden wide!","ja":"ゴールド拡張！","zh":"黄金扩展！"},
+"🎁 아이템":{"en":"🎁 Item ","ja":"🎁 アイテム ","zh":"🎁 道具 "},
+"📤 내 점수 공유하기":{"en":"📤 Share my score","ja":"📤 スコアを共有","zh":"📤 分享我的成绩"},
+"📲 홈 화면에 추가":{"en":"📲 Add to Home screen","ja":"📲 ホーム画面に追加","zh":"📲 添加到主屏幕"},
+"📲 홈 화면에 추가 — 앱처럼 열기":{"en":"📲 Add to Home screen — open it like an app","ja":"📲 ホーム画面に追加 — アプリのように開く","zh":"📲 添加到主屏幕 — 像应用一样打开"},
+"🛡 실드":{"en":"🛡 Shield","ja":"🛡 シールド","zh":"🛡 护盾"}
+};
+  var PAT = [
+[/^([\d,]+)콤보 · 보너스 \+([\d,]+)$/,{"en":"Combo ×$1 · bonus +$2","ja":"$1コンボ・ボーナス+$2","zh":"$1连击 · 加成 +$2"}],
+[/^상위 ([\d.]+)%$/,{"en":"Top $1%","ja":"上位$1%","zh":"前 $1%"}],
+[/^상위 ([\d.]+)% 미만$/,{"en":"Top $1%","ja":"上位$1%","zh":"前 $1%"}],
+[/^([\d,]+)점$/,{"en":"$1 pts","ja":"$1点","zh":"$1分"}],
+[/^([\d,]+)점 \(상위 ([\d.]+)%\)$/,{"en":"$1 pts (top $2%)","ja":"$1点（上位$2%）","zh":"$1分（前 $2%）"}],
+[/^최고 ([\d,]+)점$/,{"en":"best $1 pts","ja":"ベスト$1点","zh":"最佳 $1分"}],
+[/^([\d,]+)위$/,{"en":"#$1","ja":"$1位","zh":"第$1名"}],
+[/^([\d,]+)초$/,{"en":"$1s","ja":"$1秒","zh":"$1秒"}],
+[/^([\d,]+)연쇄$/,{"en":"$1 chain","ja":"$1連鎖","zh":"$1连锁"}],
+[/^([\d,]+)연쇄 합체!$/,{"en":"$1-chain merge!","ja":"$1連鎖合体！","zh":"$1连锁合并！"}],
+[/^맨 위 블록 (\d+)개를 정리했어요$/,{"en":"Cleared $1 block(s) from the top","ja":"一番上のブロックを$1個整理しました","zh":"整理了最上面 $1 个方块"}],
+[/^새 최고 기록이에요 \(지난 최고 ([\d,]+)\)$/,{"en":"New best score (previous best $1)","ja":"自己ベスト更新（前回のベスト $1）","zh":"新纪录（上次最高 $1）"}],
+[/^이번 판 점수 · 최고 ([\d,]+)$/,{"en":"Score this run · best $1","ja":"今回のスコア・ベスト $1","zh":"本局得分 · 最佳 $1"}],
+[/^상위 ([\d.]+%)$/,{"en":"Top $1","ja":"上位$1","zh":"前 $1"}],
+[/^전체 ([\d,]+)명 중$/,{"en":"of $1 players","ja":"全$1人中","zh":"共 $1 人中"}],
+[/^점<\/b> · ([\d,]+)위 · 상위 ([\d.]+%)$/,{"en":"pts</b> · #$1 · top $2","ja":"点</b>・$1位・上位$2","zh":"分</b> · 第$1名 · 前 $2"}],
+[/^느긋한 숫자블록 ([\d,]+)점(?: \(상위 ([\d.]+)%\))? 시간제한 없이 도전해 봐! 👉 (\S+)$/,{"en":"Slow Number Drop — $1 pts ($2) — try it, no time limit! 👉 $3","ja":"のんびり数字ブロック $1点（$2）時間制限なしで挑戦してみて！👉 $3","zh":"慢悠悠数字方块 $1分（$2）没有时间限制，来挑战吧！👉 $3"}],
+[/^플레이어 (\d+)$/,{"en":"Player $1","ja":"プレイヤー $1","zh":"玩家 $1"}],
+[/^원터치 타워 ([\d,]+)층 달성!(?: \(상위 ([\d.]+%)\))? 나보다 높이 쌓을 수 있어\? 👉 (\S+)$/,{"en":"One-Touch Tower — $1F reached! ($2) Can you stack higher? 👉 $3","ja":"ワンタッチタワー $1階達成！（$2）もっと高く積める？👉 $3","zh":"一键叠塔 达到 $1 层！（$2）你能叠得更高吗？👉 $3"}],
+[/^콤보 보너스 \+([\d,]+)$/,{"en":"Combo bonus +$1","ja":"コンボボーナス+$1","zh":"连击加成 +$1"}],
+[/^폭 \+([\d,]+) · 25% 넓어짐$/,{"en":"Width +$1 · 25% wider","ja":"幅+$1・25%広がる","zh":"宽度 +$1 · 加宽 25%"}],
+[/^⏱ 슬로우 (\d+)층$/,{"en":"⏱ Slow $1 floors","ja":"⏱ スロウ$1階","zh":"⏱ 减速 $1 层"}],
+[/^🎁 아이템 (\d+)층 뒤$/,{"en":"🎁 Item $1 floors away","ja":"🎁 アイテム$1階あと","zh":"🎁 道具 $1 层后"}],
+[/^오늘의 TOP (\d+)$/,{"en":"Today's TOP $1","ja":"今日のTOP $1","zh":"今日 TOP $1"}],
+[/^등록됨: (.+?) · (.+)$/,{"en":"Saved: $1 · $2","ja":"登録済み：$1・$2","zh":"已记录：$1 · $2"}],
+[/^구경하기 →$/,{"en":"Browse →","ja":"見てみる →","zh":"去看看 →"}],
+[/^바로가기 →$/,{"en":"Go →","ja":"開く →","zh":"前往 →"}],
+[/^· ([\d,]+)위 · 상위 (.+)$/,{"en":"· #$1 · top $2","ja":"・$1位・上位$2","zh":"· 第$1名 · 前 $2"}],
+[/^상위 —$/,{"en":"Top —","ja":"上位 —","zh":"前 —"}],
+[/^상위 (.+)$/,{"en":"Top $1","ja":"上位$1","zh":"前 $1"}],
+[/^오늘 ([\d,]+)명 중 ([\d,]+)위$/,{"en":"rank $2 of $1 players today","ja":"今日$1人中$2位","zh":"今日 $1 人中第 $2 名"}],
+[/^오늘 참가한 ([\d,]+)명 중$/,{"en":"of $1 players today","ja":"今日の参加$1人中","zh":"今日参与者 $1 人中"}],
+[/^내 최고 ([\d,]+)층$/,{"en":"My best $1F","ja":"自己ベスト$1階","zh":"我的最佳 $1 层"}],
+[/^([\d,]+)층$/,{"en":"$1F","ja":"$1階","zh":"$1层"}],
+[/^\+([\d,]+)층$/,{"en":"+$1F","ja":"+$1階","zh":"+$1 层"}],
+[/^콤보 ×(\d+)$/,{"en":"Combo ×$1","ja":"コンボ×$1","zh":"连击 ×$1"}],
+[/^준비 중… (\d+)$/,{"en":"Getting ready… $1","ja":"準備中… $1","zh":"准备中… $1"}]
+];
+  var NAME_A = ["새벽", "구름", "레몬", "복숭아", "초코", "네온", "달빛", "소나기", "모래", "은하", "딸기", "고양이", "펭귄", "한강", "제주", "별빛", "노을", "민트", "바닐라", "카페", "우주", "번개", "거북", "다람쥐", "토끼", "하늘", "바다", "숲", "겨울", "여름", "봄비", "가을"];
+  var NAME_B = ["타워", "쌓기", "장인", "초보", "고수", "러버", "마스터", "도전자", "기사", "연습생", "요정", "수집가", "여행자", "개발자", "학생"];
+  var HANGUL = /[\uac00-\ud7a3]/;
+  var ATTRS = ['placeholder', 'aria-label', 'title', 'alt', 'content'];
+  var lang = 'ko', titleKo = null, ready = false;
+
+  function known(c) { for (var i = 0; i < LANGS.length; i++) if (LANGS[i].c === c) return true; return false; }
+
+  function pickLang() {
+    var saved = null;
+    try { saved = w.localStorage.getItem(KEY); } catch (e) {}
+    if (saved && known(saved)) return saved;
+    var list = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || 'en'];
+    for (var i = 0; i < list.length; i++) {
+      var l = String(list[i] || '').toLowerCase();
+      if (l.indexOf('ko') === 0) return 'ko';
+      if (l.indexOf('ja') === 0) return 'ja';
+      if (l.indexOf('zh') === 0) return 'zh';
+      if (l.indexOf('en') === 0) return 'en';
+    }
+    return 'en';
+  }
+
+  /* -------- 글자 하나 번역 -------- */
+  function nick(s) {
+    if (!NAME_A || !NAME_A.length) return '';
+    for (var i = 0; i < NAME_A.length; i++) {
+      var a = NAME_A[i];
+      if (a && s.indexOf(a) === 0) {
+        var rest = s.slice(a.length);
+        if (rest && NAME_B.indexOf(rest) >= 0) {
+          var ta = DICT[a] ? DICT[a][lang] : '', tb = DICT[rest] ? DICT[rest][lang] : '';
+          if (ta && tb) return ta + tb;
+        }
+      }
+    }
+    return '';
+  }
+
+  function core(s, depth) {
+    var hit = DICT[s];
+    if (hit && typeof hit[lang] === 'string') return hit[lang];
+    if (depth < 3) {
+      for (var i = 0; i < PAT.length; i++) {
+        var m = PAT[i][0].exec(s);
+        if (!m) continue;
+        var tpl = PAT[i][1][lang];
+        if (!tpl) continue;
+        var caps = [];
+        for (var k = 1; k < m.length; k++) caps.push(m[k] ? core(String(m[k]).replace(/^\s+|\s+$/g, ''), depth + 1) : '');
+        var out = tpl.replace(/\$(\d)/g, function (_, n) {
+          var v = caps[Number(n) - 1];
+          return v === undefined ? '' : v;
+        });
+        if (out) return out;
+      }
+      var nm = nick(s);
+      if (nm) return nm;
+      var parts = byParts(s);
+      if (parts) return parts;
+    }
+    return s;
+  }
+
+  /* 사전 낱말이 이어 붙은 문장(예: 광고 aria-label)을 마지막 수단으로 조각조각 바꾼다.
+     한국어가 하나도 남지 않을 때만 채택해 어색한 반쪽 번역을 피한다. */
+  var KEYS = null;
+  function byParts(s) {
+    if (!KEYS) {
+      KEYS = [];
+      for (var k in DICT) if (DICT.hasOwnProperty(k)) KEYS.push(k);
+      KEYS.sort(function (a, b) { return b.length - a.length; });
+    }
+    var out = s, hit = false;
+    for (var i = 0; i < KEYS.length; i++) {
+      var k = KEYS[i];
+      if (k.length < 2 || out.indexOf(k) < 0) continue;
+      var rep = DICT[k][lang];
+      if (rep === undefined || rep === null) continue;
+      out = out.split(k).join(rep);
+      hit = true;
+    }
+    if (!hit || HANGUL.test(out)) return '';
+    return out;
+  }
+
+  function tr(str) {
+    if (!str || lang === 'ko' || !HANGUL.test(str)) return str;
+    var m = /^(\s*)([\s\S]*?)(\s*)$/.exec(str);
+    if (!m) return str;
+    var body = m[2];
+    if (!body) return str;
+    var out = core(body, 0);
+    return out === body ? str : m[1] + out + m[3];
+  }
+
+  /* -------- 화면에 반영 -------- */
+  function isSkipped(node) {
+    var p = node.parentNode;
+    while (p && p.nodeType === 1) {
+      var n = p.nodeName;
+      if (n === 'SCRIPT' || n === 'STYLE' || n === 'NOSCRIPT' || n === 'TEXTAREA') return true;
+      if (p.className && String(p.className).indexOf('mg-lang') >= 0) return true;
+      p = p.parentNode;
+    }
+    return false;
+  }
+
+  function applyText(node) {
+    var v = node.nodeValue;
+    if (!v) return;
+    if (lang === 'ko') {
+      if (node.__mgKo !== undefined && node.__mgOut === v) {
+        node.nodeValue = node.__mgKo;
+        node.__mgOut = null;
+      }
+      return;
+    }
+    if (!HANGUL.test(v)) return;
+    if (isSkipped(node)) return;
+    var out = tr(v);
+    if (out !== v) {
+      node.__mgKo = v;
+      node.__mgOut = out;
+      node.nodeValue = out;
+    }
+  }
+
+  function applyAttr(el) {
+    if (!el || el.nodeType !== 1) return;
+    for (var i = 0; i < ATTRS.length; i++) {
+      var a = ATTRS[i];
+      var v = el.getAttribute(a);
+      if (!v) continue;
+      if (el.__mgKoA && el.__mgKoA[a] !== undefined && el.__mgOutA && el.__mgOutA[a] === v) {
+        if (lang === 'ko') { el.setAttribute(a, el.__mgKoA[a]); continue; }
+      }
+      if (lang === 'ko' || !HANGUL.test(v)) continue;
+      var out = tr(v);
+      if (out === v) continue;
+      el.__mgKoA = el.__mgKoA || {};
+      el.__mgOutA = el.__mgOutA || {};
+      el.__mgKoA[a] = v;
+      el.__mgOutA[a] = out;
+      el.setAttribute(a, out);
+    }
+  }
+
+  function applyNode(root) {
+    if (!root) return;
+    if (root.nodeType === 3) { applyText(root); return; }
+    if (root.nodeType !== 1 && root.nodeType !== 9) return;
+    if (root.nodeType === 1) applyAttr(root);
+    var walker = d.createTreeWalker(root, 4 /* SHOW_TEXT */, null, false);
+    var n = walker.nextNode();
+    while (n) { applyText(n); n = walker.nextNode(); }
+    if (root.querySelectorAll) {
+      var els = root.querySelectorAll('[placeholder],[aria-label],[title],[alt],meta[content]');
+      for (var i = 0; i < els.length; i++) applyAttr(els[i]);
+    }
+  }
+
+  function applyTitle() {
+    if (titleKo === null) titleKo = d.title;
+    d.title = (lang === 'ko') ? titleKo : tr(titleKo);
+  }
+
+  function setHtmlLang() {
+    try { d.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-Hans' : lang); } catch (e) {}
+  }
+
+  /* -------- 언어 바꾸기 -------- */
+  function setLang(c, save) {
+    if (!known(c)) return;
+    lang = c;
+    if (save !== false) { try { w.localStorage.setItem(KEY, c); } catch (e) {} }
+    setHtmlLang();
+    applyNode(d.body);
+    applyTitle();
+    mountOverlay();
+    syncButtons();
+    try { w.dispatchEvent(new w.CustomEvent('mg-lang', { detail: { lang: lang } })); } catch (e) {}
+  }
+
+  /* -------- 언어 버튼 (헤더 + 시작·결과 카드 위) -------- */
+  var CSS = [
+    '#mgLang{position:relative;flex:0 0 auto;display:flex;align-items:center;pointer-events:auto;z-index:40;-webkit-tap-highlight-color:transparent}',
+    '.mg-lang-btn{width:38px;height:38px;padding:0;border-radius:12px;border:1px solid rgba(255,255,255,.18);',
+    'background:rgba(10,16,32,.62);color:#eaf0ff;font-size:17px;line-height:1;display:grid;place-items:center;cursor:pointer;',
+    '-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(0,0,0,.22);transition:transform .12s ease}',
+    '.mg-lang-btn:active{transform:scale(.94)}',
+    '.mg-lang-row{display:flex;justify-content:flex-end;align-items:center;gap:6px}',
+    '.mg-lang-fixed{position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;z-index:40}',
+    '.mg-lang-row .mg-lang-btn{width:36px;height:36px;border-radius:11px;font-size:16px;background:rgba(20,26,44,.8);border-color:rgba(255,255,255,.26)}',
+    '.mg-lang-menu{position:fixed;z-index:2147483000;display:none;flex-direction:column;gap:2px;padding:6px;border-radius:14px;',
+    'border:1px solid rgba(255,255,255,.2);background:rgba(14,20,34,.97);box-shadow:0 18px 44px rgba(0,0,0,.6);',
+    '-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);min-width:150px}',
+    '.mg-lang-menu.open{display:flex}',
+    '.mg-lang-item{display:flex;align-items:center;gap:9px;width:100%;border:0;background:transparent;color:#eaf0ff;',
+    'font-family:inherit;font-size:13.5px;font-weight:700;padding:9px 12px;border-radius:10px;cursor:pointer;text-align:left;white-space:nowrap}',
+    '.mg-lang-item:hover,.mg-lang-item.on{background:rgba(126,224,255,.18)}',
+    '.mg-lang-item .fl{font-size:15px;line-height:1}',
+    /* 긴 번역문이 좁은 칸에서 넘치지 않도록 (일본어·중국어는 띄어쓰기가 없어 잘리지 않음) */
+    '.how span,.how b{overflow-wrap:anywhere}'
+  ].join('');
+
+  var buttons = [], menu = null, menuOwner = null, cssIn = false;
+
+  function ensureCss() {
+    if (cssIn) return;
+    cssIn = true;
+    var st = d.createElement('style');
+    st.id = 'mgLangStyle';
+    st.textContent = CSS;
+    (d.head || d.documentElement).appendChild(st);
+  }
+
+  function ensureMenu() {
+    if (menu) return menu;
+    menu = d.createElement('div');
+    menu.className = 'mg-lang-menu mg-lang';
+    menu.setAttribute('role', 'menu');
+    for (var i = 0; i < LANGS.length; i++) {
+      (function (L) {
+        var b = d.createElement('button');
+        b.type = 'button';
+        b.className = 'mg-lang-item mg-lang';
+        b.setAttribute('role', 'menuitem');
+        b.setAttribute('data-lang', L.c);
+        b.innerHTML = '<span class="fl">' + L.flag + '</span><span>' + L.name + '</span>';
+        b.addEventListener('click', function (e) {
+          e.preventDefault(); e.stopPropagation();
+          setLang(L.c);
+          closeMenu();
+          if (menuOwner) menuOwner.setAttribute('aria-expanded', 'false');
+        });
+        b.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+        menu.appendChild(b);
+      })(LANGS[i]);
+    }
+    menu.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+    d.body.appendChild(menu);
+    return menu;
+  }
+
+  function syncButtons() {
+    for (var i = 0; i < buttons.length; i++) {
+      var b = buttons[i], cur = LANGS[0];
+      for (var j = 0; j < LANGS.length; j++) if (LANGS[j].c === lang) cur = LANGS[j];
+      b.textContent = cur.flag;
+      b.setAttribute('aria-label', 'Language: ' + cur.name);
+      b.setAttribute('title', cur.name);
+    }
+    if (!menu) return;
+    var items = menu.querySelectorAll('.mg-lang-item');
+    for (var k = 0; k < items.length; k++) {
+      var on = items[k].getAttribute('data-lang') === lang;
+      items[k].className = 'mg-lang-item mg-lang' + (on ? ' on' : '');
+      items[k].setAttribute('aria-current', on ? 'true' : 'false');
+    }
+  }
+
+  function closeMenu() {
+    if (menu) menu.className = 'mg-lang-menu mg-lang';
+    if (menuOwner) menuOwner.setAttribute('aria-expanded', 'false');
+    menuOwner = null;
+  }
+
+  function openMenu(btn) {
+    ensureMenu();
+    var r = btn.getBoundingClientRect();
+    menu.className = 'mg-lang-menu mg-lang open';
+    menu.style.top = Math.round(r.bottom + 6) + 'px';
+    menu.style.right = Math.max(8, Math.round(w.innerWidth - r.right)) + 'px';
+    menu.style.left = 'auto';
+    menuOwner = btn;
+    btn.setAttribute('aria-expanded', 'true');
+  }
+
+  function addButton(host, small) {
+    ensureCss();
+    var btn = d.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mg-lang-btn mg-lang';
+    btn.setAttribute('aria-haspopup', 'true');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      if (menuOwner === btn) { closeMenu(); return; }
+      openMenu(btn);
+    });
+    btn.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+    host.appendChild(btn);
+    buttons.push(btn);
+    var cur = LANGS[0];
+    for (var i = 0; i < LANGS.length; i++) if (LANGS[i].c === lang) cur = LANGS[i];
+    btn.textContent = cur.flag;
+    btn.setAttribute('aria-label', 'Language: ' + cur.name);
+    btn.setAttribute('title', cur.name);
+    return btn;
+  }
+
+  /* 시작·결과 카드가 떠 있는 동안에는 헤더 쪽 버튼을 잠시 감춘다(반투명 배경에 비쳐 보이지 않게) */
+  function syncHeaderHost() {
+    var host = d.getElementById('mgLang');
+    if (!host) return;
+    var ov = d.querySelector('#overlay.show, .overlay.show');
+    host.style.visibility = ov ? 'hidden' : 'visible';
+  }
+
+  /* 시작·게임오버 화면(#overlay)이 떠 있을 때도 쓸 수 있게 오버레이 위에 같은 버튼을 하나 더 둔다.
+     카드 안에 넣지 않고 화면 오른쪽 위에 고정해 레이아웃을 건드리지 않는다. */
+  function mountOverlay() {
+    /* 사라진 버튼(오버레이가 다시 그려지며 지워진 것)은 목록에서 정리 */
+    var alive = [];
+    for (var b = 0; b < buttons.length; b++) if (d.body.contains(buttons[b])) alive.push(buttons[b]);
+    buttons = alive;
+    var ov = d.querySelector('#overlay, .overlay');
+    if (ov && !ov.querySelector('.mg-lang-row')) {
+      var row = d.createElement('div');
+      row.className = 'mg-lang-row mg-lang-fixed mg-lang';
+      addButton(row, true);
+      ov.insertBefore(row, ov.firstChild);
+    }
+    syncHeaderHost();
+  }
+
+  function mountHeader() {
+    var host = d.getElementById('mgLang');
+    if (host && !host.__mgLangDone) {
+      host.__mgLangDone = true;
+      addButton(host, false);
+    }
+  }
+
+  function onDocClick(e) {
+    if (!menu || menu.className.indexOf('open') < 0) return;
+    var t = e.target;
+    while (t) {
+      if (t === menu || t === menuOwner) return;
+      t = t.parentNode;
+    }
+    closeMenu();
+  }
+
+  /* -------- 새로 그려지는 글자 감시 -------- */
+  function watch() {
+    if (!w.MutationObserver) return;
+    var mo = new w.MutationObserver(function (muts) {
+      for (var i = 0; i < muts.length; i++) {
+        var m = muts[i];
+        if (m.type === 'characterData') applyText(m.target);
+        else if (m.type === 'attributes') applyAttr(m.target);
+        else if (m.addedNodes) {
+          for (var j = 0; j < m.addedNodes.length; j++) applyNode(m.addedNodes[j]);
+        }
+      }
+      mountOverlay();
+      applyTitle();
+    });
+    mo.observe(d.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+  }
+
+  function boot() {
+    if (ready) return;
+    ready = true;
+    titleKo = d.title;
+    lang = pickLang();
+    mountHeader();
+    mountOverlay();
+    d.addEventListener('click', onDocClick, true);
+    d.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeMenu();
+    });
+    w.addEventListener('resize', closeMenu);
+    setHtmlLang();
+    applyNode(d.body);
+    applyTitle();
+    syncButtons();
+    watch();
+  }
+
+  w.MG_I18N = {
+    get lang() { return lang; },
+    setLang: function (c) { setLang(c); },
+    /** 화면 밖(캔버스·공유 문구 등)에서 쓸 번역 */
+    s: function (str) { return tr(str); },
+    apply: function () { applyNode(d.body); applyTitle(); }
+  };
+
+  if (d.readyState === 'loading') d.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})(window, document);
+</script>
+
 <div id="app">
   <div id="stage">
     <canvas id="game"></canvas>
@@ -360,6 +972,7 @@
         <div id="itemHud" class="item-hud"></div>
       </div>
       <button id="muteBtn" class="icon-btn" type="button" aria-label="소리 켜기/끄기" aria-pressed="false">🔊</button>
+      <div id="mgLang"></div>
     </div>
 
     <div id="tapHint" class="tap-hint">화면 아무 곳이나 한 번 터치</div>
@@ -1629,7 +2242,7 @@ const LEADERBOARD_CONFIG = {
         ctx.fillStyle = 'rgba(12,10,26,0.34)';
         ctx.fill();
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(cfg.label, x + w * 0.5, y + h * 0.5 + 0.5);
+        ctx.fillText(MG_I18N.s(cfg.label), x + w * 0.5, y + h * 0.5 + 0.5);
       }
       ctx.restore();
     }
@@ -1759,7 +2372,7 @@ const LEADERBOARD_CONFIG = {
       ctx.shadowColor = 'rgba(0,0,0,0.5)';
       ctx.shadowBlur = 8;
       ctx.fillStyle = ft.color;
-      ctx.fillText(ft.text, clamp(ft.x, 50, G.width - 50), ft.y + cam);
+      ctx.fillText(MG_I18N.s(ft.text), clamp(ft.x, 50, G.width - 50), ft.y + cam);
       ctx.restore();
     }
 
@@ -1960,8 +2573,8 @@ const LEADERBOARD_CONFIG = {
      ========================================================= */
   function shareScore(score, pct) {
     var p = pctTxt(pct);
-    var text = '원터치 타워 ' + score + '층 달성!' + (p ? ' (상위 ' + p + ')' : '')
-      + ' 나보다 높이 쌓을 수 있어? 👉 ' + SHARE_URL;
+    var text = MG_I18N.s('원터치 타워 ' + score + '층 달성!' + (p ? ' (상위 ' + p + ')' : '')
+      + ' 나보다 높이 쌓을 수 있어? 👉 ' + SHARE_URL);
 
     function fallback() {
       copyText(text).then(function (ok) {
@@ -2370,7 +2983,7 @@ const LEADERBOARD_CONFIG = {
   stage.addEventListener('pointerdown', function (e) {
     var t = e.target;
     if (t && t.tagName === 'INPUT') return;
-    if (isInside(t, 'overlay') || isInside(t, 'icon-btn') || isInside(t, 'ad-link')) return;
+    if (isInside(t, 'overlay') || isInside(t, 'icon-btn') || isInside(t, 'mg-lang') || isInside(t, 'ad-link')) return;
     if (G.state === 'playing') {
       if (e.preventDefault) e.preventDefault();
       tapDrop();
@@ -2381,7 +2994,7 @@ const LEADERBOARD_CONFIG = {
   stage.addEventListener('click', function (e) {
     var t = e.target;
     if (t && t.tagName === 'INPUT') return;
-    if (isInside(t, 'overlay') || isInside(t, 'icon-btn') || isInside(t, 'ad-link')) return;
+    if (isInside(t, 'overlay') || isInside(t, 'icon-btn') || isInside(t, 'mg-lang') || isInside(t, 'ad-link')) return;
     if (G.state === 'playing' && G.moving && !G.moving.dropping) tapDrop();
   });
 
