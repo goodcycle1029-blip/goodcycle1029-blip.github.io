@@ -1,0 +1,1924 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
+<meta name="theme-color" content="#f6f5f2">
+<meta name="description" content="일본 초보여행 원클릭 해결사 — 지하철 표 끊기, 환승·요금, 일본어 말하기 카드, 엔화 계산기까지 한 화면에. by 재팬마트박스">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="일본 초보여행">
+<title>일본 초보여행 원클릭 해결사 | 재팬마트박스</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%231f3a5f'/><text x='50' y='70' font-size='58' text-anchor='middle' fill='%23fff' font-family='sans-serif'>旅</text></svg>">
+<style>
+:root{
+  --bg:#f6f5f2; --card:#ffffff; --ink:#171a20; --ink2:#3c424b; --sub:#6f7681;
+  --line:#e8e5df; --line2:#efede8;
+  --brand:#1f3a5f; --brand-soft:#eef3f9;
+  --accent:#d9433c; --accent-soft:#fdeeec;
+  --ok:#0d7a55; --ok-soft:#e8f5ef; --warn:#a45b09; --warn-soft:#fdf3e6;
+  --shadow:0 1px 2px rgba(23,26,32,.05),0 6px 18px rgba(23,26,32,.045);
+  --shadow-lg:0 10px 30px rgba(23,26,32,.12);
+  --r:18px; --r-sm:12px;
+  --tap:52px;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --fonts:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Noto Sans CJK KR","Malgun Gothic","맑은 고딕",system-ui,sans-serif;
+  --jp:"Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,var(--fonts);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;overflow-x:hidden}
+body{
+  margin:0;background:var(--bg);color:var(--ink);font-family:var(--fonts);
+  font-size:16px;line-height:1.5;letter-spacing:-.01em;
+  padding-bottom:calc(76px + var(--safe-b));
+  overflow-x:hidden;
+}
+body.no-scroll{overflow:hidden}
+img{max-width:100%}
+button{font-family:inherit;font-size:inherit;color:inherit;border:0;background:none;cursor:pointer}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4{margin:0;line-height:1.32;letter-spacing:-.02em}
+p{margin:0}
+ul,ol{margin:0;padding:0;list-style:none}
+input,select{font-family:inherit;font-size:16px;color:inherit}
+
+/* ---------- shell ---------- */
+.app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative}
+@media(min-width:560px){
+  body{background:#eceae5}
+  .app{box-shadow:0 0 0 1px var(--line),0 24px 60px rgba(0,0,0,.08);min-height:100vh}
+}
+.topbar{
+  position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;
+  padding:12px 16px;background:rgba(246,245,242,.88);backdrop-filter:saturate(160%) blur(14px);
+  border-bottom:1px solid rgba(232,229,223,.9);
+}
+.logo{
+  width:32px;height:32px;border-radius:10px;background:var(--brand);color:#fff;display:grid;place-items:center;
+  font-weight:800;font-size:17px;flex:0 0 auto;font-family:var(--jp)
+}
+.brand{display:flex;flex-direction:column;line-height:1.15;min-width:0}
+.brand b{font-size:15px;font-weight:800;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand span{font-size:11px;color:var(--sub);letter-spacing:0}
+.topbar .spacer{flex:1}
+.icon-btn{
+  width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font-size:16px;
+  background:#fff;border:1px solid var(--line);color:var(--ink2)
+}
+.page{display:none;padding:14px 16px 26px;animation:fade .22s ease}
+.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.page{animation:none}}
+
+/* ---------- shared bits ---------- */
+.sec{margin-top:22px}
+.sec:first-child{margin-top:4px}
+.sec-head{display:flex;align-items:baseline;gap:8px;margin:0 2px 10px}
+.sec-head h2{font-size:17px;font-weight:800}
+.sec-head .sub{font-size:12px;color:var(--sub);font-weight:500}
+.sec-head .more{margin-left:auto;font-size:12px;color:var(--brand);font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:16px}
+.card+.card{margin-top:12px}
+.card h3{font-size:15px;font-weight:800;display:flex;align-items:center;gap:7px}
+.card .lead{font-size:13.5px;color:var(--sub);margin-top:6px}
+.hr{height:1px;background:var(--line2);margin:12px 0;border:0}
+.row{display:flex;gap:10px;align-items:center}
+.row.wrap{flex-wrap:wrap}
+.grow{flex:1;min-width:0}
+.muted{color:var(--sub)}
+.small{font-size:12.5px}
+.tiny{font-size:11.5px}
+.b{font-weight:800}
+.note{
+  display:flex;gap:8px;font-size:12.5px;color:var(--sub);background:#fbfaf8;
+  border:1px dashed var(--line);border-radius:12px;padding:10px 12px;margin-top:10px;line-height:1.45
+}
+.note b{color:var(--ink2)}
+/* 카메라 번역 바로 열기 */
+.cam-strip{
+  display:flex;gap:10px;align-items:center;margin-top:10px;padding:11px 12px;border-radius:16px;
+  background:linear-gradient(135deg,var(--brand-soft),#f7f1fb);border:1px solid #e2e8f2;box-shadow:var(--shadow)
+}
+.cam-strip .ct{flex:1;min-width:0}
+.cam-strip .ct b{display:block;font-size:12.5px;font-weight:800;letter-spacing:-.02em}
+.cam-strip .ct span{display:block;font-size:10.5px;color:var(--sub);line-height:1.35;margin-top:2px}
+.cam-strip .cb{display:flex;gap:6px;flex:0 0 auto}
+.cam-strip .btn.sm{min-height:38px;font-size:12px;padding:0 10px;border-radius:11px;gap:4px}
+.cam-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:11px}
+.cam-btns .btn{font-size:13px;padding:0 8px;gap:5px;min-height:50px}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;font-size:11.5px;font-weight:700;background:var(--brand-soft);color:var(--brand)}
+.pill.red{background:var(--accent-soft);color:#b8332d}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.gray{background:#f1f0ec;color:var(--ink2)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:var(--tap);
+  padding:0 16px;border-radius:14px;font-weight:800;font-size:15px;background:#fff;border:1px solid var(--line);
+  transition:transform .08s ease,background .15s ease
+}
+.btn:active{transform:scale(.985)}
+.btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+.btn.accent{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.ghost{background:var(--brand-soft);border-color:transparent;color:var(--brand)}
+.btn.block{display:flex;width:100%}
+.btn.sm{min-height:40px;font-size:13.5px;padding:0 12px;border-radius:12px}
+.btn:disabled{opacity:.45}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border-radius:999px;
+  border:1px solid var(--line);background:#fff;font-size:13.5px;font-weight:700;color:var(--ink2);white-space:nowrap
+}
+.chip[aria-selected="true"],.chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.chip.sm{height:32px;font-size:12.5px;padding:0 11px}
+
+/* ---------- home ---------- */
+.hero{
+  position:relative;overflow:hidden;border-radius:22px;padding:20px 18px 18px;color:#fff;
+  background:linear-gradient(155deg,#223a5e 0%,#1c2f4c 52%,#162942 100%);
+  box-shadow:var(--shadow-lg)
+}
+.hero:after{
+  content:"";position:absolute;right:-40px;top:-50px;width:190px;height:190px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,rgba(217,67,60,.55),rgba(217,67,60,0) 68%)
+}
+.hero .tag{font-size:11.5px;font-weight:800;letter-spacing:.06em;color:#f3c9c6;text-transform:uppercase}
+.hero h1{font-size:23px;font-weight:900;margin-top:8px;letter-spacing:-.035em}
+.hero p{font-size:13px;color:#cfd8e6;margin-top:8px;line-height:1.5;max-width:290px}
+.hero .hero-cta{display:flex;gap:8px;margin-top:14px;position:relative;z-index:1}
+.hero .hero-cta .btn{min-height:44px;font-size:13.5px;background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.2);color:#fff;backdrop-filter:blur(6px)}
+.hero .hero-cta .btn.solid{background:#fff;color:var(--brand);border-color:#fff}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.tile{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 10px 12px;text-align:center;
+  box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;gap:6px
+}
+.tile .ic{font-size:24px;line-height:1}
+.tile .t{font-size:12.5px;font-weight:800;letter-spacing:-.02em}
+.tile .d{font-size:10.5px;color:var(--sub);line-height:1.3}
+.stat-strip{display:flex;gap:8px;margin-top:12px}
+.stat{flex:1;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.stat b{display:block;font-size:15px;font-weight:900;letter-spacing:-.03em}
+.stat span{font-size:10.5px;color:var(--sub)}
+.quicklist{margin-top:4px}
+.qrow{
+  display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line2)
+}
+.qrow:last-child{border-bottom:0}
+.qrow .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--brand-soft);font-size:18px;flex:0 0 auto}
+.qrow .tx{flex:1;min-width:0}
+.qrow .tx b{display:block;font-size:14px;font-weight:800}
+.qrow .tx span{font-size:11.5px;color:var(--sub)}
+.qrow .ar{color:#b9bdc4;font-size:16px}
+
+/* ---------- steps diagram ---------- */
+.machine{
+  border-radius:16px;border:1px solid var(--line);overflow:hidden;background:#f9f8f5;
+}
+.machine-top{
+  display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#e9e6df;
+  font-size:10.5px;color:#6b7078;font-weight:700
+}
+.machine-screen{
+  margin:10px;border-radius:10px;background:#12243d;color:#dfe8f5;padding:10px;min-height:86px;
+  position:relative;overflow:hidden;font-size:11px
+}
+.machine-screen .scr-head{display:flex;justify-content:space-between;align-items:center;font-size:10px;opacity:.8}
+.lang-btns{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.lang-btns span{padding:3px 7px;border-radius:6px;background:rgba(255,255,255,.12);font-size:10px}
+.lang-btns span.on{background:#fff;color:#12243d;font-weight:800}
+.fare-mini{margin-top:8px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.fare-mini i{
+  font-style:normal;background:rgba(255,255,255,.1);border-radius:5px;padding:4px 2px;text-align:center;font-size:9.5px;color:#fff
+}
+.fare-mini i.on{background:#ffd166;color:#3a2a00;font-weight:800}
+.keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:0 10px 10px}
+.keypad b{
+  font-size:9.5px;font-weight:700;text-align:center;padding:8px 2px;border-radius:7px;background:#fff;border:1px solid #ddd8ce;color:#4a4f57
+}
+.keypad b.on{background:#12243d;color:#fff;border-color:#12243d}
+.step-list{margin-top:12px;counter-reset:s}
+.step{display:flex;gap:11px;padding:11px 0;border-bottom:1px dashed var(--line);counter-increment:s}
+.step:last-child{border-bottom:0}
+.step .n{
+  width:26px;height:26px;border-radius:9px;background:var(--brand);color:#fff;display:grid;place-items:center;
+  font-size:12.5px;font-weight:900;flex:0 0 auto
+}
+.step .n:before{content:counter(s)}
+.step .tx{flex:1;min-width:0}
+.step .tx > b{display:block;font-size:14px;font-weight:800;margin-bottom:2px}
+.step .tx p{font-size:12.5px;color:var(--sub);line-height:1.45}
+.step .jp{font-family:var(--jp);font-size:11.5px;color:#8b919b;background:#f6f5f1;border-radius:6px;padding:1px 6px;display:inline-block;margin-top:4px}
+
+/* gate diagram */
+.gate{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.gate .g{background:#fbfaf8;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.gate .g .em{font-size:22px}
+.gate .g b{display:block;font-size:12.5px;margin-top:3px}
+.gate .g span{font-size:11px;color:var(--sub);line-height:1.35;display:block;margin-top:2px}
+.mini-diagram{display:flex;align-items:flex-end;gap:3px;justify-content:center;height:52px;margin-top:8px}
+.mini-diagram .gatebody{width:52px;height:44px;border-radius:8px 8px 3px 3px;background:#e6e2d9;position:relative}
+.mini-diagram .gatebody:before{content:"";position:absolute;left:8px;top:8px;width:10px;height:4px;border-radius:2px;background:#98a0aa}
+.mini-diagram .gatebody:after{content:"";position:absolute;right:8px;top:8px;width:12px;height:12px;border-radius:50%;background:#cfe0f5;border:2px solid #7a99c0}
+.mini-diagram .arrow{font-size:14px;color:#9aa2ad;padding-bottom:16px}
+
+/* ---------- IC / airport ---------- */
+.table{width:100%;border-collapse:collapse;font-size:12.5px}
+.table th,.table td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line2);vertical-align:top}
+.table th{font-size:11px;color:var(--sub);font-weight:800;background:#fbfaf8}
+.table td b{font-weight:800}
+.table tr:last-child td{border-bottom:0}
+.aircard{border:1px solid var(--line);border-radius:14px;padding:13px;background:#fff}
+.aircard+.aircard{margin-top:10px}
+.aircard .air-head{display:flex;align-items:center;gap:8px}
+.aircard .air-head .em{font-size:18px}
+.aircard .air-head b{font-size:14px;font-weight:800}
+.aircard .air-head .pill{margin-left:auto}
+.aircard .lines{margin-top:8px;font-size:12.5px;color:var(--ink2);display:grid;gap:5px}
+.aircard .lines li{display:flex;gap:7px}
+.aircard .lines li span:first-child{flex:0 0 auto}
+.aircard .lines em{font-style:normal;color:var(--sub)}
+.airmeta{display:flex;gap:12px;margin-top:9px;font-size:11.5px;color:var(--sub)}
+.airmeta b{color:var(--ink);font-weight:800}
+
+/* ---------- route ---------- */
+.selects{display:grid;grid-template-columns:1fr 34px 1fr;gap:8px;align-items:end;margin-top:10px}
+.field label{display:block;font-size:11px;font-weight:800;color:var(--sub);margin:0 0 5px 3px}
+.select-wrap{position:relative}
+.select-wrap:after{content:"▾";position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#9aa2ad;font-size:12px;pointer-events:none}
+select{
+  appearance:none;width:100%;height:52px;padding:0 30px 0 12px;border-radius:13px;border:1px solid var(--line);
+  background:#fff;font-size:14px;font-weight:700
+}
+select:focus{outline:2px solid var(--brand);outline-offset:1px}
+.swap{width:34px;height:52px;display:grid;place-items:center;color:var(--brand);font-size:16px}
+.result{margin-top:12px;border-radius:16px;border:1px solid var(--line);background:#fff;overflow:hidden}
+.result-head{
+  padding:15px 16px 13px;background:linear-gradient(180deg,#f4f7fb,#fff);border-bottom:1px solid var(--line2)
+}
+.result-head .od{font-size:12px;color:var(--sub);font-weight:700}
+.result-head .od b{color:var(--ink)}
+.result-head .big{display:flex;align-items:flex-end;gap:10px;margin-top:6px;flex-wrap:wrap}
+.result-head .big .time{font-size:30px;font-weight:900;letter-spacing:-.04em;line-height:1}
+.result-head .big .time small{font-size:14px;font-weight:800;margin-left:1px}
+.result-head .big .fare{font-size:15px;font-weight:900;color:var(--accent)}
+.result-head .big .tr{font-size:12px;color:var(--sub);margin-left:auto;font-weight:700}
+.legs{padding:6px 16px 4px}
+.leg{display:flex;gap:10px;padding:10px 0;position:relative}
+.leg .rail{flex:0 0 14px;display:flex;flex-direction:column;align-items:center;padding-top:4px}
+.leg .rail i{width:10px;height:10px;border-radius:50%;background:#c8ccd3;box-shadow:0 0 0 3px #f2f1ee}
+.leg .rail .bar{flex:1;width:2px;background:var(--line);margin-top:3px;min-height:18px}
+.leg .body{flex:1;min-width:0}
+.leg .line{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.leg .line .dot{width:8px;height:8px;border-radius:2px;background:#999;flex:0 0 auto}
+.leg .line b{font-size:13px;font-weight:800}
+.leg .line .mins{font-size:11px;color:var(--sub);font-weight:700;margin-left:auto}
+.leg .stations{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.4}
+.leg.walk .line b{font-weight:700;color:var(--sub);font-size:12.5px}
+.result-foot{padding:12px 16px 14px;border-top:1px solid var(--line2);display:flex;gap:8px;flex-wrap:wrap}
+.result-foot .btn{flex:1;min-width:0;white-space:nowrap;font-size:13.5px;padding:0 10px}
+.popular{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.nodata{padding:20px 16px;text-align:center;color:var(--sub);font-size:13px}
+
+/* ---------- phrases ---------- */
+.talk-cta{
+  display:flex;align-items:center;gap:12px;padding:15px;border-radius:18px;color:#fff;text-align:left;
+  background:linear-gradient(135deg,#1f3a5f,#2b4f7d);box-shadow:var(--shadow-lg)
+}
+.talk-cta .em{font-size:26px}
+.talk-cta .tx{flex:1;min-width:0}
+.talk-cta .tx b{font-size:15px;font-weight:900;display:block}
+.talk-cta .tx span{display:block;font-size:11.5px;color:#c8d5e6;line-height:1.4;margin-top:2px}
+.talk-cta .go{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.16);display:grid;place-items:center;font-size:17px}
+.plist{margin-top:10px;display:grid;gap:9px}
+.pcard{
+  width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 14px;
+  display:flex;gap:10px;align-items:flex-start;box-shadow:var(--shadow)
+}
+.pcard .tx{flex:1;min-width:0}
+.pcard .jp{display:block;font-family:var(--jp);font-size:16px;font-weight:700;line-height:1.4;letter-spacing:0}
+.pcard .kr{display:block;font-size:12px;color:var(--accent);margin-top:3px;font-weight:700}
+.pcard .ko{display:block;font-size:12.5px;color:var(--sub);margin-top:3px}
+.pcard .sp{font-size:16px;color:#b9bdc4;padding-top:2px}
+
+/* fullscreen phrase */
+.overlay{
+  position:fixed;inset:0;z-index:100;display:none;background:#0e1520;color:#fff;
+  padding:calc(14px + env(safe-area-inset-top)) 18px calc(18px + var(--safe-b));
+  flex-direction:column
+}
+.overlay.show{display:flex;animation:fade .2s ease}
+.ov-top{display:flex;align-items:center;gap:8px}
+.ov-top .pill{background:rgba(255,255,255,.12);color:#e7edf6}
+.ov-close{margin-left:auto;width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.12);color:#fff;display:grid;place-items:center;font-size:17px}
+.ov-body{flex:1;display:flex;flex-direction:column;justify-content:center;text-align:center;gap:14px;padding:10px 0}
+.ov-jp{font-family:var(--jp);font-size:clamp(28px,9.6vw,42px);font-weight:800;line-height:1.34;letter-spacing:0;word-break:keep-all}
+.ov-kr{font-size:17px;color:#f6a8a3;font-weight:800}
+.ov-ko{font-size:14px;color:#aeb9c8}
+.ov-actions{display:grid;gap:10px}
+.ov-actions .btn{min-height:60px;font-size:16px;background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.18)}
+.ov-actions .btn.speak{background:#fff;color:#0e1520;border-color:#fff}
+.ov-hint{text-align:center;font-size:11.5px;color:#8492a5;margin-top:4px}
+
+/* split mode */
+.split{
+  position:fixed;inset:0;z-index:110;display:none;background:#0e1520;color:#fff;
+  grid-template-rows:minmax(0,1fr) minmax(0,1fr)
+}
+.split.show{display:grid;animation:fade .2s ease}
+.split-top,.split-bottom{position:relative;overflow:hidden;min-height:0}
+.split-top{background:linear-gradient(180deg,#233a58,#1a2c44)}
+.split-bottom{background:#f6f5f2;color:var(--ink);border-top:2px solid rgba(255,255,255,.1)}
+.split-inner{position:absolute;inset:0;display:flex;flex-direction:column;padding:6px 12px;overflow:hidden}
+.split-top .split-inner{transform:rotate(180deg)}
+.split-label{flex:0 0 auto;font-size:10.5px;font-weight:800;letter-spacing:.04em;color:rgba(255,255,255,.55);display:flex;align-items:center;gap:6px}
+.split-bottom .split-label{color:var(--sub)}
+.split-jp{
+  flex:1 1 0;min-height:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:6px;padding:4px 0;overflow:hidden
+}
+.split-jp .jp{font-family:var(--jp);font-size:clamp(18px,6vw,28px);font-weight:800;line-height:1.3;word-break:keep-all}
+.split-jp .kr{font-size:13px;color:#f6a8a3;font-weight:700}
+.split-jp .ko{font-size:12.5px;color:rgba(255,255,255,.6)}
+.replies{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:auto;padding-top:4px;flex:0 0 auto}
+.reply{
+  padding:5px 3px;border-radius:10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);
+  color:#fff;text-align:center;line-height:1.3
+}
+.reply b{display:block;font-family:var(--jp);font-size:10px;font-weight:700;line-height:1.25;word-break:keep-all}
+.reply span{display:block;font-size:9px;color:rgba(255,255,255,.62);margin-top:1px;line-height:1.2}
+.split-tools{display:flex;gap:8px;margin-top:4px;flex:0 0 auto}
+.split-tools .btn{flex:1;min-height:36px;font-size:12.5px;background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.2)}
+.split-tools .btn.light{background:#fff;color:#12243d;border-color:#fff}
+.split-close{
+  position:absolute;right:10px;top:10px;width:34px;height:34px;border-radius:10px;
+  background:rgba(255,255,255,.14);color:#fff;display:grid;place-items:center;font-size:15px;z-index:2
+}
+.split-bottom .split-close{background:#e9e6df;color:#3c424b}
+.sb-phrase{
+  background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-top:6px;
+  display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)
+}
+.sb-phrase .tx{flex:1;min-width:0}
+.sb-phrase .jp{font-family:var(--jp);font-size:15px;font-weight:700;line-height:1.35}
+.sb-phrase .ko{font-size:11.5px;color:var(--sub);margin-top:2px}
+.sb-phrase .sp{width:40px;height:40px;border-radius:12px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-size:16px}
+.sb-guide{font-size:11px;color:var(--sub);margin:2px 2px 0}
+.sb-replynow{
+  margin-top:8px;border-radius:12px;background:#fff;border:1px solid var(--line);padding:9px 12px;font-size:13px;color:var(--sub)
+}
+.sb-replynow b{font-family:var(--jp);color:var(--ink);font-size:15px;display:block}
+.sb-scroll{flex:1 1 0;min-height:0;overflow-y:auto;margin:6px -4px 0;padding:0 4px 4px;overscroll-behavior:contain}
+.sb-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.sb-chips .chip{height:34px;font-size:12px;padding:0 10px;background:#fff}
+.sb-input{display:flex;gap:6px;margin-top:8px}
+.sb-input input{
+  flex:1;min-width:0;height:46px;border-radius:12px;border:1px solid var(--line);background:#fff;padding:0 12px;font-size:14px
+}
+.sb-input .btn{min-height:46px;padding:0 14px;font-size:13px}
+
+/* ---------- shop ---------- */
+.calc{background:linear-gradient(160deg,#fff,#fbfaf7)}
+.calc label{font-size:11.5px;font-weight:800;color:var(--sub);display:block;margin-bottom:6px}
+.calc .input-wrap{position:relative}
+.calc input[type=number]{
+  width:100%;height:58px;border-radius:14px;border:1px solid var(--line);background:#fff;
+  padding:0 58px 0 14px;font-size:22px;font-weight:900;letter-spacing:-.03em
+}
+.calc input[type=number]::-webkit-outer-spin-button,.calc input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.calc .unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-weight:900;color:var(--sub);font-size:14px}
+.calc .rate{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12.5px;color:var(--sub)}
+.calc .rate input{
+  width:74px;height:36px;border-radius:10px;border:1px solid var(--line);padding:0 8px;font-size:14px;font-weight:800;text-align:right
+}
+.calc .out{margin-top:12px;border-radius:14px;background:var(--brand);color:#fff;padding:14px 16px}
+.calc .out .kr{font-size:28px;font-weight:900;letter-spacing:-.04em;line-height:1.1}
+.calc .out .kr small{font-size:14px;font-weight:800;margin-left:2px}
+.calc .out .sub{font-size:11.5px;color:#c3d0e2;margin-top:4px}
+.calc .verdict{margin-top:10px;border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.45;background:#f4f3ef;color:var(--ink2)}
+.calc .verdict.ok{background:var(--ok-soft);color:#0a5f43}
+.calc .verdict.warn{background:var(--warn-soft);color:#8a4a05}
+.calc .verdict b{font-weight:900}
+.quick-amt{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.quick-amt .chip{height:32px;font-size:12px;padding:0 10px;background:#fff}
+.pricetag{
+  margin-top:10px;border:1px solid var(--line);border-radius:14px;background:#fff;padding:14px;
+  display:flex;align-items:center;gap:14px
+}
+.pricetag .pt{
+  flex:0 0 auto;border:1.5px solid #d8d3c8;border-radius:8px;padding:8px 12px;text-align:center;background:#fffdf7
+}
+.pricetag .pt .big{font-size:26px;font-weight:900;letter-spacing:-.03em;line-height:1}
+.pricetag .pt .small{font-size:10.5px;color:var(--sub);margin-top:3px}
+.pricetag .pt .tax{font-size:9.5px;color:#a45b09;font-weight:800;margin-top:2px}
+.pricetag .exp{font-size:12px;color:var(--sub);line-height:1.5}
+.pricetag .exp b{color:var(--ink)}
+.acc{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden;margin-top:10px}
+.acc summary{
+  list-style:none;display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer;font-weight:800;font-size:14px
+}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary .em{font-size:18px}
+.acc summary .n{margin-left:auto;font-size:11px;color:var(--sub);font-weight:700}
+.acc summary:after{content:"＋";color:#9aa2ad;font-size:14px;font-weight:400}
+.acc[open] summary:after{content:"－"}
+.acc .body{padding:0 14px 14px;border-top:1px solid var(--line2)}
+.items{display:grid;gap:9px;margin-top:10px}
+.item{display:flex;gap:9px;font-size:12.5px;line-height:1.45}
+.item .nm{flex:0 0 auto;font-weight:800}
+.item .jp{font-family:var(--jp);color:var(--sub);font-weight:500}
+.item p{flex:1;min-width:0;color:var(--sub)}
+
+
+/* refund checklist */
+.alert{border-radius:14px;padding:12px 13px;background:var(--accent-soft);border:1px solid #f4d5d1;color:#8f2f29}
+.alert b{display:block;font-size:13.5px;font-weight:900;margin-bottom:3px}
+.alert p{font-size:12px;line-height:1.5;color:#8f5a55}
+.rf-steps{counter-reset:rf;margin-top:4px}
+.rf-step{display:flex;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line);counter-increment:rf}
+.rf-step:last-child{border-bottom:0;padding-bottom:0}
+.rf-step .n{width:22px;height:22px;border-radius:8px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-size:11.5px;font-weight:900;flex:0 0 auto;margin-top:1px}
+.rf-step .n:before{content:counter(rf)}
+.rf-step .tx b{display:block;font-size:13px;font-weight:800}
+.rf-step .tx p{font-size:12px;color:var(--sub);line-height:1.45;margin-top:2px}
+.rf-step .tx .jp{font-family:var(--jp);font-size:11px;color:#8b919b;background:#f6f5f1;border-radius:6px;padding:1px 6px;display:inline-block;margin-top:4px}
+.refund-note{font-size:11.5px;color:var(--sub);line-height:1.5;margin-top:10px}
+
+/* tips */
+.tipgrid{display:grid;gap:9px}
+.tip{display:flex;gap:10px;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.tip .em{font-size:18px;flex:0 0 auto}
+.tip .tx b{display:block;font-size:13.5px;font-weight:800;margin-bottom:2px}
+.tip .tx p{font-size:12px;color:var(--sub);line-height:1.45}
+.hood{display:grid;gap:8px;margin-top:10px}
+.hood-item{display:flex;gap:10px;background:#fff;border:1px solid var(--line);border-radius:13px;padding:11px 12px}
+.hood-item .nm{flex:0 0 92px;font-weight:800;font-size:12.5px}
+.hood-item .nm span{display:block;font-family:var(--jp);font-size:10.5px;color:var(--sub);font-weight:500}
+.hood-item p{flex:1;font-size:12px;color:var(--sub);line-height:1.45}
+.about{
+  border-radius:18px;padding:18px;background:linear-gradient(150deg,#1f3a5f,#16243a);color:#fff;margin-top:10px
+}
+.about h3{font-size:16px;font-weight:900}
+.about p{font-size:12.5px;color:#c9d4e3;margin-top:7px;line-height:1.55}
+.about .links{display:grid;gap:8px;margin-top:12px}
+.about .links a{
+  display:flex;align-items:center;gap:9px;padding:12px;border-radius:12px;background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.16);font-size:13px;font-weight:800
+}
+.about .links a .ar{margin-left:auto;opacity:.6}
+.disclaimer{font-size:11px;color:#9aa2ad;margin-top:12px;line-height:1.5}
+
+/* ---------- ads ---------- */
+.ad-slot{display:none}
+.ad-slot.show{display:block}
+.ad-inline{margin-top:14px}
+.ad-house{
+  display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:14px;
+  background:linear-gradient(135deg,#fff7f3,#fdeee9);border:1px solid #f3d9d2
+}
+.ad-house .mark{
+  width:36px;height:36px;border-radius:11px;background:#fff;border:1px solid #f0d6cf;display:grid;place-items:center;
+  font-family:var(--jp);font-weight:800;color:var(--accent);font-size:15px;flex:0 0 auto
+}
+.ad-house .tx{flex:1;min-width:0}
+.ad-house .tx b{display:block;font-size:12.5px;font-weight:900;letter-spacing:-.02em}
+.ad-house .tx span{font-size:10.5px;color:#8c6a63;line-height:1.3;display:block;margin-top:1px}
+.ad-house .go{font-size:11px;font-weight:900;color:#fff;background:var(--accent);padding:7px 10px;border-radius:9px;white-space:nowrap}
+.ad-fixed{
+  position:fixed;left:0;right:0;bottom:calc(64px + var(--safe-b));z-index:45;
+  width:auto;padding:0 12px;display:none
+}
+.ad-fixed.show{display:block}
+.ad-fixed .inner{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lg);padding:9px 11px;display:flex;align-items:center;gap:10px}
+.ad-fixed .inner .mark{width:30px;height:30px;border-radius:9px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-family:var(--jp);font-weight:900;font-size:13px;flex:0 0 auto}
+.ad-fixed .inner .tx{flex:1;min-width:0}
+.ad-fixed .inner .tx b{display:block;font-size:11.5px;font-weight:900}
+.ad-fixed .inner .tx span{font-size:10px;color:var(--sub);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ad-fixed .inner .go{font-size:10.5px;font-weight:900;color:#fff;background:var(--accent);border-radius:8px;padding:6px 9px;white-space:nowrap}
+.ad-fixed .x{
+  position:absolute;right:-4px;top:-8px;width:22px;height:22px;border-radius:50%;background:#3c424b;color:#fff;
+  font-size:11px;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.2)
+}
+
+/* ---------- tabbar ---------- */
+.tabbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;width:auto;
+  display:grid;grid-template-columns:repeat(6,1fr);align-items:end;
+  padding:6px 4px calc(6px + var(--safe-b));
+  background:rgba(255,255,255,.94);backdrop-filter:saturate(180%) blur(16px);
+  border-top:1px solid var(--line)
+}
+.tabbar button{
+  display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 0 3px;color:#8b919b;font-size:10px;font-weight:800;letter-spacing:-.03em
+}
+.tabbar button .i{font-size:19px;line-height:1.1;filter:grayscale(1);opacity:.62}
+.tabbar button[aria-selected="true"]{color:var(--brand)}
+.tabbar button[aria-selected="true"] .i{filter:none;opacity:1}
+
+/* toast */
+.toast{
+  position:fixed;left:50%;bottom:calc(88px + var(--safe-b));transform:translate(-50%,10px);z-index:120;
+  background:#171a20;color:#fff;font-size:12.5px;font-weight:700;padding:10px 14px;border-radius:999px;
+  opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;max-width:88vw;text-align:center
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* desktop nicety */
+@media(min-width:560px){
+  .tabbar{max-width:480px;left:50%;right:auto;transform:translateX(-50%);border-radius:0}
+  .ad-fixed{max-width:480px;left:50%;right:auto;transform:translateX(-50%);width:100%}
+}
+
+body.has-adbar{padding-bottom:calc(146px + var(--safe-b))}
+.ad-slot[data-ad-slot="fixed_banner"]{padding:0}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="logo" aria-hidden="true">旅</div>
+    <div class="brand">
+      <b>일본 초보여행 해결사</b>
+      <span>by 재팬마트박스 · 한 손에 쏙</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="icon-btn" id="btnSplitTop" aria-label="마주보기 모드 열기" title="마주보기 모드">🤝</button>
+  </header>
+
+  <main>
+    <!-- ============ HOME ============ -->
+    <section class="page active" id="page-home" role="tabpanel" aria-label="홈">
+      <div class="hero">
+        <div class="tag">JAPAN FIRST-TIMER KIT</div>
+        <h1>표 끊기부터<br>말하기까지, 한 화면에</h1>
+        <p>처음 가는 일본에서 진짜 막히는 순간만 모았어요. 버튼 몇 번이면 끝.</p>
+        <div class="hero-cta">
+          <button class="btn solid" data-goto="route">🚇 환승·요금 보기</button>
+          <button class="btn" data-goto="talk">🗣️ 말하기 카드</button>
+        </div>
+      </div>
+
+      <div class="tiles">
+        <button class="tile" data-goto="ticket">
+          <div class="ic">🎫</div>
+          <div class="t">표 끊기</div>
+          <div class="d">매표기 5단계</div>
+        </button>
+        <button class="tile" data-goto="route">
+          <div class="ic">🚇</div>
+          <div class="t">환승·요금</div>
+          <div class="d">역↔역 바로</div>
+        </button>
+        <button class="tile" data-goto="talk">
+          <div class="ic">🗣️</div>
+          <div class="t">말하기</div>
+          <div class="d">큰 글씨+음성</div>
+        </button>
+        <button class="tile" data-split="1">
+          <div class="ic">🤝</div>
+          <div class="t">마주보기</div>
+          <div class="d">테이블 대화</div>
+        </button>
+        <button class="tile" data-goto="shop">
+          <div class="ic">💴</div>
+          <div class="t">엔화 계산</div>
+          <div class="d">면세 판정까지</div>
+        </button>
+        <button class="tile" data-goto="tips">
+          <div class="ic">🧭</div>
+          <div class="t">실전 팁</div>
+          <div class="d">면세·락커·동네</div>
+        </button>
+      </div>
+
+      <div class="cam-strip">
+        <div class="ct">
+          <b>📷 카메라 번역 바로 열기</b>
+          <span>메뉴판·표지판 비출 땐 아래 버튼</span>
+        </div>
+        <div class="cb">
+          <a class="btn sm primary" href="https://papago.naver.com/?sk=ja&amp;tk=ko" target="_blank" rel="noopener">파파고</a>
+          <a class="btn sm" href="https://translate.google.com/?sl=ja&amp;tl=ko&amp;op=translate" target="_blank" rel="noopener">구글 번역</a>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>지금 필요한 것</h2></div>
+        <div class="card" style="padding:6px 16px">
+          <div class="quicklist" id="homeQuick"></div>
+        </div>
+      </div>
+
+      <!-- AD_SLOT_HOME_INLINE -->
+      <div class="ad-slot ad-inline" data-ad-slot="home_inline" aria-hidden="true"></div>
+      <!-- /AD_SLOT_HOME_INLINE -->
+
+      <div class="sec">
+        <div class="sec-head"><h2>공항에서 바로</h2><span class="sub">도착 후 30분이 제일 어렵죠</span></div>
+        <div class="card">
+          <div class="row" style="gap:8px">
+            <span class="pill">✈️ 나리타</span><span class="pill">✈️ 하네다</span><span class="pill">✈️ 간사이</span>
+          </div>
+          <p class="small muted" style="margin-top:9px">공항별 추천 열차·요금·소요 시간을 표로 정리했어요. 숙소 위치만 고르면 됩니다.</p>
+          <button class="btn ghost block" data-goto="ticket" style="margin-top:12px">공항→시내 가이드 열기</button>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>만든 곳</h2></div>
+        <div class="card" style="display:flex;gap:12px;align-items:center">
+          <div class="logo" style="background:var(--accent)">J</div>
+          <div class="grow">
+            <b class="small">재팬마트박스</b>
+            <p class="tiny muted">일본에서 사 오기 무거웠던 것들, 집에서 받아보세요.</p>
+          </div>
+          <a class="btn sm" href="https://smartstore.naver.com/japanmartbox" target="_blank" rel="noopener">스토어</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TICKET ============ -->
+    <section class="page" id="page-ticket" role="tabpanel" aria-label="표 끊기">
+      <div class="sec-head"><h2>🎫 지하철 표 끊기</h2><span class="sub">매표기 앞에서 30초</span></div>
+
+      <div class="card">
+        <h3>매표기 화면, 이렇게 생겼어요</h3>
+        <p class="lead">일본 매표기는 화면 오른쪽 위에 언어 버튼이 있어요. 한국어가 없으면 영어로.</p>
+
+        <div class="machine" aria-hidden="true">
+          <div class="machine-top"><span>きっぷ 券売機</span><span>운임표 · 運賃表</span></div>
+          <div class="machine-screen">
+            <div class="scr-head"><span>1. 언어 선택</span><span>🌐 言語</span></div>
+            <div class="lang-btns">
+              <span>日本語</span><span>English</span><span class="on">한국어</span><span>中文</span>
+            </div>
+            <div class="fare-mini">
+              <i>신주쿠<b style="display:block;font-size:9px">210</b></i>
+              <i class="on">시부야<b style="display:block;font-size:9px">200</b></i>
+              <i>이케부쿠로<b style="display:block;font-size:9px">210</b></i>
+              <i>긴자<b style="display:block;font-size:9px">280</b></i>
+            </div>
+          </div>
+          <div class="keypad">
+            <b>きっぷ<br>표</b><b>人数<br>인원</b><b>チャージ<br>충전</b><b class="on">お金<br>금액</b>
+          </div>
+        </div>
+
+        <div class="step-list">
+          <div class="step">
+            <div class="n"></div>
+            <div class="tx">
+              <b>화면 위쪽 ‘言語 / Language’ → 한국어</b>
+              <p>없으면 <b>English</b>를 눌러도 금액 숫자만 보면 됩니다. 줄 서기 전에 미리 눌러 두세요.</p>
+              <span class="jp">言語 → 韓国語</span>
+            </div>
+          </div>
+          <div class="step">
+            <div class="n"></div>
+            <div class="tx">
+              <b>위쪽 운임표(運賃表)에서 내릴 역 찾기</b>
+              <p>역 이름 옆 숫자가 요금이에요. 노선도에 없으면 역무원에게 목적지를 보여주세요. 휴대폰 지도 앱의 역 이름을 그대로 보여주면 통합니다.</p>
+              <span class="jp">運賃表で駅と金額を確認</span>
+            </div>
+          </div>
+          <div class="step">
+            <div class="n"></div>
+            <div class="tx">
+              <b>きっぷ(표) → 人数(인원) 버튼</b>
+              <p>혼자면 <b>1人</b>. 어른은 大人, 어린이는 小児(6~11세). 두 명이면 2人을 누르고 한 장에 2인분이 찍힌 표를 받아요.</p>
+              <span class="jp">きっぷ → 1人(おとな)</span>
+            </div>
+          </div>
+          <div class="step">
+            <div class="n"></div>
+            <div class="tx">
+              <b>같은 금액 버튼 또는 화면의 금액 터치</b>
+              <p>운임표의 금액과 같은 버튼을 누르면 결제 화면으로 넘어가요. 요금이 헷갈리면 <b>가장 가까운 역까지 사고, 도착역 정산기에서 차액을 내도 됩니다.</b></p>
+              <span class="jp">金額ボタンを押す</span>
+            </div>
+          </div>
+          <div class="step">
+            <div class="n"></div>
+            <div class="tx">
+              <b>돈 또는 IC 카드 넣기 → 표·거스름돈 챙기기</b>
+              <p>지폐는 1,000엔부터. 5,000·10,000엔도 대부분 되지만 아침에는 1,000엔이 안전해요. 거스름돈(お釣り)은 아래쪽에서 나옵니다.</p>
+              <span class="jp">お金を入れる → きっぷとお釣り</span>
+            </div>
+          </div>
+        </div>
+        <div class="note"><span>💡</span><div><b>표는 버리지 마세요.</b> 개찰구를 나갈 때 회수됩니다. 안으로 들어갈 때 넣은 표가 바로 다시 나오니, 그걸 챙겨야 해요.</div></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>🚧 개찰구 통과</h2><span class="sub">표 vs IC, 딱 하나만</span></div>
+        <div class="card">
+          <div class="gate">
+            <div class="g">
+              <div class="em">🎫</div><b>종이 표</b>
+              <span>개찰구 <b>오른쪽(또는 왼쪽) 티켓 투입구</b>에 넣고 앞으로.<br>지나가며 표가 다시 나옵니다.</span>
+            </div>
+            <div class="g">
+              <div class="em">💳</div><b>IC 카드</b>
+              <span>개찰구 위 <b>파란 리더기</b>에 대고 ‘삑’.<br>가방째 대면 안 되고, 카드만.</span>
+            </div>
+          </div>
+          <div class="mini-diagram" aria-hidden="true">
+            <div class="gatebody"></div><div class="arrow">🚶‍♂️</div><div class="gatebody"></div>
+          </div>
+          <div class="hr"></div>
+          <ul class="small" style="display:grid;gap:8px;color:var(--ink2)">
+            <li><b>나갈 때</b> — 표는 개찰구가 회수합니다. IC는 다시 대고 나오면 잔액이 빠져요.</li>
+            <li><b>잔액 부족</b> — 개찰구가 막히고 소리가 나요. 옆의 <b>정산기(精算機)</b>에 표를 넣고 차액을 현금/IC로 내면 새 표가 나옵니다.</li>
+            <li><b>표를 잃어버렸다면</b> — 개찰구 옆 역무실에 ‘切符をなくしました’ 카드를 보여주세요. 출발역을 말하면 재발급해 줘요.</li>
+            <li><b>환승</b> — 같은 회사 노선은 표를 넣지 않고 환승 통로로. 다른 회사로 갈아타면 개찰구를 나갔다 다시 들어와야 할 수 있어요.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>💳 Suica · PASMO · ICOCA</h2><span class="sub">하나면 전국 대부분 OK</span></div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <table class="table">
+            <tr><th>카드</th><th>지역</th><th>특징</th></tr>
+            <tr><td><b>Suica</b></td><td>도쿄·JR동일본</td><td>교통+편의점 결제. 관광객용 <b>Welcome Suica</b>(28일, 보증금 0)</td></tr>
+            <tr><td><b>PASMO</b></td><td>도쿄 메트로·사철</td><td>Suica와 사실상 같은 곳에서 사용. 2026년 5월부터 <b>TOURIST PASMO</b></td></tr>
+            <tr><td><b>ICOCA</b></td><td>간사이·JR서일본</td><td>오사카·교토·고베에서 발급. 도쿄에서도 사용 가능</td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <h3>📱 아이폰은 지갑에 바로</h3>
+          <p class="lead">아이폰: 지갑 앱 → <b>+</b> → 교통카드 → 일본 → Suica → 애플페이 카드로 충전. 개찰구에 폰만 대면 끝.</p>
+          <div class="note" style="margin-top:10px"><span>⚠️</span><div><b>안드로이드는 대부분 안 됩니다.</b> 모바일 Suica는 일본 내수 ‘오사이후케이타이’ 기기 전용이라, 한국에서 산 갤럭시·픽셀에서는 보통 등록이 안 돼요. 실물 카드를 사거나 종이 표를 쓰세요.</div></div>
+          <p class="small muted" style="margin-top:10px">실물 카드는 공항·주요 역에서 1,000엔부터. 잔액은 현금으로 충전하고, 28일용 관광 카드는 남은 잔액 환불이 안 되니 조금씩 충전하세요.</p>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>✈️ 공항 → 시내</h2><span class="sub">숙소 위치로 고르세요</span></div>
+        <div class="chips" id="airportChips" role="tablist"></div>
+        <div id="airportCards" style="margin-top:2px"></div>
+        <div class="note"><span>🚗</span><div><b>3~4인 이상이거나 캐리어가 많다면</b> 공항 픽업·샌딩 차량(1인 2,000엔대)도 좋은 선택이에요. 전철 환승 없이 숙소 앞까지 가고, 4인 기준이면 택시보다 저렴한 경우가 많습니다.</div></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>🙅 초보가 자주 하는 실수</h2></div>
+        <div class="card">
+          <ul class="small" style="display:grid;gap:9px;color:var(--ink2)">
+            <li><b>1.</b> 표를 개찰구에 넣고 안 챙김 → 나갈 때 없어서 막힘</li>
+            <li><b>2.</b> IC 카드를 가방 안에서 대기 → 안 찍혀서 문이 닫힘</li>
+            <li><b>3.</b> 급행·쾌속인데 내릴 역이 없어 지나침 → 타기 전에 역 이름 확인</li>
+            <li><b>4.</b> 같은 이름의 다른 회사 역(신주쿠 JR/메트로 등)에서 헤맴 → 지하 통로 표지판 따라가기</li>
+            <li><b>5.</b> 막차 시간 놓침 → 도쿄·오사카 주요 노선은 자정 전후 막차, 공항행은 더 일찍 끊겨요</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ROUTE ============ -->
+    <section class="page" id="page-route" role="tabpanel" aria-label="환승 요금">
+      <div class="sec-head"><h2>🚇 환승·요금</h2><span class="sub">역 두 개만 고르세요</span></div>
+      <div class="chips" id="cityChips" role="tablist"></div>
+      <div class="card" style="margin-top:6px">
+        <div class="selects">
+          <div class="field">
+            <label for="routeFrom">출발</label>
+            <div class="select-wrap"><select id="routeFrom"></select></div>
+          </div>
+          <button class="swap" id="btnSwap" aria-label="출발·도착 바꾸기">⇄</button>
+          <div class="field">
+            <label for="routeTo">도착</label>
+            <div class="select-wrap"><select id="routeTo"></select></div>
+          </div>
+        </div>
+        <div id="routeResult"></div>
+        <p class="tiny muted" style="margin-top:9px">요금은 IC 카드 기준, 시간은 낮 시간대 기준이에요. 막차·공사·운행 상황은 현장 안내를 확인하세요.</p>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>자주 찾는 구간</h2></div>
+        <div class="card">
+          <div class="popular" id="routePopular"></div>
+        </div>
+      </div>
+
+      <!-- AD_SLOT_ROUTE_INLINE -->
+      <div class="ad-slot ad-inline" data-ad-slot="route_inline" aria-hidden="true"></div>
+      <!-- /AD_SLOT_ROUTE_INLINE -->
+
+      <div class="sec">
+        <div class="sec-head"><h2>도시 간 이동</h2></div>
+        <div class="card">
+          <ul class="small" style="display:grid;gap:9px;color:var(--ink2)">
+            <li><b>도쿄 ↔ 신오사카</b> — 신칸센 노조미 약 2시간 30분, 14,000엔대. 지정석은 미리 예약.</li>
+            <li><b>오사카 ↔ 교토</b> — JR 신쾌속 약 30분 580엔, 한큐 약 45분 500엔대.</li>
+            <li><b>오사카 ↔ 고베</b> — JR 신쾌속 약 25분 420엔.</li>
+            <li><b>하카타 ↔ 텐진</b> — 지하철 5분 210엔.</li>
+            <li><b>밤 이동</b> — 야간버스는 저렴하지만 다음 날 컨디션을 생각하세요.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TALK ============ -->
+    <section class="page" id="page-talk" role="tabpanel" aria-label="말하기">
+      <div class="sec-head"><h2>🗣️ 말하기 카드</h2><span class="sub">폰 내밀고 버튼만</span></div>
+      <button class="talk-cta" id="btnSplitOpen" style="width:100%">
+        <span class="em">🤝</span>
+        <span class="tx">
+          <b>테이블 마주보기 모드</b>
+          <span>화면을 사이에 두고 일본어 ↔ 한국어로 대화해요</span>
+        </span>
+        <span class="go">→</span>
+      </button>
+
+      <div class="chips" id="phraseChips" role="tablist" style="margin-top:14px"></div>
+      <div class="plist" id="phraseList"></div>
+
+      <div class="note" style="margin-top:14px"><span>🔊</span><div><b>소리가 안 나면</b> 폰을 무음 해제하고, 안드로이드는 설정 → 언어 및 입력 → 글자 읽어주기에서 ‘일본어’ 음성을 설치하세요. 그래도 안 되면 화면의 큰 글씨를 보여주면 됩니다.</div></div>
+    </section>
+
+    <!-- ============ SHOP ============ -->
+    <section class="page" id="page-shop" role="tabpanel" aria-label="쇼핑">
+      <div class="sec-head"><h2>💴 엔화 계산기</h2><span class="sub">면세 되는지도 바로</span></div>
+      <div class="card calc">
+        <label for="calcYen">가격표에 적힌 금액</label>
+        <div class="input-wrap">
+          <input id="calcYen" type="number" inputmode="decimal" min="0" step="1" placeholder="0" value="5500">
+          <span class="unit">엔</span>
+        </div>
+        <div class="quick-amt" id="calcQuick"></div>
+
+        <div class="rate">
+          <span>100엔 =</span>
+          <input id="calcRate" type="number" inputmode="decimal" min="1" step="0.1" value="910" aria-label="100엔당 원화 환율">
+          <span>원</span>
+          <button class="chip sm" id="btnRateReset" style="margin-left:auto">기본 환율</button>
+        </div>
+
+        <div class="out">
+          <div class="kr" id="calcKrw">50,050<small>원</small></div>
+          <div class="sub" id="calcSub">5,500엔 · 100엔 = 910원 기준</div>
+        </div>
+
+        <div class="verdict" id="calcVerdict"></div>
+
+        <div class="row" style="gap:8px;margin-top:10px">
+          <div class="grow">
+            <label style="margin-bottom:4px">이 금액은</label>
+            <div class="chips" id="calcTaxChips" style="padding-bottom:0">
+              <button class="chip sm on" data-tax="incl">세후(税込)</button>
+              <button class="chip sm" data-tax="excl">세전(税抜)</button>
+            </div>
+          </div>
+        </div>
+        <p class="tiny muted" style="margin-top:9px">면세 기준은 <b>세전 5,000엔</b> 이상(세후 5,500엔, 8% 품목은 5,400엔). 같은 날·같은 매장 합계로 계산해요.</p>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>🏷️ 가격표 읽는 법</h2><span class="sub">큰 숫자 vs 작은 숫자</span></div>
+        <div class="card">
+          <div class="pricetag" aria-hidden="true">
+            <div class="pt">
+              <div class="big">1,280</div>
+              <div class="tax">税抜 / 세전</div>
+              <div class="small">1,408엔 (税込)</div>
+            </div>
+            <div class="exp">
+              <b>큰 숫자 = 세전(税抜)</b>, 작은 숫자 = 세후(税込)인 경우가 많아요.<br>
+              반대로 <b>‘税込’가 큰 글씨</b>인 매장도 있으니 옆 글자를 꼭 보세요.
+            </div>
+          </div>
+          <div class="hr"></div>
+          <ul class="small" style="display:grid;gap:8px;color:var(--ink2)">
+            <li><b>税抜(제누키)</b> — 세금 별도. 계산할 때 10%가 붙어요.</li>
+            <li><b>税込(제이코미)</b> — 세금 포함. 표시 금액 그대로 결제.</li>
+            <li><b>8%</b> — 식품·음료·신문 등 경감세율. <b>10%</b> — 일반 상품·외식·주류.</li>
+            <li>돈키호테 같은 대형점은 두 가격을 같이 적어 두는 경우가 많아요.</li>
+          </ul>
+        </div>
+      </div>
+
+
+      <div class="sec" id="refund">
+        <div class="sec-head"><h2>🛫 면세 환급 체크리스트</h2><span class="sub">짐 부치기 전에!</span></div>
+        <div class="card">
+          <div class="alert">
+            <b>⚠️ 먼저 — 수하물(짐)을 부치기 전에 하세요</b>
+            <p>세관 확인 전에 캐리어를 위탁하면 물건 반출을 확인할 수 없어 환급이 거절될 수 있어요. <b>키오스크 확인 → 필요하면 검사 → 그다음 짐 부치기</b> 순서입니다.</p>
+          </div>
+          <div class="chips" id="refundChips" role="tablist" style="margin-top:12px"></div>
+          <div id="refundBody"></div>
+          <p class="refund-note">※ 실제 이용 후기(간사이공항·11월 신면세제도)를 바탕으로 정리한 안내예요. 공항·매장마다 화면과 순서가 조금 다를 수 있으니 현장 안내 표지판과 직원 안내를 함께 확인해 주세요.</p>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>🛒 뭐가 뭔지 모를 때</h2><span class="sub">실패 없는 인기템</span></div>
+        <div id="shopAcc"></div>
+        <div class="note"><span>📷</span><div><b>글자가 안 읽히면</b> 카메라를 켜고 구글 렌즈나 파파고 ‘이미지 번역’으로 비추면 메뉴·가격표가 한국어로 바뀝니다. 상품 성분표는 번역이 어색할 수 있으니 알레르기 성분만 따로 확인하세요.</div></div>
+      </div>
+
+      <div class="sec" id="camtr">
+        <div class="sec-head"><h2>📷 카메라 번역 바로 열기</h2><span class="sub">메뉴판·표지판 비출 때</span></div>
+        <div class="card">
+          <p class="small" style="color:var(--ink2)">메뉴판·표지판 비출 땐 아래 버튼을 눌러 카메라 번역을 바로 여세요. 파파고·구글 번역 앱이 깔려 있으면 앱이, 없으면 웹으로 열립니다.</p>
+          <div class="cam-btns">
+            <a class="btn primary" href="https://papago.naver.com/?sk=ja&amp;tk=ko" target="_blank" rel="noopener">📷 파파고</a>
+            <a class="btn" href="https://translate.google.com/?sl=ja&amp;tl=ko&amp;op=translate" target="_blank" rel="noopener">📷 구글 번역</a>
+          </div>
+          <p class="tiny muted" style="margin-top:9px">세로로 들고 화면에 글자를 채우면 더 잘 읽혀요. 성분·알레르기 표기는 번역이 어색할 수 있으니 원문 글자를 한 번 더 확인하세요.</p>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>🍶 주류 반입, 이건 꼭</h2></div>
+        <div class="card">
+          <ul class="small" style="display:grid;gap:8px;color:var(--ink2)">
+            <li><b>한국 입국 면세</b> — 1인당 술 <b>2리터 이하 + 400달러 이하</b>(2025년 3월부터 병 수 제한 폐지). 두 조건을 모두 넘지 않아야 해요.</li>
+            <li>가족이 함께 와도 <b>성인 1인당</b> 각각 적용. 미성년자는 주류 면세 없음.</li>
+            <li>초과하면 그 술 전체에 세금이 붙을 수 있어요. 위스키류는 실효세율이 150%대까지 올라가니 계산해 보고 사세요.</li>
+            <li>기내 반입은 100ml 이하만, 나머지는 위탁 수하물로. 깨지지 않게 옷으로 싸 두세요.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>🏠 무거운 건 집에서</h2></div>
+        <div class="card" style="display:flex;gap:12px;align-items:center">
+          <div class="logo" style="background:var(--accent)">J</div>
+          <div class="grow">
+            <b class="small">여행 가방 무겁게 만들지 마세요</b>
+            <p class="tiny muted" style="margin-top:3px">물·쌀·기저귀·대용량 화장품처럼 무거운 일본 아이템은 재팬마트박스에서 집으로 받으세요.</p>
+          </div>
+        </div>
+        <div class="row" style="gap:8px;margin-top:8px">
+          <a class="btn primary grow" href="https://smartstore.naver.com/japanmartbox" target="_blank" rel="noopener">스마트스토어 열기</a>
+          <a class="btn grow" href="https://www.instagram.com/goodcycle10" target="_blank" rel="noopener">인스타 보기</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TIPS ============ -->
+    <section class="page" id="page-tips" role="tabpanel" aria-label="실전 팁">
+      <div class="sec-head"><h2>🧭 현지 실전 팁</h2><span class="sub">알면 편한 것들</span></div>
+      <div class="tipgrid" id="tipList"></div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>🏙️ 동네 가이드</h2><span class="sub">분위기로 고르기</span></div>
+        <div class="chips" id="hoodChips" role="tablist"></div>
+        <div class="hood" id="hoodList"></div>
+      </div>
+
+      <!-- AD_SLOT_TIPS_INLINE -->
+      <div class="ad-slot ad-inline" data-ad-slot="tips_inline" aria-hidden="true"></div>
+      <!-- /AD_SLOT_TIPS_INLINE -->
+
+      <div class="sec">
+        <div class="sec-head"><h2>🆘 급할 때</h2></div>
+        <div class="card">
+          <ul class="small" style="display:grid;gap:8px;color:var(--ink2)">
+            <li><b>경찰 110</b> · <b>구급·화재 119</b> — 한국어 통역 연결이 되는 경우가 있어요.</li>
+            <li><b>분실</b> — 역·백화점은 유실물 센터(遺失物), 거리는 가까운 파출소(交番)로.</li>
+            <li><b>여권 분실</b> — 경찰 신고서 → 한국 총영사관(도쿄·오사카·후쿠오카). 여권 사본·사진을 미리 찍어 두세요.</li>
+            <li><b>병원</b> — 큰 병원은 예약·소개가 필요할 수 있어요. 여행자 보험 긴급번호를 저장해 두면 빠릅니다.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-head"><h2>소개</h2></div>
+        <div class="about">
+          <h3>일본 초보여행 원클릭 해결사</h3>
+          <p>처음 가는 일본에서 가장 자주 막히는 다섯 가지 — 표 끊기, 환승, 말하기, 쇼핑, 현지 규칙 — 를 한 화면에 모았어요. 만든 곳은 일본 구매대행 <b>재팬마트박스</b>입니다.</p>
+          <div class="links">
+            <a href="https://smartstore.naver.com/japanmartbox" target="_blank" rel="noopener"><span>🛍️</span>재팬마트박스 스마트스토어<span class="ar">↗</span></a>
+            <a href="https://www.instagram.com/goodcycle10" target="_blank" rel="noopener"><span>📸</span>인스타그램 @goodcycle10<span class="ar">↗</span></a>
+          </div>
+          <p class="disclaimer">요금·운행 시간·면세 규정은 2026년 11월 기준 공개 자료를 정리한 참고 정보예요. 현장 안내와 운영사 공지를 우선하세요. 이 앱은 여행 편의를 위한 안내이며, 결제·예약을 대신하지 않습니다.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- AD_SLOT_FIXED_BANNER -->
+  <div class="ad-fixed" id="adFixed" data-ad-slot="fixed_banner" aria-hidden="true"></div>
+  <!-- /AD_SLOT_FIXED_BANNER -->
+
+  <nav class="tabbar" role="tablist" aria-label="주요 메뉴">
+    <button data-tab="home" aria-selected="true"><span class="i">🏠</span>홈</button>
+    <button data-tab="ticket" aria-selected="false"><span class="i">🎫</span>표</button>
+    <button data-tab="route" aria-selected="false"><span class="i">🚇</span>환승</button>
+    <button data-tab="talk" aria-selected="false"><span class="i">🗣️</span>말하기</button>
+    <button data-tab="shop" aria-selected="false"><span class="i">💴</span>쇼핑</button>
+    <button data-tab="tips" aria-selected="false"><span class="i">🧭</span>팁</button>
+  </nav>
+</div>
+
+<!-- ===== fullscreen phrase ===== -->
+<div class="overlay" id="phraseFull" role="dialog" aria-modal="true" aria-label="문장 크게 보기">
+  <div class="ov-top">
+    <span class="pill" id="ovCat">식당</span>
+    <button class="ov-close" id="ovClose" aria-label="닫기">✕</button>
+  </div>
+  <div class="ov-body">
+    <div class="ov-jp" id="ovJp">すみません</div>
+    <div class="ov-kr" id="ovKr">스미마센</div>
+    <div class="ov-ko" id="ovKo">저기요</div>
+  </div>
+  <div class="ov-actions">
+    <button class="btn speak" id="ovSpeak">🔊 일본어로 읽어주기</button>
+    <button class="btn" id="ovSpeakSlow">🐢 천천히 다시</button>
+  </div>
+  <p class="ov-hint">화면을 상대에게 보여주고 버튼을 눌러 주세요</p>
+</div>
+
+<!-- ===== split mode ===== -->
+<div class="split" id="splitMode" role="dialog" aria-modal="true" aria-label="마주보기 대화 모드">
+  <div class="split-top">
+    <button class="split-close" id="splitCloseTop" aria-label="닫기">✕</button>
+    <div class="split-inner">
+      <div class="split-label">🇯🇵 日本語 · 상대방 화면</div>
+      <div class="split-jp">
+        <div class="jp" id="spJp">すみません、これは何ですか？</div>
+        <div class="kr" id="spKr">스미마센, 코레와 난데스카</div>
+        <div class="ko" id="spKo">저기요, 이거 뭐예요?</div>
+      </div>
+      <div class="replies" id="spReplies"></div>
+      <div class="split-tools">
+        <button class="btn light" id="spSpeak">🔊 읽어주기</button>
+        <button class="btn" id="spClear">지우기</button>
+      </div>
+    </div>
+  </div>
+  <div class="split-bottom">
+    <button class="split-close" id="splitClose" aria-label="닫기">✕</button>
+    <div class="split-inner">
+      <div class="split-label">🇰🇷 한국어 · 내 화면</div>
+      <div class="sb-replynow" id="sbReplyNow"><span>상대 답변은 여기에 한국어로 표시돼요</span></div>
+      <div class="sb-scroll">
+        <p class="sb-guide">상황에 맞는 문장을 골라 보세요</p>
+        <div class="sb-chips" id="sbChips"></div>
+      </div>
+      <p class="tiny muted" style="margin-top:6px">위 문장을 누르면 상대 화면에 일본어가 크게 떠요. 상대가 답변 버튼을 누르면 여기에 한국어로 보여요.</p>
+      <div class="sb-input">
+        <input id="sbInput" type="text" placeholder="일본어로 직접 입력 (선택)" aria-label="일본어 직접 입력">
+        <button class="btn accent" id="sbSend">보내기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+/* 자동 생성: data/make_data.py — Yahoo!路線情報 조회 결과(2026-11-22) */
+const STATIONS = {"tokyo":[{"id":"shinjuku","ko":"신주쿠","jp":"新宿"},{"id":"shibuya","ko":"시부야","jp":"渋谷"},{"id":"tokyo","ko":"도쿄역","jp":"東京"},{"id":"asakusa","ko":"아사쿠사","jp":"浅草"},{"id":"ueno","ko":"우에노","jp":"上野"},{"id":"ginza","ko":"긴자","jp":"銀座"},{"id":"akihabara","ko":"아키하바라","jp":"秋葉原"},{"id":"ikebukuro","ko":"이케부쿠로","jp":"池袋"},{"id":"roppongi","ko":"롯폰기","jp":"六本木"},{"id":"odaiba","ko":"오다이바","jp":"台場"},{"id":"maihama","ko":"마이하마(디즈니)","jp":"舞浜"},{"id":"harajuku","ko":"하라주쿠","jp":"原宿"},{"id":"oshiage","ko":"스카이트리(오시아게)","jp":"押上"},{"id":"shinokubo","ko":"신오쿠보(한국타운)","jp":"新大久保"},{"id":"narita","ko":"나리타공항","jp":"成田空港"},{"id":"haneda","ko":"하네다공항","jp":"羽田空港"}],"osaka":[{"id":"namba","ko":"난바","jp":"難波"},{"id":"umeda","ko":"우메다","jp":"梅田"},{"id":"shinsaibashi","ko":"신사이바시","jp":"心斎橋"},{"id":"shinosaka","ko":"신오사카","jp":"新大阪"},{"id":"osakajo","ko":"오사카성","jp":"大阪城公園"},{"id":"usj","ko":"유니버설시티(USJ)","jp":"ユニバーサルシティ"},{"id":"kansai","ko":"간사이공항","jp":"関西空港"},{"id":"tennoji","ko":"텐노지","jp":"天王寺"},{"id":"kyoto","ko":"교토","jp":"京都"},{"id":"nara","ko":"나라","jp":"奈良"},{"id":"sannomiya","ko":"고베 산노미야","jp":"三宮"},{"id":"ebisucho","ko":"쓰텐카쿠(에비스초)","jp":"恵美須町"},{"id":"nihonbashi","ko":"닛폰바시(구로몬시장)","jp":"近鉄日本橋"}],"fukuoka":[{"id":"hakata","ko":"하카타","jp":"博多"},{"id":"tenjin","ko":"텐진","jp":"天神"},{"id":"fukuokaku","ko":"후쿠오카공항","jp":"福岡空港"},{"id":"nakasu","ko":"나카스카와바타","jp":"中洲川端"},{"id":"ohori","ko":"오호리코엔","jp":"大濠公園"},{"id":"kushida","ko":"쿠시다신사","jp":"櫛田神社前"},{"id":"dazaifu","ko":"다자이후","jp":"太宰府"},{"id":"meinohama","ko":"마리노아(메이노하마)","jp":"姪浜"}]};
+const ST_KO = {"大阪":"오사카","空港第２ビル(鉄道)":"공항제2빌딩","西九条":"니시쿠조","関西空港(鉄道)":"간사이공항","新橋":"신바시","上野":"우에노","なんば(地下鉄)":"난바","新宿":"신주쿠","東京":"도쿄","浅草":"아사쿠사","羽田空港第１・第２ターミナル(京急)":"하네다공항","大阪難波":"오사카난바","梅田(地下鉄)":"우메다","押上":"오시아게","天王寺":"텐노지","近鉄日本橋":"닛폰바시","三ノ宮":"산노미야","渋谷":"시부야","銀座":"긴자","秋葉原":"아키하바라","池袋":"이케부쿠로","六本木":"롯폰기","台場":"오다이바","舞浜":"마이하마","原宿":"하라주쿠","新大久保":"신오쿠보","成田空港(東京)":"나리타공항","羽田空港(東京)":"하네다공항","博多":"하카타","天神":"텐진","動物園前":"도부쓰엔마에","福岡空港(鉄道)":"후쿠오카공항","西鉄二日市":"니시테쓰 후쓰카이치","羽田空港第１ターミナル(東京モノレール・ＪＡＬ利用)":"하네다공항 1터미널","八丁堀(東京都)":"핫초보리","心斎橋":"신사이바시","新大阪":"신오사카","大阪城公園":"오사카조코엔","ユニバーサルシティ":"유니버설시티","関西空港(大阪)":"간사이공항","京都":"교토","奈良":"나라","三宮(神戸市営)":"산노미야","恵美須町":"에비스초","新今宮":"신이마미야","浜松町":"하마마쓰초","新木場":"신키바","日本橋(大阪府)":"닛폰바시","西鉄福岡":"니시테쓰 후쿠오카(텐진)","馬喰横山":"바쿠로요코야마","東日本橋":"히가시니혼바시","品川":"시나가와","人形町":"닌교초","東銀座":"히가시긴자","神戸三宮(阪神)":"고베 산노미야","福岡空港":"후쿠오카공항","中洲川端":"나카스카와바타","大濠公園":"오호리코엔","櫛田神社前":"쿠시다신사","太宰府":"다자이후","姪浜":"메이노하마","大門(東京都)":"다이몬","恵比寿":"에비스","東京テレポート":"도쿄텔레포트","お台場海浜公園":"오다이바 해변공원","明治神宮前":"메이지진구마에","代々木":"요요기","鶴橋":"쓰루하시","京橋(大阪府)":"교바시","新宿(東京メトロ)":"신주쿠","汐留":"시오도메","表参道":"오모테산도","日暮里":"닛포리","なんば(南海線)":"난바","西梅田":"니시우메다","近鉄奈良":"긴테쓰나라","天下茶屋":"덴가차야","薬院":"야쿠인","赤坂見附":"아카사카미쓰케","霞ケ関(東京都)":"가스미가세키","錦糸町":"긴시초","国会議事堂前":"고카이기지도마에","日本橋(東京都)":"닛폰바시(도쿄)","岩本町":"이와모토초","大手町(東京都)":"오테마치","京成高砂":"게이세이타카사가","東松戸":"히가시마쓰도","天王洲アイル":"텐노즈아일","九段下":"구단시타","高田馬場":"다카다노바바","京成佐倉":"게이세이사쿠라","森ノ宮":"모리노미야","長堀橋":"나가호리바시","天満":"덴마","扇町(大阪府)":"오기마치","高槻":"다카쓰키","高槻市":"다카쓰키시","天神南":"텐진미나미"};
+const ROUTES = {"shinjuku|shibuya":{"m":4,"f":199,"t":0,"l":[{"n":"ＪＲ湘南新宿ライン","c":"#ff5000","f":"新宿","t":"渋谷","m":4}]},"shinjuku|tokyo":{"m":13,"f":253,"t":0,"l":[{"n":"ＪＲ中央線快速","c":"#ff5a23","f":"新宿","t":"東京","m":13}]},"shinjuku|asakusa":{"m":29,"f":272,"t":1,"l":[{"n":"都営新宿線","c":"#7db941","f":"新宿","t":"馬喰横山","m":null},{"n":"都営浅草線快速","c":"#f2706d","f":"東日本橋","t":"浅草","m":null}]},"shinjuku|ueno":{"m":25,"f":253,"t":0,"l":[{"n":"ＪＲ山手線外回り","c":"#2de80d","f":"新宿","t":"上野","m":25}]},"shinjuku|ginza":{"m":20,"f":209,"t":0,"l":[{"n":"東京メトロ丸ノ内線","c":"#e3111a","f":"新宿(東京メトロ)","t":"銀座","m":15}]},"shinjuku|akihabara":{"m":18,"f":209,"t":0,"l":[{"n":"ＪＲ総武線","c":"#ffde00","f":"新宿","t":"秋葉原","m":18}]},"shinjuku|ikebukuro":{"m":5,"f":199,"t":0,"l":[{"n":"ＪＲ埼京線","c":"#00b28b","f":"新宿","t":"池袋","m":null}]},"shinjuku|roppongi":{"m":9,"f":220,"t":0,"l":[{"n":"都営大江戸線","c":"#de1876","f":"新宿","t":"六本木","m":9}]},"shinjuku|odaiba":{"m":40,"f":545,"t":1,"l":[{"n":"都営大江戸線","c":"#de1876","f":"新宿","t":"汐留","m":18},{"n":"ゆりかもめ","c":"#0086c0","f":"汐留","t":"台場","m":null}]},"shinjuku|maihama":{"m":42,"f":440,"t":1,"l":[{"n":"ＪＲ中央線中央特快","c":"#ff5a23","f":"新宿","t":"東京","m":14},{"n":"ＪＲ京葉線快速","c":"#dc3255","f":"東京","t":"舞浜","m":null}]},"shinjuku|harajuku":{"m":4,"f":155,"t":0,"l":[{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"新宿","t":"原宿","m":4}]},"shinjuku|oshiage":{"m":33,"f":272,"t":1,"l":[{"n":"都営新宿線","c":"#7db941","f":"新宿","t":"馬喰横山","m":null},{"n":"都営浅草線","c":"#f2706d","f":"東日本橋","t":"押上","m":null}]},"shinjuku|shinokubo":{"m":2,"f":155,"t":0,"l":[{"n":"ＪＲ山手線外回り","c":"#2de80d","f":"新宿","t":"新大久保","m":2}]},"shinjuku|narita":{"m":106,"f":1466,"t":1,"l":[{"n":"都営新宿線","c":"#7db941","f":"新宿","t":"馬喰横山","m":null},{"n":"都営浅草線エアポート快特","c":"#f2706d","f":"東日本橋","t":"空港第２ビル(鉄道)","m":71}]},"shinjuku|haneda":{"m":55,"f":739,"t":1,"l":[{"n":"都営大江戸線","c":"#de1876","f":"新宿","t":"大門(東京都)","m":16},{"n":"東京モノレール空港快速","c":"#003686","f":"浜松町","t":"羽田空港第１ターミナル(東京モノレール・ＪＡＬ利用)","m":16}]},"shibuya|tokyo":{"m":18,"f":209,"t":1,"l":[{"n":"東京メトロ銀座線","c":"#faa428","f":"渋谷","t":"赤坂見附","m":null},{"n":"東京メトロ丸ノ内線","c":"#e3111a","f":"赤坂見附","t":"東京","m":8}]},"shibuya|asakusa":{"m":34,"f":252,"t":0,"l":[{"n":"東京メトロ銀座線","c":"#faa428","f":"渋谷","t":"浅草","m":null}]},"shibuya|ueno":{"m":28,"f":209,"t":0,"l":[{"n":"東京メトロ銀座線","c":"#faa428","f":"渋谷","t":"上野","m":null}]},"shibuya|ginza":{"m":16,"f":209,"t":0,"l":[{"n":"東京メトロ銀座線","c":"#faa428","f":"渋谷","t":"銀座","m":null}]},"shibuya|akihabara":{"m":30,"f":253,"t":0,"l":[{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"渋谷","t":"秋葉原","m":30}]},"shibuya|ikebukuro":{"m":11,"f":209,"t":0,"l":[{"n":"ＪＲ埼京線快速","c":"#00b28b","f":"渋谷","t":"池袋","m":11}]},"shibuya|roppongi":{"m":14,"f":333,"t":1,"l":[{"n":"ＪＲ埼京線(相鉄線直通)","c":"#00b28b","f":"渋谷","t":"恵比寿","m":2},{"n":"東京メトロ日比谷線","c":"#a59c95","f":"恵比寿","t":"六本木","m":null}]},"shibuya|odaiba":{"m":36,"f":723,"t":1,"l":[{"n":"ＪＲ埼京線快速","c":"#00b28b","f":"渋谷","t":"東京テレポート","m":19},{"n":"ゆりかもめ","c":"#0086c0","f":"お台場海浜公園","t":"台場","m":null}]},"shibuya|maihama":{"m":39,"f":796,"t":1,"l":[{"n":"ＪＲ埼京線快速","c":"#00b28b","f":"渋谷","t":"新木場","m":27},{"n":"ＪＲ京葉線快速","c":"#dc3255","f":"新木場","t":"舞浜","m":null}]},"shibuya|harajuku":{"m":2,"f":155,"t":0,"l":[{"n":"ＪＲ山手線外回り","c":"#2de80d","f":"渋谷","t":"原宿","m":2}]},"shibuya|oshiage":{"m":31,"f":252,"t":0,"l":[{"n":"東京メトロ半蔵門線","c":"#8d7eba","f":"渋谷","t":"押上","m":null}]},"shibuya|shinokubo":{"m":9,"f":199,"t":0,"l":[{"n":"ＪＲ山手線外回り","c":"#2de80d","f":"渋谷","t":"新大久保","m":9}]},"shibuya|narita":{"m":114,"f":1446,"t":1,"l":[{"n":"東京メトロ半蔵門線","c":"#8d7eba","f":"渋谷","t":"押上","m":null},{"n":"京成押上線アクセス特急","c":"#0a69fb","f":"押上","t":"空港第２ビル(鉄道)","m":60}]},"shibuya|haneda":{"m":40,"f":536,"t":1,"l":[{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"渋谷","t":"品川","m":13},{"n":"京急本線エアポート快特","c":"#ca273a","f":"品川","t":"羽田空港第１・第２ターミナル(京急)","m":14}]},"tokyo|asakusa":{"m":17,"f":377,"t":1,"l":[{"n":"ＪＲ上野東京ライン","c":"#fc5004","f":"東京","t":"上野","m":5},{"n":"東京メトロ銀座線","c":"#faa428","f":"上野","t":"浅草","m":5}]},"tokyo|ueno":{"m":5,"f":199,"t":0,"l":[{"n":"ＪＲ上野東京ライン","c":"#fc5004","f":"東京","t":"上野","m":5}]},"tokyo|ginza":{"m":2,"f":178,"t":0,"l":[{"n":"東京メトロ丸ノ内線","c":"#e3111a","f":"東京","t":"銀座","m":2}]},"tokyo|akihabara":{"m":4,"f":155,"t":0,"l":[{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"東京","t":"秋葉原","m":4}]},"tokyo|ikebukuro":{"m":16,"f":209,"t":0,"l":[{"n":"東京メトロ丸ノ内線","c":"#e3111a","f":"東京","t":"池袋","m":16}]},"tokyo|roppongi":{"m":16,"f":178,"t":1,"l":[{"n":"東京メトロ丸ノ内線","c":"#e3111a","f":"東京","t":"霞ケ関(東京都)","m":4},{"n":"東京メトロ日比谷線","c":"#a59c95","f":"霞ケ関(東京都)","t":"六本木","m":6}]},"tokyo|odaiba":{"m":27,"f":480,"t":1,"l":[{"n":"ＪＲ横須賀線","c":"#1321c4","f":"東京","t":"新橋","m":3},{"n":"ゆりかもめ","c":"#0086c0","f":"新橋","t":"台場","m":null}]},"tokyo|maihama":{"m":12,"f":253,"t":0,"l":[{"n":"ＪＲ京葉線快速","c":"#dc3255","f":"東京","t":"舞浜","m":null}]},"tokyo|harajuku":{"m":28,"f":253,"t":0,"l":[{"n":"ＪＲ山手線外回り","c":"#2de80d","f":"東京","t":"原宿","m":28}]},"tokyo|oshiage":{"m":19,"f":377,"t":1,"l":[{"n":"ＪＲ総武線快速","c":"#1321c4","f":"東京","t":"錦糸町","m":8},{"n":"東京メトロ半蔵門線急行","c":"#8d7eba","f":"錦糸町","t":"押上","m":2}]},"tokyo|shinokubo":{"m":20,"f":253,"t":1,"l":[{"n":"ＪＲ中央線中央特快","c":"#ff5a23","f":"東京","t":"新宿","m":null},{"n":"ＪＲ山手線外回り","c":"#2de80d","f":"新宿","t":"新大久保","m":null}]},"tokyo|narita":{"m":97,"f":1408,"t":0,"l":[{"n":"ＪＲ総武線快速","c":"#1321c4","f":"東京","t":"空港第２ビル(鉄道)","m":85}]},"tokyo|haneda":{"m":33,"f":718,"t":1,"l":[{"n":"ＪＲ京浜東北線快速","c":"#15afff","f":"東京","t":"浜松町","m":4},{"n":"東京モノレール空港快速","c":"#003686","f":"浜松町","t":"羽田空港第１ターミナル(東京モノレール・ＪＡＬ利用)","m":16}]},"asakusa|ueno":{"m":5,"f":178,"t":0,"l":[{"n":"東京メトロ銀座線","c":"#faa428","f":"浅草","t":"上野","m":null}]},"asakusa|ginza":{"m":18,"f":209,"t":0,"l":[{"n":"東京メトロ銀座線","c":"#faa428","f":"浅草","t":"銀座","m":null}]},"asakusa|akihabara":{"m":14,"f":286,"t":1,"l":[{"n":"都営浅草線特急","c":"#f2706d","f":"浅草","t":"人形町","m":null},{"n":"東京メトロ日比谷線","c":"#a59c95","f":"人形町","t":"秋葉原","m":3}]},"asakusa|ikebukuro":{"m":31,"f":387,"t":1,"l":[{"n":"東京メトロ銀座線","c":"#faa428","f":"浅草","t":"上野","m":null},{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"上野","t":"池袋","m":17}]},"asakusa|roppongi":{"m":27,"f":286,"t":1,"l":[{"n":"都営浅草線特急","c":"#f2706d","f":"浅草","t":"東銀座","m":null},{"n":"東京メトロ日比谷線","c":"#a59c95","f":"東銀座","t":"六本木","m":12}]},"asakusa|odaiba":{"m":38,"f":545,"t":1,"l":[{"n":"都営浅草線特急","c":"#f2706d","f":"浅草","t":"新橋","m":null},{"n":"ゆりかもめ","c":"#0086c0","f":"新橋","t":"台場","m":null}]},"asakusa|maihama":{"m":38,"f":539,"t":2,"l":[{"n":"都営浅草線特急","c":"#f2706d","f":"浅草","t":"人形町","m":null},{"n":"東京メトロ日比谷線","c":"#a59c95","f":"人形町","t":"八丁堀(東京都)","m":4},{"n":"ＪＲ京葉線","c":"#dc3255","f":"八丁堀(東京都)","t":"舞浜","m":null}]},"asakusa|harajuku":{"m":43,"f":252,"t":1,"l":[{"n":"東京メトロ銀座線","c":"#faa428","f":"浅草","t":"表参道","m":null},{"n":"東京メトロ千代田線","c":"#06914b","f":"表参道","t":"明治神宮前","m":1}]},"asakusa|oshiage":{"m":3,"f":178,"t":0,"l":[{"n":"都営浅草線","c":"#f2706d","f":"浅草","t":"押上","m":3}]},"asakusa|shinokubo":{"m":37,"f":431,"t":1,"l":[{"n":"東京メトロ銀座線","c":"#faa428","f":"浅草","t":"上野","m":null},{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"上野","t":"新大久保","m":23}]},"asakusa|narita":{"m":102,"f":1177,"t":0,"l":[{"n":"都営浅草線快速","c":"#f2706d","f":"浅草","t":"空港第２ビル(鉄道)","m":null}]},"asakusa|haneda":{"m":44,"f":635,"t":0,"l":[{"n":"都営浅草線エアポート快特","c":"#f2706d","f":"浅草","t":"羽田空港第１・第２ターミナル(京急)","m":null}]},"ueno|ginza":{"m":12,"f":178,"t":0,"l":[{"n":"東京メトロ銀座線","c":"#faa428","f":"上野","t":"銀座","m":12}]},"ueno|akihabara":{"m":3,"f":155,"t":0,"l":[{"n":"ＪＲ山手線外回り","c":"#2de80d","f":"上野","t":"秋葉原","m":3}]},"ueno|ikebukuro":{"m":17,"f":209,"t":0,"l":[{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"上野","t":"池袋","m":17}]},"ueno|roppongi":{"m":27,"f":209,"t":0,"l":[{"n":"東京メトロ日比谷線","c":"#a59c95","f":"上野","t":"六本木","m":27}]},"ueno|odaiba":{"m":33,"f":524,"t":1,"l":[{"n":"ＪＲ上野東京ライン","c":"#fc5004","f":"上野","t":"新橋","m":8},{"n":"ゆりかもめ","c":"#0086c0","f":"新橋","t":"台場","m":null}]},"ueno|maihama":{"m":31,"f":431,"t":1,"l":[{"n":"東京メトロ日比谷線","c":"#a59c95","f":"上野","t":"八丁堀(東京都)","m":null},{"n":"ＪＲ京葉線快速","c":"#dc3255","f":"八丁堀(東京都)","t":"舞浜","m":null}]},"ueno|harajuku":{"m":29,"f":253,"t":0,"l":[{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"上野","t":"原宿","m":29}]},"ueno|oshiage":{"m":16,"f":286,"t":1,"l":[{"n":"東京メトロ銀座線","c":"#faa428","f":"上野","t":"浅草","m":5},{"n":"都営浅草線快特","c":"#f2706d","f":"浅草","t":"押上","m":3}]},"ueno|shinokubo":{"m":22,"f":253,"t":0,"l":[{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"上野","t":"新大久保","m":22}]},"ueno|narita":{"m":92,"f":1480,"t":1,"l":[{"n":"東京メトロ銀座線","c":"#faa428","f":"上野","t":"浅草","m":5},{"n":"都営浅草線エアポート快特","c":"#f2706d","f":"浅草","t":"空港第２ビル(鉄道)","m":66}]},"ueno|haneda":{"m":41,"f":728,"t":1,"l":[{"n":"ＪＲ京浜東北・根岸線快速","c":"#15afff","f":"上野","t":"浜松町","m":12},{"n":"東京モノレール空港快速","c":"#003686","f":"浜松町","t":"羽田空港第１ターミナル(東京モノレール・ＪＡＬ利用)","m":16}]},"ginza|akihabara":{"m":13,"f":178,"t":0,"l":[{"n":"東京メトロ日比谷線","c":"#a59c95","f":"銀座","t":"秋葉原","m":13}]},"ginza|ikebukuro":{"m":19,"f":209,"t":0,"l":[{"n":"東京メトロ丸ノ内線","c":"#e3111a","f":"銀座","t":"池袋","m":19}]},"ginza|roppongi":{"m":10,"f":178,"t":0,"l":[{"n":"東京メトロ日比谷線","c":"#a59c95","f":"銀座","t":"六本木","m":10}]},"ginza|odaiba":{"m":27,"f":503,"t":1,"l":[{"n":"東京メトロ銀座線","c":"#faa428","f":"銀座","t":"新橋","m":1},{"n":"ゆりかもめ","c":"#0086c0","f":"新橋","t":"台場","m":null}]},"ginza|maihama":{"m":25,"f":431,"t":1,"l":[{"n":"東京メトロ日比谷線","c":"#a59c95","f":"銀座","t":"八丁堀(東京都)","m":6},{"n":"ＪＲ京葉線快速","c":"#dc3255","f":"八丁堀(東京都)","t":"舞浜","m":null}]},"ginza|harajuku":{"m":24,"f":178,"t":1,"l":[{"n":"東京メトロ丸ノ内線","c":"#e3111a","f":"銀座","t":"国会議事堂前","m":3},{"n":"東京メトロ千代田線","c":"#06914b","f":"国会議事堂前","t":"明治神宮前","m":8}]},"ginza|oshiage":{"m":21,"f":317,"t":1,"l":[{"n":"東京メトロ日比谷線","c":"#a59c95","f":"銀座","t":"東銀座","m":2},{"n":"都営浅草線","c":"#f2706d","f":"東銀座","t":"押上","m":15}]},"ginza|shinokubo":{"m":29,"f":364,"t":1,"l":[{"n":"東京メトロ丸ノ内線","c":"#e3111a","f":"銀座","t":"新宿(東京メトロ)","m":15},{"n":"ＪＲ山手線外回り","c":"#2de80d","f":"新宿","t":"新大久保","m":null}]},"ginza|narita":{"m":98,"f":1511,"t":1,"l":[{"n":"東京メトロ銀座線","c":"#faa428","f":"銀座","t":"日本橋(東京都)","m":3},{"n":"都営浅草線エアポート快特","c":"#f2706d","f":"日本橋(東京都)","t":"空港第２ビル(鉄道)","m":74}]},"ginza|haneda":{"m":47,"f":649,"t":1,"l":[{"n":"東京メトロ日比谷線","c":"#a59c95","f":"銀座","t":"東銀座","m":2},{"n":"都営浅草線特急","c":"#f2706d","f":"東銀座","t":"羽田空港第１・第２ターミナル(京急)","m":34}]},"akihabara|ikebukuro":{"m":20,"f":253,"t":0,"l":[{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"秋葉原","t":"池袋","m":20}]},"akihabara|roppongi":{"m":23,"f":209,"t":0,"l":[{"n":"東京メトロ日比谷線","c":"#a59c95","f":"秋葉原","t":"六本木","m":23}]},"akihabara|odaiba":{"m":32,"f":524,"t":1,"l":[{"n":"ＪＲ山手線外回り","c":"#2de80d","f":"秋葉原","t":"新橋","m":8},{"n":"ゆりかもめ","c":"#0086c0","f":"新橋","t":"台場","m":null}]},"akihabara|maihama":{"m":27,"f":431,"t":1,"l":[{"n":"東京メトロ日比谷線","c":"#a59c95","f":"秋葉原","t":"八丁堀(東京都)","m":7},{"n":"ＪＲ京葉線快速","c":"#dc3255","f":"八丁堀(東京都)","t":"舞浜","m":null}]},"akihabara|harajuku":{"m":20,"f":209,"t":1,"l":[{"n":"ＪＲ総武線","c":"#ffde00","f":"秋葉原","t":"代々木","m":17},{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"代々木","t":"原宿","m":2}]},"akihabara|oshiage":{"m":18,"f":286,"t":1,"l":[{"n":"東京メトロ日比谷線","c":"#a59c95","f":"秋葉原","t":"人形町","m":3},{"n":"都営浅草線快特","c":"#f2706d","f":"人形町","t":"押上","m":10}]},"akihabara|shinokubo":{"m":26,"f":209,"t":0,"l":[{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"秋葉原","t":"新大久保","m":26}]},"akihabara|narita":{"m":102,"f":1414,"t":1,"l":[{"n":"都営新宿線","c":"#7db941","f":"岩本町","t":"馬喰横山","m":2},{"n":"都営浅草線エアポート快特","c":"#f2706d","f":"東日本橋","t":"空港第２ビル(鉄道)","m":71}]},"akihabara|haneda":{"m":37,"f":718,"t":1,"l":[{"n":"ＪＲ京浜東北・根岸線快速","c":"#15afff","f":"秋葉原","t":"浜松町","m":8},{"n":"東京モノレール空港快速","c":"#003686","f":"浜松町","t":"羽田空港第１ターミナル(東京モノレール・ＪＡＬ利用)","m":16}]},"ikebukuro|roppongi":{"m":26,"f":377,"t":1,"l":[{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"池袋","t":"代々木","m":11},{"n":"都営大江戸線","c":"#de1876","f":"代々木","t":"六本木","m":7}]},"ikebukuro|odaiba":{"m":43,"f":777,"t":1,"l":[{"n":"ＪＲ埼京線快速","c":"#00b28b","f":"池袋","t":"東京テレポート","m":29},{"n":"ゆりかもめ","c":"#0086c0","f":"お台場海浜公園","t":"台場","m":null}]},"ikebukuro|maihama":{"m":42,"f":451,"t":1,"l":[{"n":"東京メトロ有楽町線","c":"#c5a061","f":"池袋","t":"新木場","m":32},{"n":"ＪＲ京葉線快速","c":"#dc3255","f":"新木場","t":"舞浜","m":null}]},"ikebukuro|harajuku":{"m":12,"f":209,"t":0,"l":[{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"池袋","t":"原宿","m":12}]},"ikebukuro|oshiage":{"m":39,"f":252,"t":1,"l":[{"n":"東京メトロ丸ノ内線","c":"#e3111a","f":"池袋","t":"大手町(東京都)","m":null},{"n":"東京メトロ半蔵門線","c":"#8d7eba","f":"大手町(東京都)","t":"押上","m":null}]},"ikebukuro|shinokubo":{"m":6,"f":199,"t":0,"l":[{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"池袋","t":"新大久保","m":6}]},"ikebukuro|narita":{"m":108,"f":1476,"t":2,"l":[{"n":"ＪＲ山手線外回り","c":"#2de80d","f":"池袋","t":"日暮里","m":13},{"n":"京成本線","c":"#0a69fb","f":"日暮里","t":"京成高砂","m":17},{"n":"京成成田スカイアクセス線アクセス特急","c":"#e57926","f":"京成高砂","t":"空港第２ビル(鉄道)","m":51}]},"ikebukuro|haneda":{"m":59,"f":668,"t":1,"l":[{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"池袋","t":"品川","m":28},{"n":"京急本線快特","c":"#ca273a","f":"品川","t":"羽田空港第１・第２ターミナル(京急)","m":16}]},"roppongi|odaiba":{"m":30,"f":545,"t":1,"l":[{"n":"都営大江戸線","c":"#de1876","f":"六本木","t":"汐留","m":8},{"n":"ゆりかもめ","c":"#0086c0","f":"汐留","t":"台場","m":null}]},"roppongi|maihama":{"m":35,"f":431,"t":1,"l":[{"n":"東京メトロ日比谷線","c":"#a59c95","f":"六本木","t":"八丁堀(東京都)","m":16},{"n":"ＪＲ京葉線快速","c":"#dc3255","f":"八丁堀(東京都)","t":"舞浜","m":null}]},"roppongi|harajuku":{"m":18,"f":333,"t":1,"l":[{"n":"東京メトロ日比谷線","c":"#a59c95","f":"六本木","t":"恵比寿","m":5},{"n":"ＪＲ山手線外回り","c":"#2de80d","f":"恵比寿","t":"原宿","m":null}]},"roppongi|oshiage":{"m":31,"f":317,"t":1,"l":[{"n":"東京メトロ日比谷線","c":"#a59c95","f":"六本木","t":"東銀座","m":12},{"n":"都営浅草線","c":"#f2706d","f":"東銀座","t":"押上","m":null}]},"roppongi|shinokubo":{"m":19,"f":333,"t":1,"l":[{"n":"都営大江戸線","c":"#de1876","f":"六本木","t":"代々木","m":7},{"n":"ＪＲ山手線外回り","c":"#2de80d","f":"代々木","t":"新大久保","m":null}]},"roppongi|narita":{"m":109,"f":1466,"t":1,"l":[{"n":"都営大江戸線","c":"#de1876","f":"六本木","t":"大門(東京都)","m":6},{"n":"都営浅草線エアポート快特","c":"#f2706d","f":"大門(東京都)","t":"空港第２ビル(鉄道)","m":81}]},"roppongi|haneda":{"m":45,"f":697,"t":1,"l":[{"n":"都営大江戸線","c":"#de1876","f":"六本木","t":"大門(東京都)","m":6},{"n":"東京モノレール空港快速","c":"#003686","f":"浜松町","t":"羽田空港第１ターミナル(東京モノレール・ＪＡＬ利用)","m":16}]},"odaiba|maihama":{"m":36,"f":660,"t":2,"l":[{"n":"ゆりかもめ","c":"#0086c0","f":"台場","t":"お台場海浜公園","m":null},{"n":"東京臨海高速鉄道りんかい線快速","c":"#00418e","f":"東京テレポート","t":"新木場","m":8},{"n":"ＪＲ京葉線快速","c":"#dc3255","f":"新木場","t":"舞浜","m":null}]},"odaiba|harajuku":{"m":50,"f":578,"t":1,"l":[{"n":"ゆりかもめ","c":"#0086c0","f":"台場","t":"新橋","m":null},{"n":"ＪＲ山手線外回り","c":"#2de80d","f":"新橋","t":"原宿","m":25}]},"odaiba|oshiage":{"m":42,"f":545,"t":1,"l":[{"n":"ゆりかもめ","c":"#0086c0","f":"台場","t":"新橋","m":null},{"n":"都営浅草線快速","c":"#f2706d","f":"新橋","t":"押上","m":null}]},"odaiba|shinokubo":{"m":56,"f":578,"t":1,"l":[{"n":"ゆりかもめ","c":"#0086c0","f":"台場","t":"新橋","m":null},{"n":"ＪＲ山手線外回り","c":"#2de80d","f":"新橋","t":"新大久保","m":31}]},"odaiba|narita":{"m":118,"f":1739,"t":1,"l":[{"n":"ゆりかもめ","c":"#0086c0","f":"台場","t":"新橋","m":null},{"n":"都営浅草線エアポート快特","c":"#f2706d","f":"新橋","t":"空港第２ビル(鉄道)","m":80}]},"odaiba|haneda":{"m":64,"f":866,"t":1,"l":[{"n":"ゆりかもめ","c":"#0086c0","f":"台場","t":"新橋","m":null},{"n":"都営浅草線特急","c":"#f2706d","f":"新橋","t":"羽田空港第１・第２ターミナル(京急)","m":32}]},"maihama|harajuku":{"m":47,"f":806,"t":2,"l":[{"n":"ＪＲ京葉線快速","c":"#dc3255","f":"舞浜","t":"新木場","m":4},{"n":"東京臨海高速鉄道りんかい線快速","c":"#00418e","f":"新木場","t":"恵比寿","m":25},{"n":"ＪＲ山手線外回り","c":"#2de80d","f":"恵比寿","t":"原宿","m":null}]},"maihama|oshiage":{"m":43,"f":570,"t":2,"l":[{"n":"ＪＲ京葉線快速","c":"#dc3255","f":"舞浜","t":"八丁堀(東京都)","m":10},{"n":"東京メトロ日比谷線","c":"#a59c95","f":"八丁堀(東京都)","t":"人形町","m":4},{"n":"都営浅草線","c":"#f2706d","f":"人形町","t":"押上","m":null}]},"maihama|shinokubo":{"m":60,"f":440,"t":1,"l":[{"n":"ＪＲ京葉線快速","c":"#dc3255","f":"舞浜","t":"東京","m":12},{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"東京","t":"新大久保","m":null}]},"maihama|narita":{"m":96,"f":1294,"t":1,"l":[{"n":"ＪＲ武蔵野線","c":"#dc3255","f":"舞浜","t":"東松戸","m":20},{"n":"京成成田スカイアクセス線アクセス特急","c":"#e57926","f":"東松戸","t":"空港第２ビル(鉄道)","m":44}]},"maihama|haneda":{"m":62,"f":992,"t":2,"l":[{"n":"ＪＲ京葉線","c":"#dc3255","f":"舞浜","t":"新木場","m":6},{"n":"東京臨海高速鉄道りんかい線","c":"#00418e","f":"新木場","t":"天王洲アイル","m":10},{"n":"東京モノレール","c":"#003686","f":"天王洲アイル","t":"羽田空港第１ターミナル(東京モノレール・ＪＡＬ利用)","m":20}]},"harajuku|oshiage":{"m":39,"f":252,"t":1,"l":[{"n":"東京メトロ千代田線","c":"#06914b","f":"明治神宮前","t":"表参道","m":1},{"n":"東京メトロ半蔵門線","c":"#8d7eba","f":"表参道","t":"押上","m":null}]},"harajuku|shinokubo":{"m":6,"f":199,"t":0,"l":[{"n":"ＪＲ山手線外回り","c":"#2de80d","f":"原宿","t":"新大久保","m":null}]},"harajuku|narita":{"m":125,"f":1667,"t":1,"l":[{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"原宿","t":"新橋","m":24},{"n":"都営浅草線エアポート快特","c":"#f2706d","f":"新橋","t":"空港第２ビル(鉄道)","m":80}]},"harajuku|haneda":{"m":46,"f":536,"t":1,"l":[{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"原宿","t":"品川","m":15},{"n":"京急本線快特","c":"#ca273a","f":"品川","t":"羽田空港第１・第２ターミナル(京急)","m":16}]},"oshiage|shinokubo":{"m":44,"f":407,"t":2,"l":[{"n":"東京メトロ半蔵門線","c":"#8d7eba","f":"押上","t":"九段下","m":null},{"n":"東京メトロ東西線","c":"#00afef","f":"九段下","t":"高田馬場","m":9},{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"高田馬場","t":"新大久保","m":2}]},"oshiage|narita":{"m":72,"f":1194,"t":0,"l":[{"n":"京成押上線アクセス特急","c":"#0a69fb","f":"押上","t":"空港第２ビル(鉄道)","m":60}]},"oshiage|haneda":{"m":47,"f":635,"t":0,"l":[{"n":"都営浅草線エアポート快特","c":"#f2706d","f":"押上","t":"羽田空港第１・第２ターミナル(京急)","m":null}]},"shinokubo|narita":{"m":114,"f":1261,"t":2,"l":[{"n":"ＪＲ山手線外回り","c":"#2de80d","f":"新大久保","t":"日暮里","m":null},{"n":"京成本線快速特急","c":"#0a69fb","f":"日暮里","t":"京成佐倉","m":49},{"n":"京成本線快速","c":"#0a69fb","f":"京成佐倉","t":"空港第２ビル(鉄道)","m":22}]},"shinokubo|haneda":{"m":53,"f":580,"t":1,"l":[{"n":"ＪＲ山手線内回り","c":"#2de80d","f":"新大久保","t":"品川","m":22},{"n":"京急本線快特","c":"#ca273a","f":"品川","t":"羽田空港第１・第２ターミナル(京急)","m":16}]},"narita|haneda":{"m":126,"f":1829,"t":0,"l":[{"n":"京成成田スカイアクセス線アクセス特急","c":"#e57926","f":"空港第２ビル(鉄道)","t":"羽田空港第１・第２ターミナル(京急)","m":107}]},"namba|umeda":{"m":11,"f":240,"t":0,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"なんば(地下鉄)","t":"梅田(地下鉄)","m":null}]},"namba|shinsaibashi":{"m":4,"f":190,"t":0,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"なんば(地下鉄)","t":"心斎橋","m":null}]},"namba|shinosaka":{"m":18,"f":290,"t":0,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"なんば(地下鉄)","t":"新大阪","m":null}]},"namba|osakajo":{"m":14,"f":390,"t":1,"l":[{"n":"近鉄奈良線区間準急","c":"#f7931d","f":"大阪難波","t":"鶴橋","m":null},{"n":"ＪＲ大阪環状線内回り","c":"#ff4702","f":"鶴橋","t":"大阪城公園","m":null}]},"namba|usj":{"m":22,"f":400,"t":1,"l":[{"n":"阪神なんば線快速急行","c":"#00afff","f":"大阪難波","t":"西九条","m":null},{"n":"ＪＲゆめ咲線","c":"#0a318e","f":"西九条","t":"ユニバーサルシティ","m":null}]},"namba|kansai":{"m":61,"f":970,"t":0,"l":[{"n":"南海線空港急行","c":"#0083e3","f":"なんば(南海線)","t":"関西空港(鉄道)","m":44}]},"namba|tennoji":{"m":10,"f":240,"t":0,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"なんば(地下鉄)","t":"天王寺","m":null}]},"namba|kyoto":{"m":49,"f":820,"t":1,"l":[{"n":"OsakaMetro四つ橋線","c":"#0074bf","f":"なんば(地下鉄)","t":"西梅田","m":8},{"n":"ＪＲ京都線新快速","c":"#0078c8","f":"大阪","t":"京都","m":null}]},"namba|nara":{"m":53,"f":680,"t":0,"l":[{"n":"近鉄奈良線快速急行","c":"#f7931d","f":"大阪難波","t":"近鉄奈良","m":null}]},"namba|sannomiya":{"m":47,"f":420,"t":0,"l":[{"n":"阪神なんば線快速急行","c":"#00afff","f":"大阪難波","t":"神戸三宮(阪神)","m":null}]},"namba|ebisucho":{"m":11,"f":370,"t":1,"l":[{"n":"近鉄奈良線快速急行","c":"#f7931d","f":"大阪難波","t":"近鉄日本橋","m":null},{"n":"OsakaMetro堺筋線","c":"#b34422","f":"日本橋(大阪府)","t":"恵美須町","m":null}]},"umeda|shinsaibashi":{"m":7,"f":240,"t":0,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"梅田(地下鉄)","t":"心斎橋","m":null}]},"umeda|shinosaka":{"m":6,"f":240,"t":0,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"梅田(地下鉄)","t":"新大阪","m":null}]},"umeda|osakajo":{"m":18,"f":180,"t":0,"l":[{"n":"ＪＲ関空快速","c":"#ff4702","f":"大阪","t":"京橋(大阪府)","m":null},{"n":"ＪＲ大阪環状線外回り","c":"#ff4702","f":"京橋(大阪府)","t":"大阪城公園","m":null}]},"umeda|usj":{"m":19,"f":200,"t":1,"l":[{"n":"ＪＲ大和路快速356号","c":"#ff4702","f":"大阪","t":"西九条","m":4},{"n":"ＪＲゆめ咲線","c":"#0a318e","f":"西九条","t":"ユニバーサルシティ","m":null}]},"umeda|kansai":{"m":75,"f":1210,"t":1,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"梅田(地下鉄)","t":"動物園前","m":null},{"n":"南海線空港急行","c":"#0083e3","f":"新今宮","t":"関西空港(鉄道)","m":43}]},"umeda|tennoji":{"m":16,"f":290,"t":0,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"梅田(地下鉄)","t":"天王寺","m":null}]},"umeda|kyoto":{"m":37,"f":580,"t":0,"l":[{"n":"ＪＲ京都線新快速","c":"#0078c8","f":"大阪","t":"京都","m":null}]},"umeda|nara":{"m":58,"f":840,"t":0,"l":[{"n":"ＪＲ大和路快速356号","c":"#ff4702","f":"大阪","t":"奈良","m":null}]},"umeda|sannomiya":{"m":34,"f":420,"t":0,"l":[{"n":"ＪＲ神戸線新快速","c":"#0078c8","f":"大阪","t":"三ノ宮","m":21}]},"umeda|ebisucho":{"m":20,"f":240,"t":1,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"梅田(地下鉄)","t":"動物園前","m":null},{"n":"OsakaMetro堺筋線","c":"#b34422","f":"動物園前","t":"恵美須町","m":null}]},"shinsaibashi|shinosaka":{"m":13,"f":240,"t":0,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"心斎橋","t":"新大阪","m":null}]},"shinsaibashi|osakajo":{"m":20,"f":390,"t":1,"l":[{"n":"OsakaMetro長堀鶴見緑地線","c":"#bcd400","f":"心斎橋","t":"森ノ宮","m":null},{"n":"ＪＲ大阪環状線内回り","c":"#ff4702","f":"森ノ宮","t":"大阪城公園","m":null}]},"shinsaibashi|usj":{"m":30,"f":440,"t":2,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"心斎橋","t":"梅田(地下鉄)","m":null},{"n":"ＪＲ大和路快速358号","c":"#ff4702","f":"大阪","t":"西九条","m":4},{"n":"ＪＲゆめ咲線","c":"#0a318e","f":"西九条","t":"ユニバーサルシティ","m":null}]},"shinsaibashi|kansai":{"m":64,"f":1160,"t":1,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"心斎橋","t":"なんば(地下鉄)","m":null},{"n":"南海線空港急行","c":"#0083e3","f":"なんば(南海線)","t":"関西空港(鉄道)","m":44}]},"shinsaibashi|tennoji":{"m":9,"f":240,"t":0,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"心斎橋","t":"天王寺","m":null}]},"shinsaibashi|kyoto":{"m":46,"f":820,"t":1,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"心斎橋","t":"梅田(地下鉄)","m":null},{"n":"ＪＲ京都線新快速","c":"#0078c8","f":"大阪","t":"京都","m":null}]},"shinsaibashi|nara":{"m":53,"f":750,"t":1,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"心斎橋","t":"天王寺","m":null},{"n":"ＪＲ大和路快速356号","c":"#00b478","f":"天王寺","t":"奈良","m":null}]},"shinsaibashi|sannomiya":{"m":43,"f":660,"t":1,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"心斎橋","t":"梅田(地下鉄)","m":null},{"n":"ＪＲ神戸線新快速","c":"#0078c8","f":"大阪","t":"三ノ宮","m":21}]},"shinsaibashi|ebisucho":{"m":10,"f":190,"t":1,"l":[{"n":"OsakaMetro長堀鶴見緑地線","c":"#bcd400","f":"心斎橋","t":"長堀橋","m":null},{"n":"OsakaMetro堺筋線準急","c":"#b34422","f":"長堀橋","t":"恵美須町","m":null}]},"shinosaka|osakajo":{"m":20,"f":200,"t":1,"l":[{"n":"ＪＲ京都線新快速","c":"#0078c8","f":"新大阪","t":"大阪","m":null},{"n":"ＪＲ大阪環状線外回り","c":"#ff4702","f":"大阪","t":"大阪城公園","m":null}]},"shinosaka|usj":{"m":23,"f":240,"t":2,"l":[{"n":"ＪＲ京都線快速757号","c":"#0078c8","f":"新大阪","t":"大阪","m":null},{"n":"ＪＲ大和路快速358号","c":"#ff4702","f":"大阪","t":"西九条","m":4},{"n":"ＪＲゆめ咲線","c":"#0a318e","f":"西九条","t":"ユニバーサルシティ","m":null}]},"shinosaka|kansai":{"m":82,"f":1260,"t":1,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"新大阪","t":"動物園前","m":null},{"n":"南海線空港急行","c":"#0083e3","f":"新今宮","t":"関西空港(鉄道)","m":43}]},"shinosaka|tennoji":{"m":24,"f":290,"t":0,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"新大阪","t":"天王寺","m":null}]},"shinosaka|kyoto":{"m":24,"f":580,"t":0,"l":[{"n":"ＪＲ京都線新快速","c":"#0078c8","f":"新大阪","t":"京都","m":null}]},"shinosaka|nara":{"m":62,"f":960,"t":1,"l":[{"n":"ＪＲ京都線快速757号","c":"#0078c8","f":"新大阪","t":"大阪","m":null},{"n":"ＪＲ大和路快速358号","c":"#ff4702","f":"大阪","t":"奈良","m":null}]},"shinosaka|sannomiya":{"m":32,"f":580,"t":0,"l":[{"n":"ＪＲ京都線新快速","c":"#0078c8","f":"新大阪","t":"三ノ宮","m":null}]},"shinosaka|ebisucho":{"m":28,"f":290,"t":1,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"新大阪","t":"動物園前","m":null},{"n":"OsakaMetro堺筋線","c":"#b34422","f":"動物園前","t":"恵美須町","m":null}]},"osakajo|usj":{"m":22,"f":240,"t":1,"l":[{"n":"ＪＲ大阪環状線内回り358号","c":"#ff4702","f":"大阪城公園","t":"大阪","m":null},{"n":"ＪＲ大和路快速358号","c":"#ff4702","f":"大阪","t":"西九条","m":null},{"n":"ＪＲゆめ咲線","c":"#0a318e","f":"西九条","t":"ユニバーサルシティ","m":null}]},"osakajo|kansai":{"m":75,"f":1170,"t":1,"l":[{"n":"ＪＲ大阪環状線外回り","c":"#ff4702","f":"大阪城公園","t":"新今宮","m":null},{"n":"南海線空港急行","c":"#0083e3","f":"新今宮","t":"関西空港(鉄道)","m":42}]},"osakajo|tennoji":{"m":12,"f":180,"t":0,"l":[{"n":"ＪＲ大阪環状線外回り","c":"#ff4702","f":"大阪城公園","t":"天王寺","m":null}]},"osakajo|kyoto":{"m":47,"f":840,"t":1,"l":[{"n":"ＪＲ大阪環状線内回り","c":"#ff4702","f":"大阪城公園","t":"京橋(大阪府)","m":null},{"n":"ＪＲ関空快速","c":"#ff4702","f":"京橋(大阪府)","t":"大阪","m":null},{"n":"ＪＲ京都線新快速","c":"#0078c8","f":"大阪","t":"京都","m":null}]},"osakajo|nara":{"m":49,"f":750,"t":1,"l":[{"n":"ＪＲ大阪環状線外回り","c":"#ff4702","f":"大阪城公園","t":"天王寺","m":null},{"n":"ＪＲ大和路快速356号","c":"#00b478","f":"天王寺","t":"奈良","m":null}]},"osakajo|sannomiya":{"m":44,"f":660,"t":1,"l":[{"n":"ＪＲ大阪環状線内回り","c":"#ff4702","f":"大阪城公園","t":"京橋(大阪府)","m":null},{"n":"ＪＲ関空快速","c":"#ff4702","f":"京橋(大阪府)","t":"大阪","m":null},{"n":"ＪＲ神戸線新快速","c":"#0078c8","f":"大阪","t":"三ノ宮","m":21}]},"osakajo|ebisucho":{"m":26,"f":420,"t":1,"l":[{"n":"ＪＲ大阪環状線内回り","c":"#ff4702","f":"大阪城公園","t":"天満","m":null},{"n":"OsakaMetro堺筋線準急","c":"#b34422","f":"扇町(大阪府)","t":"恵美須町","m":null}]},"usj|kansai":{"m":74,"f":1180,"t":1,"l":[{"n":"ＪＲゆめ咲線","c":"#0a318e","f":"ユニバーサルシティ","t":"西九条","m":null},{"n":"ＪＲ関空快速","c":"#ff4702","f":"西九条","t":"関西空港(鉄道)","m":61}]},"usj|tennoji":{"m":17,"f":240,"t":1,"l":[{"n":"ＪＲゆめ咲線","c":"#0a318e","f":"ユニバーサルシティ","t":"西九条","m":null},{"n":"ＪＲ関空快速","c":"#ff4702","f":"西九条","t":"天王寺","m":null}]},"usj|kyoto":{"m":52,"f":840,"t":2,"l":[{"n":"ＪＲゆめ咲線","c":"#0a318e","f":"ユニバーサルシティ","t":"西九条","m":null},{"n":"ＪＲ大和路快速361号","c":"#ff4702","f":"西九条","t":"大阪","m":4},{"n":"ＪＲ京都線新快速","c":"#0078c8","f":"大阪","t":"京都","m":null}]},"usj|nara":{"m":56,"f":840,"t":1,"l":[{"n":"ＪＲゆめ咲線","c":"#0a318e","f":"ユニバーサルシティ","t":"西九条","m":null},{"n":"ＪＲ大和路快速356号","c":"#ff4702","f":"西九条","t":"奈良","m":null}]},"usj|sannomiya":{"m":52,"f":500,"t":1,"l":[{"n":"ＪＲゆめ咲線","c":"#0a318e","f":"ユニバーサルシティ","t":"西九条","m":null},{"n":"阪神なんば線快速急行","c":"#00afff","f":"西九条","t":"神戸三宮(阪神)","m":32}]},"usj|ebisucho":{"m":27,"f":390,"t":2,"l":[{"n":"ＪＲゆめ咲線","c":"#0a318e","f":"ユニバーサルシティ","t":"西九条","m":null},{"n":"ＪＲ関空快速","c":"#ff4702","f":"西九条","t":"新今宮","m":9},{"n":"OsakaMetro堺筋線準急","c":"#b34422","f":"動物園前","t":"恵美須町","m":null}]},"kansai|tennoji":{"m":60,"f":1060,"t":0,"l":[{"n":"ＪＲ関空快速","c":"#0073be","f":"関西空港(鉄道)","t":"天王寺","m":null}]},"kansai|kyoto":{"m":124,"f":1860,"t":1,"l":[{"n":"ＪＲ関空快速","c":"#0073be","f":"関西空港(鉄道)","t":"大阪","m":71},{"n":"ＪＲ京都線新快速","c":"#0078c8","f":"大阪","t":"京都","m":null}]},"kansai|nara":{"m":104,"f":1550,"t":1,"l":[{"n":"南海空港線空港急行","c":"#0083e3","f":"関西空港(鉄道)","t":"新今宮","m":42},{"n":"ＪＲ大和路快速366号","c":"#00b478","f":"新今宮","t":"奈良","m":null}]},"kansai|sannomiya":{"m":119,"f":1680,"t":1,"l":[{"n":"ＪＲ関空快速","c":"#0073be","f":"関西空港(鉄道)","t":"大阪","m":71},{"n":"ＪＲ神戸線快速767号","c":"#0078c8","f":"大阪","t":"三ノ宮","m":27}]},"kansai|ebisucho":{"m":63,"f":1160,"t":1,"l":[{"n":"南海空港線空港急行","c":"#0083e3","f":"関西空港(鉄道)","t":"天下茶屋","m":41},{"n":"OsakaMetro堺筋線","c":"#b34422","f":"天下茶屋","t":"恵美須町","m":null}]},"tennoji|kyoto":{"m":52,"f":960,"t":1,"l":[{"n":"ＪＲ大和路快速361号","c":"#ff4702","f":"天王寺","t":"大阪","m":null},{"n":"ＪＲ京都線新快速","c":"#0078c8","f":"大阪","t":"京都","m":null}]},"tennoji|nara":{"m":33,"f":510,"t":0,"l":[{"n":"ＪＲ大和路快速354号","c":"#00b478","f":"天王寺","t":"奈良","m":null}]},"tennoji|sannomiya":{"m":57,"f":750,"t":1,"l":[{"n":"ＪＲ大阪環状線外回り","c":"#ff4702","f":"天王寺","t":"大阪","m":null},{"n":"ＪＲ神戸線快速759号","c":"#0078c8","f":"大阪","t":"三ノ宮","m":27}]},"tennoji|ebisucho":{"m":8,"f":190,"t":1,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"天王寺","t":"動物園前","m":null},{"n":"OsakaMetro堺筋線","c":"#b34422","f":"動物園前","t":"恵美須町","m":null}]},"kyoto|nara":{"m":47,"f":720,"t":0,"l":[{"n":"ＪＲみやこ路快速613号","c":"#be7832","f":"京都","t":"奈良","m":null}]},"kyoto|sannomiya":{"m":56,"f":1110,"t":0,"l":[{"n":"ＪＲ京都線新快速","c":"#0078c8","f":"京都","t":"三ノ宮","m":null}]},"kyoto|ebisucho":{"m":63,"f":940,"t":1,"l":[{"n":"ＪＲ京都線新快速23号","c":"#0078c8","f":"京都","t":"高槻","m":null},{"n":"阪急京都本線準急","c":"#592532","f":"高槻市","t":"恵美須町","m":null}]},"nara|sannomiya":{"m":86,"f":1300,"t":1,"l":[{"n":"ＪＲ大和路快速367号","c":"#00b478","f":"奈良","t":"大阪","m":null},{"n":"ＪＲ神戸線新快速","c":"#0078c8","f":"大阪","t":"三ノ宮","m":21}]},"nara|ebisucho":{"m":52,"f":770,"t":1,"l":[{"n":"ＪＲ大和路快速367号","c":"#00b478","f":"奈良","t":"新今宮","m":null},{"n":"OsakaMetro堺筋線","c":"#b34422","f":"動物園前","t":"恵美須町","m":null}]},"sannomiya|ebisucho":{"m":59,"f":790,"t":1,"l":[{"n":"阪神本線快速急行","c":"#00afff","f":"神戸三宮(阪神)","t":"近鉄日本橋","m":43},{"n":"OsakaMetro堺筋線","c":"#b34422","f":"日本橋(大阪府)","t":"恵美須町","m":null}]},"hakata|tenjin":{"m":5,"f":210,"t":0,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"博多","t":"天神","m":null}]},"hakata|fukuokaku":{"m":13,"f":260,"t":0,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"博多","t":"福岡空港(鉄道)","m":null}]},"hakata|nakasu":{"m":3,"f":210,"t":0,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"博多","t":"中洲川端","m":null}]},"hakata|ohori":{"m":9,"f":260,"t":0,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"博多","t":"大濠公園","m":null}]},"hakata|kushida":{"m":1,"f":210,"t":0,"l":[{"n":"福岡市地下鉄七隈線","c":"#0519ef","f":"博多","t":"櫛田神社前","m":null}]},"hakata|dazaifu":{"m":42,"f":630,"t":2,"l":[{"n":"福岡市地下鉄七隈線","c":"#0519ef","f":"博多","t":"薬院","m":null},{"n":"西鉄天神大牟田線特急","c":"#ef000f","f":"薬院","t":"西鉄二日市","m":13},{"n":"西鉄太宰府線","c":"#ef000f","f":"西鉄二日市","t":"太宰府","m":null}]},"hakata|meinohama":{"m":19,"f":300,"t":0,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"博多","t":"姪浜","m":null}]},"tenjin|fukuokaku":{"m":19,"f":260,"t":0,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"天神","t":"福岡空港(鉄道)","m":null}]},"tenjin|nakasu":{"m":1,"f":210,"t":0,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"天神","t":"中洲川端","m":null}]},"tenjin|ohori":{"m":3,"f":210,"t":0,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"天神","t":"大濠公園","m":null}]},"tenjin|kushida":{"m":11,"f":210,"t":0,"l":[{"n":"福岡市地下鉄七隈線","c":"#0519ef","f":"天神南","t":"櫛田神社前","m":null}]},"tenjin|dazaifu":{"m":33,"f":480,"t":1,"l":[{"n":"西鉄天神大牟田線特急","c":"#ef000f","f":"西鉄福岡","t":"西鉄二日市","m":15},{"n":"西鉄太宰府線","c":"#ef000f","f":"西鉄二日市","t":"太宰府","m":null}]},"tenjin|meinohama":{"m":13,"f":300,"t":0,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"天神","t":"姪浜","m":null}]},"fukuokaku|nakasu":{"m":17,"f":260,"t":0,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"福岡空港(鉄道)","t":"中洲川端","m":null}]},"fukuokaku|ohori":{"m":23,"f":300,"t":0,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"福岡空港(鉄道)","t":"大濠公園","m":null}]},"fukuokaku|kushida":{"m":18,"f":260,"t":1,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"福岡空港(鉄道)","t":"博多","m":5},{"n":"福岡市地下鉄七隈線","c":"#0519ef","f":"博多","t":"櫛田神社前","m":null}]},"fukuokaku|dazaifu":{"m":59,"f":740,"t":2,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"福岡空港(鉄道)","t":"天神","m":11},{"n":"西鉄天神大牟田線特急","c":"#ef000f","f":"西鉄福岡","t":"西鉄二日市","m":15},{"n":"西鉄太宰府線","c":"#ef000f","f":"西鉄二日市","t":"太宰府","m":null}]},"fukuokaku|meinohama":{"m":33,"f":340,"t":0,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"福岡空港(鉄道)","t":"姪浜","m":null}]},"nakasu|ohori":{"m":5,"f":210,"t":0,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"中洲川端","t":"大濠公園","m":null}]},"nakasu|kushida":{"m":8,"f":210,"t":1,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"中洲川端","t":"博多","m":null},{"n":"福岡市地下鉄七隈線","c":"#0519ef","f":"博多","t":"櫛田神社前","m":null}]},"nakasu|dazaifu":{"m":41,"f":690,"t":2,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"中洲川端","t":"天神","m":null},{"n":"西鉄天神大牟田線特急","c":"#ef000f","f":"西鉄福岡","t":"西鉄二日市","m":15},{"n":"西鉄太宰府線","c":"#ef000f","f":"西鉄二日市","t":"太宰府","m":null}]},"nakasu|meinohama":{"m":15,"f":300,"t":0,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"中洲川端","t":"姪浜","m":null}]},"ohori|kushida":{"m":15,"f":260,"t":1,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"大濠公園","t":"博多","m":null},{"n":"福岡市地下鉄七隈線","c":"#0519ef","f":"博多","t":"櫛田神社前","m":null}]},"ohori|dazaifu":{"m":39,"f":690,"t":2,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"大濠公園","t":"天神","m":null},{"n":"西鉄天神大牟田線特急","c":"#ef000f","f":"西鉄福岡","t":"西鉄二日市","m":15},{"n":"西鉄太宰府線","c":"#ef000f","f":"西鉄二日市","t":"太宰府","m":null}]},"ohori|meinohama":{"m":9,"f":260,"t":0,"l":[{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"大濠公園","t":"姪浜","m":null}]},"kushida|dazaifu":{"m":36,"f":630,"t":2,"l":[{"n":"福岡市地下鉄七隈線","c":"#0519ef","f":"櫛田神社前","t":"薬院","m":null},{"n":"西鉄天神大牟田線特急","c":"#ef000f","f":"薬院","t":"西鉄二日市","m":13},{"n":"西鉄太宰府線","c":"#ef000f","f":"西鉄二日市","t":"太宰府","m":null}]},"kushida|meinohama":{"m":26,"f":300,"t":1,"l":[{"n":"福岡市地下鉄七隈線","c":"#0519ef","f":"櫛田神社前","t":"博多","m":null},{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"博多","t":"姪浜","m":null}]},"dazaifu|meinohama":{"m":54,"f":780,"t":2,"l":[{"n":"西鉄太宰府線","c":"#ef000f","f":"太宰府","t":"西鉄二日市","m":null},{"n":"西鉄天神大牟田線特急","c":"#ef000f","f":"西鉄二日市","t":"西鉄福岡","m":16},{"n":"福岡市地下鉄空港線","c":"#0519ef","f":"天神","t":"姪浜","m":null}]},"namba|nihonbashi":{"m":1,"f":180,"t":0,"l":[{"n":"近鉄奈良線","c":"#f7931d","f":"大阪難波","t":"近鉄日本橋","m":null}]},"umeda|nihonbashi":{"m":17,"f":420,"t":1,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"梅田(地下鉄)","t":"なんば(地下鉄)","m":null},{"n":"近鉄奈良線区間準急","c":"#f7931d","f":"大阪難波","t":"近鉄日本橋","m":null}]},"shinsaibashi|nihonbashi":{"m":10,"f":370,"t":1,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"心斎橋","t":"なんば(地下鉄)","m":null},{"n":"近鉄奈良線区間準急","c":"#f7931d","f":"大阪難波","t":"近鉄日本橋","m":null}]},"shinosaka|nihonbashi":{"m":26,"f":290,"t":1,"l":[{"n":"OsakaMetro御堂筋線","c":"#dc2314","f":"新大阪","t":"なんば(地下鉄)","m":null},{"n":"OsakaMetro千日前線","c":"#ec74a9","f":"なんば(地下鉄)","t":"日本橋(大阪府)","m":1}]},"osakajo|nihonbashi":{"m":14,"f":310,"t":1,"l":[{"n":"ＪＲ大阪環状線外回り","c":"#ff4702","f":"大阪城公園","t":"鶴橋","m":null},{"n":"近鉄奈良線急行","c":"#f7931d","f":"鶴橋","t":"近鉄日本橋","m":null}]},"usj|nihonbashi":{"m":26,"f":580,"t":1,"l":[{"n":"ＪＲゆめ咲線","c":"#0a318e","f":"ユニバーサルシティ","t":"西九条","m":null},{"n":"阪神なんば線区間準急","c":"#00afff","f":"西九条","t":"近鉄日本橋","m":null}]},"kansai|nihonbashi":{"m":69,"f":1210,"t":1,"l":[{"n":"南海空港線空港急行","c":"#0083e3","f":"関西空港(鉄道)","t":"天下茶屋","m":41},{"n":"OsakaMetro堺筋線","c":"#b34422","f":"天下茶屋","t":"日本橋(大阪府)","m":6}]},"tennoji|nihonbashi":{"m":13,"f":310,"t":1,"l":[{"n":"ＪＲ大阪環状線内回り","c":"#ff4702","f":"天王寺","t":"鶴橋","m":null},{"n":"近鉄奈良線","c":"#f7931d","f":"鶴橋","t":"近鉄日本橋","m":null}]},"kyoto|nihonbashi":{"m":53,"f":1000,"t":2,"l":[{"n":"ＪＲ京都線新快速","c":"#0078c8","f":"京都","t":"大阪","m":null},{"n":"OsakaMetro四つ橋線","c":"#0074bf","f":"西梅田","t":"なんば(地下鉄)","m":7},{"n":"近鉄奈良線区間準急","c":"#f7931d","f":"大阪難波","t":"近鉄日本橋","m":null}]},"nara|nihonbashi":{"m":55,"f":680,"t":0,"l":[{"n":"近鉄奈良線快速急行","c":"#f7931d","f":"近鉄奈良","t":"近鉄日本橋","m":null}]},"sannomiya|nihonbashi":{"m":49,"f":600,"t":0,"l":[{"n":"阪神本線快速急行","c":"#00afff","f":"神戸三宮(阪神)","t":"近鉄日本橋","m":null}]},"ebisucho|nihonbashi":{"m":5,"f":190,"t":0,"l":[{"n":"OsakaMetro堺筋線","c":"#b34422","f":"恵美須町","t":"日本橋(大阪府)","m":null}]}};
+
+/* =========================================================
+   일본 초보여행 원클릭 해결사 — 콘텐츠 데이터
+   여기 값만 고치면 화면이 바뀝니다.
+   ========================================================= */
+
+const AD_CONFIG = {
+  enabled: true,
+  /* 슬롯별 설정: mode 'house' = 재팬마트박스 자체 배너, 'custom' = customHtml 코드, 'none' = 숨김 */
+  slots: {
+    fixed_banner: { mode: 'house' },
+    home_inline:  { mode: 'house' },
+    route_inline: { mode: 'house' },
+    tips_inline:  { mode: 'house' }
+  },
+  house: {
+    title: '재팬마트박스',
+    desc: '여행에서 사 오기 무거웠던 일본 아이템, 집에서',
+    cta: '스토어',
+    url: 'https://smartstore.naver.com/japanmartbox'
+  },
+  /* ▼ 애드센스·제휴 배너 코드는 여기에 (mode:'custom' 으로 바꾸면 들어갑니다)
+     예) customHtml.fixed_banner = '<ins class="adsbygoogle" data-ad-client="ca-pub-XXXX" ...></ins>';
+         (애드센스 로더 스크립트는 페이지 하단 AD_SLOT 주석 위치에 붙여 주세요) */
+  customHtml: {}
+};
+
+/* ---------- 노선 이름 한글화 ---------- */
+const LINE_KO = [
+  ['湘南新宿ライン','쇼난신주쿠라인'],['上野東京ライン','우에노도쿄라인'],['京浜東北','게이힌도호쿠선'],['埼京線','사이쿄선'],
+  ['山手線','야마노테선'],['中央線','주오선'],['総武線','소부선'],['京葉線','게이요선'],['武蔵野線','무사시노선'],
+  ['常磐線','조반선'],['横須賀線','요코스카선'],['南武線','난부선'],['宇都宮線','우쓰노미야선'],
+  ['銀座線','긴자선'],['丸ノ内線','마루노우치선'],['日比谷線','히비야선'],['東西線','도자이선'],['千代田線','지요다선'],
+  ['有楽町線','유라쿠초선'],['半蔵門線','한조몬선'],['南北線','난보쿠선'],['副都心線','후쿠토신선'],
+  ['浅草線','아사쿠사선'],['三田線','미타선'],['新宿線','신주쿠선'],['大江戸線','오에도선'],
+  ['御堂筋線','미도스지선'],['谷町線','다니마치선'],['四つ橋線','요쓰바시선'],['千日前線','센니치마에선'],
+  ['堺筋線','사카이스지선'],['長堀鶴見緑地線','나가호리쓰루미료쿠치선'],['大阪環状線','오사카 순환선'],
+  ['京都線','교토선'],['神戸線','고베선'],['関空快速','간쿠 쾌속'],['大和路線','야마토지선'],['ゆめ咲線','유메사키선'],
+  ['福岡市地下鉄空港線','후쿠오카 지하철 공항선'],['福岡市地下鉄七隈線','후쿠오카 지하철 나나쿠마선'],
+  ['鹿児島本線','가고시마 본선'],['太宰府線','다자이후선'],['天神大牟田線','텐진오무타선'],
+  ['東京モノレール','도쿄 모노레일'],['ゆりかもめ','유리카모메'],['りんかい線','린카이선'],
+  ['つくばエクスプレス','쓰쿠바 익스프레스'],['京成本線','게이세이 본선'],['京成押上線','게이세이 오시아게선'],
+  ['京成成田スカイアクセス線','게이세이 나리타 스카이액세스선'],['北総線','호쿠소선'],
+  ['京急本線','게이큐 본선'],['京急空港線','게이큐 공항선'],['南海空港線','난카이 공항선'],['南海線','난카이선'],
+  ['阪急','한큐'],['阪神','한신'],['近鉄','긴테쓰'],['京阪','게이한'],['南海','난카이'],['西鉄','니시테쓰'],
+  ['OsakaMetro','오사카메트로'],['都営','도에이'],['東京メトロ','도쿄메트로'],['ＪＲ','JR'],['JR','JR'],
+  ['新幹線','신칸센'],['モノレール','모노레일'],['バス','버스']
+];
+const LINE_SUFFIX = [
+  ['エアポート快特','에어포트 쾌특'],['アクセス特急','액세스 특급'],['快速特急','쾌속특급'],['快速急行','쾌속급행'],
+  ['新快速','신쾌속'],['通勤快速','통근쾌속'],['各駅停車','각역정차'],['快速','쾌속'],['急行','급행'],['特急','특급'],
+  ['内回り','내선순환'],['外回り','외선순환'],['方面','방면'],['当駅始発','이 역 출발']
+];
+
+/* ---------- 공항별 가이드 ---------- */
+const AIRPORTS = [
+  {
+    id: 'narita', ko: '나리타공항', em: '🛬', note: '도쿄까지 60km. 우에노·아사쿠사(동쪽)면 스카이라이너, 신주쿠·시부야(서쪽)면 N’EX가 편해요.',
+    opts: [
+      { t: '스카이라이너 (게이세이)', time: '닛포리 36분 · 우에노 41분', fare: '2,580엔 (온라인 2,310엔)', memo: '전석 지정. 짐 공간 넉넉, 우에노·아사쿠사 숙소 최적' },
+      { t: 'N’EX 나리타 익스프레스 (JR)', time: '도쿄역 53분 · 신주쿠 약 80분', fare: '도쿄 3,140엔 · 신주쿠/시부야 3,330엔', memo: '외국인 왕복권 5,200엔. 환승 없이 서쪽 숙소까지' },
+      { t: 'JR 총무선 쾌속 (저렴)', time: '도쿄역 약 97분', fare: '1,408엔', memo: '환승 0회, 가장 저렴. 좌석은 보통 전철' },
+      { t: '리무진 버스', time: '도로 상황에 따라 75~100분', fare: '1,300~3,600엔', memo: '호텔 앞 정류장. 캐리어 많을 때 편함' }
+    ]
+  },
+  {
+    id: 'haneda', ko: '하네다공항', em: '🛬', note: '도쿄 도심에서 가까워요. 시나가와·아사쿠사는 게이큐, 하마마쓰초·롯폰기는 모노레일.',
+    opts: [
+      { t: '게이큐 공항선', time: '시나가와 약 15분 · 아사쿠사 직통 40분대', fare: '시나가와 약 300엔 · 아사쿠사 635엔', memo: '아사쿠사·니혼바시·시나가와까지 직통 다수' },
+      { t: '도쿄 모노레일', time: '하마마쓰초 13분', fare: '약 500엔', memo: 'JR 환승 편함. 창가 자리에서 도쿄 풍경' },
+      { t: '리무진 버스', time: '신주쿠·시부야 40~60분', fare: '1,000~1,400엔', memo: '큰 짐이면 버스가 편해요' }
+    ]
+  },
+  {
+    id: 'kansai', ko: '간사이공항', em: '🛬', note: '난바(남쪽)는 난카이, 우메다·교토(북쪽)는 JR 하루카로 갈라져요.',
+    opts: [
+      { t: '라피트 (난카이)', time: '난바 34~38분', fare: '1,670엔 (디지털 1,410엔)', memo: '전석 지정. 난바·도톤보리 숙소면 이걸' },
+      { t: '난카이 공항급행', time: '난바 약 45분', fare: '970엔', memo: '가장 저렴. 좌석은 자유석' },
+      { t: '하루카 (JR)', time: '덴노지 32분 · 오사카/신오사카 50분 · 교토 80분', fare: '1,600 / 1,900 / 2,700엔', memo: '외국인 할인권은 해외에서 미리 구매 (일본 내 판매 없음)' },
+      { t: '리무진 버스', time: '난바 50분 · 우메다 60분', fare: '난바 1,400엔 · 우메다 1,800엔', memo: '환승 없이 앉아서. 짐 많을 때' }
+    ]
+  },
+  {
+    id: 'fukuoka', ko: '후쿠오카공항', em: '🛬', note: '공항과 시내가 붙어 있어요. 지하철 2정거장이면 하카타.',
+    opts: [
+      { t: '지하철 공항선', time: '하카타 5분 · 텐진 11분', fare: '260엔', memo: '공항 국내선 터미널 지하로 바로 연결' },
+      { t: '택시', time: '하카타 15분', fare: '1,500~2,000엔', memo: '짐이 많거나 3인 이상이면' }
+    ]
+  }
+];
+
+/* ---------- 말하기 카드 ---------- */
+const PHRASE_CATS = [
+  { id: 'eat', ko: '식당·카페', em: '🍜' },
+  { id: 'shop', ko: '편의점·쇼핑', em: '🛒' },
+  { id: 'move', ko: '길·지하철', em: '🚇' },
+  { id: 'hotel', ko: '호텔', em: '🏨' },
+  { id: 'help', ko: '응급·분실', em: '🆘' }
+];
+
+const PHRASES = [
+  /* 식당·카페 */
+  { c:'eat', jp:'すみません、一人です。', kr:'스미마센, 히토리데스', ko:'저기요, 한 명이에요.' },
+  { c:'eat', jp:'二人です。', kr:'후타리데스', ko:'두 명이에요.' },
+  { c:'eat', jp:'予約していませんが、大丈夫ですか？', kr:'요야쿠 시테이마센가, 다이조부데스카', ko:'예약 안 했는데 괜찮아요?' },
+  { c:'eat', jp:'これ、ください。', kr:'코레, 쿠다사이', ko:'이거 주세요. (메뉴를 손가락으로)' },
+  { c:'eat', jp:'おすすめは何ですか？', kr:'오스스메와 난데스카', ko:'추천 메뉴가 뭐예요?' },
+  { c:'eat', jp:'お水をください。', kr:'오미즈오 쿠다사이', ko:'물 좀 주세요.' },
+  { c:'eat', jp:'お会計をお願いします。', kr:'오카이케이오 오네가이시마스', ko:'계산해 주세요.' },
+  { c:'eat', jp:'カードは使えますか？', kr:'카도와 쓰카에마스카', ko:'카드 되나요?' },
+  { c:'eat', jp:'持ち帰りできますか？', kr:'모치카에리 데키마스카', ko:'포장(테이크아웃) 되나요?' },
+  { c:'eat', jp:'アレルギーがあります。', kr:'아레루기-가 아리마스', ko:'알레르기가 있어요.' },
+
+  /* 편의점·쇼핑 */
+  { c:'shop', jp:'これ、温めてもらえますか？', kr:'코레, 아타타메테 모라에마스카', ko:'이거 데워 주실 수 있어요?' },
+  { c:'shop', jp:'袋をください。', kr:'후쿠로오 쿠다사이', ko:'봉투 주세요. (유료 3엔~)' },
+  { c:'shop', jp:'現金で払います。', kr:'겐킨데 하라이마스', ko:'현금으로 낼게요.' },
+  { c:'shop', jp:'免税できますか？', kr:'멘제이 데키마스카', ko:'면세 되나요?' },
+  { c:'shop', jp:'これはいくらですか？', kr:'코레와 이쿠라데스카', ko:'이거 얼마예요?' },
+  { c:'shop', jp:'試着してもいいですか？', kr:'시챠쿠 시테모 이이데스카', ko:'입어봐도 되나요?' },
+  { c:'shop', jp:'大きいサイズはありますか？', kr:'오키이 사이즈와 아리마스카', ko:'큰 사이즈 있어요?' },
+  { c:'shop', jp:'別々でお願いします。', kr:'베쓰베쓰데 오네가이시마스', ko:'따로따로 계산해 주세요.' },
+  { c:'shop', jp:'レシートをください。', kr:'레시-토오 쿠다사이', ko:'영수증 주세요.' },
+
+  /* 길·지하철 */
+  { c:'move', jp:'すみません、道に迷いました。', kr:'스미마센, 미치니 마요이마시타', ko:'저기요, 길을 잃었어요.' },
+  { c:'move', jp:'この電車は新宿に行きますか？', kr:'코노 덴샤와 신주쿠니 이키마스카', ko:'이 열차 신주쿠 가나요?' },
+  { c:'move', jp:'駅はどこですか？', kr:'에키와 도코데스카', ko:'역이 어디예요?' },
+  { c:'move', jp:'切符を買いたいです。', kr:'킷푸오 카이타이데스', ko:'표를 사고 싶어요.' },
+  { c:'move', jp:'乗り換えはどこですか？', kr:'노리카에와 도코데스카', ko:'환승은 어디서 해요?' },
+  { c:'move', jp:'この電車は各駅停車ですか？', kr:'코노 덴샤와 가쿠에키 테이샤데스카', ko:'이 열차 각역정차예요?' },
+  { c:'move', jp:'何番線ですか？', kr:'난반센데스카', ko:'몇 번 승강장이에요?' },
+  { c:'move', jp:'ここで降ります。', kr:'코코데 오리마스', ko:'여기서 내릴게요.' },
+  { c:'move', jp:'タクシーを呼んでもらえますか？', kr:'타쿠시-오 욘데 모라에마스카', ko:'택시 좀 불러 주시겠어요?' },
+  { c:'move', jp:'写真を撮ってもらえますか？', kr:'샤신오 톳테 모라에마스카', ko:'사진 좀 찍어 주시겠어요?' },
+
+  /* 호텔 */
+  { c:'hotel', jp:'チェックインをお願いします。', kr:'체쿠인오 오네가이시마스', ko:'체크인할게요.' },
+  { c:'hotel', jp:'荷物を預かってもらえますか？', kr:'니모쓰오 아즈캇테 모라에마스카', ko:'짐 좀 맡아 주실 수 있어요?' },
+  { c:'hotel', jp:'Wi-Fiのパスワードは何ですか？', kr:'와이파이노 파스와-도와 난데스카', ko:'와이파이 비밀번호가 뭐예요?' },
+  { c:'hotel', jp:'チェックアウトは何時ですか？', kr:'체쿠아우토와 난지데스카', ko:'체크아웃 몇 시예요?' },
+  { c:'hotel', jp:'タオルをもう一枚ください。', kr:'타오루오 모- 이치마이 쿠다사이', ko:'수건 한 장 더 주세요.' },
+  { c:'hotel', jp:'お湯が出ません。', kr:'오유가 데마센', ko:'온수가 안 나와요.' },
+  { c:'hotel', jp:'部屋の鍵をなくしました。', kr:'헤야노 카기오 나쿠시마시타', ko:'방 열쇠를 잃어버렸어요.' },
+  { c:'hotel', jp:'空港までのバスはありますか？', kr:'쿠-코-마데노 바스와 아리마스카', ko:'공항 가는 버스 있어요?' },
+
+  /* 응급·분실 */
+  { c:'help', jp:'助けてください！', kr:'타스케테 쿠다사이', ko:'도와주세요!' },
+  { c:'help', jp:'救急車を呼んでください。', kr:'큐-큐-샤오 욘데 쿠다사이', ko:'구급차를 불러 주세요.' },
+  { c:'help', jp:'気分が悪いです。', kr:'키분가 와루이데스', ko:'몸이 안 좋아요.' },
+  { c:'help', jp:'病院はどこですか？', kr:'뵤-인와 도코데스카', ko:'병원이 어디예요?' },
+  { c:'help', jp:'薬局はどこですか？', kr:'야쿠쿄쿠와 도코데스카', ko:'약국이 어디예요?' },
+  { c:'help', jp:'財布をなくしました。', kr:'사이후오 나쿠시마시타', ko:'지갑을 잃어버렸어요.' },
+  { c:'help', jp:'パスポートをなくしました。', kr:'파스포-토오 나쿠시마시타', ko:'여권을 잃어버렸어요.' },
+  { c:'help', jp:'交番はどこですか？', kr:'코-반와 도코데스카', ko:'파출소가 어디예요?' },
+  { c:'help', jp:'韓国語が話せる人はいますか？', kr:'칸코쿠고가 하나세루 히토와 이마스카', ko:'한국어 하시는 분 계세요?' }
+];
+
+/* 상대방(일본인) 쪽 답변 버튼 */
+const REPLIES = [
+  { jp:'はい', kr:'하이', ko:'네' },
+  { jp:'いいえ', kr:'이이에', ko:'아니요' },
+  { jp:'少々お待ちください', kr:'쇼-쇼- 오마치 쿠다사이', ko:'잠시만 기다려 주세요' },
+  { jp:'現金のみです', kr:'겐킨노미데스', ko:'현금만 됩니다' },
+  { jp:'カードで大丈夫です', kr:'카-도데 다이조부데스', ko:'카드 괜찮아요' },
+  { jp:'わかりました', kr:'와카리마시타', ko:'알겠습니다' },
+  { jp:'もう一度お願いします', kr:'모- 이치도 오네가이시마스', ko:'다시 한 번 말해 주세요' },
+  { jp:'日本語がわかりません', kr:'니혼고가 와카리마센', ko:'일본어를 몰라요' }
+];
+
+/* 마주보기 하단 빠른 문장 */
+const SPLIT_QUICK = ['food','water','bill','card','taxfree','bag','hot','toilet','ticket','transfer','luggage','help'];
+const SPLIT_PHRASES = [
+  { k:'food', jp:'これ、ください。', kr:'코레, 쿠다사이', ko:'이거 주세요' },
+  { k:'water', jp:'お水をください。', kr:'오미즈오 쿠다사이', ko:'물 주세요' },
+  { k:'bill', jp:'お会計をお願いします。', kr:'오카이케이오 오네가이시마스', ko:'계산해 주세요' },
+  { k:'card', jp:'カードは使えますか？', kr:'카도와 쓰카에마스카', ko:'카드 되나요?' },
+  { k:'taxfree', jp:'免税できますか？', kr:'멘제이 데키마스카', ko:'면세 되나요?' },
+  { k:'bag', jp:'袋をください。', kr:'후쿠로오 쿠다사이', ko:'봉투 주세요' },
+  { k:'hot', jp:'温めてもらえますか？', kr:'아타타메테 모라에마스카', ko:'데워 주실 수 있어요?' },
+  { k:'toilet', jp:'トイレはどこですか？', kr:'토이레와 도코데스카', ko:'화장실이 어디예요?' },
+  { k:'ticket', jp:'切符を買いたいです。', kr:'킷푸오 카이타이데스', ko:'표를 사고 싶어요' },
+  { k:'transfer', jp:'乗り換えはどこですか？', kr:'노리카에와 도코데스카', ko:'환승은 어디서 해요?' },
+  { k:'luggage', jp:'荷物を預かってもらえますか？', kr:'니모쓰오 아즈캇테 모라에마스카', ko:'짐을 맡길 수 있어요?' },
+  { k:'help', jp:'助けてください！', kr:'타스케테 쿠다사이', ko:'도와주세요!' }
+];
+
+/* ---------- 현지 팁 ---------- */
+const TIPS = [
+  { em:'🧾', t:'면세는 2026년 11월부터 방식이 바뀌었어요', d:'매장에서 세금 포함 가격으로 결제한 뒤, 출국 때 공항 세관 확인(키오스크 또는 Visit Japan Web)을 거쳐 환급받아요. 기준은 그대로 세전 5,000엔 이상(같은 날·같은 매장).' },
+  { em:'🛂', t:'세관 확인은 짐 부치기 전에', d:'면세품을 위탁수하물로 보내기 전에 확인을 받아야 해요. 여권(또는 VJW QR)과 물품이 필요하고, 구매일로부터 90일 안에 출국해야 합니다.' },
+  { em:'🧳', t:'코인락커', d:'역마다 300~700엔, IC 카드로 결제되는 곳이 많아요. 3일 넘기면 회수되니 주의. 큰 캐리어는 500~800엔 칸에 들어가요.' },
+  { em:'🔌', t:'전압은 100V, 플러그는 A형', d:'한국 220V 제품은 변압기가 필요하고, 고데기·드라이기는 110V 겸용 표기를 확인하세요. 평평한 2핀이라 ‘돼지코’ 하나면 됩니다.' },
+  { em:'🚮', t:'쓰레기통이 거의 없어요', d:'작은 봉투를 챙기고, 편의점·역 쓰레기통을 이용하세요. 길거리 흡연은 과태료가 붙는 구역이 많고 흡연부스만 허용됩니다.' },
+  { em:'🪙', t:'동전은 IC 카드로 정리', d:'1·5·10·50·100·500엔. 1엔·5엔은 자판기에 안 들어가는 경우가 많아요. 계산대에서는 돈을 트레이 위에 올려 주세요.' },
+  { em:'🛗', t:'에스컬레이터는 도쿄·오사카가 반대', d:'도쿄는 왼쪽에 서고 오른쪽을 비워요(급한 사람 통로). 오사카는 반대(오른쪽 서기)예요. 헷갈리면 앞사람을 따라가면 됩니다.' },
+  { em:'💴', t:'팁은 없어요', d:'계산은 카운터에서. 물과 오시보리(물수건)는 무료이고, 대부분 매장 입구에서 주문·선결제하는 곳도 있어요.' },
+  { em:'🏪', t:'편의점이 최고의 식당', d:'오니기리·도시락·카라아게·아이스크림. 계산대 옆 온열 진열대(호빵·군고구마)도 맛있어요. 봉투는 유료(3엔~).' },
+  { em:'🚉', t:'지하철에서는 조용히', d:'통화는 자제하고, 우선석 근처에서는 전화를 피하세요. 큰 캐리어는 맨 앞·맨 뒤 칸이 편해요.' },
+  { em:'🚕', t:'택시는 문이 자동', d:'손으로 문을 열지 않아요. 뒷자리에 타고 목적지 역 이름이나 지도를 보여주세요. 카드 결제는 대부분 됩니다.' },
+  { em:'📶', t:'인터넷은 eSIM이 간편', d:'공항 와이파이는 불안정해요. 출발 전 eSIM을 설치하면 도착 즉시 지도·번역을 쓸 수 있어요.' }
+];
+
+/* ---------- 동네 가이드 ---------- */
+const HOODS = {
+  tokyo: [
+    { nm:'신주쿠', jp:'新宿', d:'교통·쇼핑·먹자골목의 중심. 밤에도 활기차고 첫 숙소로 무난해요.' },
+    { nm:'시부야', jp:'渋谷', d:'스크램블 교차로와 젊은 거리. 쇼핑몰과 야경이 강해요.' },
+    { nm:'하라주쿠', jp:'原宿', d:'다케시타 거리·카페·빈티지. 시부야와 걸어서 이어져요.' },
+    { nm:'아사쿠사', jp:'浅草', d:'센소지·전통 상점가. 우에노·스카이트리와 가까워요.' },
+    { nm:'우에노', jp:'上野', d:'공원·박물관·아메요코 시장. 공항에서 오기 편해요.' },
+    { nm:'긴자', jp:'銀座', d:'백화점·브랜드·조용한 카페. 예산이 넉넉할 때.' },
+    { nm:'아키하바라', jp:'秋葉原', d:'애니·전자·중고 게임. 취향 맞으면 하루가 짧아요.' },
+    { nm:'오다이바', jp:'お台場', d:'바다·건담·전망. 저녁 노을이 예뻐요.' }
+  ],
+  osaka: [
+    { nm:'난바·도톤보리', jp:'難波', d:'글리코 간판·타코야키·쇼핑. 첫 숙소로 가장 편해요.' },
+    { nm:'우메다', jp:'梅田', d:'대형 쇼핑몰과 공중정원. 교토·고베로 가기 좋아요.' },
+    { nm:'신사이바시', jp:'心斎橋', d:'약국·패션·먹거리. 난바와 이어져 걸어 다닐 만해요.' },
+    { nm:'텐노지', jp:'天王寺', d:'하루카스 전망대·동물원. 공항 접근이 편해요.' },
+    { nm:'신세카이', jp:'新世界', d:'쓰텐카쿠·쿠시카쓰. 복고적인 오사카 분위기.' },
+    { nm:'유니버설시티', jp:'USJ', d:'유니버설 스튜디오 재팬. 아침 일찍 출발하세요.' }
+  ],
+  fukuoka: [
+    { nm:'하카타', jp:'博多', d:'라멘·역·쇼핑. 공항에서 5분이에요.' },
+    { nm:'텐진', jp:'天神', d:'백화점·카페·쇼핑의 중심.' },
+    { nm:'나카스', jp:'中洲', d:'야타이(포장마차)와 밤거리. 하카타강 산책도 좋아요.' },
+    { nm:'다자이후', jp:'太宰府', d:'텐만구 신사·매화떡. 반나절 나들이로 딱.' }
+  ],
+  kyoto: [
+    { nm:'기온', jp:'祇園', d:'전통 거리·찻집. 저녁 산책이 좋아요.' },
+    { nm:'후시미이나리', jp:'伏見稲荷', d:'붉은 토리이 터널. 아침 일찍 가면 한적해요.' },
+    { nm:'아라시야마', jp:'嵐山', d:'대나무숲·강변. 반나절 코스로 인기.' }
+  ]
+};
+const HOOD_CITY = [
+  { id:'tokyo', ko:'도쿄' }, { id:'osaka', ko:'오사카' },
+  { id:'fukuoka', ko:'후쿠오카' }, { id:'kyoto', ko:'교토' }
+];
+
+/* ---------- 쇼핑 인기템 ---------- */
+const SHOP_CATS = [
+  { em:'🍫', t:'과자·간식', items:[
+    ['시로이 코이비토', '白い恋人', '홋카이도 대표 과자. 면세점·공항에서 낱개 포장'],
+    ['도쿄 바나나', '東京ばな奈', '바나나 크림. 유통기한이 짧아 마지막 날 사세요'],
+    ['로이스 초콜릿', 'ロイズ', '생초콜릿은 냉장 필수. 공항 면세점이 편해요'],
+    ['킷캣 지역 한정', 'KitKat', '말차·사케 등 지역판. 선물용으로 가볍고 좋아요'],
+    ['폭신 초콜릿', 'とろけるチョコ', '편의점 인기. 여름엔 녹으니 주의']
+  ]},
+  { em:'🍵', t:'차·말차', items:[
+    ['이토엔 오이오차 티백', '伊藤園 お〜いお茶', '가볍고 실패 없는 기본 녹차'],
+    ['말차 파우더', '抹茶', '라떼용·제과용 구분 확인. 봉투형이 편해요'],
+    ['호지차', 'ほうじ茶', '고소한 맛. 커피 대신 마시기 좋아요'],
+    ['드립 커피', 'ドリップコーヒー', '일본 로스터리 제품이 편의점에도 있어요']
+  ]},
+  { em:'🍙', t:'편의점·즉석', items:[
+    ['오니기리 참치마요', 'ツナマヨおにぎり', '가장 무난한 한 끼. 110~160엔대'],
+    ['세븐 카라아게', 'セブン からあげ', '따뜻할 때 바로 먹기. 봉투 필요'],
+    ['로손 L치키', 'Lチキ', '편의점 치킨 대표. 매장별 한정 소스도'],
+    ['타마고 샌드', 'たまごサンド', '달걀 샌드위치. 아침에 인기'],
+    ['멜론빵·아이스', 'メロンパン', '편의점 디저트는 실패가 적어요']
+  ]},
+  { em:'🍶', t:'주류·위스키', items:[
+    ['산토리 가쿠빈', '角瓶', '가장 흔하고 무난한 하이볼용. 대형마트가 저렴'],
+    ['니카 프롬 더 배럴', 'ニッカ フロム・ザ・バレル', '가성비 좋은 블렌디드. 선물용 인기'],
+    ['하쿠슈·야마자키', '白州・山崎', '재고가 적고 가격이 높아요. 매장 확인 필수'],
+    ['우메슈·사케', '梅酒・日本酒', '달콤한 우메슈가 초보에게 무난. 냉장 보관']
+  ]},
+  { em:'💊', t:'드럭스토어', items:[
+    ['훼로리 S', 'フェロリS', '철분제. 성분·복용법은 상담 후'],
+    ['멘소래담 립', 'メンソレータム', '건조한 비행기에서 유용'],
+    ['로토 안약', 'ロート', '쿠ール타입은 상쾌함이 강해요'],
+    ['비오레·시세이도', 'ビオレ・資生堂', '여행용 소용량이 가볍고 좋아요'],
+    ['캔메이크', 'CANMAKE', '가성비 화장품. 한국보다 저렴한 편']
+  ]},
+  { em:'✏️', t:'문구·생활', items:[
+    ['유니볼·파이롯드', 'ユニボール・パイロット', '필기감 좋은 펜. 문구점·편의점'],
+    ['다이소', 'ダイソー', '110엔 균일가. 주방·수납 소품'],
+    ['무인양품', '無印良品', '간결한 생활용품. 면세 계산대 확인'],
+    ['킨토 물병', 'KINTO', '디자인 좋은 물병·텀블러. 무거우니 주의']
+  ]}
+];
+
+/* ---------- 면세 환급 절차 ---------- */
+const REFUND_OPTS = [
+  {
+    id: 'pre', ko: '사전 등록', em: '⚡',
+    title: '상점에서 미리 등록 → 공항에서 5초 마무리',
+    steps: [
+      { b: '상점에서 “택스리펀” 요청', p: '계산 전에 여권을 보여주고 면세로 계산해 달라고 하세요. 이제는 세금 포함 가격으로 결제하고 나중에 돌려받는 방식이에요.', jp: '免税でお願いします' },
+      { b: '영수증의 QR코드 받기', p: '면세 계산 후 환급 대행사 사이트·앱용 QR이 찍힌 영수증을 받아요. 종이 영수증을 버리지 마세요.' },
+      { b: '미리 등록 — 환급 카드 정보 입력', p: 'QR을 스캔해 구매 내역을 확인하고, 환급받을 카드 정보를 미리 넣어 두면 공항에서 기다릴 일이 줄어요.' },
+      { b: '공항 키오스크에서 여권 스캔', p: '출국 전 면세 환급 키오스크에 여권을 대면 등록한 내역이 뜨고, 화면 안내대로 누르면 끝. 초록 판정이면 완료, 빨강이면 세관 검사대로 가요.' }
+    ]
+  },
+  {
+    id: 'vjw', ko: 'Visit Japan Web', em: '📱',
+    title: '공항에서 Visit Japan Web으로 한 번에',
+    steps: [
+      { b: '공항 무료 와이파이 연결', p: '국제선 출발 로비의 전용 Wi-Fi(면세 수속용)에 연결해요. 일반 데이터로는 수속이 안 될 수 있어요.' },
+      { b: 'Visit Japan Web 접속 → 로그인', p: '출국 전에 만들어 둔 계정으로 들어가요. 미리 등록해 두면 여기서 시간이 크게 줄어요.' },
+      { b: '‘면세 구입·환급 수속’ 선택', p: '메뉴에서 免税購入・還付手続(면세 구입·환급 수속)을 눌러요.' },
+      { b: '상륙허가증(입국 QR) 등록 확인', p: '입국 때 쓴 상륙 허가 정보를 불러와 본인 확인을 해요.' },
+      { b: '환급 수속 → 내역 확인 → Confirm', p: '구매 내역을 확인하고 Confirm을 누르면 세관 확인이 끝나요. 초록 판정이면 그대로 출국, 빨강이면 세관 검사장에서 물건을 보여주세요.' }
+    ]
+  }
+];
+</script>
+<script>
+/* =========================================================
+   일본 초보여행 원클릭 해결사 — 앱 로직 (vanilla JS)
+   ========================================================= */
+(function () {
+  'use strict';
+
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
+  const fmt = (n) => Math.round(n).toLocaleString('ko-KR');
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  };
+
+  let toastTimer = null;
+  function toast(msg) {
+    const el = $('#toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  /* ---------------- 음성 ---------------- */
+  const canSpeak = typeof window.speechSynthesis !== 'undefined' && typeof window.SpeechSynthesisUtterance !== 'undefined';
+  let jaVoice = null;
+  function pickVoice() {
+    if (!canSpeak) return;
+    const vs = window.speechSynthesis.getVoices() || [];
+    jaVoice = vs.filter(v => /^ja([-_]|$)/i.test(v.lang)).sort((a, b) => (b.localService === true) - (a.localService === true))[0] || null;
+  }
+  if (canSpeak) {
+    pickVoice();
+    if (typeof window.speechSynthesis.addEventListener === 'function') {
+      window.speechSynthesis.addEventListener('voiceschanged', pickVoice);
+    } else {
+      window.speechSynthesis.onvoiceschanged = pickVoice;
+    }
+  }
+  function speakJa(text, rate) {
+    if (!canSpeak) { toast('이 브라우저는 음성 읽기를 지원하지 않아요. 큰 글씨를 보여주세요.'); return; }
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'ja-JP';
+      u.rate = rate || 0.92;
+      u.pitch = 1;
+      if (jaVoice) u.voice = jaVoice;
+      window.speechSynthesis.speak(u);
+      if (!jaVoice) setTimeout(pickVoice, 300);
+    } catch (e) {
+      toast('음성을 재생하지 못했어요. 폰 설정에서 일본어 음성을 확인해 주세요.');
+    }
+  }
+
+  /* ---------------- 노선 이름 ---------------- */
+  function lineKo(name) {
+    if (!name) return '';
+    let s = String(name).replace(/ＪＲ/g, 'JR');
+    s = s.replace('中央・青梅線', '주오·오메선')
+         .replace('京浜東北・根岸線', '게이힌도호쿠·네기시선')
+         .replace('京浜東北線', '게이힌도호쿠선')
+         .replace('東海道本線', '도카이도 본선')
+         .replace('琵琶湖線', '비와코선')
+         .replace('関西本線', '간사이 본선')
+         .replace('山陽本線', '산요 본선')
+         .replace('阪神なんば線', '한신 난바선')
+         .replace('近鉄なんば線', '긴테쓰 난바선')
+         .replace('なんば線', '난바선');
+    const sorted = LINE_KO.slice().sort((a, b) => b[0].length - a[0].length);
+    sorted.forEach(p => { if (s.indexOf(p[0]) > -1) s = s.split(p[0]).join(p[1]); });
+    LINE_SUFFIX.forEach(p => { s = s.split(p[0]).join(p[1]); });
+    s = s.replace(/(선|라인)(쾌속급행|쾌속|급행|특급|각역정차|쾌특|방면)/g, '$1 $2');
+    s = s.replace(/\s+/g, ' ').trim();
+    s = s.replace(/^(JR|도에이|도쿄메트로|오사카메트로|난카이|긴테쓰|한큐|한신|게이한|니시테쓰|게이세이|게이큐|도부|세이부|게이오|오다큐)(?=\S)/, '$1 ');
+    return s;
+  }
+  function stName(jp) {
+    if (!jp) return '';
+    const ko = ST_KO[jp];
+    return ko && ko !== jp ? ko + '(' + jp + ')' : jp;
+  }
+
+  /* ---------------- 탭 ---------------- */
+  const TABS = ['home', 'ticket', 'route', 'talk', 'shop', 'tips'];
+  function go(tab, push) {
+    if (TABS.indexOf(tab) < 0) tab = 'home';
+    $$('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + tab));
+    $$('.tabbar button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+    if (push !== false) {
+      try { history.replaceState(null, '', '#' + tab); } catch (e) {}
+    }
+    window.scrollTo(0, 0);
+  }
+  $$('.tabbar button').forEach(b => b.addEventListener('click', () => go(b.dataset.tab)));
+  $$('[data-goto]').forEach(el => el.addEventListener('click', () => go(el.dataset.goto)));
+
+  /* ---------------- 홈 퀵 ---------------- */
+  const QUICK = [
+    { ic: '🎫', t: '매표기 5단계', s: '표 끊기 화면 순서 그대로', go: 'ticket' },
+    { ic: '🚇', t: '신주쿠 → 시부야', s: '4분 · 199엔 · 환승 0회', go: 'route' },
+    { ic: '🤝', t: '마주보기 모드', s: '점원·호텔 직원과 대화', split: 1 },
+    { ic: '💴', t: '5,500엔은 몇 원?', s: '계산 + 면세 판정', go: 'shop' }
+  ];
+  $('#homeQuick').innerHTML = QUICK.map((q, i) =>
+    '<button class="qrow" data-q="' + i + '" style="width:100%;text-align:left">' +
+      '<span class="ic">' + q.ic + '</span>' +
+      '<span class="tx"><b>' + q.t + '</b><span>' + q.s + '</span></span>' +
+      '<span class="ar">›</span></button>'
+  ).join('');
+  $$('#homeQuick .qrow').forEach(btn => btn.addEventListener('click', () => {
+    const q = QUICK[+btn.dataset.q];
+    if (q.split) openSplit(); else go(q.go);
+  }));
+
+  /* ---------------- 광고 슬롯 ---------------- */
+  function inlineHouse() {
+    const h = AD_CONFIG.house;
+    return '<a class="ad-house" href="' + h.url + '" target="_blank" rel="noopener">' +
+      '<span class="mark">J</span>' +
+      '<span class="tx"><b>' + h.title + ' — ' + h.desc + '</b><span>일본 구매대행 · 스마트스토어</span></span>' +
+      '<span class="go">' + h.cta + '</span></a>';
+  }
+  function fixedHouse() {
+    const h = AD_CONFIG.house;
+    return '<div class="inner">' +
+      '<button class="x" id="adClose" aria-label="배너 닫기">✕</button>' +
+      '<span class="mark">J</span>' +
+      '<span class="tx"><b>' + h.title + '</b><span>' + h.desc + '</span></span>' +
+      '<a class="go" href="' + h.url + '" target="_blank" rel="noopener">' + h.cta + '</a></div>';
+  }
+  function renderAds() {
+    if (!AD_CONFIG || AD_CONFIG.enabled === false) return;
+    $$('[data-ad-slot]').forEach(el => {
+      const key = el.dataset.adSlot;
+      const cfg = (AD_CONFIG.slots || {})[key];
+      if (!cfg || cfg.mode === 'none') return;
+      if (cfg.mode === 'custom' && AD_CONFIG.customHtml && AD_CONFIG.customHtml[key]) {
+        el.innerHTML = AD_CONFIG.customHtml[key];
+        el.classList.add('show');
+        el.removeAttribute('aria-hidden');
+        return;
+      }
+      el.innerHTML = key === 'fixed_banner' ? fixedHouse() : inlineHouse();
+      el.classList.add('show');
+      el.removeAttribute('aria-hidden');
+      if (key === 'fixed_banner') {
+        const hidden = store.get('jmb.adHidden', false);
+        if (!hidden) {
+          el.classList.add('show');
+          document.body.classList.add('has-adbar');
+        } else {
+          el.classList.remove('show');
+        }
+        const x = $('#adClose');
+        if (x) x.addEventListener('click', () => {
+          el.classList.remove('show');
+          document.body.classList.remove('has-adbar');
+          store.set('jmb.adHidden', true);
+        });
+      }
+    });
+  }
+
+  /* ---------------- 공항 ---------------- */
+  let airIdx = 0;
+  function renderAirportChips() {
+    $('#airportChips').innerHTML = AIRPORTS.map((a, i) =>
+      '<button class="chip" role="tab" data-air="' + i + '" aria-selected="' + (i === airIdx) + '">' +
+      '<span>' + a.em + '</span>' + a.ko + '</button>'
+    ).join('');
+    $$('#airportChips .chip').forEach(c => c.addEventListener('click', () => {
+      airIdx = +c.dataset.air; renderAirportChips(); renderAirportCards();
+    }));
+  }
+  function renderAirportCards() {
+    const a = AIRPORTS[airIdx];
+    $('#airportCards').innerHTML =
+      '<div class="card"><h3>' + a.em + ' ' + a.ko + '</h3><p class="lead">' + a.note + '</p></div>' +
+      a.opts.map(o =>
+        '<div class="aircard"><div class="air-head"><span class="em">🚆</span><b>' + o.t + '</b>' +
+        '<span class="pill">' + o.fare + '</span></div>' +
+        '<div class="airmeta"><span>⏱ <b>' + o.time + '</b></span></div>' +
+        '<ul class="lines"><li><span>·</span><span>' + o.memo + '</span></li></ul></div>'
+      ).join('');
+  }
+
+  /* ---------------- 경로 ---------------- */
+  const CITIES = [
+    { id: 'tokyo', ko: '도쿄', em: '🗼' },
+    { id: 'osaka', ko: '오사카·간사이', em: '🏯' },
+    { id: 'fukuoka', ko: '후쿠오카', em: '🍜' }
+  ];
+  const POPULAR = {
+    tokyo: [['narita','shinjuku'],['shinjuku','shibuya'],['shibuya','tokyo'],['shinjuku','maihama'],['asakusa','ueno'],['shinjuku','akihabara'],['shibuya','harajuku'],['shinjuku','haneda']],
+    osaka: [['kansai','namba'],['namba','umeda'],['namba','usj'],['namba','kyoto'],['namba','nara'],['namba','tennoji'],['shinsaibashi','umeda'],['umeda','kansai']],
+    fukuoka: [['fukuokaku','hakata'],['hakata','tenjin'],['hakata','dazaifu'],['tenjin','ohori'],['hakata','nakasu'],['fukuokaku','tenjin']]
+  };
+  let city = 'tokyo';
+
+  function stationById(c, id) {
+    return (STATIONS[c] || []).filter(s => s.id === id)[0];
+  }
+  function renderCityChips() {
+    $('#cityChips').innerHTML = CITIES.map(c =>
+      '<button class="chip" role="tab" data-city="' + c.id + '" aria-selected="' + (c.id === city) + '">' +
+      '<span>' + c.em + '</span>' + c.ko + '</button>'
+    ).join('');
+    $$('#cityChips .chip').forEach(b => b.addEventListener('click', () => {
+      city = b.dataset.city;
+      renderCityChips(); fillSelects(); renderPopular(); updateRoute();
+    }));
+  }
+  function fillSelects() {
+    const list = STATIONS[city];
+    const opts = list.map(s => '<option value="' + s.id + '">' + s.ko + '</option>').join('');
+    $('#routeFrom').innerHTML = opts;
+    $('#routeTo').innerHTML = opts;
+    const defaults = { tokyo: ['shinjuku', 'shibuya'], osaka: ['namba', 'umeda'], fukuoka: ['hakata', 'tenjin'] }[city];
+    $('#routeFrom').value = defaults[0];
+    $('#routeTo').value = defaults[1];
+  }
+  function getRoute(a, b) {
+    if (ROUTES[a + '|' + b]) return { r: ROUTES[a + '|' + b], rev: false };
+    if (ROUTES[b + '|' + a]) return { r: ROUTES[b + '|' + a], rev: true };
+    return null;
+  }
+  function renderPopular() {
+    $('#routePopular').innerHTML = (POPULAR[city] || []).map((p, i) => {
+      const a = stationById(city, p[0]), b = stationById(city, p[1]);
+      const g = getRoute(p[0], p[1]);
+      if (!a || !b || !g) return '';
+      return '<button class="chip sm" data-pop="' + i + '">' + a.ko + ' → ' + b.ko +
+        ' <span class="muted" style="font-weight:700">' + g.r.m + '분</span></button>';
+    }).join('');
+    $$('#routePopular [data-pop]').forEach(btn => btn.addEventListener('click', () => {
+      const p = POPULAR[city][+btn.dataset.pop];
+      $('#routeFrom').value = p[0]; $('#routeTo').value = p[1];
+      updateRoute();
+    }));
+  }
+  function legRow(leg, last) {
+    const walk = /徒歩|도보/.test(leg.n);
+    const name = walk ? '도보 이동' : lineKo(leg.n);
+    const mins = leg.m ? leg.m + '분' : '';
+    const color = walk ? '#b9bdc4' : (leg.c || '#8f97a3');
+    return '<div class="leg' + (walk ? ' walk' : '') + '">' +
+      '<div class="rail"><i style="background:' + color + '"></i>' + (last ? '' : '<span class="bar"></span>') + '</div>' +
+      '<div class="body"><div class="line"><span class="dot" style="background:' + color + '"></span>' +
+      '<b>' + name + '</b>' + (mins ? '<span class="mins">' + mins + '</span>' : '') + '</div>' +
+      '<div class="stations">' + stName(leg.f || '') + ' → ' + stName(leg.t || '') + '</div></div></div>';
+  }
+  function updateRoute() {
+    const aId = $('#routeFrom').value, bId = $('#routeTo').value;
+    const a = stationById(city, aId), b = stationById(city, bId);
+    const box = $('#routeResult');
+    if (!a || !b) { box.innerHTML = ''; return; }
+    if (aId === bId) {
+      box.innerHTML = '<div class="nodata">출발역과 도착역이 같아요. 하나만 바꿔 주세요.</div>';
+      return;
+    }
+    const g = getRoute(aId, bId);
+    if (!g) {
+      box.innerHTML = '<div class="nodata">이 구간 정보가 아직 없어요.<br>구글맵에서 바로 확인할 수 있어요.<br><br>' +
+        '<a class="btn" href="' + mapsUrl(a.jp, b.jp) + '" target="_blank" rel="noopener">🗺️ 구글맵 길찾기</a></div>';
+      return;
+    }
+    const r = g.r;
+    const legs = r.l.map(l => g.rev ? Object.assign({}, l, { f: l.t, t: l.f }) : l);
+    box.innerHTML =
+      '<div class="result"><div class="result-head">' +
+        '<div class="od"><b>' + a.ko + '</b> → <b>' + b.ko + '</b></div>' +
+        '<div class="big"><span class="time">' + r.m + '<small>분</small></span>' +
+        '<span class="fare">IC ' + fmt(r.f) + '엔</span>' +
+        '<span class="tr">환승 ' + (r.t || 0) + '회</span></div>' +
+      '</div>' +
+      '<div class="legs">' + legs.map((l, i) => legRow(l, i === legs.length - 1)).join('') + '</div>' +
+      '<div class="result-foot">' +
+        '<a class="btn primary" href="' + mapsUrl(a.jp, b.jp) + '" target="_blank" rel="noopener">🗺️ 구글맵 길찾기</a>' +
+        '<button class="btn" id="btnSpeakRoute">🔊 역 이름 듣기</button>' +
+      '</div></div>';
+    const sp = $('#btnSpeakRoute');
+    if (sp) sp.addEventListener('click', () => speakJa(a.jp + 'から' + b.jp + 'まで'));
+  }
+  function mapsUrl(fromJp, toJp) {
+    return 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(fromJp + '駅') +
+      '&destination=' + encodeURIComponent(toJp + '駅') + '&travelmode=transit';
+  }
+  $('#routeFrom').addEventListener('change', updateRoute);
+  $('#routeTo').addEventListener('change', updateRoute);
+  $('#btnSwap').addEventListener('click', () => {
+    const a = $('#routeFrom').value; $('#routeFrom').value = $('#routeTo').value; $('#routeTo').value = a;
+    updateRoute();
+  });
+
+  /* ---------------- 말하기 ---------------- */
+  let pcat = 'eat';
+  function renderPhraseChips() {
+    $('#phraseChips').innerHTML = PHRASE_CATS.map(c =>
+      '<button class="chip" role="tab" data-pc="' + c.id + '" aria-selected="' + (c.id === pcat) + '">' +
+      '<span>' + c.em + '</span>' + c.ko + '</button>'
+    ).join('');
+    $$('#phraseChips .chip').forEach(b => b.addEventListener('click', () => {
+      pcat = b.dataset.pc; renderPhraseChips(); renderPhrases();
+    }));
+  }
+  function renderPhrases() {
+    const list = PHRASES.filter(p => p.c === pcat);
+    $('#phraseList').innerHTML = list.map((p, i) =>
+      '<button class="pcard" data-ph="' + i + '">' +
+      '<span class="tx"><span class="jp">' + p.jp + '</span>' +
+      '<span class="kr">' + p.kr + '</span>' +
+      '<span class="ko">' + p.ko + '</span></span><span class="sp">🔊</span></button>'
+    ).join('');
+    $$('#phraseList .pcard').forEach(b => b.addEventListener('click', () => openPhrase(list[+b.dataset.ph])));
+  }
+  let curPhrase = null;
+  function openPhrase(p) {
+    curPhrase = p;
+    const cat = PHRASE_CATS.filter(c => c.id === p.c)[0];
+    $('#ovCat').textContent = (cat ? cat.em + ' ' + cat.ko : '문장');
+    $('#ovJp').textContent = p.jp;
+    $('#ovKr').textContent = p.kr;
+    $('#ovKo').textContent = p.ko;
+    $('#phraseFull').classList.add('show');
+    document.body.classList.add('no-scroll');
+    speakJa(p.jp);
+  }
+  function closePhrase() {
+    $('#phraseFull').classList.remove('show');
+    document.body.classList.remove('no-scroll');
+    if (canSpeak) window.speechSynthesis.cancel();
+  }
+  $('#ovClose').addEventListener('click', closePhrase);
+  $('#ovSpeak').addEventListener('click', () => curPhrase && speakJa(curPhrase.jp));
+  $('#ovSpeakSlow').addEventListener('click', () => curPhrase && speakJa(curPhrase.jp, 0.62));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if ($('#phraseFull').classList.contains('show')) closePhrase();
+      if ($('#splitMode').classList.contains('show')) closeSplit();
+    }
+  });
+
+  /* ---------------- 마주보기(분할) ---------------- */
+  let spCurrent = SPLIT_PHRASES[0];
+  function renderReplies() {
+    $('#spReplies').innerHTML = REPLIES.map((r, i) =>
+      '<button class="reply" data-reply="' + i + '"><b>' + r.jp + '</b><span>' + r.ko + '</span></button>'
+    ).join('');
+    $$('#spReplies .reply').forEach(b => b.addEventListener('click', () => {
+      const r = REPLIES[+b.dataset.reply];
+      const now = $('#sbReplyNow');
+      now.innerHTML = '<b>' + r.jp + '</b>상대: ' + r.ko;
+      now.style.background = '#e8f5ef';
+      now.style.borderColor = '#cfe8dc';
+      speakJa(r.jp);
+    }));
+  }
+  function renderSplitChips() {
+    $('#sbChips').innerHTML = SPLIT_PHRASES.map((p, i) =>
+      '<button class="chip" data-sq="' + i + '">' + p.ko + '</button>'
+    ).join('');
+    $$('#sbChips .chip').forEach(b => b.addEventListener('click', () => showSplitPhrase(SPLIT_PHRASES[+b.dataset.sq])));
+  }
+  function showSplitPhrase(p) {
+    spCurrent = p;
+    $('#spJp').textContent = p.jp;
+    $('#spKr').textContent = p.kr;
+    $('#spKo').textContent = p.ko;
+    speakJa(p.jp);
+  }
+  function openSplit() {
+    $('#splitMode').classList.add('show');
+    document.body.classList.add('no-scroll');
+    $('#sbReplyNow').innerHTML = '<span>상대 답변은 여기에 한국어로 표시돼요</span>';
+    $('#sbReplyNow').style.background = '';
+    $('#sbReplyNow').style.borderColor = '';
+    $('#spJp').textContent = spCurrent.jp;
+    $('#spKr').textContent = spCurrent.kr;
+    $('#spKo').textContent = spCurrent.ko;
+  }
+  function closeSplit() {
+    $('#splitMode').classList.remove('show');
+    document.body.classList.remove('no-scroll');
+    if (canSpeak) window.speechSynthesis.cancel();
+  }
+  $('#splitMode').addEventListener('click', e => { if (e.target.id === 'splitMode') closeSplit(); });
+  ['#splitClose', '#splitCloseTop', '#btnSplitTop', '#btnSplitOpen'].forEach(sel => {
+    const el = $(sel);
+    if (!el) return;
+    el.addEventListener('click', () => {
+      if (sel === '#splitClose' || sel === '#splitCloseTop') closeSplit(); else openSplit();
+    });
+  });
+  $$('[data-split]').forEach(el => el.addEventListener('click', openSplit));
+  $('#spSpeak').addEventListener('click', () => speakJa(spCurrent.jp));
+  $('#spClear').addEventListener('click', () => {
+    $('#spJp').textContent = 'すみません';
+    $('#spKr').textContent = '스미마센';
+    $('#spKo').textContent = '저기요';
+    spCurrent = { jp: 'すみません', kr: '스미마센', ko: '저기요' };
+    $('#sbReplyNow').innerHTML = '<span>상대 답변은 여기에 한국어로 표시돼요</span>';
+  });
+  $('#sbSend').addEventListener('click', () => {
+    const v = ($('#sbInput').value || '').trim();
+    if (!v) { toast('일본어 문장을 입력해 주세요'); return; }
+    $('#spJp').textContent = v;
+    $('#spKr').textContent = '';
+    $('#spKo').textContent = '직접 입력한 문장';
+    speakJa(v);
+    $('#sbInput').value = '';
+  });
+  $('#sbInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('#sbSend').click(); } });
+
+  /* ---------------- 엔화 계산기 ---------------- */
+  const RATE_DEFAULT = 910;
+  let rate = Number(store.get('jmb.rate', RATE_DEFAULT)) || RATE_DEFAULT;
+  let taxMode = 'incl';
+  function calc() {
+    const yen = Math.max(0, Number($('#calcYen').value || 0));
+    const per100 = Math.max(1, Number($('#calcRate').value || rate));
+    rate = per100;
+    store.set('jmb.rate', per100);
+    const krw = yen * per100 / 100;
+    $('#calcKrw').innerHTML = fmt(krw) + '<small>원</small>';
+    $('#calcSub').textContent = fmt(yen) + '엔 · 100엔 = ' + per100 + '원 기준';
+
+    const base10 = taxMode === 'incl' ? yen / 1.1 : yen;   // 세전(10% 가정)
+    const incl10 = taxMode === 'incl' ? yen : yen * 1.1;
+    const base8 = taxMode === 'incl' ? yen / 1.08 : yen;
+    const incl8 = taxMode === 'incl' ? yen : yen * 1.08;
+    const ok10 = base10 >= 5000;
+    const ok8 = base8 >= 5000;
+    const refund = Math.floor(base10 * 0.1);
+    const v = $('#calcVerdict');
+    const target = 5000;
+    if (ok10) {
+      v.className = 'verdict ok';
+      v.innerHTML = '<b>면세 기준 충족 ✓</b><br>세전 ' + fmt(base10) + '엔 (10% 품목) · 환급 예상 약 ' +
+        fmt(refund * per100 / 100) + '원 (' + fmt(refund) + '엔)<br><span style="opacity:.8">2026년 11월부터는 출국 때 공항에서 세관 확인 후 환급 → 아래 🛫 체크리스트</span>';
+    } else if (ok8) {
+      v.className = 'verdict ok';
+      v.innerHTML = '<b>8% 품목이면 면세 가능</b><br>세전 ' + fmt(base8) + '엔. 식품·음료는 세후 5,400엔부터예요.';
+    } else {
+      const needIncl = Math.ceil((target * 1.1 - (taxMode === 'incl' ? 0 : yen * 1.1)));
+      const need = Math.max(0, Math.ceil(target * 1.1 - (taxMode === 'incl' ? yen : yen * 1.1)));
+      v.className = 'verdict warn';
+      v.innerHTML = '<b>아직 면세 기준 아래예요</b><br>세전 ' + fmt(base10) + '엔 · 세후 약 ' + fmt(need) +
+        '엔 더 담으면 5,000엔(세전)을 넘어요.<br><span style="opacity:.8">같은 날·같은 매장 합계로 계산됩니다</span>';
+    }
+    // 참고용 세전/세후 함께
+    if (!$('#calcBoth')) {
+      const d = document.createElement('p');
+      d.id = 'calcBoth'; d.className = 'tiny muted'; d.style.marginTop = '8px';
+      $('.calc .out').insertAdjacentElement('afterend', d);
+    }
+    $('#calcBoth').textContent = '참고 · 세후(10%) ' + fmt(incl10) + '엔 / 세전(10%) ' + fmt(base10) +
+      '엔 / 세후(8%) ' + fmt(incl8) + '엔 / 세전(8%) ' + fmt(base8) + '엔';
+  }
+  $('#calcYen').addEventListener('input', calc);
+  $('#calcRate').addEventListener('input', calc);
+  $('#btnRateReset').addEventListener('click', () => { $('#calcRate').value = RATE_DEFAULT; calc(); toast('기본 환율로 돌아왔어요'); });
+  $('#calcQuick').innerHTML = [500, 1000, 3000, 5500, 10000].map(v => '<button class="chip" data-amt="' + v + '">' + fmt(v) + '엔</button>').join('');
+  $$('#calcQuick [data-amt]').forEach(b => b.addEventListener('click', () => {
+    $('#calcYen').value = b.dataset.amt; calc();
+  }));
+  $$('#calcTaxChips [data-tax]').forEach(b => b.addEventListener('click', () => {
+    taxMode = b.dataset.tax;
+    $$('#calcTaxChips .chip').forEach(x => x.classList.toggle('on', x === b));
+    calc();
+  }));
+
+  /* ---------------- 쇼핑 아코디언 ---------------- */
+  $('#shopAcc').innerHTML = SHOP_CATS.map((c, i) =>
+    '<details class="acc"' + (i === 0 ? ' open' : '') + '><summary><span class="em">' + c.em + '</span>' + c.t +
+    '<span class="n">' + c.items.length + '개</span></summary><div class="body"><div class="items">' +
+    c.items.map(it => '<div class="item"><span class="nm">' + it[0] + ' <span class="jp">' + it[1] + '</span></span><p>' + it[2] + '</p></div>').join('') +
+    '</div></div></details>'
+  ).join('');
+
+  /* ---------------- 면세 환급 ---------------- */
+  let refundIdx = 0;
+  function renderRefund() {
+    const chips = $('#refundChips');
+    if (!chips) return;
+    chips.innerHTML = REFUND_OPTS.map((o, i) =>
+      '<button class="chip" role="tab" data-rf="' + i + '" aria-selected="' + (i === refundIdx) + '">' + o.em + ' ' + o.ko + '</button>'
+    ).join('');
+    $$('#refundChips .chip').forEach(b => b.addEventListener('click', () => {
+      refundIdx = +b.dataset.rf; renderRefund();
+    }));
+    const o = REFUND_OPTS[refundIdx];
+    $('#refundBody').innerHTML = '<p class="lead" style="margin-top:12px;font-weight:800;color:var(--ink)">' + o.title + '</p>' +
+      '<div class="rf-steps">' + o.steps.map(st =>
+        '<div class="rf-step"><span class="n"></span><div class="tx"><b>' + st.b + '</b><p>' + st.p + '</p>' +
+        (st.jp ? '<span class="jp">' + st.jp + '</span>' : '') + '</div></div>').join('') + '</div>';
+  }
+
+  /* ---------------- 팁 / 동네 ---------------- */
+  $('#tipList').innerHTML = TIPS.map(t =>
+    '<div class="tip"><span class="em">' + t.em + '</span><span class="tx"><b>' + t.t + '</b><p>' + t.d + '</p></span></div>'
+  ).join('');
+
+  let hoodCity = 'tokyo';
+  function renderHoodChips() {
+    $('#hoodChips').innerHTML = HOOD_CITY.map(c =>
+      '<button class="chip" role="tab" data-hc="' + c.id + '" aria-selected="' + (c.id === hoodCity) + '">' + c.ko + '</button>'
+    ).join('');
+    $$('#hoodChips .chip').forEach(b => b.addEventListener('click', () => {
+      hoodCity = b.dataset.hc; renderHoodChips(); renderHoods();
+    }));
+  }
+  function renderHoods() {
+    $('#hoodList').innerHTML = (HOODS[hoodCity] || []).map(h =>
+      '<div class="hood-item"><div class="nm">' + h.nm + '<span>' + h.jp + '</span></div><p>' + h.d + '</p></div>'
+    ).join('');
+  }
+
+  /* ---------------- 시작 ---------------- */
+  function init() {
+    renderAds();
+    renderAirportChips(); renderAirportCards();
+    renderCityChips(); fillSelects(); renderPopular(); updateRoute();
+    renderPhraseChips(); renderPhrases();
+    renderReplies(); renderSplitChips();
+    $('#calcRate').value = rate; calc();
+    renderHoodChips(); renderHoods();
+    renderRefund();
+    const h = (location.hash || '').replace('#', '');
+    go(TABS.indexOf(h) > -1 ? h : 'home', false);
+    window.addEventListener('hashchange', () => {
+      const t = (location.hash || '').replace('#', '');
+      if (TABS.indexOf(t) > -1) go(t, false);
+    });
+  }
+  init();
+})();
+</script>
+</body>
+</html>
