@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#090D13">
-<meta name="description" content="느긋한 숫자블록 — 시간 제한도 타이밍 압박도 없이, 열을 한 번 톡 누르면 블록이 내려앉고 같은 숫자가 합쳐지는 원터치 퍼즐.">
+<meta name="description" content="💥 숫자 콤보 팡! — 열을 한 번 톡 누르면 블록이 떨어지고, 같은 숫자가 만나면 팡 터져 콤보가 쌓이는 원터치 퍼즐. 폭탄·무지개 블록, 압박 게이지로 손맛과 긴장감까지.">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="숫자블록">
+<meta name="apple-mobile-web-app-title" content="숫자 콤보 팡">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" id="pwaManifest" href="./manifest-drop.json">
 <link rel="apple-touch-icon" id="pwaTouchIcon" href="./icon-drop-192.png">
-<title>느긋한 숫자블록 · SLOW NUMBER DROP</title>
+<title>💥 숫자 콤보 팡! · DROP &amp; BOOM</title>
 <style>
 :root{
   --bg:#090D13; --panel:#101823;
@@ -244,6 +244,63 @@ h1,h2,h3,p{margin:0}
 
 button:focus-visible, .input:focus-visible, #board:focus-visible{outline:2px solid rgba(143,233,200,.6);outline-offset:2px}
 
+/* ---------- 긴박감: 압박 게이지 · 위험 테두리 · 화면 흔들림 ---------- */
+.pushrow{display:flex;align-items:center;gap:8px;margin:0 0 10px}
+.pushlbl{flex:none;font-size:9px;letter-spacing:.16em;color:#66748A;font-weight:900}
+.pushbar{position:relative;flex:1;height:9px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.07);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+.pushbar i{display:block;height:100%;width:100%;border-radius:999px;
+  background:linear-gradient(90deg,#8FE9C8,#DFFF9E);transition:background .25s linear}
+.pushbar.warn i{background:linear-gradient(90deg,#FFC15C,#FFD75E)}
+.pushbar.crit i{background:linear-gradient(90deg,#FF5C6C,#FF9A5C)}
+.pushlv{flex:none;font-size:10px;font-weight:900;color:#9BA9BD;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.pushlv.hot{color:#FFB3A7}
+#fxCv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#dangerline{position:absolute;left:3px;right:3px;top:14.2857%;border-top:1px dashed rgba(255,92,108,0);
+  pointer-events:none;transition:border-color .25s}
+#board.near #dangerline{border-top-color:rgba(255,92,108,.45)}
+#board.danger #dangerline{border-top-color:rgba(255,92,108,.9)}
+#board.danger{border-color:rgba(255,92,108,.8);animation:dangerPulse 1.05s ease-in-out infinite}
+@keyframes dangerPulse{
+  0%,100%{box-shadow:0 0 0 1px rgba(255,92,108,.5), inset 0 0 26px -10px rgba(255,92,108,.5)}
+  50%{box-shadow:0 0 0 3px rgba(255,92,108,.9), inset 0 0 42px -6px rgba(255,92,108,.85)}
+}
+.boardwrap.shake{animation:shakeS .26s cubic-bezier(.36,.07,.19,.97)}
+.boardwrap.shake.big{animation:shakeB .44s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shakeS{
+  0%,100%{transform:translate3d(0,0,0)}
+  20%{transform:translate3d(-3px,2px,0)} 40%{transform:translate3d(3px,-2px,0)}
+  60%{transform:translate3d(-2px,-1px,0)} 80%{transform:translate3d(2px,1px,0)}
+}
+@keyframes shakeB{
+  0%,100%{transform:translate3d(0,0,0) rotate(0)}
+  12%{transform:translate3d(-7px,3px,0) rotate(-.6deg)} 28%{transform:translate3d(7px,-4px,0) rotate(.6deg)}
+  46%{transform:translate3d(-5px,2px,0) rotate(-.4deg)} 64%{transform:translate3d(5px,-2px,0) rotate(.4deg)}
+  82%{transform:translate3d(-2px,1px,0)}
+}
+/* 특수 블록 */
+.tile.bomb .face{background:linear-gradient(158deg,#4A1420,#1B0A11);color:#FFD75E;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 0 20px -5px rgba(255,92,108,.85)}
+.tile.rain .face{background:linear-gradient(135deg,#FF8FD0,#FFD75E 28%,#8FE9C8 56%,#9BD9FF 78%,#C68BF7);
+  color:#101B2A;animation:hueSpin 3.2s linear infinite}
+.tile.rain{animation:rainGlow 1.5s ease-in-out infinite}
+@keyframes hueSpin{0%,100%{filter:hue-rotate(0deg)} 50%{filter:hue-rotate(46deg)}}
+@keyframes rainGlow{0%,100%{filter:drop-shadow(0 0 0 rgba(155,217,255,0))} 50%{filter:drop-shadow(0 0 9px rgba(155,217,255,.55))}}
+/* 콤보·폭발 글씨 */
+#comboPop{top:15%;padding:7px 15px;border-radius:999px;font-size:15px;font-weight:900;letter-spacing:-.02em;
+  transform:translateX(-50%) scale(.62);opacity:0;transition:opacity .14s, transform .22s cubic-bezier(.3,1.6,.4,1);
+  box-shadow:0 16px 36px -20px rgba(143,233,200,.95)}
+#comboPop.on{opacity:1;transform:translateX(-50%) scale(1)}
+#comboPop.big{font-size:19px;background:linear-gradient(120deg,#FFD75E,#FF8FD0 58%,#8FE9C8)}
+.float.big{font-size:17px;color:#FFEFA2}
+.how{grid-template-columns:repeat(2,1fr)}
+@media (prefers-reduced-motion:reduce){
+  #board.danger{animation:none}
+  .boardwrap.shake, .boardwrap.shake.big{animation:none}
+  .tile.rain, .tile.rain .face{animation:none}
+  #comboPop{transition:none}
+}
+
 @media (max-width:380px){
   .hud-score b{font-size:31px}
   .ptile{width:44px;height:44px;font-size:19px;border-radius:12px}
@@ -406,7 +463,28 @@ button:focus-visible, .input:focus-visible, #board:focus-visible{outline:2px sol
 "📤 내 점수 공유하기":{"en":"📤 Share my score","ja":"📤 スコアを共有","zh":"📤 分享我的成绩"},
 "📲 홈 화면에 추가":{"en":"📲 Add to Home screen","ja":"📲 ホーム画面に追加","zh":"📲 添加到主屏幕"},
 "📲 홈 화면에 추가 — 앱처럼 열기":{"en":"📲 Add to Home screen — open it like an app","ja":"📲 ホーム画面に追加 — アプリのように開く","zh":"📲 添加到主屏幕 — 像应用一样打开"},
-"🧹 정리권":{"en":"🧹 Cleanup pass","ja":"🧹 整理券","zh":"🧹 整理券"}
+"🧹 정리권":{"en":"🧹 Cleanup pass","ja":"🧹 整理券","zh":"🧹 整理券"},
+"💥 숫자 콤보 팡! · DROP & BOOM":{"en":"💥 Number Combo Bang! · DROP & BOOM","ja":"💥 数字コンボパン！・DROP & BOOM","zh":"💥 数字连击砰！ · DROP & BOOM"},
+"💥 숫자 콤보 팡! — 열을 한 번 톡 누르면 블록이 떨어지고, 같은 숫자가 만나면 팡 터져 콤보가 쌓이는 원터치 퍼즐. 폭탄·무지개 블록, 압박 게이지로 손맛과 긴장감까지.":{"en":"💥 Number Combo Bang! — tap a column once and a block drops; equal numbers meet and blow up, piling up combos. Bomb and rainbow blocks, plus a rush gauge, for real punch and tension.","ja":"💥 数字コンボパン！— 列を1回タップするとブロックが落ち、同じ数字が出会うとパンと弾けてコンボが積み上がるワンタッチパズル。爆弾・レインボーブロックとプレッシャーゲージで手応えと緊張感を。","zh":"💥 数字连击砰！— 点一下某一列方块就落下，相同数字相遇就砰地炸开、累积连击的一键拼图。炸弹·彩虹方块加上压力计量条，手感与紧张感十足。"},
+"숫자 콤보 팡!":{"en":"Number Combo Bang!","ja":"数字コンボパン！","zh":"数字连击砰！"},
+"TIME ATTACK · 콤보 퍼즐":{"en":"TIME ATTACK · combo puzzle","ja":"タイムアタック・コンボパズル","zh":"限时挑战 · 连击拼图"},
+"톡 누르면":{"en":"Tap once and","ja":"タップすれば","zh":"点一下就"},
+"팡!":{"en":"BANG!","ja":"パン！","zh":"砰！"},
+"숫자 콤보":{"en":"number combos","ja":"数字コンボ","zh":"数字连击"},
+"같은 숫자가 만나면 팡 터지고, 연쇄로 콤보가 쌓여요. 압박 게이지가 비면 블록이 저절로 떨어지니 손을 놓지 마세요.":{"en":"Equal numbers meet and blow up, and chains pile up combos. When the rush gauge empties a block drops by itself — don't let go.","ja":"同じ数字が出会うとパンと弾け、連鎖でコンボが積み上がります。プレッシャーゲージが空になるとブロックが勝手に落ちるので、手を離さないでください。","zh":"相同的数字相遇就会砰地炸开，连锁会累积连击。压力计量条见底时方块会自己落下，别松手。"},
+"같으면 팡":{"en":"Equal? Bang","ja":"同じならパン","zh":"相同就砰"},
+"2+2→4, 연쇄로 콤보":{"en":"2+2→4, chain for combos","ja":"2+2→4、連鎖でコンボ","zh":"2+2→4，连锁加连击"},
+"폭탄":{"en":"Bomb","ja":"爆弾","zh":"炸弹"},
+"3×3을 한 번에 터뜨려요":{"en":"blows up a whole 3×3 at once","ja":"3×3を一気に爆破","zh":"一次炸掉 3×3"},
+"무지개":{"en":"Rainbow","ja":"レインボー","zh":"彩虹"},
+"닿으면 한 단계 업그레이드":{"en":"touches a tile and upgrades it one step","ja":"触れたブロックを1段階アップ","zh":"碰到就升一级"},
+"압박":{"en":"RUSH","ja":"プレッシャー","zh":"压力"},
+"게이지가 비면 자동 낙하 · 💣 3×3 · 🌈 한 단계 업":{"en":"empty gauge = auto drop · 💣 3×3 · 🌈 one step up","ja":"ゲージが空なら自動落下・💣 3×3・🌈 1段階アップ","zh":"计量条见底就自动落下 · 💣 3×3 · 🌈 升一级"},
+"열을 눌러 팡!":{"en":"Tap a column — BANG!","ja":"列をタップでパン！","zh":"点一列，砰！"},
+"게이지가 비면 자동 낙하":{"en":"empty gauge = auto drop","ja":"ゲージが空なら自動落下","zh":"计量条见底就自动落下"},
+"게이지가 비어 블록이 저절로 떨어졌어요":{"en":"The gauge ran out — a block dropped by itself","ja":"ゲージが空いてブロックが勝手に落ちました","zh":"计量条见底，方块自己落下了"},
+"속도 UP! 압박이 빨라졌어요":{"en":"Speed up! The pressure grows","ja":"スピードUP！プレッシャーが強くなりました","zh":"加速！压力变大了"},
+"위험! 윗줄까지 거의 찼어요":{"en":"Danger! The top row is nearly full","ja":"危険！最上段まであと少し","zh":"危险！快到最上面了"}
 };
   var PAT = [
 [/^30초 풍선 톡톡 ([\d,]+)점 \(상위 (.+)\)! 너도 30초만 해봐 👉 (\S+)$/,{"en":"Balloon Pop 30 — $1 pts (top $2)! Try 30 seconds too 👉 $3","ja":"30秒バルーンぽんぽん $1点（上位$2）！あなたも30秒だけやってみて 👉 $3","zh":"30秒气球弹弹 $1分（前 $2）！你也来30秒试试 👉 $3"}],
@@ -428,6 +506,8 @@ button:focus-visible, .input:focus-visible, #board:focus-visible{outline:2px sol
 [/^점<\/b> · ([\d,]+)위 · 상위 ([\d.]+%)$/,{"en":"pts</b> · #$1 · top $2","ja":"点</b>・$1位・上位$2","zh":"分</b> · 第$1名 · 前 $2"}],
 [/^느긋한 숫자블록 ([\d,]+)점 \(상위 (.+)\) 시간제한 없이 도전해 봐! 👉 (\S+)$/,{"en":"Slow Number Drop — $1 pts (top $2) — no time limit, try it! 👉 $3","ja":"のんびり数字ブロック $1点（上位$2）時間制限なしで挑戦してみて！👉 $3","zh":"慢悠悠数字方块 $1分（前 $2）没有时间限制，来挑战吧！👉 $3"}],
 [/^느긋한 숫자블록 ([\d,]+)점 시간제한 없이 도전해 봐! 👉 (\S+)$/,{"en":"Slow Number Drop — $1 pts — no time limit, try it! 👉 $2","ja":"のんびり数字ブロック $1点 時間制限なしで挑戦してみて！👉 $2","zh":"慢悠悠数字方块 $1分 没有时间限制，来挑战吧！👉 $2"}],
+[/^숫자 콤보 팡! ([\d,]+)점 \(상위 (.+)\) 지금 터뜨려 봐! 👉 (\S+)$/,{"en":"Number Combo Bang! $1 pts (top $2) — go pop it! 👉 $3","ja":"数字コンボパン！$1点（上位$2）今すぐ弾けてみて！👉 $3","zh":"数字连击砰！$1分（前 $2）现在来爆一次！👉 $3"}],
+[/^숫자 콤보 팡! ([\d,]+)점 지금 터뜨려 봐! 👉 (\S+)$/,{"en":"Number Combo Bang! $1 pts — go pop it! 👉 $2","ja":"数字コンボパン！$1点 今すぐ弾けてみて！👉 $2","zh":"数字连击砰！$1分 现在来爆一次！👉 $2"}],
 [/^플레이어 (\d+)$/,{"en":"Player $1","ja":"プレイヤー $1","zh":"玩家 $1"}],
 [/^원터치 타워 ([\d,]+)층 달성! \(상위 (.+)\) 나보다 높이 쌓을 수 있어\? 👉 (\S+)$/,{"en":"One-Touch Tower — $1F reached! (top $2) Can you stack higher? 👉 $3","ja":"ワンタッチタワー $1階達成！（上位$2）もっと高く積める？👉 $3","zh":"一键叠塔 达到 $1 层！（前 $2）你能叠得更高吗？👉 $3"}],
 [/^원터치 타워 ([\d,]+)층 달성! 나보다 높이 쌓을 수 있어\? 👉 (\S+)$/,{"en":"One-Touch Tower — $1F reached! Can you stack higher? 👉 $2","ja":"ワンタッチタワー $1階達成！もっと高く積める？👉 $2","zh":"一键叠塔 达到 $1 层！你能叠得更高吗？👉 $2"}],
@@ -854,8 +934,8 @@ button:focus-visible, .input:focus-visible, #board:focus-visible{outline:2px sol
 <div id="app">
   <header class="topbar">
     <button class="brand" id="brandBtn" aria-label="홈으로 이동">
-      <span class="brand-mark">숫</span>
-      <span class="brand-txt"><b>느긋한 숫자블록</b><span>SLOW NUMBER DROP</span></span>
+      <span class="brand-mark">💥</span>
+      <span class="brand-txt"><b>숫자 콤보 팡!</b><span>DROP &amp; BOOM</span></span>
     </button>
     <div class="topbtns">
       <div id="mgLang"></div>
@@ -868,14 +948,15 @@ button:focus-visible, .input:focus-visible, #board:focus-visible{outline:2px sol
     <!-- ============ 홈 ============ -->
     <section id="home" class="screen">
       <div class="hero">
-        <span class="hero-badge">TIME FREE · 느긋한 퍼즐</span>
-        <h1>숫자를 <em>한 칸씩</em>,<br>천천히 합쳐요</h1>
-        <p>시간 제한도, 재촉하는 소리도 없어요. 열을 한 번 톡 누르면 블록이 내려앉고, 같은 숫자가 붙으면 조용히 합쳐집니다.</p>
+        <span class="hero-badge">TIME ATTACK · 콤보 퍼즐</span>
+        <h1>톡 누르면 <em>팡!</em><br>숫자 콤보</h1>
+        <p>같은 숫자가 만나면 팡 터지고, 연쇄로 콤보가 쌓여요. 압박 게이지가 비면 블록이 저절로 떨어지니 손을 놓지 마세요.</p>
       </div>
       <div class="how">
         <div><i>👆</i><b>열을 톡</b><span>5개 열 중 원하는 곳을 한 번</span></div>
-        <div><i>✨</i><b>같으면 합쳐</b><span>2+2→4, 4+4→8 … 연쇄로</span></div>
-        <div><i>🌙</i><b>언제든 이어서</b><span>닫아도 판이 그대로 남아요</span></div>
+        <div><i>💥</i><b>같으면 팡</b><span>2+2→4, 연쇄로 콤보</span></div>
+        <div><i>💣</i><b>폭탄</b><span>3×3을 한 번에 터뜨려요</span></div>
+        <div><i>🌈</i><b>무지개</b><span>닿으면 한 단계 업그레이드</span></div>
       </div>
       <div class="homebtns">
         <button class="btn btn-primary big" id="startBtn">시작하기</button>
@@ -909,16 +990,23 @@ button:focus-visible, .input:focus-visible, #board:focus-visible{outline:2px sol
         <div class="nextbox"><span class="lbl">NEXT</span><div id="nextTile" class="ptile sm">2</div></div>
         <button class="chip" id="cleanBtn">🧹 정리권 <b id="cleanN">1</b></button>
       </div>
+      <div class="pushrow">
+        <span class="pushlbl">압박</span>
+        <div class="pushbar" id="pushBar"><i id="pushFill"></i></div>
+        <span class="pushlv" id="lvV">LV 1</span>
+      </div>
       <div class="boardwrap">
         <div id="board" role="application" aria-label="5열 7행 보드. 열을 누르면 블록이 떨어집니다. PC에서는 1~5 키." tabindex="0">
           <div id="slots"></div>
           <div id="colhl" class="colhl"></div>
           <div id="tiles"></div>
-          <div id="firstHint">숫자 블록은<br>열을 누르면 내려앉아요</div>
+          <canvas id="fxCv"></canvas>
+          <div id="dangerline"></div>
+          <div id="firstHint">열을 눌러 팡!<br>게이지가 비면 자동 낙하</div>
           <div id="fx"><div id="comboPop"></div></div>
         </div>
       </div>
-      <p class="hint">한 번 톡이면 충분해요 · 시간은 재지 않아요 · PC는 1~5 키</p>
+      <p class="hint">게이지가 비면 자동 낙하 · 💣 3×3 · 🌈 한 단계 업</p>
       <div id="playAd" class="adslot"></div>
     </section>
 
@@ -932,6 +1020,7 @@ button:focus-visible, .input:focus-visible, #board:focus-visible{outline:2px sol
           <div><span>최고 블록</span><b id="resTile">2</b></div>
           <div><span>최대 연쇄</span><b id="resCombo">1</b></div>
           <div><span>놓은 블록</span><b id="resMoves">0</b></div>
+          <div><span>폭탄</span><b id="resBoom">0</b></div>
         </div>
       </div>
       <div class="rankcard">
@@ -1358,6 +1447,8 @@ var LEADERBOARD_CONFIG = {
 /* ================= 상수 ================= */
 var COLS = 5, ROWS = 7;
 var FALL_BASE = 130, FALL_PER = 26;
+var BOMB = 'B', RAIN = 'R';          /* 특수 블록 표식 (숫자는 number) */
+var P_BOMB = 0.075, P_RAIN = 0.055;  /* 다음 블록이 폭탄·무지개일 확률 */
 var K = {
   game: 'slowdrop.game.v1',
   best: 'slowdrop.best.v1',
@@ -1581,6 +1672,16 @@ function sndMerge(v, combo) {
 }
 function sndClean() { tone(660, 0.1, 'sine', 0.06); tone(880, 0.12, 'sine', 0.05, 0.06); }
 function sndOver() { [392, 329.6, 261.6].forEach(function (f, i) { tone(f, 0.32, 'sine', 0.075, i * 0.14); }); }
+function sndBoom() {
+  tone(96, 0.36, 'sawtooth', 0.11, 0, 40);
+  tone(190, 0.15, 'square', 0.05, 0.01, 60);
+  tone(58, 0.5, 'sine', 0.09, 0.05, 28);
+}
+function sndRain(v) {
+  var base = 523.25 * Math.pow(2, clamp(Math.round(Math.log(v || 8) / Math.LN2) - 3, 0, 4) / 12);
+  [0, 4, 7, 12].forEach(function (s, i) { tone(base * Math.pow(2, s / 12), 0.13, 'triangle', 0.055, i * 0.045); });
+}
+function sndTic() { tone(1040, 0.035, 'square', 0.026); }
 
 /* ================= 상태 ================= */
 var S = null, GEN = 0, mode = 'home', LAST = { newBest: false, prevBest: 0 };
@@ -1611,13 +1712,19 @@ function freshState() {
   for (r = 0; r < ROWS; r++) g.push([null, null, null, null, null]);
   return {
     grid: g, tiles: [], score: 0, cur: 2, next: spawn(),
-    cleanups: 1, moves: 0, over: false, comboMax: 0, bestTile: 2, busy: false
+    cleanups: 1, moves: 0, over: false, comboMax: 0, bestTile: 2, busy: false,
+    booms: 0, rains: 0, pushes: 0
   };
 }
 function spawn() {
+  var r = Math.random();
+  if (r < P_BOMB) return BOMB;
+  if (r < P_BOMB + P_RAIN) return RAIN;
   var bag = [2, 2, 2, 2, 2, 4, 4, 4, 8, 8, 8, 16, 16, 32];
   return bag[Math.floor(Math.random() * bag.length)];
 }
+function isNum(v) { return typeof v === 'number' && v >= 2; }
+function kindOf(v) { return isNum(v) ? '' : (v === BOMB ? 'bomb' : (v === RAIN ? 'rain' : '')); }
 function pos(r, c) { return 'translate(' + (c * 100) + '%,' + (r * 100) + '%)'; }
 function fontFor(v) {
   var d = String(v).length;
@@ -1638,12 +1745,31 @@ function prepareLayer() {
 function paintTile(t) {
   var el = t.el; if (!el) return;
   var face = el.firstChild;
+  var num = face.firstChild;
+  if (t.k === 'bomb') {
+    el.className = 'tile bomb' + (el.classList.contains('pop') ? ' pop' : '');
+    face.style.background = 'linear-gradient(158deg,#4A1420,#1B0A11)';
+    face.style.color = '#FFD75E';
+    face.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,.22), 0 0 20px -5px rgba(255,92,108,.85)';
+    num.textContent = '💣';
+    num.style.fontSize = Math.round(CELL * 0.5) + 'px';
+    return;
+  }
+  if (t.k === 'rain') {
+    el.className = 'tile rain' + (el.classList.contains('pop') ? ' pop' : '');
+    face.style.background = '';
+    face.style.color = '#101B2A';
+    face.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,.6), 0 0 22px -6px rgba(155,217,255,.9)';
+    num.textContent = '🌈';
+    num.style.fontSize = Math.round(CELL * 0.5) + 'px';
+    return;
+  }
+  if (el.classList.contains('bomb') || el.classList.contains('rain')) el.className = 'tile' + (el.classList.contains('pop') ? ' pop' : '');
   var pal = PALETTE[clamp(tierOf(t.v), 0, PALETTE.length - 1)];
   face.style.background = 'linear-gradient(158deg,' + pal[0] + ',' + pal[1] + ') ';
   face.style.color = pal[2];
   if (tierOf(t.v) >= 10) face.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,.65), 0 0 22px -4px rgba(255,215,94,.55)';
   else face.style.boxShadow = '';
-  var num = face.firstChild;
   num.textContent = t.v;
   num.style.fontSize = fontFor(t.v);
 }
@@ -1661,11 +1787,11 @@ function mountTile(t) {
   return el;
 }
 function addTile(v, r, c) {
-  var t = { v: v, r: r, c: c, el: null };
+  var t = { v: isNum(v) ? v : 0, k: kindOf(v), r: r, c: c, el: null };
   S.grid[r][c] = t;
   S.tiles.push(t);
   if (tilesLayer) mountTile(t);
-  if (v > S.bestTile) S.bestTile = v;
+  if (!t.k && t.v > S.bestTile) S.bestTile = t.v;
   return t;
 }
 function syncPositions() {
@@ -1720,18 +1846,43 @@ function findPair(anchor) {
   var best = null, bestKey = -1, i, t, rb, db, k;
   for (i = 0; i < S.tiles.length; i++) {
     t = S.tiles[i];
+    if (t.k) continue;
     rb = S.grid[t.r][t.c + 1];
-    if (rb && rb.v === t.v) { k = pairKey(t, rb, anchor); if (k > bestKey) { bestKey = k; best = [t, rb]; } }
+    if (rb && !rb.k && rb.v === t.v) { k = pairKey(t, rb, anchor); if (k > bestKey) { bestKey = k; best = [t, rb]; } }
     db = (t.r + 1 < ROWS) ? S.grid[t.r + 1][t.c] : null;
-    if (db && db.v === t.v) { k = pairKey(t, db, anchor); if (k > bestKey) { bestKey = k; best = [t, db]; } }
+    if (db && !db.k && db.v === t.v) { k = pairKey(t, db, anchor); if (k > bestKey) { bestKey = k; best = [t, db]; } }
+  }
+  return best;
+}
+/* 무지개: 바로 옆 숫자 블록을 한 단계 위로 올린다 */
+function findRainbow(anchor) {
+  var i, j, d, t, nb, cands, pick, pv, s, best = null, bestV = -1;
+  var dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+  for (i = 0; i < S.tiles.length; i++) {
+    t = S.tiles[i];
+    if (t.k !== 'rain') continue;
+    cands = [];
+    for (d = 0; d < 4; d++) {
+      var rr = t.r + dirs[d][0], cc = t.c + dirs[d][1];
+      if (rr < 0 || rr >= ROWS || cc < 0 || cc >= COLS) continue;
+      nb = S.grid[rr][cc];
+      if (nb && !nb.k) cands.push(nb);
+    }
+    if (!cands.length) continue;
+    pick = null; pv = -1;
+    for (j = 0; j < cands.length; j++) {
+      s = cands[j].v + (anchor && cands[j] === anchor ? 1000 : 0);
+      if (s > pv) { pv = s; pick = cands[j]; }
+    }
+    if (pick && pick.v > bestV) { bestV = pick.v; best = { rain: t, tgt: pick }; }
   }
   return best;
 }
 
-/* ================= 효과 ================= */
-function burst(r, c, text) {
+/* ================= 효과 (파편·흔들림·콤보 글씨) ================= */
+function burst(r, c, text, big) {
   var d = document.createElement('div');
-  d.className = 'float';
+  d.className = 'float' + (big ? ' big' : '');
   d.textContent = text;
   d.style.left = ((c + 0.5) / COLS * 100) + '%';
   d.style.top = ((r + 0.12) / ROWS * 100) + '%';
@@ -1739,10 +1890,91 @@ function burst(r, c, text) {
   setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 900);
 }
 function showCombo(n) {
-  comboPopEl.textContent = n + '연쇄 합체!';
-  comboPopEl.classList.add('on');
+  comboPopEl.textContent = 'COMBO x' + n + '!';
+  comboPopEl.className = 'on' + (n >= 4 ? ' big' : '');
   clearTimeout(showCombo._t);
-  showCombo._t = setTimeout(function () { comboPopEl.classList.remove('on'); }, 1200);
+  showCombo._t = setTimeout(function () { comboPopEl.className = ''; }, n >= 4 ? 1500 : 1150);
+}
+function popText(s) {
+  comboPopEl.textContent = s;
+  comboPopEl.className = 'on big';
+  clearTimeout(showCombo._t);
+  showCombo._t = setTimeout(function () { comboPopEl.className = ''; }, 1000);
+}
+
+/* 파편 파티클 (캔버스) */
+var fxCv = null, fxCtx = null, fxParts = [], fxRaf = 0, fxW = 0, fxH = 0;
+var FX_COLORS = ['#DFFF9E', '#8FE9C8', '#9BD9FF', '#FFD75E', '#FF8FD0', '#C68BF7'];
+function initFx() {
+  fxCv = document.getElementById('fxCv');
+  if (fxCv) fxCtx = fxCv.getContext('2d');
+  sizeFx();
+}
+function sizeFx() {
+  if (!fxCv || !boardEl) return;
+  var dpr = Math.min(2, window.devicePixelRatio || 1);
+  var w = boardEl.clientWidth, h = boardEl.clientHeight;
+  if (!w || !h) return;
+  fxW = w; fxH = h;
+  fxCv.width = Math.round(w * dpr);
+  fxCv.height = Math.round(h * dpr);
+  fxCtx = fxCv.getContext('2d');
+  if (fxCtx) fxCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function fxBurst(r, c, n, color, power) {
+  if (!fxCtx || RM) return;
+  var cx = (c + 0.5) / COLS * fxW, cy = (r + 0.5) / ROWS * fxH;
+  var pw = (power || 1) * (fxW / 300) * 2.6;
+  for (var i = 0; i < (n || 12); i++) {
+    var ang = Math.random() * Math.PI * 2;
+    var sp = (0.5 + Math.random() * 1.4) * pw;
+    fxParts.push({
+      x: cx, y: cy,
+      vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - sp * 0.5,
+      life: 1, size: 2 + Math.random() * (power > 1.6 ? 5 : 3.4),
+      col: color || FX_COLORS[Math.floor(Math.random() * FX_COLORS.length)],
+      rot: Math.random() * 6.28, spin: (Math.random() - 0.5) * 0.5
+    });
+  }
+  if (fxParts.length > 260) fxParts = fxParts.slice(-260);
+  if (!fxRaf) fxRaf = requestAnimationFrame(fxLoop);
+}
+function fxLoop() {
+  fxRaf = 0;
+  if (!fxCtx || !fxW) return;
+  fxCtx.clearRect(0, 0, fxW, fxH);
+  var alive = [], i, p;
+  for (i = 0; i < fxParts.length; i++) {
+    p = fxParts[i];
+    p.vy += 0.24; p.x += p.vx; p.y += p.vy;
+    p.vx *= 0.985; p.life -= 0.03; p.rot += p.spin;
+    if (p.life <= 0) continue;
+    fxCtx.save();
+    fxCtx.globalAlpha = Math.max(0, Math.min(1, p.life));
+    fxCtx.translate(p.x, p.y);
+    fxCtx.rotate(p.rot);
+    fxCtx.fillStyle = p.col;
+    fxCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 1.5);
+    fxCtx.restore();
+    alive.push(p);
+  }
+  fxParts = alive;
+  if (fxParts.length) fxRaf = requestAnimationFrame(fxLoop);
+  else fxCtx.clearRect(0, 0, fxW, fxH);
+}
+/* 미세 화면 흔들림 — kind 's'(작게) | 'b'(폭발) */
+function shake(kind) {
+  var wrap = boardEl && boardEl.parentNode;
+  if (!wrap || RM) return;
+  wrap.classList.remove('shake', 'big');
+  void wrap.offsetWidth;
+  wrap.classList.add('shake');
+  if (kind === 'b') wrap.classList.add('big');
+  clearTimeout(shake._t);
+  shake._t = setTimeout(function () { wrap.classList.remove('shake', 'big'); }, kind === 'b' ? 460 : 290);
+}
+function vibe(p) {
+  try { if (navigator.vibrate && !isMuted()) navigator.vibrate(p); } catch (e) {}
 }
 function flashWarn(col) {
   colhlEl.style.transform = 'translateX(' + (col * 100) + '%)';
@@ -1752,8 +1984,33 @@ function flashWarn(col) {
 
 /* ================= 합체 ================= */
 function resolveFrom(anchor) {
-  var combo = 0, guard = 0, pair, a, b, tmp, keep, gone, ix, gain;
-  while (guard++ < 200) {
+  var combo = 0, guard = 0, pair, a, b, tmp, keep, gone, ix, gain, rb, tgt;
+  while (guard++ < 240) {
+    /* 1) 무지개가 숫자와 닿아 있으면 먼저 한 단계 올라간다 */
+    rb = findRainbow(anchor);
+    if (rb) {
+      combo++;
+      tgt = rb.tgt;
+      S.grid[rb.rain.r][rb.rain.c] = null;
+      ix = S.tiles.indexOf(rb.rain); if (ix >= 0) S.tiles.splice(ix, 1);
+      killTile(rb.rain);
+      tgt.v = tgt.v * 2;
+      if (tgt.v > S.bestTile) S.bestTile = tgt.v;
+      paintTile(tgt);
+      pulse(tgt);
+      gain = tgt.v * combo + 40;
+      S.score += gain;
+      S.rains++;
+      burst(tgt.r, tgt.c, '+' + fmt(gain), gain >= 400);
+      fxBurst(tgt.r, tgt.c, 16, null, 1.2);
+      sndRain(tgt.v);
+      shake('s'); vibe(10);
+      if (combo > S.comboMax) S.comboMax = combo;
+      gravity();
+      anchor = tgt;
+      continue;
+    }
+    /* 2) 같은 숫자끼리 합체 */
     pair = findPair(anchor);
     if (!pair) break;
     combo++;
@@ -1769,14 +2026,111 @@ function resolveFrom(anchor) {
     S.score += gain;
     paintTile(keep);
     pulse(keep);
-    burst(keep.r, keep.c, '+' + fmt(gain));
+    burst(keep.r, keep.c, '+' + fmt(gain), gain >= 400);
+    fxBurst(keep.r, keep.c, combo >= 3 ? 22 : 11, null, 1 + Math.min(1, combo * 0.16));
     sndMerge(keep.v, combo);
+    if (combo >= 2) { shake(combo >= 4 ? 'b' : 's'); vibe(combo >= 3 ? 18 : 8); }
     if (combo > S.comboMax) S.comboMax = combo;
     anchor = keep;
     gravity();
   }
   if (combo > 1) showCombo(combo);
   return combo;
+}
+
+/* ================= 💣 폭탄 ================= */
+function boom(t) {
+  var r0 = t.r, c0 = t.c, r, c, tt, cleared = 0, x, gain;
+  for (r = Math.max(0, r0 - 1); r <= Math.min(ROWS - 1, r0 + 1); r++) {
+    for (c = Math.max(0, c0 - 1); c <= Math.min(COLS - 1, c0 + 1); c++) {
+      tt = S.grid[r][c];
+      if (!tt) continue;
+      S.grid[r][c] = null;
+      x = S.tiles.indexOf(tt); if (x >= 0) S.tiles.splice(x, 1);
+      killTile(tt);
+      if (!tt.k) cleared++;
+    }
+  }
+  S.booms++;
+  gain = 24 * Math.max(1, cleared) + 50;
+  S.score += gain;
+  burst(r0, c0, '+' + fmt(gain), true);
+  fxBurst(r0, c0, 40, null, 2.3);
+  popText('BOOM!');
+  sndBoom();
+  shake('b');
+  vibe([0, 30, 36, 90]);
+  gravity();
+  resolveFrom(null);
+}
+
+/* ================= 압박 게이지 (긴박감) ================= */
+var PUSH = { left: 0, max: 7000, level: 1, warned: false, tic: -1 };
+var pushBarEl = null, pushFillEl = null, lvEl = null;
+
+function pushMax() {
+  var lv = 1 + Math.floor((S ? S.moves : 0) / 10);
+  return Math.max(3300, 7000 - (lv - 1) * 460);
+}
+function resetPush() {
+  PUSH.level = 1 + Math.floor((S ? S.moves : 0) / 10);
+  PUSH.max = pushMax();
+  PUSH.left = PUSH.max;
+  PUSH.tic = -1;
+  updatePush();
+}
+function updatePush() {
+  var ratio = PUSH.max > 0 ? clamp(PUSH.left / PUSH.max, 0, 1) : 0;
+  if (pushFillEl) pushFillEl.style.width = (ratio * 100).toFixed(1) + '%';
+  var crit = ratio <= 0.22, warn = ratio <= 0.45;
+  if (pushBarEl) pushBarEl.className = 'pushbar' + (crit ? ' crit' : (warn ? ' warn' : ''));
+  if (lvEl) { lvEl.textContent = 'LV ' + PUSH.level; lvEl.className = 'pushlv' + (crit ? ' hot' : ''); }
+  /* 맨 윗줄까지 차오르면 보드 테두리가 빨갛게 맥동한다 */
+  if (boardEl && S) {
+    var top = false, near = false, c, r;
+    for (c = 0; c < COLS; c++) {
+      if (S.grid[0][c]) top = true;
+      if (S.grid[1][c]) near = true;
+    }
+    var live = (mode === 'play' && !S.over);
+    boardEl.classList.toggle('danger', live && top);
+    boardEl.classList.toggle('near', live && !top && near);
+    if (live && top && !PUSH.warned) { PUSH.warned = true; toast('위험! 윗줄까지 거의 찼어요'); }
+  }
+}
+function pushTick() {
+  if (mode !== 'play' || !S || S.over || S.busy) return;
+  if (document.hidden) return;
+  PUSH.left -= 100;
+  var lv = 1 + Math.floor(S.moves / 10);
+  if (lv !== PUSH.level) {
+    PUSH.level = lv;
+    PUSH.max = pushMax();
+    if (PUSH.left > PUSH.max) PUSH.left = PUSH.max;
+    toast('속도 UP! 압박이 빨라졌어요');
+  }
+  if (PUSH.left <= PUSH.max * 0.3) {
+    var sec = Math.ceil(PUSH.left / 1000);
+    if (sec !== PUSH.tic && sec > 0) { PUSH.tic = sec; sndTic(); }
+  } else PUSH.tic = -1;
+  if (PUSH.left <= 0) { PUSH.left = 0; updatePush(); autoDrop(); return; }
+  updatePush();
+}
+/* 게이지가 비면 가장 여유 있는 열에 블록이 저절로 떨어진다 */
+function autoDrop() {
+  if (mode !== 'play' || !S || S.over) return;
+  if (S.busy) { PUSH.left = 600; return; }
+  var best = -1, bestH = ROWS + 1, c, r, h;
+  for (c = 0; c < COLS; c++) {
+    h = 0;
+    for (r = 0; r < ROWS; r++) if (S.grid[r][c]) h++;
+    if (h < ROWS && h < bestH) { bestH = h; best = c; }
+  }
+  if (best < 0) { endGame(); return; }
+  toast('게이지가 비어 블록이 저절로 떨어졌어요');
+  flashWarn(best);
+  resetPush();
+  dropAt(best, true);
 }
 
 /* ================= 조작 ================= */
@@ -1797,12 +2151,20 @@ function hideGhost() {
 }
 function paintGhost(v) {
   if (!ghost) return;
-  var face = ghost.firstChild;
+  var face = ghost.firstChild, num = face.firstChild;
+  var k = kindOf(v);
+  if (k) {
+    face.style.background = k === 'bomb' ? 'linear-gradient(158deg,#4A1420,#1B0A11)' : 'linear-gradient(135deg,#FF8FD0,#FFD75E 28%,#8FE9C8 56%,#9BD9FF 78%,#C68BF7)';
+    face.style.color = k === 'bomb' ? '#FFD75E' : '#101B2A';
+    num.textContent = k === 'bomb' ? '💣' : '🌈';
+    num.style.fontSize = Math.round(CELL * 0.5) + 'px';
+    return;
+  }
   var pal = PALETTE[clamp(tierOf(v), 0, PALETTE.length - 1)];
-  face.style.background = 'linear-gradient(158deg,' + pal[0] + ',' + pal[1] + ')';
+  face.style.background = k === 'rain' ? '' : 'linear-gradient(158deg,' + pal[0] + ',' + pal[1] + ')';
   face.style.color = pal[2];
-  face.firstChild.textContent = v;
-  face.firstChild.style.fontSize = fontFor(v);
+  num.textContent = v;
+  num.style.fontSize = fontFor(v);
 }
 function colFromX(clientX) {
   var rect = boardEl.getBoundingClientRect();
@@ -1810,13 +2172,14 @@ function colFromX(clientX) {
   var col = Math.floor((clientX - rect.left) / rect.width * COLS);
   return clamp(col, 0, COLS - 1);
 }
-function dropAt(col) {
+function dropAt(col, auto) {
   if (mode !== 'play' || !S || S.over || S.busy) return;
   if (col < 0 || col >= COLS) return;
   var r = emptyRowIn(col);
   if (r < 0) {
     flashWarn(col); sndNo();
     toast(S.cleanups > 0 ? '이 열은 가득 찼어요 · 정리권을 써 보세요' : '이 열은 가득 찼어요');
+    if (auto) resetPush();
     return;
   }
   var t = addTile(S.cur, r, col);
@@ -1834,11 +2197,13 @@ function dropAt(col) {
   sndDrop();
   advanceBlock();
   renderHud();
+  resetPush();
   var g = GEN;
   setTimeout(function () {
     if (g !== GEN) return;
     el.style.transition = 'transform 140ms cubic-bezier(.2,.8,.3,1)';
-    resolveFrom(t);
+    if (t.k === 'bomb') boom(t);
+    else resolveFrom(t);
     renderHud();
     S.busy = false;
     saveGame();
@@ -1863,6 +2228,7 @@ function useCleanup() {
   if (!tops.length) { toast('정리할 블록이 없어요'); return; }
   S.cleanups--;
   S.busy = true;
+  resetPush();
   tops.forEach(function (tp) {
     S.grid[tp.r][tp.c] = null;
     var ix = S.tiles.indexOf(tp); if (ix >= 0) S.tiles.splice(ix, 1);
@@ -1894,6 +2260,7 @@ function endGame() {
   if (S.over) return;
   S.over = true;
   S.busy = true;
+  if (boardEl) boardEl.classList.remove('danger', 'near');
   clearSave();
   var prevBest = store.get(K.best, 0) || 0;
   var newBest = S.score > prevBest;
@@ -1924,9 +2291,10 @@ function renderResult() {
     ? '새 최고 기록이에요 (지난 최고 ' + fmt(LAST.prevBest) + ')'
     : '이번 판 점수 · 최고 ' + fmt(Math.max(LAST.prevBest, S.score));
   $('#resTile').textContent = S.bestTile;
-  $('#resCombo').textContent = (S.comboMax || 1) + '연쇄';
+  $('#resCombo').textContent = 'x' + (S.comboMax || 1);
   $('#resMoves').textContent = fmt(S.moves);
-  $('#resRank').innerHTML = fmt(rk) + '<small>위</small>';
+  var rb = $('#resBoom'); if (rb) rb.textContent = fmt(S.booms || 0);
+  $('#resRank').innerHTML = fmt(rk) + '<small>' + (RankUI.s().rankUnit || '') + '</small>';
   $('#resPct').textContent = '상위 ' + pctTxt(pct);
   $('#resTotal').textContent = '전체 ' + fmt(SIM_TOTAL) + '명 중';
   var bar = $('#resBar');
@@ -1954,7 +2322,7 @@ function applyRemoteRank(v) {
   var subEl = document.getElementById('lbSub');
   if (subEl) subEl.textContent = RankUI.s().live;
   var pct = v.pct;
-  $('#resRank').innerHTML = fmt(v.rank) + '<small>위</small>';
+  $('#resRank').innerHTML = fmt(v.rank) + '<small>' + (RankUI.s().rankUnit || '') + '</small>';
   if (pct !== null && pct !== undefined) {
     $('#resPct').textContent = '상위 ' + pctTxt(pct);
     var bar = $('#resBar');
@@ -2063,14 +2431,16 @@ function renderLb() {
 }
 
 /* ================= 저장/이어하기 ================= */
+function cellOf(t) { return t ? (t.k === 'bomb' ? BOMB : (t.k === 'rain' ? RAIN : t.v)) : 0; }
 function serialize() {
   var g = [], r, c, row;
   for (r = 0; r < ROWS; r++) {
     row = [];
-    for (c = 0; c < COLS; c++) row.push(S.grid[r][c] ? S.grid[r][c].v : 0);
+    for (c = 0; c < COLS; c++) row.push(cellOf(S.grid[r][c]));
     g.push(row);
   }
-  return { v: 1, g: g, cur: S.cur, next: S.next, score: S.score, clean: S.cleanups, moves: S.moves, combo: S.comboMax, best: S.bestTile, t: Date.now() };
+  return { v: 2, g: g, cur: S.cur, next: S.next, score: S.score, clean: S.cleanups, moves: S.moves,
+    combo: S.comboMax, best: S.bestTile, booms: S.booms, rains: S.rains, t: Date.now() };
 }
 function saveGame() {
   if (!S || S.over || S.moves <= 0) return;
@@ -2089,7 +2459,7 @@ function isValidSave(o) {
     if (!Array.isArray(o.g[r]) || o.g[r].length !== COLS) return false;
     for (c = 0; c < COLS; c++) {
       v = o.g[r][c];
-      if (v && !isPow2(v)) return false;
+      if (v && !isPow2(v) && v !== BOMB && v !== RAIN) return false;
       if (v) any = true; else full = false;
     }
   }
@@ -2104,19 +2474,22 @@ function restore(o) {
   S = freshState();
   prepareLayer();
   S.score = o.score || 0;
-  S.cur = isPow2(o.cur) ? o.cur : 2;
-  S.next = isPow2(o.next) ? o.next : spawn();
+  S.cur = (isNum(o.cur) || o.cur === BOMB || o.cur === RAIN) ? o.cur : 2;
+  S.next = (isNum(o.next) || o.next === BOMB || o.next === RAIN) ? o.next : spawn();
   S.cleanups = (typeof o.clean === 'number') ? clamp(o.clean, 0, 9) : 1;
   S.moves = o.moves || 0;
   S.comboMax = o.combo || 0;
   S.bestTile = o.best || 2;
+  S.booms = o.booms || 0;
+  S.rains = o.rains || 0;
   var r, c, v;
   for (r = 0; r < ROWS; r++) {
     for (c = 0; c < COLS; c++) {
       v = (o.g[r] && o.g[r][c]) || 0;
-      if (v > 0) {
-        S.grid[r][c] = { v: v, r: r, c: c, el: null };
+      if (v) {
+        S.grid[r][c] = { v: isNum(v) ? v : 0, k: kindOf(v), r: r, c: c, el: null };
         S.tiles.push(S.grid[r][c]);
+        if (isNum(v) && v > S.bestTile) S.bestTile = v;
       }
     }
   }
@@ -2125,6 +2498,8 @@ function restore(o) {
   S.busy = false; S.over = false;
   renderHud(); renderPreviews();
   if (S.moves > 0) hideFirstHint(); else showFirstHint();
+  PUSH.warned = false;
+  resetPush();
   return true;
 }
 
@@ -2160,6 +2535,7 @@ function measure() {
   if (!CELL) return;
   S.tiles.forEach(function (t) { if (t.el) paintTile(t); });
   if (ghost) paintGhost(S.cur);
+  sizeFx();
 }
 function hideFirstHint() { if (firstHintEl) firstHintEl.classList.add('off'); }
 function showFirstHint() { if (firstHintEl) firstHintEl.classList.remove('off'); }
@@ -2176,10 +2552,12 @@ function renderHud() {
 }
 function paintPreview(el, v) {
   if (!el) return;
-  var pal = PALETTE[clamp(tierOf(v), 0, PALETTE.length - 1)];
-  el.textContent = v;
-  el.style.background = 'linear-gradient(158deg,' + pal[0] + ',' + pal[1] + ')';
-  el.style.color = pal[2];
+  var pal = PALETTE[clamp(tierOf(isNum(v) ? v : 2), 0, PALETTE.length - 1)];
+  el.textContent = v === BOMB ? '💣' : (v === RAIN ? '🌈' : v);
+  el.style.background = v === BOMB ? 'linear-gradient(158deg,#4A1420,#1B0A11)'
+    : (v === RAIN ? 'linear-gradient(135deg,#FF8FD0,#FFD75E 28%,#8FE9C8 56%,#9BD9FF 78%,#C68BF7)'
+      : 'linear-gradient(158deg,' + pal[0] + ',' + pal[1] + ')');
+  el.style.color = v === BOMB ? '#FFD75E' : (v === RAIN ? '#101B2A' : pal[2]);
 }
 function renderPreviews() {
   paintPreview($('#nowTile'), S.cur);
@@ -2252,6 +2630,8 @@ window.addEventListener('mg-lang', function () {
   try { renderAds(); } catch (e) {}
   try { if (REMOTE) applyRemoteRank(REMOTE); } catch (e) {}
   try { paintHomeBar(); } catch (e) {}
+  /* 결과 화면의 팀 선택·순위표도 바꾼 언어로 다시 그립니다 */
+  try { if (mode === 'result' && S) { renderNick(); renderLb(); } } catch (e) {}
 });
 
 /* ================= 새 게임 ================= */
@@ -2264,6 +2644,8 @@ function newGame() {
   renderHud(); renderPreviews();
   showFirstHint();
   show('play');
+  PUSH.warned = false;
+  resetPush();
   saveGame();
 }
 
@@ -2428,6 +2810,9 @@ function boot() {
   fxEl = $('#fx');
   comboPopEl = $('#comboPop');
   firstHintEl = $('#firstHint');
+  pushBarEl = $('#pushBar');
+  pushFillEl = $('#pushFill');
+  lvEl = $('#lvV');
 
   var html = '', i;
   for (i = 0; i < ROWS * COLS; i++) html += '<div class="slot"><i></i></div>';
@@ -2461,6 +2846,8 @@ function boot() {
     show('home');
   }
   measure();
+  initFx();
+  if (!pushTick._on) { pushTick._on = true; setInterval(pushTick, 100); }
 }
 
 /* 검증용 훅 (게임 동작에는 영향 없음) */
@@ -2469,10 +2856,17 @@ window.__DropProto = {
     return {
       screen: mode, score: S.score, cur: S.cur, next: S.next, cleanups: S.cleanups,
       moves: S.moves, over: S.over, bestTile: S.bestTile, comboMax: S.comboMax, busy: S.busy,
+      booms: S.booms, rains: S.rains, push: PUSH.left, pushMax: PUSH.max, level: PUSH.level,
+      danger: boardEl ? boardEl.classList.contains('danger') : false,
       tiles: S.tiles.length, full: isFull(),
-      grid: S.grid.map(function (row) { return row.map(function (t) { return t ? t.v : 0; }); })
+      grid: S.grid.map(function (row) { return row.map(function (t) { return cellOf(t); }); })
     };
   },
+  setCur: function (v) { if (S) { S.cur = v; renderPreviews(); } },
+  setNext: function (v) { if (S) { S.next = v; renderPreviews(); } },
+  pushInfo: function () { return { left: PUSH.left, max: PUSH.max, level: PUSH.level }; },
+  pushTick: pushTick,
+  autoDrop: autoDrop,
   drop: function (c) { dropAt(c); },
   useCleanup: useCleanup,
   setBoard: function (vals, curV, nextV) {
@@ -2482,7 +2876,11 @@ window.__DropProto = {
     var r, c, v;
     for (r = 0; r < ROWS; r++) for (c = 0; c < COLS; c++) {
       v = (vals[r] && vals[r][c]) || 0;
-      if (v > 0) { S.grid[r][c] = { v: v, r: r, c: c, el: null }; S.tiles.push(S.grid[r][c]); if (v > S.bestTile) S.bestTile = v; }
+      if (v) {
+        S.grid[r][c] = { v: isNum(v) ? v : 0, k: kindOf(v), r: r, c: c, el: null };
+        S.tiles.push(S.grid[r][c]);
+        if (isNum(v) && v > S.bestTile) S.bestTile = v;
+      }
     }
     S.tiles.forEach(mountTile);
     if (curV) S.cur = curV;

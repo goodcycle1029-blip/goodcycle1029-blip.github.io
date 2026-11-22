@@ -1,18 +1,24 @@
 {
   "id": "./drop.html",
-  "name": "느긋한 숫자블록 · SLOW NUMBER DROP",
-  "short_name": "숫자블록",
-  "description": "시간 제한도 타이밍 압박도 없이, 열을 한 번 톡 누르면 블록이 내려앉고 같은 숫자가 합쳐지는 원터치 퍼즐.",
+  "name": "숫자 콤보 팡! · NUMBER COMBO BANG",
+  "short_name": "콤보 팡",
+  "description": "💥 숫자 콤보 팡! — 열을 한 번 톡 누르면 블록이 떨어지고, 같은 숫자가 만나면 팡 터져 콤보가 쌓이는 원터치 퍼즐. 폭탄·무지개 블록, 압박 게이지로 손맛과 긴장감까지.",
   "lang": "ko",
   "dir": "ltr",
   "start_url": "./drop.html",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["standalone", "fullscreen"],
+  "display_override": [
+    "standalone",
+    "fullscreen"
+  ],
   "orientation": "portrait",
   "background_color": "#090d13",
   "theme_color": "#090d13",
-  "categories": ["games", "entertainment"],
+  "categories": [
+    "games",
+    "entertainment"
+  ],
   "icons": [
     {
       "src": "./icon-drop-192.png",
