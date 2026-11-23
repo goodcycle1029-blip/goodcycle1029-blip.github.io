@@ -895,7 +895,13 @@ function drawScene(ctx, W, H, cut, o, p, withText) {
   // 캐릭터 (+ 흰 스티커 테두리)
   ctx.save();
   ctx.translate(L.cx + dx, L.baseY + dy);
-  ctx.rotate(rot);
+  if (rot) {
+    // 발밑이 아니라 몸통 가운데를 축으로 기울여 '끄덕'처럼 보이게
+    const pv = L.dh * (o.motion === 'nod' ? 0.55 : 0.5);
+    ctx.translate(0, -pv);
+    ctx.rotate(rot);
+    ctx.translate(0, pv);
+  }
   ctx.scale(sx, sy);
   if (o.outline && sil && o.outlineW > 0) {
     const r = Math.max(1, o.outlineW * scale);
