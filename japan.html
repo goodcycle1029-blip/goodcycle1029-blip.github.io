@@ -636,6 +636,7 @@ select:focus{outline:2px solid var(--brand);outline-offset:1px}
 .sb-mic.rec{background:var(--accent);color:#fff;animation:micpulse 1s infinite}
 @keyframes micpulse{0%,100%{opacity:1}50%{opacity:.5}}
 .sb-input input::placeholder{font-size:15.5px}
+.split-bottom .split-inner{padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
 .split-jp .jp.loading{opacity:.55}
 
 /* desktop nicety */
@@ -2347,6 +2348,12 @@ const REFUND_OPTS = [
     if (sbBusy) return;
     const v = ($('#sbInput').value || '').trim();
     if (!v) { toast('한국어로 입력해 주세요'); return; }
+    if (/[\u3040-\u30ff\u4e00-\u9fff]/.test(v)) {
+      /* 이미 일본어로 친 경우는 그대로 상대 화면에 */
+      $('#sbInput').value = '';
+      showSplitResult(v, '', '');
+      return;
+    }
     const hit = koJaLookup(v);
     if (hit) {
       $('#sbInput').value = '';
