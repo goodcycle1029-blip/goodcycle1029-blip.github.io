@@ -164,6 +164,7 @@ input,select{font-family:inherit;font-size:20px;color:inherit}
 .btn.sm{min-height:40px;font-size:17.5px;padding:0 12px;border-radius:12px}
 .btn:disabled{opacity:.45}
 .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none}
+.chips.wrap{flex-wrap:wrap;overflow:visible}
 .chips::-webkit-scrollbar{display:none}
 .chip{
   flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;height:46px;padding:0 16px;border-radius:999px;
@@ -607,6 +608,36 @@ select:focus{outline:2px solid var(--brand);outline-offset:1px}
 .fb-note{font-size:14px;color:var(--sub);line-height:1.45;margin-top:10px}
 .fb-note b{color:var(--ink2)}
 
+/* ---------- 항공편 ---------- */
+#air{scroll-margin-top:112px}
+.fl-block{margin-top:12px}
+.fl-block label,.fl-date label{display:block;font-size:15px;font-weight:800;color:var(--sub);margin:0 0 6px 3px}
+.fl-date{margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fl-date label{margin:0}
+.fl-date input{height:46px;border-radius:12px;border:1px solid var(--line);background:#fff;padding:0 10px;font-size:17px;font-weight:700}
+.fl-route{margin-top:12px;border-radius:13px;background:var(--brand-soft);padding:12px 14px}
+.fl-route b{font-size:19px;font-weight:900;letter-spacing:-.02em}
+.fl-route .ap{font-size:15px;color:var(--brand);font-weight:800;margin-left:6px}
+.fl-route .hint{display:block;font-size:14.5px;color:var(--warn);font-weight:700;margin-top:5px;line-height:1.4}
+.fl-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.fl-btn{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;min-height:60px;padding:9px 12px;border:1px solid var(--line);border-radius:13px;background:#fff;box-shadow:var(--shadow);text-align:left}
+.fl-btn b{font-size:17px;font-weight:800;display:flex;align-items:center;gap:6px}
+.fl-btn span{font-size:13.5px;color:var(--sub)}
+.fl-btn:active{transform:scale(.985)}
+.fl-check .fc{padding:12px 0;border-bottom:1px dashed var(--line)}
+.fl-check .fc:last-child{border-bottom:0;padding-bottom:0}
+.fl-check .fc > b{display:block;font-size:17.5px;font-weight:800;line-height:1.4}
+.fl-check .fc p{margin-top:5px;font-size:16px;color:var(--ink2);line-height:1.55}
+.fl-check .fc .jp{font-family:var(--jp);font-size:15px;color:#8b919b;background:#f6f5f1;border-radius:6px;padding:1px 6px;display:inline-block;margin-top:6px}
+
+/* ---------- 마주보기 입력(한국어→일본어) ---------- */
+.sb-inlabel{font-size:13.5px;font-weight:800;color:var(--sub);margin:2px 2px 0}
+.sb-mic{width:46px;height:46px;flex:0 0 auto;border-radius:12px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-size:21px;border:1px solid transparent}
+.sb-mic.rec{background:var(--accent);color:#fff;animation:micpulse 1s infinite}
+@keyframes micpulse{0%,100%{opacity:1}50%{opacity:.5}}
+.sb-input input::placeholder{font-size:15.5px}
+.split-jp .jp.loading{opacity:.55}
+
 /* desktop nicety */
 @media(min-width:560px){
   .tabbar{max-width:480px;left:50%;right:auto;transform:translateX(-50%);border-radius:0}
@@ -797,6 +828,7 @@ body.has-adbar{padding-bottom:calc(178px + var(--safe-b))}
           </div>
           <p class="small muted" style="margin-top:9px">공항별 추천 열차·요금·소요 시간을 표로 정리했어요. 숙소 위치만 고르면 됩니다.</p>
           <button class="btn ghost block" data-goto="ticket" style="margin-top:12px">공항→시내 가이드 열기</button>
+          <button class="btn ghost block" data-air="1" style="margin-top:8px">✈️ 항공편 최저가 비교 (출국 전)</button>
         </div>
       </div>
 
@@ -823,7 +855,52 @@ body.has-adbar{padding-bottom:calc(178px + var(--safe-b))}
 
     <!-- ============ TICKET ============ -->
     <section class="page" id="page-ticket" role="tabpanel" aria-label="표 끊기">
-      <div class="sec-head"><h2>🎫 지하철 표 끊기</h2><span class="sub">매표기 앞에서 30초</span></div>
+
+      <!-- ============ 항공편 (출국 전) ============ -->
+      <div class="sec" id="air" style="margin-top:2px">
+        <div class="sec-head"><h2>✈️ 항공편 비교</h2><span class="sub">출발·도착지만</span></div>
+        <div class="card">
+          <p class="lead">같은 노선도 사이트마다 가격이 달라요. 4곳을 같은 조건으로 열어 두고 비교하세요.</p>
+          <div class="fl-block">
+            <label>어디서 출발해요?</label>
+            <div class="chips wrap" id="flFrom" role="tablist" aria-label="출발 공항"></div>
+          </div>
+          <div class="fl-block">
+            <label>어디로 가요?</label>
+            <div class="chips wrap" id="flTo" role="tablist" aria-label="도착 공항"></div>
+          </div>
+          <div class="fl-date">
+            <label for="flDate">출발일</label>
+            <input type="date" id="flDate" aria-label="출발일">
+          </div>
+          <div class="fl-route" id="flRoute" aria-live="polite"></div>
+          <div class="fl-btns" id="flBtns"></div>
+          <p class="tiny muted" style="margin-top:9px">가격·운항 시간은 각 사이트에서 확인하세요. 네이버 항공권은 날짜를 넣어야 노선이 열려요.</p>
+        </div>
+
+        <div class="card">
+          <h3>🧳 예약 전·출국 전 체크리스트</h3>
+          <div class="fl-check">
+            <div class="fc">
+              <b>① LCC 위탁 수하물이 ‘포함’인지 먼저 보세요</b>
+              <p>진에어·제주항공·티웨이·에어부산 같은 저가항공은 <b class="hl">요금 종류에 따라</b> 위탁 수하물이 포함되기도, 안 되기도 해요. 최저가만 보고 예약하면 공항에서 추가 요금을 내게 됩니다. 예약 화면의 ‘위탁 15kg 포함’ 표시를 확인하고, 필요하면 <b>예약할 때 미리 추가</b>하세요 — 공항 현장 결제가 더 비쌉니다.</p>
+              <span class="jp">手荷物 · 預け荷物</span>
+            </div>
+            <div class="fc">
+              <b>② 공항에는 인천 3시간 전 · 김포·김해 2시간 전</b>
+              <p>인천공항은 출발 <b>3시간 전</b> 도착이 공항공사 권고예요. 김포·김해는 <b>2시간 전</b>이 기본이고, 짐이 많거나 가족·연휴라면 30분 더 잡으세요. 국제선 체크인은 보통 출발 <b>50~60분 전</b>에 마감됩니다.</p>
+              <span class="jp">チェックイン締切 60分前</span>
+            </div>
+            <div class="fc">
+              <b>③ Visit Japan Web QR은 집에서 미리</b>
+              <p>입국심사·세관신고 QR을 <b class="hl">출국 전에</b> 등록해 두면 일본 공항에서 줄이 짧아져요. 여권·항공편·첫 숙소 주소만 있으면 되고, QR은 <b>스크린샷</b>으로도 쓸 수 있어요. 사칭 사이트가 많으니 주소가 <b>vjw.digital.go.jp</b>인지 확인하세요. 무료예요.</p>
+              <a class="btn sm ghost" style="margin-top:9px;width:fit-content" href="https://www.vjw.digital.go.jp/" target="_blank" rel="noopener">Visit Japan Web 열기</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-head" style="margin-top:24px"><h2>🎫 지하철 표 끊기</h2><span class="sub">매표기 앞에서 30초</span></div>
 
       <div class="card">
         <h3>매표기 화면, 이렇게 생겼어요</h3>
@@ -1025,6 +1102,8 @@ body.has-adbar{padding-bottom:calc(178px + var(--safe-b))}
 
       <div class="chips" id="phraseChips" role="tablist" style="margin-top:14px"></div>
       <div class="plist" id="phraseList"></div>
+
+      <div class="note" style="margin-top:14px"><span>🇰🇷</span><div><b>이제 한국어로 입력해도 돼요.</b> 마주보기 모드나 카드에서 한국어로 말하거나 치면 자동으로 일본어로 바뀌어 상대 화면에 크게 떠요. (자유 문장 번역은 인터넷이 필요해요)</div></div>
 
       <div class="note" style="margin-top:14px"><span>🔊</span><div><b>소리가 안 나면</b> 폰을 무음 해제하고, 안드로이드는 설정 → 언어 및 입력 → 글자 읽어주기에서 ‘일본어’ 음성을 설치하세요. 그래도 안 되면 화면의 큰 글씨를 보여주면 됩니다.</div></div>
     </section>
@@ -1253,7 +1332,7 @@ body.has-adbar{padding-bottom:calc(178px + var(--safe-b))}
       </div>
       <div class="replies" id="spReplies"></div>
       <div class="split-tools">
-        <button class="btn light" id="spSpeak">🔊 읽어주기</button>
+        <button class="btn light" id="spSpeak">🔊 일본어 읽어주기</button>
         <button class="btn" id="spClear">지우기</button>
       </div>
     </div>
@@ -1267,9 +1346,11 @@ body.has-adbar{padding-bottom:calc(178px + var(--safe-b))}
         <p class="sb-guide">상황에 맞는 문장을 골라 보세요</p>
         <div class="sb-chips" id="sbChips"></div>
       </div>
-      <p class="tiny muted" style="margin-top:6px">위 문장을 누르면 상대 화면에 일본어가 크게 떠요. 상대가 답변 버튼을 누르면 여기에 한국어로 보여요.</p>
+      <p class="tiny muted" style="margin-top:6px">위 문장을 누르거나, 아래 칸에 한국어로 말해 보세요. 위 화면에 일본어가 크게 떠요.</p>
+      <div class="sb-inlabel">한국어로 입력 (보내면 일본어로 변환)</div>
       <div class="sb-input">
-        <input id="sbInput" type="text" placeholder="일본어로 직접 입력 (선택)" aria-label="일본어 직접 입력">
+        <button class="sb-mic" id="sbMic" type="button" aria-label="한국어로 말하기" title="한국어로 말하기">🎤</button>
+        <input id="sbInput" type="text" placeholder="예) 얼마예요?" aria-label="한국어 입력">
         <button class="btn accent" id="sbSend">보내기</button>
       </div>
     </div>
@@ -1731,6 +1812,7 @@ const REFUND_OPTS = [
 
   /* ---------------- 홈 퀵 ---------------- */
   const QUICK = [
+    { ic: '✈️', t: '항공권 최저가 비교', s: '인천→나리타 · 4곳 한 번에', air: 1 },
     { ic: '🎫', t: '매표기 5단계', s: '표 끊기 화면 순서 그대로', go: 'ticket' },
     { ic: '🚇', t: '신주쿠 → 시부야', s: '4분 · 199엔 · 환승 0회', go: 'route' },
     { ic: '🤝', t: '마주보기 모드', s: '점원·호텔 직원과 대화', split: 1 },
@@ -1744,7 +1826,7 @@ const REFUND_OPTS = [
   ).join('');
   $$('#homeQuick .qrow').forEach(btn => btn.addEventListener('click', () => {
     const q = QUICK[+btn.dataset.q];
-    if (q.split) openSplit(); else go(q.go);
+    if (q.split) openSplit(); else if (q.air) airJump(); else go(q.go);
   }));
 
   /* ---------------- 광고 슬롯 ---------------- */
@@ -1975,6 +2057,222 @@ const REFUND_OPTS = [
     }
   });
 
+  /* ---------------- 한국어 → 일본어 (마주보기 입력) ---------------- */
+  /* 1) 내장 표현 사전 — 인터넷 없이도 바로 */
+  const KO_JA = [
+    ['몰라요', 'わかりません', '와카리마센'],
+    ['몰라', 'わかりません', '와카리마센'],
+    ['모르겠어요', 'わかりません', '와카리마센'],
+    ['모르겠습니다', 'わかりません', '와카리마센'],
+    ['얼마예요', 'いくらですか？', '이쿠라데스카'],
+    ['얼마예요?', 'いくらですか？', '이쿠라데스카'],
+    ['얼마입니까', 'いくらですか？', '이쿠라데스카'],
+    ['이거 얼마예요', 'これはいくらですか？', '코레와 이쿠라데스카'],
+    ['이거 뭐예요', 'これは何ですか？', '코레와 난데스카'],
+    ['이거 주세요', 'これ、ください。', '코레, 쿠다사이'],
+    ['이것 주세요', 'これ、ください。', '코레, 쿠다사이'],
+    ['물 주세요', 'お水をください。', '오미즈오 쿠다사이'],
+    ['물 좀 주세요', 'お水をください。', '오미즈오 쿠다사이'],
+    ['물', 'お水', '오미즈'],
+    ['화장실 어디예요', 'トイレはどこですか？', '토이레와 도코데스카'],
+    ['화장실', 'トイレ', '토이레'],
+    ['감사합니다', 'ありがとうございます。', '아리가토- 고자이마스'],
+    ['고마워요', 'ありがとうございます。', '아리가토- 고자이마스'],
+    ['고맙습니다', 'ありがとうございます。', '아리가토- 고자이마스'],
+    ['안녕하세요', 'こんにちは。', '콘니치와'],
+    ['죄송합니다', 'すみません。', '스미마센'],
+    ['죄송해요', 'すみません。', '스미마센'],
+    ['미안해요', 'すみません。', '스미마센'],
+    ['저기요', 'すみません。', '스미마센'],
+    ['네', 'はい。', '하이'],
+    ['아니요', 'いいえ。', '이이에'],
+    ['괜찬아요', '大丈夫です。', '다이조-부데스'],
+    ['계산해 주세요', 'お会計をお願いします。', '오카이케이오 오네가이시마스'],
+    ['계산', 'お会計', '오카이케이'],
+    ['카드 되나요', 'カードは使えますか？', '카-도와 쓰카에마스카'],
+    ['현금으로 할게요', '現金で払います。', '겐킨데 하라이마스'],
+    ['현금으로요', '現金で払います。', '겐킨데 하라이마스'],
+    ['면세 되나요', '免税できますか？', '멘제- 데키마스카'],
+    ['면세', '免税', '멘제-'],
+    ['봉투 주세요', '袋をください。', '후쿠로오 쿠다사이'],
+    ['봉투', '袋', '후쿠로'],
+    ['데워 주세요', '温めてもらえますか？', '아타타메테 모라에마스카'],
+    ['데워 주실 수 있어요', '温めてもらえますか？', '아타타메테 모라에마스카'],
+    ['추천 메뉴 뭐예요', 'おすすめは何ですか？', '오스스메와 난데스카'],
+    ['한 명이에요', '一人です。', '히토리데스'],
+    ['두 명이에요', '二人です。', '후타리데스'],
+    ['세 명이에요', '三人です。', '산닌데스'],
+    ['예약했어요', '予約しています。', '요야쿠 시테이마스'],
+    ['예약 안 했어요', '予約していません。', '요야쿠 시테이마센'],
+    ['포장해 주세요', '持ち帰りでお願いします。', '모치카에리데 오네가이시마스'],
+    ['길을 잃었어요', '道に迷いました。', '미치니 마요이마시타'],
+    ['역이 어디예요', '駅はどこですか？', '에키와 도코데스카'],
+    ['역', '駅', '에키'],
+    ['공항', '空港', '쿠-코-'],
+    ['호텔', 'ホテル', '호테루'],
+    ['병원', '病院', '뵤-인'],
+    ['약국', '薬局', '야쿠쿄쿠'],
+    ['이 열차 신주쿠 가요', 'この電車は新宿に行きますか？', '코노 덴샤와 신주쿠니 이키마스카'],
+    ['환승 어디서 해요', '乗り換えはどこですか？', '노리카에와 도코데스카'],
+    ['몇 번 승강장이에요', '何番線ですか？', '난반센데스카'],
+    ['여기서 내릴게요', 'ここで降ります。', '코코데 오리마스'],
+    ['택시 불러 주세요', 'タクシーを呼んでください。', '타쿠시-오 욘데 쿠다사이'],
+    ['택시', 'タクシー', '타쿠시-'],
+    ['사진 찍어 주세요', '写真を掃ってもらえますか？', '샤신오 톳테 모라에마스카'],
+    ['체크인 할게요', 'チェックインをお願いします。', '체쿠인오 오네가이시마스'],
+    ['짐 맡길 수 있어요', '荷物を預かってもらえますか？', '니모쓰오 아즈캇테 모라에마스카'],
+    ['와이파이 비밀번호 뭐예요', 'Wi-Fiのパスワードは何ですか？', '와이파이노 파스와-도와 난데스카'],
+    ['체크아웃 몇 시예요', 'チェックアウトは何時ですか？', '체쿠아우토와 난지데스카'],
+    ['수건 더 주세요', 'タオルをもう一枚ください。', '타오루오 모- 이치마이 쿠다사이'],
+    ['온수가 안 나와요', 'お湯が出ません。', '오유가 데마센'],
+    ['도와주세요', '助けてください！', '타스케테 쿠다사이'],
+    ['구급차 불러 주세요', '救急車を呼んでください。', '큐-큐-샤오 욘데 쿠다사이'],
+    ['몸이 안 좋아요', '気分が悪いです。', '키분가 와루이데스'],
+    ['지갑을 잃어버렸어요', '財布をなくしました。', '사이후오 나쿠시마시타'],
+    ['여권을 잃어버렸어요', 'パスポートをなくしました。', '파스포-토오 나쿠시마시타'],
+    ['파출소 어디예요', '交番はどこですか？', '코-반와 도코데스카'],
+    ['한국어 하시는 분 계세요', '韓国語が話せる人はいますか？', '칸코쿠고가 하나세루 히토와 이마스카'],
+    ['알레르기가 있어요', 'アレルギーがあります。', '아레루기-가 아리마스'],
+    ['입어봐도 돼요', '試着してもいいですか？', '시챠쿠 시테모 이-데스카'],
+    ['큰 사이즈 있어요', '大きいサイズはありますか？', '오키이 사이즈와 아리마스카'],
+    ['따로 계산해 주세요', '別々でお願いします。', '베쓰베쓰데 오네가이시마스'],
+    ['영수증 주세요', 'レシートをください。', '레시-토오 쿠다사이'],
+    ['영수증', 'レシート', '레시-토'],
+    ['맛있어요', 'おいしいです。', '오이시-데스'],
+    ['맛있어요', 'おいしいです。', '오이시-데스'],
+    ['매워요', '辛いですか？', '카라이데스카'],
+    ['안 매운 걸로 주세요', '辛くないものをください。', '카라쿠나이 모노오 쿠다사이'],
+    ['저는 한국 사람이에요', '私は韓国人です。', '와타시와 칸코쿠진데스'],
+    ['한국에서 왔어요', '韓国から来ました。', '칸코쿠카라 키마시타'],
+    ['천천히 말해 주세요', 'ゆっくり話してください。', '윳쿠리 하나시테 쿠다사이'],
+    ['다시 한 번 말해 주세요', 'もう一度お願いします。', '모- 이치도 오네가이시마스'],
+    ['조금만 기다려 주세요', '少々お待ちください。', '쇼-쇼- 오마치 쿠다사이'],
+    ['한국어로 설명해 주세요', '韓国語で説明してください。', '칸코쿠고데 세쓰메이시테 쿠다사이'],
+    ['공항 가는 버스 있어요', '空港までのバスはありますか？', '쿠-코-마데노 바스와 아리마스카'],
+    ['버스 어디서 타요', 'バスはどこで乗りますか？', '바스와 도코데 노리마스카'],
+    ['이 주소로 가 주세요', 'この住所までお願いします。', '코노 주-쇼마데 오네가이시마스'],
+    ['티켓 두 장 주세요', 'チケットを2枚ください。', '치켓토오 니마이 쿠다사이'],
+    ['지하철', '地下鉄', '치카테쓰'],
+    ['버스', 'バス', '바스'],
+    ['여권', 'パスポート', '파스포-토'],
+    ['지갑', '財布', '사이후'],
+    ['수건', 'タオル', '타오루'],
+    ['밥', 'こ飯', '고한']
+  ];
+  function koNorm(s) { return String(s == null ? '' : s).replace(/[\s.,!?~…·'"'"「」、。？！]/g, '').toLowerCase(); }
+  const KO_JA_MAP = {};
+  KO_JA.forEach(function (row) { KO_JA_MAP[koNorm(row[0])] = { jp: row[1], kr: row[2] }; });
+  function koJaLookup(text) {
+    const n = koNorm(text);
+    if (!n) return null;
+    const tries = [n, n.replace(/요$/, ''), n + '요'];
+    for (let i = 0; i < tries.length; i++) if (KO_JA_MAP[tries[i]]) return KO_JA_MAP[tries[i]];
+    return null;
+  }
+
+  /* 2) 로마자 → 한글 발음 (가나 발음 표시용) */
+  function romajiToHangul(rom) {
+    const INIT = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+    const CONS = { k: 'ㄱ', g: 'ㄱ', s: 'ㅅ', sh: 'ㅅ', z: 'ㅈ', j: 'ㅈ', t: 'ㄷ', ch: 'ㅈ', ts: 'ㅈ', d: 'ㄷ', n: 'ㄴ', h: 'ㅎ', b: 'ㅂ', p: 'ㅂ', m: 'ㅁ', r: 'ㄹ', f: 'ㅎ', v: 'ㅂ' };
+    const CONS_ASP = { k: 'ㅋ', t: 'ㅌ', p: 'ㅍ', ch: 'ㅊ', ts: 'ㅊ' };
+    const FIN = { k: 1, t: 7, p: 17, s: 19, c: 19, n: 4, m: 16 };
+    const V = { a: 0, i: 20, u: 13, e: 5, o: 8, ya: 2, yu: 17, yo: 12, ye: 7, wa: 9, wi: 16, we: 15, wo: 14 };
+    const ONSET = ['sh', 'ch', 'ts', 'ky', 'gy', 'ny', 'hy', 'by', 'py', 'my', 'ry', 'k', 'g', 's', 'z', 'j', 't', 'd', 'n', 'h', 'b', 'p', 'm', 'y', 'r', 'w', 'f', 'v'];
+    const VOW = ['ya', 'yu', 'yo', 'ye', 'wa', 'wi', 'we', 'wo', 'a', 'i', 'u', 'e', 'o'];
+    const src = String(rom || '').toLowerCase().replace(/[^a-z' ]+/g, ' ').trim();
+    if (!src) return '';
+    return src.split(/\s+/).map(function (word) {
+      const out = [];
+      let i = 0;
+      const setFin = function (f) {
+        const j = FIN[f] || 4;
+        if (out.length) out[out.length - 1].fin = j;
+        else out.push({ ini: 11, vow: 18, fin: j });
+      };
+      while (i < word.length) {
+        const rest = word.slice(i);
+        if (rest[0] === "'") { i++; continue; }
+        if (rest.length > 1 && rest[0] === rest[1] && 'kstpc'.indexOf(rest[0]) > -1 && rest[0] !== 'n') {
+          setFin(rest[0] === 'k' ? 'k' : rest[0] === 'p' ? 'p' : 't');
+          i += 2; continue;
+        }
+        if (rest[0] === 'n') {
+          const nx = rest[1] || '';
+          if (!nx || !/[aeiouy]/.test(nx)) { setFin(/[bpm]/.test(nx) ? 'm' : 'n'); i += 1; continue; }
+        }
+        let on = '';
+        for (let c = 0; c < ONSET.length; c++) { if (rest.indexOf(ONSET[c]) === 0) { on = ONSET[c]; break; } }
+        if (!on && !/^[aeiou]/.test(rest)) { i += 1; continue; }
+        let j = i + on.length;
+        const after = word.slice(j);
+        let vw = '';
+        if (after.indexOf('ou') === 0 || after.indexOf('oo') === 0) { vw = 'o'; j += 2; }
+        else if (after.indexOf('uu') === 0) { vw = 'u'; j += 2; }
+        else {
+          for (let v = 0; v < VOW.length; v++) { if (after.indexOf(VOW[v]) === 0) { vw = VOW[v]; j += vw.length; break; } }
+        }
+        if (!vw) { i = j || (i + 1); continue; }
+        i = j;
+        let ini = 11;
+        if (on === 'y' || on === 'w') { vw = on + vw; }
+        else if (on) {
+          if (on.length === 2 && on[1] === 'y') { vw = 'y' + vw; on = on[0]; }
+          ini = INIT.indexOf(CONS_ASP[on] || CONS[on] || CONS[on[0]] || 'ㅇ');
+        }
+        if (ini < 0) ini = 11;
+        let vy = V[vw];
+        if (vy === undefined) vy = 20;
+        if (on === 'ts' && vw === 'u') vy = 18;
+        else if ((on === 's' || on === 'z') && vw === 'u') vy = 18;
+        out.push({ ini: ini, vow: vy, fin: 0 });
+      }
+      return out.map(function (s) { return String.fromCharCode(0xAC00 + s.ini * 588 + s.vow * 28 + s.fin); }).join('');
+    }).join(' ');
+  }
+
+  /* 3) 무료 번역 (Google → MyMemory) */
+  const KO_JA_CACHE = {};
+  function apiTimeout(url, ms) {
+    const ctl = new AbortController();
+    const t = setTimeout(function () { ctl.abort(); }, ms || 7000);
+    return fetch(url, { signal: ctl.signal, cache: 'no-store' }).then(function (r) {
+      if (!r.ok) throw new Error('http ' + r.status);
+      return r.json();
+    }).finally(function () { clearTimeout(t); });
+  }
+  function koJaGoogle(q) {
+    const u = 'https://translate.googleapis.com/translate_a/single?client=dict-chrome-ex&sl=ko&tl=ja&dt=t&dt=rm&q=' + encodeURIComponent(q);
+    return apiTimeout(u, 7000).then(function (d) {
+      const segs = d && d[0];
+      if (!segs || !segs.length) throw new Error('empty');
+      let ja = '', rm = '';
+      segs.forEach(function (s) {
+        if (!Array.isArray(s)) return;
+        if (typeof s[0] === 'string' && s[0]) ja += s[0];
+        else if (!s[0] && typeof s[2] === 'string' && s[2]) rm += s[2];
+      });
+      ja = ja.trim();
+      if (!ja) throw new Error('empty');
+      return { jp: ja, kr: rm ? romajiToHangul(rm) : '', src: 'google' };
+    });
+  }
+  function koJaMyMemory(q) {
+    const u = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(q) + '&langpair=ko%7Cja';
+    return apiTimeout(u, 8000).then(function (d) {
+      const t = d && d.responseData && d.responseData.translatedText;
+      if (!t || /MYMEMORY WARNING/i.test(t)) throw new Error('empty');
+      return { jp: String(t).trim(), kr: '', src: 'mymemory' };
+    });
+  }
+  function koJaTranslate(q) {
+    const k = koNorm(q);
+    if (KO_JA_CACHE[k]) return Promise.resolve(KO_JA_CACHE[k]);
+    return koJaGoogle(q).catch(function () { return koJaMyMemory(q); }).then(function (r) {
+      KO_JA_CACHE[k] = r;
+      return r;
+    });
+  }
+
   /* ---------------- 마주보기(분할) ---------------- */
   let spCurrent = SPLIT_PHRASES[0];
   function renderReplies() {
@@ -2035,16 +2333,161 @@ const REFUND_OPTS = [
     spCurrent = { jp: 'すみません', kr: '스미마센', ko: '저기요' };
     $('#sbReplyNow').innerHTML = '<span>상대 답변은 여기에 한국어로 표시돼요</span>';
   });
-  $('#sbSend').addEventListener('click', () => {
+  /* ---------------- 마주보기: 한국어 입력 → 일본어 변환 ---------------- */
+  let sbBusy = false;
+  function showSplitResult(ja, kr, ko) {
+    spCurrent = { jp: ja, kr: kr || '', ko: ko || '' };
+    $('#spJp').classList.remove('loading');
+    $('#spJp').textContent = ja;
+    $('#spKr').textContent = kr || '';
+    $('#spKo').textContent = ko || '';
+    speakJa(ja);
+  }
+  function sbSend() {
+    if (sbBusy) return;
     const v = ($('#sbInput').value || '').trim();
-    if (!v) { toast('일본어 문장을 입력해 주세요'); return; }
-    $('#spJp').textContent = v;
-    $('#spKr').textContent = '';
-    $('#spKo').textContent = '직접 입력한 문장';
-    speakJa(v);
-    $('#sbInput').value = '';
+    if (!v) { toast('한국어로 입력해 주세요'); return; }
+    const hit = koJaLookup(v);
+    if (hit) {
+      $('#sbInput').value = '';
+      showSplitResult(hit.jp, hit.kr, v);
+      return;
+    }
+    sbBusy = true;
+    const before = spCurrent;
+    $('#sbSend').disabled = true;
+    $('#spJp').classList.add('loading');
+    $('#spJp').textContent = '···';
+    $('#spKr').textContent = '일본어로 바꾸는 중…';
+    $('#spKo').textContent = v;
+    koJaTranslate(v).then(function (r) {
+      $('#sbInput').value = '';
+      showSplitResult(r.jp, r.kr, v);
+    }).catch(function () {
+      $('#spJp').classList.remove('loading');
+      $('#spJp').textContent = before.jp;
+      $('#spKr').textContent = before.kr;
+      $('#spKo').textContent = before.ko;
+      toast('번역이 안 됐어요. 인터넷을 확인하거나 아래 빠른 문장을 눌러 주세요.');
+    }).finally(function () {
+      sbBusy = false;
+      $('#sbSend').disabled = false;
+    });
+  }
+  $('#sbSend').addEventListener('click', sbSend);
+  $('#sbInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sbSend(); } });
+
+  /* 마이크: 한국어로 말하면 바로 보내기 (지원 브라우저만) */
+  const SB_SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let sbRecog = null, sbRecOn = false;
+  function sbStopRec() {
+    sbRecOn = false;
+    if ($('#sbMic')) $('#sbMic').classList.remove('rec');
+    try { if (sbRecog) sbRecog.stop(); } catch (e) {}
+  }
+  if ($('#sbMic')) $('#sbMic').addEventListener('click', () => {
+    if (!SB_SR) { toast('이 브라우저는 음성 입력을 지원하지 않아요. 키보드로 입력해 주세요.'); return; }
+    if (sbRecOn) { sbStopRec(); return; }
+    try {
+      if (canSpeak) window.speechSynthesis.cancel();
+      sbRecog = new SB_SR();
+      sbRecog.lang = 'ko-KR';
+      sbRecog.interimResults = false;
+      sbRecog.maxAlternatives = 1;
+      sbRecog.onresult = ev => {
+        const t = ev.results && ev.results[0] && ev.results[0][0] ? ev.results[0][0].transcript : '';
+        sbStopRec();
+        if (t) { $('#sbInput').value = t; sbSend(); }
+      };
+      sbRecog.onerror = ev => {
+        const er = ev && ev.error;
+        sbStopRec();
+        toast(er === 'not-allowed' || er === 'service-not-allowed' ? '마이크 권한을 허용해 주세요.' : '음성을 못 들었어요. 다시 눌러 주세요.');
+      };
+      sbRecog.onend = () => { sbRecOn = false; if ($('#sbMic')) $('#sbMic').classList.remove('rec'); };
+      sbRecog.start();
+      sbRecOn = true;
+      $('#sbMic').classList.add('rec');
+      toast('듣고 있어요. 한국어로 말해 주세요.');
+    } catch (e) {
+      sbStopRec();
+      toast('음성 입력을 시작하지 못했어요. 키보드로 입력해 주세요.');
+    }
   });
-  $('#sbInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('#sbSend').click(); } });
+
+  /* ---------------- 항공편 비교 ---------------- */
+  const FL_FROM = [
+    { id: 'icn', ko: '인천', ap: 'ICN', em: '🛫' },
+    { id: 'gmp', ko: '김포', ap: 'GMP', em: '🛫' },
+    { id: 'pus', ko: '김해·부산', ap: 'PUS', em: '🛫' }
+  ];
+  const FL_TO = [
+    { id: 'nrt', ko: '도쿄 나리타', ap: 'NRT', em: '🗼' },
+    { id: 'hnd', ko: '도쿄 하네다', ap: 'HND', em: '🗼' },
+    { id: 'kix', ko: '오사카 간사이', ap: 'KIX', em: '🏯' },
+    { id: 'fuk', ko: '후쿠오카', ap: 'FUK', em: '🍜' },
+    { id: 'cts', ko: '삿포로', ap: 'CTS', em: '⛄' },
+    { id: 'oka', ko: '오키나와', ap: 'OKA', em: '🏖️' }
+  ];
+  const FL_NODIRECT = {
+    'gmp-nrt': '김포→나리타 직항은 없어요. 도쿄는 하네다를 고르세요.',
+    'gmp-oka': '김포→오키나와 직항은 없어요. 인천이나 김해에서 출발하세요.'
+  };
+  let flFrom = 'icn', flTo = 'nrt';
+  function flPad(n) { return (n < 10 ? '0' : '') + n; }
+  function flISO(d) { return d.getFullYear() + '-' + flPad(d.getMonth() + 1) + '-' + flPad(d.getDate()); }
+  function flLater(days) { const d = new Date(); d.setDate(d.getDate() + days); return flISO(d); }
+  function flDate() {
+    const el = $('#flDate');
+    const v = el ? (el.value || '') : '';
+    return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '';
+  }
+  function flRender() {
+    const f = FL_FROM.filter(x => x.id === flFrom)[0] || FL_FROM[0];
+    const t = FL_TO.filter(x => x.id === flTo)[0] || FL_TO[0];
+    const d = flDate();
+    $('#flFrom').innerHTML = FL_FROM.map(x =>
+      '<button class="chip" role="tab" data-ff="' + x.id + '" aria-selected="' + (x.id === flFrom) + '">' + x.em + ' ' + x.ko + '</button>'
+    ).join('');
+    $('#flTo').innerHTML = FL_TO.map(x =>
+      '<button class="chip" role="tab" data-ft="' + x.id + '" aria-selected="' + (x.id === flTo) + '">' + x.em + ' ' + x.ko + '</button>'
+    ).join('');
+    $$('#flFrom .chip').forEach(b => b.addEventListener('click', () => { flFrom = b.dataset.ff; flRender(); }));
+    $$('#flTo .chip').forEach(b => b.addEventListener('click', () => { flTo = b.dataset.ft; flRender(); }));
+
+    const hint = FL_NODIRECT[flFrom + '-' + flTo] || '';
+    $('#flRoute').innerHTML = '<b>' + f.ko + ' → ' + t.ko + '</b><span class="ap">' + f.ap + ' → ' + t.ap + '</span>' +
+      '<span class="hint" style="' + (hint ? '' : 'color:var(--sub);font-weight:600') + '">' +
+      (hint || (d ? d + ' 출발로 열려요' : '날짜를 비우면 각 사이트에서 직접 고르면 돼요')) + '</span>';
+
+    const ymd = d ? d.replace(/-/g, '') : '';
+    const short = ymd ? ymd.slice(2) : '';
+    const naverDate = (d || flLater(30)).replace(/-/g, '');
+    const lo = f.ap.toLowerCase(), ld = t.ap.toLowerCase();
+    const links = [
+      { em: '🔎', nm: '스카이스캐너', sub: '여러 항공사 한 번에',
+        url: 'https://www.skyscanner.co.kr/transport/flights/' + lo + '/' + ld + '/' + (short ? short + '/' : '') + '?adults=1&cabinclass=economy' },
+      { em: '📊', nm: '구글 플라이트', sub: '가격 추이·최저가',
+        url: 'https://www.google.com/travel/flights?hl=ko&curr=KRW&q=' + encodeURIComponent('Flights to ' + t.ap + ' from ' + f.ap + (d ? ' on ' + d : '')) },
+      { em: '🧳', nm: '트립닷컴', sub: '수하물 포함 특가',
+        url: 'https://kr.trip.com/flights/showfarefirst?dcity=' + lo + '&acity=' + ld + (d ? '&ddate=' + d : '') + '&triptype=ow&class=y&quantity=1&locale=ko-KR&curr=KRW' },
+      { em: '🟢', nm: '네이버 항공권', sub: '국내에서 익숙한 화면',
+        url: 'https://flight.naver.com/flights/international/' + f.ap + '-' + t.ap + '-' + naverDate + '?adult=1&child=0&infant=0&fareType=Y&tripType=OW' }
+    ];
+    $('#flBtns').innerHTML = links.map(l =>
+      '<a class="fl-btn" href="' + l.url + '" target="_blank" rel="noopener"><b>' + l.em + ' ' + l.nm + '</b><span>' + l.sub + '</span></a>'
+    ).join('');
+  }
+  if ($('#flDate')) {
+    $('#flDate').value = flLater(30);
+    $('#flDate').addEventListener('change', flRender);
+    flRender();
+  }
+  function airJump() {
+    go('ticket');
+    setTimeout(() => { const a = $('#air'); if (a && a.scrollIntoView) a.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
+  }
+  $$('[data-air]').forEach(el => el.addEventListener('click', airJump));
 
   /* ---------------- 엔화 계산기 ---------------- */
   const RATE_DEFAULT = 910;
