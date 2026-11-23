@@ -5,10 +5,13 @@
    · 화면(HTML)은 항상 네트워크를 먼저 확인해 새 버전을 받고, 실패할 때만 저장본을 씁니다.
    · 랭킹 서버(구글 시트·Apps Script) 같은 외부 주소는 건드리지 않습니다.
    ========================================================================= */
-var CACHE = 'minigame-v13';
+var CACHE = 'minigame-v14';
 var CORE = [
   './index.html',
   './company.html',
+  './company-manifest.json',
+  './icon-company-192.png',
+  './icon-company-512.png',
   './japan.html',
   './tower.html',
   './drop.html',
@@ -58,6 +61,14 @@ self.addEventListener('fetch', function (event) {
 
   var accept = req.headers.get('accept') || '';
   var isDoc = req.mode === 'navigate' || accept.indexOf('text/html') >= 0;
+
+  /* 실시간 현황(status.json)은 항상 네트워크에서 새로 받고 캐시에 쌓지 않습니다 */
+  if (url.pathname.indexOf('/status.json') >= 0 || url.search.indexOf('_=') >= 0) {
+    event.respondWith(fetch(req, { cache: 'no-store' }).catch(function () {
+      return new Response('{"offline":true}', { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }));
+    return;
+  }
 
   if (isDoc) {
     /* 화면: 네트워크 우선 → 실패하면 저장본 */

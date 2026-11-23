@@ -6,9 +6,16 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0a0f1c">
 <title>굳사이클 AI 컴퍼니 본사 · 조직도 · 운영 매뉴얼</title>
-<meta name="description" content="굳사이클 AI 컴퍼니 조직도, 부재중 대직표, 보관 위치, 혼자 운영 매뉴얼, 비상 대처 — 폰에서 한 손으로 보는 본사 대시보드.">
+<meta name="description" content="굳사이클 AI 컴퍼니 실시간 현황 — 마켓별 수량, 직원별 지금 하는 일, 막힌 곳. 조직도, 부재중 대직표, 보관 위치, 혼자 운영 매뉴얼, 비상 대처까지 폰에서 한 손으로 보는 본사 대시보드.">
 <meta name="robots" content="noindex, nofollow">
-<link rel="apple-touch-icon" href="./icon-portal-192.png">
+<link rel="manifest" href="./company-manifest.json">
+<link rel="apple-touch-icon" href="./icon-company-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-company-192.png">
+<meta name="application-name" content="굳사이클 본사 현황판">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="굳사이클 본사">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
   :root{
     --ink:#eef3ff;
@@ -70,7 +77,7 @@
 
   /* ---------- 탭 ---------- */
   .tabs{
-    position:sticky;top:0;z-index:20;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+    position:sticky;top:0;z-index:20;display:grid;grid-template-columns:repeat(5,1fr);gap:5px;
     padding:8px 0 9px;margin:0 0 4px;
     background:#0a0f1c;
     box-shadow:0 8px 16px -8px rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.06)
@@ -82,8 +89,8 @@
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
     padding:5px 2px;line-height:1.15;transition:background .15s,border-color .15s,transform .1s
   }
-  .tab em{font-style:normal;font-size:18px;line-height:1}
-  .tab b{font-size:12.5px;font-weight:900;letter-spacing:-.01em;white-space:nowrap}
+  .tab em{font-style:normal;font-size:17px;line-height:1}
+  .tab b{font-size:11px;font-weight:900;letter-spacing:-.03em;white-space:normal;word-break:keep-all;text-align:center;line-height:1.15}
   .tab:active{transform:scale(.97)}
   .tab[aria-selected="true"]{
     background:linear-gradient(140deg,rgba(143,240,192,.26),rgba(179,160,255,.22));
@@ -243,6 +250,180 @@
   .hint b{display:block;font-size:16.5px;font-weight:900;margin-bottom:5px}
   .hint ol{margin:0;padding-left:20px}
   .hint li{font-size:15.5px;line-height:1.6;color:#e2ebfb;margin:3px 0}
+  .hint p{margin:0;font-size:15px;line-height:1.6;color:#dbe8fb}
+
+  /* ---------- 📊 실시간 현황 ---------- */
+  .livebar{
+    display:flex;align-items:center;gap:10px;margin:6px 0 10px;padding:10px 12px;border-radius:16px;
+    border:1px solid rgba(143,240,192,.36);
+    background:linear-gradient(120deg,rgba(143,240,192,.15),rgba(255,255,255,.03))
+  }
+  .livebar .lt{min-width:0;flex:1}
+  .livebar .lt b{display:block;font-size:15px;font-weight:900;line-height:1.3;color:#eafff5}
+  .livebar .lt i{font-style:normal;display:block;font-size:13px;font-weight:700;color:#b7cbe4;line-height:1.4}
+  .dot{width:10px;height:10px;flex:none;border-radius:50%;background:var(--mn);animation:beat 2s infinite}
+  @keyframes beat{0%{box-shadow:0 0 0 0 rgba(143,240,192,.55)}70%{box-shadow:0 0 0 9px rgba(143,240,192,0)}100%{box-shadow:0 0 0 0 rgba(143,240,192,0)}}
+  .rf{
+    -webkit-appearance:none;appearance:none;font:inherit;font-size:13.5px;font-weight:900;flex:none;cursor:pointer;
+    min-height:42px;padding:0 11px;border-radius:11px;border:1px solid rgba(255,255,255,.22);
+    background:rgba(255,255,255,.09);color:#eaf1ff
+  }
+  .rf:active{transform:scale(.97)}
+  .rf:disabled{opacity:.6}
+
+  .mk{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mcard{
+    border-radius:15px;border:1px solid var(--line);background:var(--card);
+    padding:11px 12px;min-width:0;border-left:3px solid rgba(143,240,192,.7)
+  }
+  .mcard.t-warn{border-left-color:rgba(255,217,138,.85)}
+  .mcard.t-wait{border-left-color:rgba(126,224,255,.8)}
+  .mcard .mh{display:flex;align-items:center;gap:6px;min-width:0}
+  .mcard .mh .e{font-size:14px;line-height:1;flex:none}
+  .mcard .mh .nm{font-size:14px;font-weight:900;color:#dbe6ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mcard .mv{margin-top:5px;font-size:15px;font-weight:800;color:#fff;line-height:1.2;letter-spacing:-.02em;overflow-wrap:anywhere}
+  .mcard .mv .n{font-size:24px;font-weight:900;letter-spacing:-.03em}
+  .mcard .mv .lim{font-size:13.5px;font-weight:800;color:#b9c8e2}
+  .mcard .mv .lab{font-size:16px;font-weight:900;color:#d9fff0}
+  .mcard .ms{margin-top:2px;font-size:12px;font-weight:800;color:#a7b6d4;line-height:1.4}
+  .mcard .ms b{color:#ffe6b8}
+  .bar{height:6px;margin:7px 0 0;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--mn),var(--cy))}
+  .mcard .mn{margin-top:5px;font-size:12px;font-weight:700;color:#93a5c6;line-height:1.4}
+
+  .st-staff{display:grid;gap:8px}
+  .scard{border-radius:15px;border:1px solid var(--line);background:var(--card);padding:11px 13px}
+  .scard .sh{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .scard .sh .e{font-size:18px;line-height:1}
+  .scard .sh b{font-size:16.5px;font-weight:900;letter-spacing:-.02em}
+  .scard .sh i{font-style:normal;font-size:12.5px;font-weight:800;color:#8fa2c4}
+  .chip{margin-left:auto;flex:none;font-size:12px;font-weight:900;border-radius:999px;padding:2px 9px;line-height:1.5}
+  .chip.run{background:rgba(143,240,192,.18);color:#a8f7cf;border:1px solid rgba(143,240,192,.45)}
+  .chip.wait{background:rgba(126,224,255,.15);color:#bfeeff;border:1px solid rgba(126,224,255,.4)}
+  .chip.blk{background:rgba(255,157,196,.18);color:#ffd0e2;border:1px solid rgba(255,157,196,.5)}
+  .chip.done{background:rgba(255,255,255,.12);color:#dbe6ff;border:1px solid rgba(255,255,255,.24)}
+  .scard p{margin:7px 0 0;font-size:15.5px;line-height:1.55;color:#e6edfa}
+  .scard .sd{margin-top:6px;padding:7px 9px;border-radius:10px;background:rgba(255,217,138,.09);border:1px solid rgba(255,217,138,.26);font-size:13.5px;font-weight:800;color:#ffe6b8;line-height:1.45}
+
+  .st-block{display:grid;gap:8px}
+  .bcard{border-radius:15px;padding:12px 13px;border:1px solid rgba(255,157,196,.32);background:rgba(255,157,196,.07)}
+  .bcard.wait{border-color:rgba(126,224,255,.3);background:rgba(126,224,255,.07)}
+  .bcard .bh{display:flex;align-items:flex-start;gap:8px}
+  .bcard .bh .e{font-size:18px;line-height:1.2;flex:none}
+  .bcard .bh b{font-size:15.5px;font-weight:900;line-height:1.4;letter-spacing:-.01em}
+  .bcard p{margin:6px 0 0;font-size:15px;line-height:1.5;color:#e6edfa}
+  .bcard .bm{margin-top:5px;font-size:13px;font-weight:800;color:#b9c8e2;line-height:1.45}
+  .bcard .bo{margin-top:2px;font-size:13px;font-weight:800;color:#93a5c6}
+
+  /* ---------- 계통도(트리) ---------- */
+  .tbar{display:flex;align-items:center;gap:8px;margin:8px 0}
+  .tbtn{
+    -webkit-appearance:none;appearance:none;font:inherit;font-size:13.5px;font-weight:900;cursor:pointer;flex:none;
+    min-height:42px;padding:0 13px;border-radius:11px;border:1px solid rgba(255,255,255,.2);
+    background:rgba(255,255,255,.08);color:#eaf1ff
+  }
+  .tbtn:active{transform:scale(.97)}
+  .thint{font-size:12.5px;font-weight:800;color:var(--dim2);line-height:1.4}
+
+  .orgtree{
+    --tl:rgba(255,255,255,.26);
+    margin:0 0 10px;padding:13px 12px 14px;border-radius:18px;
+    border:1px solid var(--line);background:rgba(255,255,255,.03)
+  }
+  .tree,.tree ul{list-style:none;margin:0;padding:0}
+  .tnode{border-radius:13px;border:1px solid var(--line);background:rgba(255,255,255,.065);padding:8px 11px;min-width:0}
+  .tnode .row1{display:flex;align-items:center;gap:9px;min-width:0}
+  .tnode .e{
+    font-size:18px;line-height:1;flex:none;width:32px;height:32px;border-radius:9px;
+    display:grid;place-items:center;background:rgba(255,255,255,.09)
+  }
+  .tnode .tx{min-width:0}
+  .tnode b{display:block;font-size:15.5px;font-weight:900;line-height:1.25;letter-spacing:-.02em}
+  .tnode i{font-style:normal;display:block;font-size:12px;font-weight:800;color:#93a5c6;line-height:1.35}
+  .tnode.ceo{border-color:rgba(255,217,138,.55);background:linear-gradient(120deg,rgba(255,217,138,.17),rgba(255,255,255,.04))}
+  .tnode.boss{border-color:rgba(126,224,255,.5);background:linear-gradient(120deg,rgba(126,224,255,.16),rgba(255,255,255,.04))}
+  .tnode.sup{border-style:dashed;border-color:rgba(179,160,255,.62);background:linear-gradient(120deg,rgba(179,160,255,.14),rgba(255,255,255,.04))}
+
+  /* 기본(폰): 세로 들여쓰기 나무 */
+  .tree ul:not(.t-duties){padding-left:14px}
+  .tree ul:not(.t-duties)>li{position:relative;padding-left:16px}
+  .tree ul:not(.t-duties)>li::before{content:'';position:absolute;left:0;top:0;width:2px;height:100%;background:var(--tl)}
+  .tree ul:not(.t-duties)>li:last-child::before{height:26px}
+  .tree ul:not(.t-duties)>li::after{content:'';position:absolute;left:0;top:26px;width:16px;height:2px;background:var(--tl)}
+  .t-branch{padding-bottom:10px}
+  .t-branch:last-child{padding-bottom:0}
+  .t-support::before{background-image:repeating-linear-gradient(to bottom,rgba(179,160,255,.85) 0 4px,transparent 4px 8px)}
+  .t-support::after{background-image:repeating-linear-gradient(to right,rgba(179,160,255,.85) 0 4px,transparent 4px 8px)}
+
+  .t-duties{margin:6px 0 0 14px;padding-left:12px;border-left:1px solid rgba(255,255,255,.17)}
+  .tree ul.t-duties{margin:7px 0 0 20px;padding-left:13px;border-left:1px solid rgba(255,255,255,.24)}
+  .t-duties li{position:relative;list-style:none;font-size:13px;font-weight:700;line-height:1.45;color:#dce6f8;padding:2.5px 0}
+  .t-duties li::before{content:'';position:absolute;left:-13px;top:11px;width:9px;height:1px;background:rgba(255,255,255,.3)}
+
+  .tlegend{
+    display:flex;flex-wrap:wrap;gap:6px 14px;margin:14px 0 2px;padding-top:10px;
+    border-top:1px solid rgba(255,255,255,.1);font-size:12.5px;font-weight:800;color:#c3d2ea
+  }
+  .tlegend span{display:flex;align-items:center;gap:6px}
+  .lg{width:22px;height:0;border-top:2px solid rgba(255,255,255,.45);flex:none}
+  .lg.dash{border-top:2px dashed rgba(179,160,255,.85)}
+
+  /* 넓은 화면 / 버튼으로 켠 가로 계통도 */
+  .orgtree.wide{overflow-x:auto;scroll-behavior:smooth}
+  .orgtree.wide .tree{min-width:1140px}
+  .orgtree.wide .tree>li{display:flex;flex-direction:column;align-items:center}
+  .orgtree.wide .tree>li>.tnode{min-width:250px}
+  .orgtree.wide .tree>li>ul{display:flex;flex-direction:column;align-items:center;width:100%;padding-left:0}
+  .orgtree.wide .t-mgr{display:flex;flex-direction:column;align-items:center;width:100%;padding-left:0;position:relative;padding-top:24px}
+  .orgtree.wide .t-mgr::before{content:'';position:absolute;left:50%;top:0;width:2px;height:24px;background:var(--tl);transform:translateX(-1px)}
+  .orgtree.wide .t-mgr::after{display:none}
+  .orgtree.wide .t-mgr>.tnode{min-width:250px}
+  .orgtree.wide .t-team{display:flex;align-items:stretch;width:100%;padding-left:0;margin-top:24px;position:relative}
+  .orgtree.wide .t-team::before{
+    content:'';position:absolute;left:50%;top:-24px;width:2px;height:24px;background:var(--tl);transform:translateX(-1px)
+  }
+  .orgtree.wide .t-team>li{flex:1 1 0;min-width:0;position:relative;padding:24px 5px 0}
+  .orgtree.wide .t-team>li::before{
+    content:'';position:absolute;left:50%;top:0;width:2px;height:24px;background:var(--tl);transform:translateX(-1px)
+  }
+  .orgtree.wide .t-team>li::after{content:none}
+  .orgtree.wide .t-team::after{
+    content:'';position:absolute;top:0;left:7.14%;right:21.43%;height:2px;background:rgba(255,255,255,.32)
+  }
+  .orgtree.wide .t-team>li.t-support::after{
+    content:'';position:absolute;top:0;left:-100%;right:50%;width:auto;height:2px;background:none;
+    background-image:repeating-linear-gradient(to right,rgba(179,160,255,.9) 0 6px,transparent 6px 12px)
+  }
+  .orgtree.wide .t-team>li:last-child::before{height:24px}
+  .orgtree.wide .t-team>li.t-support::before{
+    background:none;
+    background-image:repeating-linear-gradient(to bottom,rgba(179,160,255,.85) 0 4px,transparent 4px 8px)
+  }
+  .orgtree.wide .t-duties{margin:8px 0 0 8px;padding-left:10px}
+  .orgtree.wide .t-duties li{font-size:12.5px;line-height:1.45;padding:2px 0}
+  .orgtree.wide .t-duties li::before{left:-10px;width:7px}
+
+  /* ---------- 🐥 나미한테 시키기(빠른 복사) ---------- */
+  .ask{display:grid;gap:8px}
+  .askbtn{
+    -webkit-appearance:none;appearance:none;font:inherit;text-align:left;cursor:pointer;
+    display:flex;align-items:center;gap:9px;min-height:52px;padding:10px 12px;border-radius:13px;
+    border:1px solid rgba(143,240,192,.28);background:rgba(143,240,192,.07);color:#eaf5ff;
+    font-size:15px;font-weight:800;line-height:1.45
+  }
+  .askbtn:active{transform:scale(.99);background:rgba(143,240,192,.14)}
+  .askbtn .ic{flex:none;font-size:17px}
+  .askbtn .tx{min-width:0;overflow-wrap:anywhere}
+  .askbtn .go{flex:none;margin-left:auto;font-size:12px;font-weight:900;color:#a8f7cf;white-space:nowrap}
+
+  .toast{
+    position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translate(-50%,12px);
+    max-width:min(92vw,460px);padding:11px 15px;border-radius:13px;background:#0d1729;color:#eafff5;
+    border:1px solid rgba(143,240,192,.5);box-shadow:0 12px 30px rgba(0,0,0,.55);
+    font-size:14.5px;font-weight:800;line-height:1.45;text-align:center;z-index:90;
+    opacity:0;pointer-events:none;transition:opacity .18s,transform .18s
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
 
   .warn{color:#ffd0d0}
   .ok{color:var(--mn)}
@@ -256,6 +437,7 @@
 
   @media (min-width:720px){
     body{font-size:18px}
+    .mk{grid-template-columns:1fr 1fr 1fr}
     .team{grid-template-columns:1fr 1fr}
     .loc{grid-template-columns:1fr 1fr 1fr}
     .lcard{flex-direction:column;align-items:flex-start;gap:8px}
@@ -284,7 +466,8 @@
   </div>
 
   <nav class="tabs" role="tablist" aria-label="본사 대시보드 메뉴">
-    <button class="tab" role="tab" id="t1" aria-controls="p1" aria-selected="true" data-p="p1"><em>🧭</em><b>조직도</b></button>
+    <button class="tab" role="tab" id="t0" aria-controls="p0" aria-selected="true" data-p="p0"><em>📊</em><b>실시간 현황</b></button>
+    <button class="tab" role="tab" id="t1" aria-controls="p1" aria-selected="false" data-p="p1" tabindex="-1"><em>🧭</em><b>조직도</b></button>
     <button class="tab" role="tab" id="t2" aria-controls="p2" aria-selected="false" data-p="p2" tabindex="-1"><em>📦</em><b>보관 위치</b></button>
     <button class="tab" role="tab" id="t3" aria-controls="p3" aria-selected="false" data-p="p3" tabindex="-1"><em>🖐️</em><b>혼자 운영</b></button>
     <button class="tab" role="tab" id="t4" aria-controls="p4" aria-selected="false" data-p="p4" tabindex="-1"><em>🚨</em><b>비상 대처</b></button>
@@ -292,102 +475,149 @@
 
   <main>
 
+  <!-- ============ 0. 실시간 현황 ============ -->
+  <section class="panel on" id="p0" role="tabpanel" aria-labelledby="t0" tabindex="0">
+
+    <div class="livebar">
+      <span class="dot" aria-hidden="true"></span>
+      <span class="lt">
+        <b>지금 회사가 돌아가는 중</b>
+        <i id="stUpdated">마지막 업데이트 확인 중…</i>
+      </span>
+      <button class="rf" type="button" id="stRefresh">🔄 새로고침</button>
+    </div>
+
+    <p class="lead" id="stHeadline">현황을 불러오는 중…</p>
+
+    <h2 class="sec">마켓별 현재 수량</h2>
+    <div class="mk" id="stMarkets" aria-live="polite"></div>
+
+    <h2 class="sec">직원별 지금 하는 일</h2>
+    <div class="st-staff" id="stStaff" aria-live="polite"></div>
+
+    <h2 class="sec">🚨 지금 막힌 곳 / 확인 대기</h2>
+    <div class="st-block" id="stBlocked" aria-live="polite"></div>
+
+    <h2 class="sec">🐥 나미한테 시키기</h2>
+    <p class="fine" style="margin:-2px 0 8px">문구를 누르면 <b>복사</b>됩니다. 피클 앱을 열어 붙여넣거나 그대로 말하면 바로 시작해요.</p>
+    <div class="ask" id="askList">
+      <button type="button" class="askbtn" data-ask="오늘 4대 마켓 주문 확인하고 발주해 줘"><span class="ic" aria-hidden="true">🛒</span><span class="tx">오늘 4대 마켓 주문 확인하고 발주해 줘</span><span class="go">복사</span></button>
+      <button type="button" class="askbtn" data-ask="30차 상품 등록 이어서 진행해 줘"><span class="ic" aria-hidden="true">📦</span><span class="tx">30차 상품 등록 이어서 진행해 줘</span><span class="go">복사</span></button>
+      <button type="button" class="askbtn" data-ask="11번가 Open API 점검 풀렸는지 확인해서 키 발급까지 해 줘"><span class="ic" aria-hidden="true">🔌</span><span class="tx">11번가 Open API 점검 풀렸는지 확인해서 키 발급까지 해 줘</span><span class="go">복사</span></button>
+      <button type="button" class="askbtn" data-ask="역마진 상품 있으면 빼 줘"><span class="ic" aria-hidden="true">🧮</span><span class="tx">역마진 상품 있으면 빼 줘</span><span class="go">복사</span></button>
+      <button type="button" class="askbtn" data-ask="오늘 홍보 쇼츠 올려 줘"><span class="ic" aria-hidden="true">📣</span><span class="tx">오늘 홍보 쇼츠 올려 줘</span><span class="go">복사</span></button>
+      <button type="button" class="askbtn" data-ask="지금 전체 현황 정리해서 보고해 줘"><span class="ic" aria-hidden="true">📊</span><span class="tx">지금 전체 현황 정리해서 보고해 줘</span><span class="go">복사</span></button>
+    </div>
+
+    <div class="hint">
+      <b>🔒 상세 오류·원가는 비공개 구글 시트에서 확인</b>
+      <p>이 화면은 누구나 볼 수 있어서 <b>작업 이름·상태·수량</b>만 보여 줍니다. 원가·마진·오류 원문·계정 정보는 대표님만 보는 비공개 구글 시트에 따로 있습니다.</p>
+    </div>
+
+    <p class="fine" id="stNote"></p>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  </section>
+
   <!-- ============ 1. 조직도 ============ -->
-  <section class="panel on" id="p1" role="tabpanel" aria-labelledby="t1" tabindex="0">
+  <section class="panel" id="p1" role="tabpanel" aria-labelledby="t1" tabindex="0">
 
     <p class="lead">대표가 <b>말로 지시</b>하면, 총괄 실장이 일을 나눠 7명(전담 6 + 멀티 대체 1)에게 맡기고 <b>결과만</b> 보고합니다. 직원은 모두 AI라서 이름만 사람처럼 붙였어요.</p>
 
-    <div class="org" aria-label="조직 계통도">
-      <div class="node ceo">
-        <span class="nico" aria-hidden="true">👤</span>
-        <span class="ntx"><b>대표 · 임성남</b><i>방향·돈·최종 결정</i></span>
-      </div>
-      <div class="link" aria-hidden="true">▼ 말로 지시 · 결과 보고</div>
-      <div class="node boss">
-        <span class="nico" aria-hidden="true">🧑‍💼</span>
-        <span class="ntx"><b>총괄 실장 · 나미</b><i>일 나누기 · 검증 · 보고 · 대외 연락</i></span>
-      </div>
-      <div class="link" aria-hidden="true">▼ 업무 배분 · 검수</div>
-      <div class="node">
-        <span class="nico" aria-hidden="true">🤖</span>
-        <span class="ntx"><b>AI 직원 7명</b><i>서연 · 민준 · 도현 · 지우 · 하은 · 태호 · 준호(보조·대체)</i></span>
+    <div class="tbar">
+      <button type="button" class="tbtn" id="orgWide">↔️ 가로 계통도로 보기</button>
+      <span class="thint">폰에서는 세로 나무, 넓게 보려면 위 버튼</span>
+    </div>
+
+    <div class="orgtree" id="orgTree" aria-label="조직 계통도">
+      <ul class="tree">
+        <li class="t-root">
+          <div class="tnode ceo">
+            <span class="row1"><span class="e" aria-hidden="true">👤</span>
+              <span class="tx"><b>대표 · 임성남</b><i>방향 · 돈 · 최종 결정</i></span></span>
+          </div>
+          <ul>
+            <li class="t-mgr">
+              <div class="tnode boss">
+                <span class="row1"><span class="e" aria-hidden="true">🧑‍💼</span>
+                  <span class="tx"><b>총괄 실장 · 나미</b><i>일 나누기 · 교차 검수 · 보고</i></span></span>
+              </div>
+              <ul class="t-team">
+                <li class="t-branch">
+                  <div class="tnode"><span class="row1"><span class="e" aria-hidden="true">🔍</span><span class="tx"><b>서연</b><i>리서치·기획</i></span></span></div>
+                  <ul class="t-duties">
+                    <li>시장·트렌드·데이터 조사</li>
+                    <li>30~60% 틈새·시즌 상품 기획</li>
+                    <li>독자 기획 세트(부품 묶음)</li>
+                    <li>새 사업 경쟁사 조사</li>
+                  </ul>
+                </li>
+                <li class="t-branch">
+                  <div class="tnode"><span class="row1"><span class="e" aria-hidden="true">🧮</span><span class="tx"><b>민준</b><i>재무·검수</i></span></span></div>
+                  <ul class="t-duties">
+                    <li>원가·수수료·부가세 계산</li>
+                    <li>역마진·금지어·중복 검수</li>
+                    <li>숫자·견적 오류 잡기</li>
+                  </ul>
+                </li>
+                <li class="t-branch">
+                  <div class="tnode"><span class="row1"><span class="e" aria-hidden="true">⚙️</span><span class="tx"><b>도현</b><i>개발·실행</i></span></span></div>
+                  <ul class="t-duties">
+                    <li>굳셀러·셀픽·웹앱 제작</li>
+                    <li>마켓 API 연동·일괄등록</li>
+                    <li>품절 자동 교체·반복 자동화</li>
+                  </ul>
+                </li>
+                <li class="t-branch">
+                  <div class="tnode"><span class="row1"><span class="e" aria-hidden="true">📣</span><span class="tx"><b>지우</b><i>마케팅·CS</i></span></span></div>
+                  <ul class="t-duties">
+                    <li>쇼츠·인스타·블로그 홍보</li>
+                    <li>광고·수익화 자리 운영</li>
+                    <li>주문 발주 도우미</li>
+                    <li>고객 문의 답변 초안</li>
+                  </ul>
+                </li>
+                <li class="t-branch">
+                  <div class="tnode"><span class="row1"><span class="e" aria-hidden="true">📋</span><span class="tx"><b>하은</b><i>행정·비서</i></span></span></div>
+                  <ul class="t-duties">
+                    <li>부가세 장부·증빙 정리</li>
+                    <li>드라이브·서류 보관</li>
+                    <li>민원·세무·일정 관리</li>
+                  </ul>
+                </li>
+                <li class="t-branch">
+                  <div class="tnode"><span class="row1"><span class="e" aria-hidden="true">🤝</span><span class="tx"><b>태호</b><i>대외협력·제휴</i></span></span></div>
+                  <ul class="t-duties">
+                    <li>기업 협업·제휴 제안서</li>
+                    <li>해외 바이어·도매처 직거래</li>
+                    <li>유통 채널 다이렉트 연결</li>
+                  </ul>
+                </li>
+                <li class="t-branch t-support">
+                  <div class="tnode sup"><span class="row1"><span class="e" aria-hidden="true">🛟</span><span class="tx"><b>준호</b><i>운영지원·대체</i></span></span></div>
+                  <ul class="t-duties">
+                    <li>평소 바쁜 팀 보조</li>
+                    <li>비상시 빈자리 1순위</li>
+                    <li>등록·검수·장부·CS 지원</li>
+                    <li>배대지 등록·발송 보조</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+      <div class="tlegend">
+        <span><i class="lg solid" aria-hidden="true"></i>전담 6명 · 실선</span>
+        <span><i class="lg dash" aria-hidden="true"></i>준호 · 지원·대체(평소 보조 / 비상 1순위)</span>
       </div>
     </div>
 
-    <h2 class="sec">누가 무슨 일을 맡나</h2>
-
-    <div class="team">
-
-      <article class="tcard">
-        <div class="hd"><span class="e" aria-hidden="true">🔍</span><b>서연</b><span class="role">리서치·기획 대리</span></div>
-        <ul>
-          <li>시장·트렌드·데이터 조사</li>
-          <li>구매대행: 30~60% 중위권 틈새·시즌 상품 &amp; 우리만의 독자 세트(추가 부품·액세서리 묶음) 기획</li>
-          <li>새 사업: 경쟁사·키워드·자료 조사</li>
-        </ul>
-        <div class="bk"><span class="k" aria-hidden="true">🔁</span><span>서연이 비면 → <b>태호</b>가 시장·키워드 조사 대행(그때 태호의 대외 연락은 <b>지우</b>가 받침).</span></div>
-      </article>
-
-      <article class="tcard">
-        <div class="hd"><span class="e" aria-hidden="true">🧮</span><b>민준</b><span class="role">재무·검수 과장</span></div>
-        <ul>
-          <li>원가·배송비·수수료·부가세 계산</li>
-          <li>손해 보는 상품(역마진)·금지어·중복 검수</li>
-          <li>견적과 숫자 오류 잡기 — <b>리스크 0건</b>이 목표</li>
-        </ul>
-        <div class="bk"><span class="k" aria-hidden="true">🔁</span><span>민준이 비면 → <b>하은</b>이 장부·기준표 체크리스트를 대신 봅니다.</span></div>
-      </article>
-
-      <article class="tcard">
-        <div class="hd"><span class="e" aria-hidden="true">⚙️</span><b>도현</b><span class="role">개발·실행 팀장</span></div>
-        <ul>
-          <li>프로그램 제작(<span class="mono">굳셀러</span>·<span class="mono">셀픽</span>)·웹앱·게임</li>
-          <li>마켓 API 연동, 상품 등록·품절 자동 교체</li>
-          <li>반복 작업 자동화</li>
-        </ul>
-        <div class="bk"><span class="k" aria-hidden="true">🔁</span><span>도현이 비면 → <b>민준</b>이 이미 나온 <span class="mono">gcu</span>·스크립트와 수동 일괄등록으로 이어 갑니다.</span></div>
-      </article>
-
-      <article class="tcard">
-        <div class="hd"><span class="e" aria-hidden="true">📣</span><b>지우</b><span class="role">마케팅·CS 대리</span></div>
-        <ul>
-          <li>유튜브·인스타·블로그 홍보 콘텐츠</li>
-          <li>광고·수익화 자리 운영</li>
-          <li>주문 발주 도우미, 고객 문의 답변 초안</li>
-        </ul>
-        <div class="bk"><span class="k" aria-hidden="true">🔁</span><span>지우가 비면 → <b>태호</b>가 홍보 문안·고객 답변 초안을 대신 씁니다.</span></div>
-      </article>
-
-      <article class="tcard">
-        <div class="hd"><span class="e" aria-hidden="true">📋</span><b>하은</b><span class="role">행정·비서 대리</span></div>
-        <ul>
-          <li>부가세 장부·증빙 정리</li>
-          <li>드라이브 폴더 정리와 서류 보관</li>
-          <li>정부 민원·세무·일정 관리</li>
-        </ul>
-        <div class="bk"><span class="k" aria-hidden="true">🔁</span><span>하은이 비면 → <b>민준</b>이 장부·증빙 정리를 대신합니다.</span></div>
-      </article>
-
-      <article class="tcard">
-        <div class="hd"><span class="e" aria-hidden="true">🤝</span><b>태호</b><span class="role">대외협력·제휴 매니저</span></div>
-        <ul>
-          <li>국내외 기업 협업·제휴 제안서 작성</li>
-          <li>해외 바이어·제조사·일본 도매처 <b>직거래 상담</b>(한·영·일 메일·문의 초안·번역)</li>
-          <li>유통 채널 다이렉트 연결 — 국내외 판로 뚫기</li>
-        </ul>
-        <div class="bk"><span class="k" aria-hidden="true">🔁</span><span>태호가 비면 → <b>1순위 준호</b>가 빈자리 대체(동시 공백 시 <b>지우</b>가 대외 창구 대행).</span></div>
-      </article>
-
-      <article class="tcard">
-        <div class="hd"><span class="e" aria-hidden="true">🛟</span><b>준호</b><span class="role">운영지원·대체 전담</span></div>
-        <ul>
-          <li><b>평소</b>: 6명 중 일이 몰리거나 밀리는 파트에 바로 붙어 <b>보조·지원 사격</b></li>
-          <li><b>비상</b>: 누구 한 명이 비면 기존 6명 일은 그대로 두고 <b>빈자리에 즉시 대체 투입</b></li>
-          <li>상품 등록·검수·장부·CS·자료 정리까지 전천후 지원</li>
-        </ul>
-        <div class="bk"><span class="k" aria-hidden="true">🔁</span><span>전담 대체 인력이므로 다른 직원과 업무 충돌 없이 <b>공백 0%</b> 유지.</span></div>
-      </article>
-
+    <div class="box">
+      <p><b>선 읽는 법</b> — 위에서 아래로 내려오는 선이 <b>보고·지시 계통</b>이고, 직원 이름 아래로 뻗은 가지가 <b>그 사람이 맡은 일</b>입니다. 가지 끝까지 따라가면 누가 무슨 일을 하는지 한눈에 보입니다.</p>
+      <p><b>준호만 점선인 이유</b> — 평소엔 바쁜 팀에 붙어 보조하고, 누구 한 명이 비면 <b>그 자리에 그대로 들어가는</b> 전담 대체라서 계통을 점선으로 따로 그었습니다.</p>
     </div>
 
     <h2 class="sec">부재중 대직표 (1순위 준호 · 2순위 짝꿍)</h2>
@@ -409,7 +639,8 @@
     </div>
 
     <div class="hint">
-      <b>📱 이 화면을 폰 홈 화면에 두기</b>
+      <b>📱 이 화면을 폰 홈 화면에 앱으로 걸기</b>
+      <button type="button" class="rf" id="installApp" style="margin:2px 0 9px" hidden>📲 앱으로 설치</button>
       <ol>
         <li>크롬 오른쪽 위 <b>⋮</b> → <b>홈 화면에 추가</b> (삼성 인터넷은 <b>≡</b> → 페이지 추가)</li>
         <li>이름은 <b>굳사이클 본사</b>로 저장</li>
@@ -722,6 +953,149 @@
   'use strict';
   var TKEY = 'gc.company.tab.v1';
 
+  /* ---------- 📊 실시간 현황 (status.json) ---------- */
+  var stBusy = false;
+  var STATE_CLASS = {'진행중':'run','대기':'wait','막힘':'blk','완료':'done'};
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function num(n){
+    if (n === null || n === undefined || n === '') return '-';
+    return Number(n).toLocaleString('ko-KR');
+  }
+
+  /* ---------- 토스트 · 클립보드 ---------- */
+  var toastEl = document.getElementById('toast');
+  var toastT = null;
+  function toast(msg){
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastT);
+    toastT = setTimeout(function(){ toastEl.classList.remove('show'); }, 2800);
+  }
+  function fallbackCopy(t, done){
+    var ta = document.createElement('textarea');
+    ta.value = t; ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+    document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0, t.length);
+    try { document.execCommand('copy'); } catch(e){}
+    document.body.removeChild(ta);
+    done();
+  }
+  function copyText(t, done){
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(done, function(){ fallbackCopy(t, done); });
+    } else {
+      fallbackCopy(t, done);
+    }
+  }
+
+  function renderStatus(d){
+    var up = document.getElementById('stUpdated');
+    var head = document.getElementById('stHeadline');
+    var mk = document.getElementById('stMarkets');
+    var stf = document.getElementById('stStaff');
+    var blk = document.getElementById('stBlocked');
+    var note = document.getElementById('stNote');
+
+    if (up) up.textContent = '마지막 업데이트 ' + (d.updated_at || '-') + ' · 작업이 바뀌면 자동으로 바뀝니다';
+    if (head) head.textContent = d.headline || '';
+    if (note) note.textContent = d.note || '';
+
+    if (mk){
+      var h = '';
+      (d.markets || []).forEach(function(m){
+        var tone = m.tone || 'ok';
+        h += '<div class="mcard t-' + esc(tone) + '">';
+        h += '<div class="mh"><span class="e" aria-hidden="true">' + esc(m.icon || '🛒') + '</span><span class="nm">' + esc(m.name) + '</span></div>';
+        if (m.status_label){
+          h += '<div class="mv"><span class="lab">' + esc(m.status_label) + '</span></div>';
+        } else {
+          h += '<div class="mv"><span class="n">' + num(m.on_sale) + '</span>' +
+               (m.limit ? '<span class="lim"> / ' + num(m.limit) + '</span>' : '') + '</div>';
+        }
+        var sub = [];
+        if (!m.status_label) sub.push('판매중');
+        if (m.pending) sub.push('<b>대기 ' + num(m.pending) + '</b>');
+        if (m.limit) sub.push('한도 ' + num(m.limit));
+        if (m.total != null && m.total !== m.on_sale && m.total !== m.limit) sub.push('전체 ' + num(m.total));
+        if (sub.length) h += '<div class="ms">' + sub.join(' · ') + '</div>';
+        if (m.on_sale != null && m.limit){
+          var pct = Math.min(100, Math.round(m.on_sale / m.limit * 1000) / 10);
+          h += '<div class="bar" role="img" aria-label="한도 대비 ' + pct + '%"><i style="width:' + pct + '%"></i></div>';
+        }
+        if (m.note) h += '<div class="mn">' + esc(m.note) + '</div>';
+        h += '</div>';
+      });
+      mk.innerHTML = h;
+    }
+
+    if (stf){
+      var hs = '';
+      (d.staff || []).forEach(function(s){
+        var cls = STATE_CLASS[s.state] || 'wait';
+        hs += '<article class="scard">';
+        hs += '<div class="sh"><span class="e" aria-hidden="true">' + esc(s.emoji || '🤖') + '</span><b>' + esc(s.name) + '</b>';
+        if (s.role) hs += '<i>' + esc(s.role) + '</i>';
+        if (s.state) hs += '<span class="chip ' + cls + '">' + esc(s.state) + '</span>';
+        hs += '</div>';
+        if (s.task) hs += '<p>' + esc(s.task) + '</p>';
+        if (s.detail) hs += '<div class="sd">' + esc(s.detail) + '</div>';
+        hs += '</article>';
+      });
+      stf.innerHTML = hs;
+    }
+
+    if (blk){
+      var hb = '';
+      (d.blocked || []).forEach(function(b){
+        hb += '<div class="bcard' + (b.state === '막힘' ? '' : ' wait') + '">';
+        hb += '<div class="bh"><span class="e" aria-hidden="true">' + esc(b.icon || '⚠️') + '</span><b>' + esc(b.title) + '</b></div>';
+        if (b.detail) hb += '<p>' + esc(b.detail) + '</p>';
+        if (b.impact) hb += '<div class="bm">영향 · ' + esc(b.impact) + '</div>';
+        if (b.owner) hb += '<div class="bo">담당 · ' + esc(b.owner) + '</div>';
+        hb += '</div>';
+      });
+      blk.innerHTML = hb;
+    }
+  }
+
+  function loadStatus(){
+    if (stBusy) return;
+    stBusy = true;
+    var btn = document.getElementById('stRefresh');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ 확인 중'; }
+    fetch('status.json?_=' + Date.now(), { cache: 'no-store' })
+      .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function(d){
+        if (!d || d.offline) throw new Error('offline');
+        renderStatus(d);
+      })
+      .catch(function(){
+        var up = document.getElementById('stUpdated');
+        if (up) up.textContent = '현황을 못 불러왔어요 · 잠시 뒤 🔄 새로고침을 눌러 주세요';
+      })
+      .then(function(){
+        stBusy = false;
+        if (btn) { btn.disabled = false; btn.textContent = '🔄 새로고침'; }
+      });
+  }
+
+  var stRefresh = document.getElementById('stRefresh');
+  if (stRefresh) stRefresh.addEventListener('click', loadStatus);
+  loadStatus();
+  /* 현황 탭을 보고 있을 때만 90초마다 조용히 새로 받음 */
+  setInterval(function(){
+    if (document.hidden) return;
+    var p0 = document.getElementById('p0');
+    if (p0 && p0.classList.contains('on')) loadStatus();
+  }, 90000);
+
   /* ---------- 탭 ---------- */
   var tabs = [].slice.call(document.querySelectorAll('.tab'));
   var panels = [].slice.call(document.querySelectorAll('.panel'));
@@ -734,6 +1108,7 @@
       t.tabIndex = on ? 0 : -1;
     });
     if (save) { try { localStorage.setItem(TKEY, id); } catch(e){} }
+    if (id === 'p0') loadStatus();
     window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
   }
 
@@ -751,7 +1126,7 @@
 
   /* 주소에 #p2 처럼 오면 그 탭으로 */
   var hash = (location.hash || '').replace('#','');
-  var start = /^p[1-4]$/.test(hash) ? hash : null;
+  var start = /^p[0-4]$/.test(hash) ? hash : null;
   if (!start) { try { start = localStorage.getItem(TKEY); } catch(e){} }
   if (start && document.getElementById(start)) {
     show(start, false);
@@ -764,7 +1139,7 @@
   /* 뒤로가기·주소 변경(#p3)으로 들어올 때도 그 탭으로 */
   window.addEventListener('hashchange', function(){
     var h = (location.hash || '').replace('#','');
-    if (/^p[1-4]$/.test(h) && document.getElementById(h)) show(h, false);
+    if (/^p[0-4]$/.test(h) && document.getElementById(h)) show(h, false);
   });
 
   /* ---------- 오늘 점검 체크리스트 ---------- */
@@ -801,7 +1176,65 @@
     });
   }
 
-  /* ---------- 접기/펼치기: 한 번에 하나만 열리게(선택) ---------- */
+  /* ---------- 계통도: 폰은 세로 나무, 넓은 화면은 가로 계통도 ---------- */
+  var orgTree = document.getElementById('orgTree');
+  var orgBtn = document.getElementById('orgWide');
+  var orgForce = null;   /* null = 화면 폭에 따름, true = 가로 고정, false = 세로 고정 */
+
+  function applyTree(){
+    if (!orgTree) return;
+    var wide = orgForce === null ? window.innerWidth >= 740 : orgForce;
+    var was = orgTree.classList.contains('wide');
+    orgTree.classList.toggle('wide', wide);
+    if (orgBtn) orgBtn.textContent = wide ? '↕️ 세로 계통도로 보기' : '↔️ 가로 계통도로 보기';
+    if (wide && !was) {
+      requestAnimationFrame(function(){
+        orgTree.scrollLeft = Math.max(0, (orgTree.scrollWidth - orgTree.clientWidth) / 2);
+      });
+    }
+  }
+  if (orgBtn) orgBtn.addEventListener('click', function(){
+    orgForce = !orgTree.classList.contains('wide');
+    applyTree();
+  });
+  applyTree();
+  window.addEventListener('resize', function(){ if (orgForce === null) applyTree(); });
+
+  /* ---------- 🐥 나미한테 시키기: 눌러서 복사 ---------- */
+  [].forEach.call(document.querySelectorAll('[data-ask]'), function(b){
+    b.addEventListener('click', function(){
+      copyText(b.getAttribute('data-ask'), function(){
+        toast('복사됐어요 · 피클 앱 열어 붙여넣기(또는 그대로 말하기) 하세요');
+      });
+    });
+  });
+
+  /* ---------- PWA: 폰 홈 화면에 앱으로 설치 ---------- */
+  var installEvt = null;
+  var installBtn = document.getElementById('installApp');
+  if ('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(function(){});
+    });
+  }
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    installEvt = e;
+    if (installBtn) installBtn.hidden = false;
+  });
+  window.addEventListener('appinstalled', function(){
+    installEvt = null;
+    if (installBtn) installBtn.hidden = true;
+    toast('홈 화면에 설치됐어요 · 이제 아이콘으로 바로 열립니다');
+  });
+  if (installBtn){
+    installBtn.addEventListener('click', function(){
+      if (installEvt){ installEvt.prompt(); installEvt = null; return; }
+      toast('크롬 오른쪽 위 ⋮ → 홈 화면에 추가 를 눌러 주세요');
+    });
+  }
+
+  /* 접기/펼치기: 같은 패널 안에서 하나만 열리게 */
   /* 같은 패널 안에서 새로 열면 이전 것은 닫아 화면이 길어지지 않게 합니다. */
   [].slice.call(document.querySelectorAll('.panel')).forEach(function(p){
     var accs = [].slice.call(p.querySelectorAll('details.acc'));

@@ -1,0 +1,22 @@
+{
+  "id": "./company.html",
+  "name": "굳사이클 본사 현황판",
+  "short_name": "굳사이클 본사",
+  "description": "마켓별 수량, 직원별 지금 하는 일, 막힌 곳을 폰에서 한눈에 보는 굳사이클 AI 컴퍼니 본사 현황판.",
+  "lang": "ko",
+  "start_url": "./company.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0f1c",
+  "theme_color": "#0a0f1c",
+  "icons": [
+    { "src": "./icon-company-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-company-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "📊 실시간 현황", "short_name": "현황", "url": "./company.html#p0" },
+    { "name": "🧭 조직도", "short_name": "조직도", "url": "./company.html#p1" },
+    { "name": "🚨 비상 대처", "short_name": "비상", "url": "./company.html#p4" }
+  ]
+}
