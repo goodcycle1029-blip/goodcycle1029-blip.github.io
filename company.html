@@ -770,6 +770,62 @@
   .tile .tk .e{font-size:14px;line-height:1}
   .tile .tv{margin-top:4px;font-size:21px;font-weight:900;letter-spacing:-.035em;line-height:1.15;color:#fff}
   .tile .ts{margin-top:3px;font-size:12px;font-weight:800;color:#93a5c6;line-height:1.35}
+  .tile .tv,.tile .ts{display:block}
+
+  /* 한눈에 4칸 — 카드를 누르면 세부 내역이 펼쳐집니다 */
+  button.tile{
+    -webkit-appearance:none;appearance:none;font:inherit;text-align:left;color:inherit;cursor:pointer;
+    position:relative;transition:background .16s,border-color .16s,transform .1s
+  }
+  button.tile:active{transform:scale(.985)}
+  button.tile:focus-visible{outline:3px solid var(--cy);outline-offset:2px}
+  .tile .tk{padding-right:15px}
+  .tile .tcv{
+    position:absolute;top:8px;right:9px;font-size:10px;line-height:1.6;
+    color:#8fa2c4;transition:transform .18s
+  }
+  .tile[aria-expanded="true"]{background:rgba(255,255,255,.1);border-color:rgba(126,224,255,.42)}
+  .tile[aria-expanded="true"] .tcv{transform:rotate(180deg);color:#fff}
+  .tile[aria-expanded="true"] .tk{color:#e8f0ff}
+  .tiles-hint{margin:-4px 0 7px;font-size:11.5px;font-weight:800;letter-spacing:-.01em;color:#8fa2c4;line-height:1.45}
+  .tile-pw{display:grid;gap:8px;margin:2px 0 4px}
+  .tile-p{
+    border-radius:15px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(9,15,29,.46);padding:11px 12px;scroll-margin-top:80px
+  }
+  .tile-p[hidden]{display:none}
+  .tile-p .th{
+    display:flex;align-items:center;gap:7px;width:100%;margin:0 0 9px;padding:0;
+    border:0;background:none;font:inherit;color:#dbe6f8;text-align:left;cursor:pointer
+  }
+  .tile-p .th:focus-visible{outline:3px solid var(--cy);outline-offset:2px;border-radius:8px}
+  .tile-p .th .e{font-size:15px;line-height:1}
+  .tile-p .th b{font-size:13px;font-weight:900;letter-spacing:-.01em}
+  .tile-p .th .cx{margin-left:auto;flex:none;font-size:10.5px;font-weight:900;color:#8fa2c4;letter-spacing:.01em}
+  .tile-p .sum{margin:0 0 9px;font-size:12.5px;font-weight:800;line-height:1.55;color:#cfdcef;overflow-wrap:anywhere}
+  .tile-p .kv .row{grid-template-columns:minmax(70px,.78fr) 1.42fr;gap:8px;padding:8px 0}
+  .tile-p .kv .row:first-child{padding-top:2px}
+  .tile-p .kv .k{font-size:12.5px;color:#bcd0ea}
+  .tile-p .kv .v{font-size:12.5px;line-height:1.5}
+  .tile-p .box{margin:0 0 8px;padding:10px 11px;border-radius:13px}
+  .tile-p .osteps{gap:6px;margin:0}
+  .tile-p .ostep{padding:8px 10px 8px 38px;border-radius:11px}
+  .tile-p .ostep::before{width:21px;height:21px;left:9px;top:8px;font-size:11px;border-radius:7px}
+  .tile-p .ostep b{font-size:13px}
+  .tile-p .ostep span{font-size:11.5px;line-height:1.45}
+  .tile-p .emoc{gap:6px}
+  .tile-p .emocard{padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.045)}
+  .tile-p .emocard .eh .e{font-size:16px}
+  .tile-p .emocard .eh b{font-size:13px}
+  .tile-p .emocard p{margin-top:4px;font-size:11.5px;line-height:1.5}
+  .tile-p .emocard .nx{margin-top:3px;font-size:11px;line-height:1.45}
+  .tile-p .emocard .ebar{height:5px;margin-top:6px}
+  .tile-p .tline{gap:6px;margin:0}
+  .tile-p .tl{padding:8px 10px}
+  .tile-p .tl .tt{font-size:12px}
+  .tile-p .tl .tx b{font-size:12.5px}
+  .tile-p .tl .tx span{font-size:11px;line-height:1.4}
+  .tile-p .fine{margin-top:9px;font-size:11.5px;line-height:1.55}
 
   .osteps{counter-reset:os;display:grid;gap:8px;margin:2px 0}
   .ostep{
@@ -2777,6 +2833,82 @@
   /* ---------- 📋 대표님 종합 현황 (status.json > ceo) ---------- */
   function ceoTone(t){ return (t === 'reg' || t === 'sale' || t === 'wait' || t === 'bad') ? ' t-' + t : ''; }
 
+  /* 종합 현황 공통 조각 — 아래 섹션과 「한눈에」 카드 상세가 같은 데이터를 그립니다 */
+  function orderHTML(o){
+    var h = '';
+    h += '<div class="box" style="border-color:rgba(255,217,138,.34);background:rgba(255,217,138,.06)">';
+    h += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
+    h += '<b style="font-size:17px;font-weight:900;letter-spacing:-.02em">' + esc(o.product || '') + '</b>';
+    if (o.market) h += '<span class="tag">' + esc(o.market) + '</span>';
+    h += '</div>';
+    if (o.state) h += '<p style="margin:7px 0 0;font-size:14px;font-weight:800;color:#ffe6b8;line-height:1.45">' + esc(o.state) + '</p>';
+    h += '</div>';
+    h += '<div class="osteps">';
+    (o.steps || []).forEach(function(s){
+      var cls = s.s === 'done' ? ' done' : (s.s === 'next' ? ' next' : '');
+      h += '<div class="ostep' + cls + '"><b>' + esc(s.t) + '</b>' + (s.n ? '<span>' + esc(s.n) + '</span>' : '') + '</div>';
+    });
+    h += '</div>';
+    if (o.note) h += '<p class="fine">' + esc(o.note) + '</p>';
+    return h;
+  }
+
+  function emoticonHTML(list){
+    var h = '<div class="emoc">';
+    list.forEach(function(e){
+      h += '<div class="emocard"><div class="eh"><span class="e" aria-hidden="true">' + esc(e.icon || '🎨') + '</span><b>' + esc(e.name || '') + '</b>';
+      if (e.badge) h += '<span class="chip ' + (e.tone === 'sale' ? 'run' : e.tone === 'hold' ? 'hold' : 'done') + '">' + esc(e.badge) + '</span>';
+      h += '</div>';
+      if (e.state) h += '<p>' + esc(e.state) + '</p>';
+      if (e.next) h += '<div class="nx">다음 · ' + esc(e.next) + '</div>';
+      if (typeof e.pct === 'number') h += '<div class="ebar"><i style="width:' + Math.max(0, Math.min(100, e.pct)) + '%"></i></div>';
+      h += '</div>';
+    });
+    return h + '</div>';
+  }
+
+  function todoHTML(list){
+    var h = '<div class="tline">';
+    list.forEach(function(x){
+      h += '<div class="tl"><span class="tt">' + esc(x.time) + '</span><span class="tx"><b>' + esc(x.t) + '</b>' + (x.n ? '<span>' + esc(x.n) + '</span>' : '') + '</span></div>';
+    });
+    return h + '</div>';
+  }
+
+  /* 「한눈에」 4칸 상세 — 타일의 d(상세) 칸을 패널로 펼칩니다 */
+  var tileOpen = {};   /* 펼침 상태 — 90초 새로고침으로 다시 그려도 유지 */
+  function tilePid(i){ return 'tl-' + i; }
+
+  function tileDetailHTML(c, t, i){
+    var d = t && t.d;
+    if (!d) return '';
+    var id = tilePid(i);
+    var open = !!tileOpen[id];
+    var h = '<div class="tile-p" id="' + esc(id) + '" role="region" aria-label="' + esc((t.label || '') + ' 상세 내역') + '"' + (open ? '' : ' hidden') + '>';
+    h += '<button type="button" class="th" data-tl="' + esc(id) + '" aria-controls="' + esc(id) + '" aria-expanded="' + (open ? 'true' : 'false') + '">';
+    h += '<span class="e" aria-hidden="true">' + esc(t.icon || '•') + '</span><b>' + esc(t.label || '') + ' 자세히</b>';
+    h += '<span class="cx" aria-hidden="true">접기 ▴</span></button>';
+    if (d.sum) h += '<p class="sum">' + esc(d.sum) + '</p>';
+
+    var rows = d.rows || [];
+    if (rows.length){
+      h += '<div class="kv">';
+      rows.forEach(function(r){
+        var v = r.v;
+        if (!v && r.src === 'server_head') v = (c.server && c.server.head) || '-';
+        h += '<div class="row"><span class="k">' + esc(r.k) + '</span><span class="v">' + esc(v) + '</span></div>';
+      });
+      h += '</div>';
+    }
+
+    if (d.ref === 'order' && c.order) h += orderHTML(c.order);
+    if (d.ref === 'emoticon' && c.emoticon && c.emoticon.length) h += emoticonHTML(c.emoticon);
+    if (d.ref === 'todo' && c.todo && c.todo.length) h += todoHTML(c.todo);
+
+    if (d.note) h += '<p class="fine">' + esc(d.note) + '</p>';
+    return h + '</div>';
+  }
+
   function renderCeo(d){
     var box = document.getElementById('ceoBody');
     var note = document.getElementById('ceoNote');
@@ -2797,15 +2929,26 @@
     h += '</div>';
 
     if (c.tiles && c.tiles.length){
-      h += '<h2 class="sec">한눈에</h2><div class="tiles">';
-      c.tiles.forEach(function(t){
-        h += '<div class="tile' + ceoTone(t.tone) + '">';
-        h += '<div class="tk"><span class="e" aria-hidden="true">' + esc(t.icon || '•') + '</span>' + esc(t.label || '') + '</div>';
-        h += '<div class="tv">' + esc(t.value || '-') + '</div>';
-        if (t.sub) h += '<div class="ts">' + esc(t.sub) + '</div>';
-        h += '</div>';
+      var hasTD = false;
+      c.tiles.forEach(function(t){ if (t && t.d) hasTD = true; });
+      h += '<h2 class="sec">한눈에</h2>';
+      if (hasTD) h += '<p class="tiles-hint">카드를 누르면 세부 내역이 펼쳐집니다 · 다시 누르면 접힙니다</p>';
+      h += '<div class="tiles">';
+      c.tiles.forEach(function(t, i){
+        var id = tilePid(i);
+        var hd = !!t.d;
+        var tag = hd ? 'button' : 'div';
+        h += '<' + tag + (hd ? ' type="button" data-tl="' + esc(id) + '" aria-controls="' + esc(id) + '" aria-expanded="' + (tileOpen[id] ? 'true' : 'false') + '"' : '') + ' class="tile' + ceoTone(t.tone) + '">';
+        h += '<span class="tk"><span class="e" aria-hidden="true">' + esc(t.icon || '•') + '</span>' + esc(t.label || '') + '</span>';
+        h += '<span class="tv">' + esc(t.value || '-') + '</span>';
+        if (t.sub) h += '<span class="ts">' + esc(t.sub) + '</span>';
+        if (hd) h += '<span class="tcv" aria-hidden="true">▾</span>';
+        h += '</' + tag + '>';
       });
       h += '</div>';
+      var phtml = '';
+      c.tiles.forEach(function(t, i){ phtml += tileDetailHTML(c, t, i); });
+      if (phtml) h += '<div class="tile-pw">' + phtml + '</div>';
     }
 
     if (c.issues && c.issues.length){
@@ -2832,45 +2975,19 @@
       h += '</div>';
     }
 
-    var o = c.order;
-    if (o){
+    if (c.order){
       h += '<h2 class="sec">🛒 오늘 첫 주문 진행 현황</h2>';
-      h += '<div class="box" style="border-color:rgba(255,217,138,.34);background:rgba(255,217,138,.06)">';
-      h += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
-      h += '<b style="font-size:17px;font-weight:900;letter-spacing:-.02em">' + esc(o.product || '') + '</b>';
-      if (o.market) h += '<span class="tag">' + esc(o.market) + '</span>';
-      h += '</div>';
-      if (o.state) h += '<p style="margin:7px 0 0;font-size:14px;font-weight:800;color:#ffe6b8;line-height:1.45">' + esc(o.state) + '</p>';
-      h += '</div>';
-      h += '<div class="osteps">';
-      (o.steps || []).forEach(function(s){
-        var cls = s.s === 'done' ? ' done' : (s.s === 'next' ? ' next' : '');
-        h += '<div class="ostep' + cls + '"><b>' + esc(s.t) + '</b>' + (s.n ? '<span>' + esc(s.n) + '</span>' : '') + '</div>';
-      });
-      h += '</div>';
-      if (o.note) h += '<p class="fine">' + esc(o.note) + '</p>';
+      h += orderHTML(c.order);
     }
 
     if (c.emoticon && c.emoticon.length){
-      h += '<h2 class="sec">🎨 캐릭터 이모티콘 프로젝트</h2><div class="emoc">';
-      c.emoticon.forEach(function(e){
-        h += '<div class="emocard"><div class="eh"><span class="e" aria-hidden="true">' + esc(e.icon || '🎨') + '</span><b>' + esc(e.name || '') + '</b>';
-        if (e.badge) h += '<span class="chip ' + (e.tone === 'sale' ? 'sale' : e.tone === 'hold' ? 'hold' : 'done') + '">' + esc(e.badge) + '</span>';
-        h += '</div>';
-        if (e.state) h += '<p>' + esc(e.state) + '</p>';
-        if (e.next) h += '<div class="nx">다음 · ' + esc(e.next) + '</div>';
-        if (typeof e.pct === 'number') h += '<div class="ebar"><i style="width:' + Math.max(0, Math.min(100, e.pct)) + '%"></i></div>';
-        h += '</div>';
-      });
-      h += '</div>';
+      h += '<h2 class="sec">🎨 캐릭터 이모티콘 프로젝트</h2>';
+      h += emoticonHTML(c.emoticon);
     }
 
     if (c.todo && c.todo.length){
-      h += '<h2 class="sec">📅 오늘 · 내일 체크포인트</h2><div class="tline">';
-      c.todo.forEach(function(x){
-        h += '<div class="tl"><span class="tt">' + esc(x.time) + '</span><span class="tx"><b>' + esc(x.t) + '</b>' + (x.n ? '<span>' + esc(x.n) + '</span>' : '') + '</span></div>';
-      });
-      h += '</div>';
+      h += '<h2 class="sec">📅 오늘 · 내일 체크포인트</h2>';
+      h += todoHTML(c.todo);
     }
 
     box.innerHTML = h;
@@ -2959,6 +3076,43 @@
   if (stRefresh) stRefresh.addEventListener('click', loadStatus);
   var ceoRefresh = document.getElementById('ceoRefresh');
   if (ceoRefresh) ceoRefresh.addEventListener('click', loadStatus);
+
+  /* 한눈에 4칸 — 누르면 세부 패널 펼침/접힘 (한 번에 하나, 다시 그려도 유지) */
+  document.addEventListener('click', function(e){
+    var t = e.target, btn = null;
+    while (t && t !== document.body){
+      if (t.getAttribute && t.getAttribute('data-tl')) { btn = t; break; }
+      t = t.parentNode;
+    }
+    if (!btn) return;
+    var id = btn.getAttribute('data-tl');
+    var panel = document.getElementById(id);
+    if (!panel) return;
+    /* 지금 닫혀 있으면 이번엔 펼칩니다 (열린 걸 다시 누르면 접힘) */
+    var open = panel.hasAttribute('hidden');
+    var all = document.querySelectorAll('[data-tl]');
+    for (var i = 0; i < all.length; i++){
+      var b = all[i], bid = b.getAttribute('data-tl');
+      var p = document.getElementById(bid);
+      if (!p) continue;
+      var on = (bid === id && open);
+      if (on) p.removeAttribute('hidden'); else p.setAttribute('hidden', '');
+      tileOpen[bid] = on;
+      b.setAttribute('aria-expanded', on ? 'true' : 'false');
+    }
+    if (open){
+      /* 펼친 패널이 안 잘리게 — 위에 붙어 있는 탭바 높이를 빼고 필요한 만큼만 내립니다 */
+      var pr = panel.getBoundingClientRect();
+      var navEl = document.querySelector('.tabs');
+      var navH = navEl ? Math.round(navEl.getBoundingClientRect().height) : 0;
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      if (pr.top < navH + 8 || pr.bottom > vh - 8){
+        var y = window.pageYOffset + pr.top - navH - 10;
+        try { window.scrollTo({ top: y, behavior: 'smooth' }); }
+        catch (err) { window.scrollTo(0, y); }
+      }
+    }
+  });
 
   /* 손볼 곳 버튼 — 누르면 상세 패널 펼침/접힘 (마켓 상세·종합 현황 공통) */
   document.addEventListener('click', function(e){
