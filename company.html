@@ -404,13 +404,38 @@
   .md-ord li b{display:inline;font-size:11px;font-weight:900;color:#cbd5e1}
   .md-ord.sale li b{color:#6ee7b7}
 
-  .md-iss{display:grid;gap:5px;margin:0 0 9px}
-  .md-iss div{display:flex;gap:6px;font-size:12px;font-weight:700;line-height:1.45;color:#dbe6f8;overflow-wrap:anywhere}
-  .md-iss .d{flex:none;width:6px;height:6px;border-radius:50%;margin-top:7px;background:#8fb3d9}
-  .md-iss .ok .d{background:var(--reg2)}
-  .md-iss .warn .d{background:var(--hold2)}
-  .md-iss .bad .d{background:var(--bad2)}
-  .md-iss .info .d{background:#94a3b8}
+  .md-iss{display:grid;gap:6px;margin:0 0 9px}
+  .md-isshint{margin:0 0 6px;font-size:10.5px;font-weight:900;letter-spacing:.02em;color:#93a5c6}
+
+  /* ---------- 🚩 손볼 곳 · 문제점 — 누르면 자세히 펼침 ---------- */
+  .iss{
+    -webkit-appearance:none;appearance:none;font:inherit;color:inherit;cursor:pointer;text-align:left;
+    width:100%;display:flex;align-items:flex-start;gap:7px;padding:9px 10px;min-height:48px;
+    border-radius:11px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)
+  }
+  .iss:active{transform:scale(.995);background:rgba(255,255,255,.09)}
+  .iss:focus-visible{outline:3px solid var(--cy);outline-offset:2px}
+  .iss .d{flex:none;width:7px;height:7px;border-radius:50%;margin-top:7px;background:#8fb3d9}
+  .iss.ok .d{background:var(--reg2)}
+  .iss.warn .d{background:var(--hold2)}
+  .iss.bad .d{background:var(--bad2)}
+  .iss.info .d{background:#94a3b8}
+  .iss .tx{flex:1;min-width:0;font-size:12.5px;font-weight:800;line-height:1.45;color:#dbe6f8;overflow-wrap:anywhere}
+  .iss .cv{flex:none;font-size:11px;line-height:1.6;color:#8fa2c4;transition:transform .18s}
+  .iss[aria-expanded="true"]{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.2)}
+  .iss[aria-expanded="true"] .cv{transform:rotate(180deg)}
+  .iss[aria-expanded="true"] .tx{color:#fff}
+  .iss-p{margin:0 0 4px 11px;padding:3px 0 9px 10px;border-left:2px solid rgba(255,255,255,.16)}
+  .iss-p .ip{margin:0 0 8px;font-size:12px;font-weight:700;line-height:1.55;color:#cfdcef;overflow-wrap:anywhere}
+  .iss-p .ip b{display:block;margin-bottom:1px;font-size:10.5px;font-weight:900;letter-spacing:.02em;color:#93a5c6}
+  .iss-p ul{list-style:none;margin:0 0 8px;padding:0;display:grid;gap:3px}
+  .iss-p ul li{position:relative;padding-left:11px;font-size:11.5px;font-weight:700;line-height:1.5;color:#c9d7ec;overflow-wrap:anywhere}
+  .iss-p ul li::before{content:'';position:absolute;left:2px;top:7px;width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.45)}
+  .iss-p .st{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0 0 7px;font-size:11.5px;font-weight:800;color:#dbe6f8}
+  .iss-p .st .chip{margin-left:0}
+  .iss-p .st i{font-style:normal;font-size:11px;font-weight:800;color:#93a5c6}
+  .iss-p .nx{margin:0;padding:7px 9px;border-radius:9px;background:rgba(143,240,192,.07);border:1px solid rgba(143,240,192,.24);font-size:11.5px;font-weight:800;line-height:1.5;color:#dbe6f8;overflow-wrap:anywhere}
+  .iss-p .nx b{color:var(--mn)}
 
   .md-foot{margin:0;font-size:10.5px;font-weight:800;color:#8698bd;line-height:1.4}
   .md-chg{list-style:none;margin:4px 0 0;padding:0;display:grid;gap:3px}
@@ -2526,6 +2551,7 @@
 
   /* ---------- 📊 마켓별 상세 카드(5대 마켓) ---------- */
   var mdOpen = {coupang: true};
+  var issOpen = {};   /* 손볼 곳 펼침 상태 — 다시 그려도 유지 */
   var lastStatus = null;
 
   /* 상태 숫자 색 — 회색=등록 완료, 초록=실제 주문·발송, 주황=확인·대기, 빨강=반려·오류 */
@@ -2547,6 +2573,42 @@
     var v = String(o.value || '');
     if (/없음|아직/.test(v)) return false;
     return !isZeroVal(v);
+  }
+
+  /* 손볼 곳 한 건 — 누르면 왜 문제인지 · 대상 상품 · 지금 상태 · 다음 할 일이 펼쳐집니다 */
+  function issPanelId(scope, i){
+    return 'is-' + String(scope).replace(/[^A-Za-z0-9_-]/g, '') + '-' + i;
+  }
+  function issHTML(scope, it, i){
+    var tone = (it && it.tone) || 'info';
+    var d = (it && it.d) || null;
+    var id = issPanelId(scope, i);
+    var open = !!issOpen[id];
+    var h = '<button type="button" class="iss ' + esc(tone) + '" data-iss="' + esc(id) + '"'
+      + ' aria-expanded="' + (open ? 'true' : 'false') + '"'
+      + (d ? ' aria-controls="' + esc(id) + '"' : '') + '>';
+    h += '<span class="d" aria-hidden="true"></span>';
+    h += '<span class="tx">' + esc((it && it.text) || '') + '</span>';
+    if (d) h += '<span class="cv" aria-hidden="true">▾</span>';
+    h += '</button>';
+    if (!d) return h;
+
+    h += '<div class="iss-p" id="' + esc(id) + '"' + (open ? '' : ' hidden') + '>';
+    if (d.why) h += '<div class="ip"><b>왜 문제인가</b>' + esc(d.why) + '</div>';
+    if (d.count) h += '<div class="ip"><b>대상 건수</b>' + esc(d.count) + '</div>';
+    if (d.examples && d.examples.length){
+      h += '<ul>';
+      d.examples.forEach(function(x){ h += '<li>' + esc(x) + '</li>'; });
+      h += '</ul>';
+    }
+    if (d.state){
+      h += '<div class="st"><span class="chip ' + esc(d.chip || 'hold') + '">' + esc(d.state) + '</span>';
+      if (d.owner) h += '<i>담당 · ' + esc(d.owner) + '</i>';
+      h += '</div>';
+    }
+    if (d.next) h += '<p class="nx"><b>다음</b> · ' + esc(d.next) + '</p>';
+    h += '</div>';
+    return h;
   }
 
   /* 상세 필드가 없는 예전 status.json 도 그대로 그릴 수 있게 */
@@ -2617,9 +2679,12 @@
         h += '</span></div>';
       }
       if (m.issues && m.issues.length){
+        var hasDetail = false;
+        m.issues.forEach(function(it){ if (it && it.d) hasDetail = true; });
+        if (hasDetail) h += '<div class="md-isshint">🚩 손볼 곳 · 문제점 — 누르면 자세히 펼쳐집니다</div>';
         h += '<div class="md-iss">';
-        m.issues.forEach(function(it){
-          h += '<div class="' + esc(it.tone || 'info') + '"><span class="d" aria-hidden="true"></span><span>' + esc(it.text) + '</span></div>';
+        m.issues.forEach(function(it, ii){
+          h += issHTML('md-' + key, it, ii);
         });
         h += '</div>';
       }
@@ -2740,6 +2805,14 @@
         if (t.sub) h += '<div class="ts">' + esc(t.sub) + '</div>';
         h += '</div>';
       });
+      h += '</div>';
+    }
+
+    if (c.issues && c.issues.length){
+      h += '<h2 class="sec">🚩 지금 손볼 곳 · 문제점</h2>';
+      h += '<p class="fine" style="margin:-2px 0 8px">항목을 누르면 <b>왜 문제인지 · 대상 상품 · 지금 상태 · 다음 할 일</b>이 펼쳐집니다.</p>';
+      h += '<div class="md-iss">';
+      c.issues.forEach(function(it, i){ h += issHTML('ceo', it, i); });
       h += '</div>';
     }
 
@@ -2886,6 +2959,24 @@
   if (stRefresh) stRefresh.addEventListener('click', loadStatus);
   var ceoRefresh = document.getElementById('ceoRefresh');
   if (ceoRefresh) ceoRefresh.addEventListener('click', loadStatus);
+
+  /* 손볼 곳 버튼 — 누르면 상세 패널 펼침/접힘 (마켓 상세·종합 현황 공통) */
+  document.addEventListener('click', function(e){
+    var t = e.target, btn = null;
+    while (t && t !== document.body){
+      if (t.classList && t.classList.contains('iss')) { btn = t; break; }
+      t = t.parentNode;
+    }
+    if (!btn) return;
+    var id = btn.getAttribute('data-iss');
+    if (!id) return;
+    var panel = document.getElementById(id);
+    if (!panel) return;
+    var open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+    if (open) panel.setAttribute('hidden', ''); else panel.removeAttribute('hidden');
+    issOpen[id] = !open;
+  });
 
   /* 마켓 상세 카드 — 누르면 펼침/접힘 (다시 그려도 펼친 상태 유지) */
   var stMkBox = document.getElementById('stMarkets');
