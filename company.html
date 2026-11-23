@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0a0f1c">
-<title>굳사이클 AI 컴퍼니 본사 · 조직도 · 운영 매뉴얼</title>
-<meta name="description" content="굳사이클 AI 컴퍼니 실시간 현황 — 5대 마켓(스마트스토어·쿠팡·G마켓·옥션·11번가)별 등록·판매중·반려·오늘 주문·손볼 곳 상세, 직원별 지금 하는 일, 막힌 곳. 조직도, 부재중 대직표, 보관 위치, 혼자 운영 매뉴얼, 비상 대처까지 폰에서 한 손으로 보는 본사 대시보드.">
+<title>굳사이클 AI 컴퍼니 본사 · 종합 현황 · 조직도 · 운영 매뉴얼</title>
+<meta name="description" content="굳사이클 AI 컴퍼니 본사 대시보드 — 📋 대표님 종합 현황(서울 클라우드 24시간 가동·첫 주문 단계·이모티콘·내일 체크포인트), 5대 마켓별 등록·판매중·오늘 주문·손볼 곳 상세, 직원별 지금 하는 일, 조직도, 대직표, 보관 위치, 혼자 운영 매뉴얼, 비상 대처까지 폰에서 한 손으로 봅니다.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="./company-manifest.json">
 <link rel="apple-touch-icon" href="./icon-company-192.png">
@@ -31,6 +31,17 @@
     --pk:#ff9dc4;
     --r:18px;
     --tap:54px;
+    /* ---------- 상태 색 의미 (2026-11-23 대표님 지시) ----------
+       회색 = 등록 완료·노출 중(아직 주문 전) / 초록 = 실제 주문·발송·배송 진행
+       주황 = 확인 필요·보류·대기 / 빨강 = 반려·품절·오류 */
+    --reg:#64748b;
+    --reg2:#94a3b8;
+    --sale:#10b981;
+    --sale2:#34d399;
+    --hold:#f59e0b;
+    --hold2:#fbbf24;
+    --bad:#ef4444;
+    --bad2:#f87171;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{background:#0a0f1c;-webkit-text-size-adjust:100%}
@@ -77,7 +88,7 @@
 
   /* ---------- 탭 ---------- */
   .tabs{
-    position:sticky;top:0;z-index:20;display:grid;grid-template-columns:repeat(3,1fr);gap:5px;
+    position:sticky;top:0;z-index:20;display:grid;grid-template-columns:repeat(4,1fr);gap:5px;
     padding:7px 0 8px;margin:0 0 4px;
     background:#0a0f1c;
     box-shadow:0 8px 16px -8px rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.06)
@@ -248,6 +259,7 @@
     padding:13px 14px;margin:12px 0
   }
   .hint b{display:block;font-size:16.5px;font-weight:900;margin-bottom:5px}
+  .hint p strong{font-weight:900;color:#fff}
   .hint ol{margin:0;padding-left:20px}
   .hint li{font-size:15.5px;line-height:1.6;color:#e2ebfb;margin:3px 0}
   .hint p{margin:0;font-size:15px;line-height:1.6;color:#dbe8fb}
@@ -274,21 +286,22 @@
   .mk{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .mcard{
     border-radius:15px;border:1px solid var(--line);background:var(--card);
-    padding:11px 12px;min-width:0;border-left:3px solid rgba(143,240,192,.7)
+    padding:11px 12px;min-width:0;border-left:3px solid rgba(148,163,184,.85)
   }
-  .mcard.t-warn{border-left-color:rgba(255,217,138,.85)}
-  .mcard.t-wait{border-left-color:rgba(126,224,255,.8)}
+  .mcard.t-warn{border-left-color:rgba(245,158,11,.9)}
+  .mcard.t-wait{border-left-color:rgba(245,158,11,.75)}
+  .mcard.t-bad{border-left-color:rgba(239,68,68,.9)}
   .mcard .mh{display:flex;align-items:center;gap:6px;min-width:0}
   .mcard .mh .e{font-size:14px;line-height:1;flex:none}
   .mcard .mh .nm{font-size:14px;font-weight:900;color:#dbe6ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .mcard .mv{margin-top:5px;font-size:15px;font-weight:800;color:#fff;line-height:1.2;letter-spacing:-.02em;overflow-wrap:anywhere}
   .mcard .mv .n{font-size:24px;font-weight:900;letter-spacing:-.03em}
   .mcard .mv .lim{font-size:13.5px;font-weight:800;color:#b9c8e2}
-  .mcard .mv .lab{font-size:16px;font-weight:900;color:#d9fff0}
+  .mcard .mv .lab{font-size:16px;font-weight:900;color:#cbd5e1}
   .mcard .ms{margin-top:2px;font-size:12px;font-weight:800;color:#a7b6d4;line-height:1.4}
   .mcard .ms b{color:#ffe6b8}
   .bar{height:6px;margin:7px 0 0;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden}
-  .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--mn),var(--cy))}
+  .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--reg),var(--reg2))}
   .mcard .mn{margin-top:5px;font-size:12px;font-weight:700;color:#93a5c6;line-height:1.4}
 
   /* ---------- 📊 마켓별 상세 (5대 마켓 아코디언) ---------- */
@@ -309,15 +322,30 @@
     font-size:11px;font-weight:800;color:#a7b6d4;white-space:nowrap
   }
   .mk-sum b{font-size:14px;font-weight:900;color:#fff;letter-spacing:-.03em}
+  .mk-sum span.ov-sale{border-color:rgba(16,185,129,.45);background:rgba(16,185,129,.12)}
+  .mk-sum span.ov-sale b{color:#6ee7b7}
+
+  /* 색 의미 안내 */
+  .cblog{
+    display:flex;flex-wrap:wrap;gap:5px 12px;align-items:center;margin:0 0 9px;
+    font-size:11.5px;font-weight:900;color:#b8c6da;line-height:1.3
+  }
+  .cblog span{display:flex;align-items:center;gap:5px;white-space:nowrap}
+  .cblog i{width:9px;height:9px;border-radius:50%;flex:none}
+  .cblog .c-reg{background:var(--reg2)}
+  .cblog .c-sale{background:var(--sale2)}
+  .cblog .c-hold{background:var(--hold2)}
+  .cblog .c-bad{background:var(--bad2)}
 
   .mkdet{display:grid;gap:9px}
   .md{
     border-radius:16px;border:1px solid var(--line);background:var(--card);overflow:hidden;
-    border-left:3px solid rgba(143,240,192,.72)
+    border-left:3px solid rgba(148,163,184,.8)
   }
-  .md.t-warn{border-left-color:rgba(255,217,138,.9)}
-  .md.t-wait{border-left-color:rgba(126,224,255,.85)}
-  .md.t-bad{border-left-color:rgba(255,157,196,.9)}
+  .md.t-warn{border-left-color:rgba(245,158,11,.92)}
+  .md.t-wait{border-left-color:rgba(245,158,11,.72)}
+  .md.t-bad{border-left-color:rgba(239,68,68,.92)}
+  .md.t-sale{border-left-color:rgba(16,185,129,.92)}
   .md.open{background:rgba(255,255,255,.075)}
   .md-h{
     -webkit-appearance:none;appearance:none;font:inherit;color:var(--ink);cursor:pointer;
@@ -330,7 +358,7 @@
   .md-h .nm{display:block;font-size:15.5px;font-weight:900;letter-spacing:-.02em;line-height:1.25}
   .md-h .val{display:flex;align-items:baseline;gap:5px;min-width:0;margin-top:1px}
   .md-h .val b{font-size:22px;font-weight:900;letter-spacing:-.035em;line-height:1.15}
-  .md-h .val b.word{font-size:16px;letter-spacing:-.02em;color:#d9fff0}
+  .md-h .val b.word{font-size:16px;letter-spacing:-.02em;color:#cbd5e1}
   .md-h .val i{font-style:normal;font-size:11.5px;font-weight:800;color:#9fb1d2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .md-h .sub{display:block;margin-top:1px;font-size:11px;font-weight:700;color:#8698bd;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .md-h .cv{flex:none;width:18px;text-align:center;font-size:12px;color:#8fa2c4;transition:transform .2s}
@@ -355,27 +383,34 @@
   .md-stats div{padding:7px 9px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);min-width:0}
   .md-stats i{display:block;font-style:normal;font-size:10.5px;font-weight:800;color:#93a5c6;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .md-stats b{display:block;margin-top:1px;font-size:16.5px;font-weight:900;letter-spacing:-.03em;line-height:1.25}
-  .md-stats .ok b{color:#a8f7cf}
-  .md-stats .warn b{color:#ffe6b8}
-  .md-stats .bad b{color:#ffd0e2}
+  .md-stats .reg b{color:#b7c3d4}
+  .md-stats .sale b{color:var(--sale2)}
+  .md-stats .hold b{color:var(--hold2)}
+  .md-stats .bad b{color:var(--bad2)}
+  .md-stats .ok b{color:#b7c3d4}
+  .md-stats .warn b{color:var(--hold2)}
 
-  .md-ord{display:flex;gap:8px;padding:9px 10px;border-radius:11px;margin:0 0 9px;background:rgba(126,224,255,.08);border:1px solid rgba(126,224,255,.26)}
-  .md-ord .tt{flex:none;height:17px;margin-top:1px;padding:0 6px;border-radius:5px;background:#8ee6ff;color:#08202b;font-size:10px;font-weight:900;line-height:17px;letter-spacing:-.01em}
+  .md-ord{display:flex;gap:8px;padding:9px 10px;border-radius:11px;margin:0 0 9px;background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.28)}
+  .md-ord.sale{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.42)}
+  .md-ord .tt{flex:none;height:17px;margin-top:1px;padding:0 6px;border-radius:5px;background:#94a3b8;color:#0b1526;font-size:10px;font-weight:900;line-height:17px;letter-spacing:-.01em}
+  .md-ord.sale .tt{background:#34d399;color:#04231a}
   .md-ord .tx{min-width:0}
-  .md-ord b{display:block;font-size:13.5px;font-weight:900;line-height:1.35;color:#eaf7ff;letter-spacing:-.01em}
-  .md-ord p{margin:2px 0 0;font-size:11.5px;font-weight:700;color:#b7d7e8;line-height:1.45}
+  .md-ord b{display:block;font-size:13.5px;font-weight:900;line-height:1.35;color:#eef3ff;letter-spacing:-.01em}
+  .md-ord p{margin:2px 0 0;font-size:11.5px;font-weight:700;color:#b7c6dc;line-height:1.45}
   .md-ord ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:3px}
-  .md-ord li{position:relative;padding-left:11px;font-size:11.5px;font-weight:700;color:#d5e9f5;line-height:1.45;overflow-wrap:anywhere}
-  .md-ord li::before{content:'';position:absolute;left:2px;top:6px;width:4px;height:4px;border-radius:50%;background:#8ee6ff}
-  .md-ord li b{display:inline;font-size:11px;font-weight:900;color:#8ee6ff}
+  .md-ord li{position:relative;padding-left:11px;font-size:11.5px;font-weight:700;color:#d5e2f0;line-height:1.45;overflow-wrap:anywhere}
+  .md-ord li::before{content:'';position:absolute;left:2px;top:6px;width:4px;height:4px;border-radius:50%;background:#94a3b8}
+  .md-ord.sale li::before{background:#34d399}
+  .md-ord li b{display:inline;font-size:11px;font-weight:900;color:#cbd5e1}
+  .md-ord.sale li b{color:#6ee7b7}
 
   .md-iss{display:grid;gap:5px;margin:0 0 9px}
   .md-iss div{display:flex;gap:6px;font-size:12px;font-weight:700;line-height:1.45;color:#dbe6f8;overflow-wrap:anywhere}
   .md-iss .d{flex:none;width:6px;height:6px;border-radius:50%;margin-top:7px;background:#8fb3d9}
-  .md-iss .ok .d{background:#5cffae}
-  .md-iss .warn .d{background:#ffd98a}
-  .md-iss .bad .d{background:#ff5d72}
-  .md-iss .info .d{background:#7ee0ff}
+  .md-iss .ok .d{background:var(--reg2)}
+  .md-iss .warn .d{background:var(--hold2)}
+  .md-iss .bad .d{background:var(--bad2)}
+  .md-iss .info .d{background:#94a3b8}
 
   .md-foot{margin:0;font-size:10.5px;font-weight:800;color:#8698bd;line-height:1.4}
   .md-chg{list-style:none;margin:4px 0 0;padding:0;display:grid;gap:3px}
@@ -390,16 +425,18 @@
   .scard .sh b{font-size:16.5px;font-weight:900;letter-spacing:-.02em}
   .scard .sh i{font-style:normal;font-size:12.5px;font-weight:800;color:#8fa2c4}
   .chip{margin-left:auto;flex:none;font-size:12px;font-weight:900;border-radius:999px;padding:2px 9px;line-height:1.5}
-  .chip.run{background:rgba(143,240,192,.18);color:#a8f7cf;border:1px solid rgba(143,240,192,.45)}
-  .chip.wait{background:rgba(126,224,255,.15);color:#bfeeff;border:1px solid rgba(126,224,255,.4)}
-  .chip.blk{background:rgba(255,157,196,.18);color:#ffd0e2;border:1px solid rgba(255,157,196,.5)}
-  .chip.done{background:rgba(255,255,255,.12);color:#dbe6ff;border:1px solid rgba(255,255,255,.24)}
+  .chip.run{background:rgba(16,185,129,.18);color:#6ee7b7;border:1px solid rgba(16,185,129,.48)}
+  .chip.wait{background:rgba(245,158,11,.16);color:#fcd34d;border:1px solid rgba(245,158,11,.45)}
+  .chip.blk{background:rgba(239,68,68,.18);color:#fca5a5;border:1px solid rgba(239,68,68,.5)}
+  .chip.bad{background:rgba(239,68,68,.18);color:#fca5a5;border:1px solid rgba(239,68,68,.5)}
+  .chip.hold{background:rgba(245,158,11,.16);color:#fcd34d;border:1px solid rgba(245,158,11,.48)}
+  .chip.done{background:rgba(148,163,184,.16);color:#cbd5e1;border:1px solid rgba(148,163,184,.34)}
   .scard p{margin:7px 0 0;font-size:15.5px;line-height:1.55;color:#e6edfa}
-  .scard .sd{margin-top:6px;padding:7px 9px;border-radius:10px;background:rgba(255,217,138,.09);border:1px solid rgba(255,217,138,.26);font-size:13.5px;font-weight:800;color:#ffe6b8;line-height:1.45}
+  .scard .sd{margin-top:6px;padding:7px 9px;border-radius:10px;background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.26);font-size:13.5px;font-weight:800;color:#cfd9e8;line-height:1.45}
 
   .st-block{display:grid;gap:8px}
-  .bcard{border-radius:15px;padding:12px 13px;border:1px solid rgba(255,157,196,.32);background:rgba(255,157,196,.07)}
-  .bcard.wait{border-color:rgba(126,224,255,.3);background:rgba(126,224,255,.07)}
+  .bcard{border-radius:15px;padding:12px 13px;border:1px solid rgba(239,68,68,.42);background:rgba(239,68,68,.09)}
+  .bcard.wait{border-color:rgba(245,158,11,.48);background:rgba(245,158,11,.1)}
   .bcard .bh{display:flex;align-items:flex-start;gap:8px}
   .bcard .bh .e{font-size:18px;line-height:1.2;flex:none}
   .bcard .bh b{font-size:15.5px;font-weight:900;line-height:1.4;letter-spacing:-.01em}
@@ -442,31 +479,38 @@
     position:absolute;top:9px;right:10px;width:11px;height:11px;border-radius:50%;
     background:rgba(255,255,255,.22);box-shadow:0 0 0 2px rgba(10,15,28,.55)
   }
-  .tnode.st-working,.tnode.st-error,.tnode.st-idle{padding-right:24px}
-  .tnode.st-working .row1,.tnode.st-error .row1,.tnode.st-idle .row1{padding-right:8px}
-  .tnode.st-working{box-shadow:0 0 0 1px rgba(63,245,154,.42),0 0 22px rgba(63,245,154,.24)}
-  .tnode.st-working .led{background:#5cffae;animation:ledWork 1.9s ease-in-out infinite}
-  .tnode.st-error{box-shadow:0 0 0 1px rgba(255,77,100,.5),0 0 22px rgba(255,77,100,.28)}
-  .tnode.st-error .led{background:#ff5d72;animation:ledErr 1.1s ease-in-out infinite}
-  .tnode.st-idle .led{background:#8fb3d9}
+  .tnode.st-working,.tnode.st-error,.tnode.st-hold,.tnode.st-bad,.tnode.st-idle{padding-right:24px}
+  .tnode.st-working .row1,.tnode.st-error .row1,.tnode.st-hold .row1,.tnode.st-bad .row1,.tnode.st-idle .row1{padding-right:8px}
+  .tnode.st-working{box-shadow:0 0 0 1px rgba(16,185,129,.5),0 0 22px rgba(16,185,129,.24)}
+  .tnode.st-working .led{background:#34d399;animation:ledWork 1.9s ease-in-out infinite}
+  .tnode.st-hold{box-shadow:0 0 0 1px rgba(245,158,11,.5),0 0 22px rgba(245,158,11,.2)}
+  .tnode.st-hold .led{background:#fbbf24;animation:ledHold 1.5s ease-in-out infinite}
+  .tnode.st-error,.tnode.st-bad{box-shadow:0 0 0 1px rgba(239,68,68,.52),0 0 22px rgba(239,68,68,.26)}
+  .tnode.st-error .led,.tnode.st-bad .led{background:#f87171;animation:ledErr 1.1s ease-in-out infinite}
+  .tnode.st-idle .led{background:#94a3b8}
   @keyframes ledWork{
-    0%,100%{background:#3ff09a;box-shadow:0 0 0 2px rgba(10,15,28,.55),0 0 6px 1px rgba(63,245,154,.70)}
-    50%{background:#c8ffe2;box-shadow:0 0 0 2px rgba(10,15,28,.55),0 0 0 6px rgba(63,245,154,.18),0 0 16px 5px rgba(63,245,154,.92)}
+    0%,100%{background:#10b981;box-shadow:0 0 0 2px rgba(10,15,28,.55),0 0 6px 1px rgba(16,185,129,.70)}
+    50%{background:#a7f3d0;box-shadow:0 0 0 2px rgba(10,15,28,.55),0 0 0 6px rgba(16,185,129,.18),0 0 16px 5px rgba(16,185,129,.9)}
+  }
+  @keyframes ledHold{
+    0%,100%{background:#d97706;box-shadow:0 0 0 2px rgba(10,15,28,.55),0 0 6px 1px rgba(245,158,11,.7)}
+    50%{background:#fde68a;box-shadow:0 0 0 2px rgba(10,15,28,.55),0 0 0 6px rgba(245,158,11,.18),0 0 16px 5px rgba(245,158,11,.9)}
   }
   @keyframes ledErr{
-    0%,100%{background:#ff3f57;box-shadow:0 0 0 2px rgba(10,15,28,.55),0 0 6px 1px rgba(255,77,100,.75)}
-    50%{background:#ffc3cb;box-shadow:0 0 0 2px rgba(10,15,28,.55),0 0 0 7px rgba(255,77,100,.20),0 0 18px 6px rgba(255,77,100,.95)}
+    0%,100%{background:#ef4444;box-shadow:0 0 0 2px rgba(10,15,28,.55),0 0 6px 1px rgba(239,68,68,.75)}
+    50%{background:#fecaca;box-shadow:0 0 0 2px rgba(10,15,28,.55),0 0 0 7px rgba(239,68,68,.2),0 0 18px 6px rgba(239,68,68,.95)}
   }
   .tnode .tlive{
     margin:7px -2px 0;display:flex;align-items:center;gap:6px;min-width:0;
     font-size:12.5px;font-weight:800;line-height:1.35;color:#c9d8ef;cursor:pointer
   }
   .tnode .tlive .lk{
-    flex:none;font-size:10px;font-weight:900;letter-spacing:.03em;color:#08200f;
-    background:#8ff0c0;border-radius:5px;padding:1px 4px
+    flex:none;font-size:10px;font-weight:900;letter-spacing:.03em;color:#04231a;
+    background:#34d399;border-radius:5px;padding:1px 4px
   }
-  .tnode.st-error .tlive .lk{background:#ffa3b1;color:#2a0710}
-  .tnode.st-idle .tlive .lk{background:#a9c3e2;color:#0b1526}
+  .tnode.st-hold .tlive .lk{background:#fbbf24;color:#2b1a02}
+  .tnode.st-bad .tlive .lk,.tnode.st-error .tlive .lk{background:#fca5a5;color:#2a0710}
+  .tnode.st-idle .tlive .lk{background:#94a3b8;color:#0b1526}
   .tnode .tlive .lw{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tnode .tlive.open .lw{white-space:normal;overflow-wrap:anywhere}
 
@@ -476,9 +520,10 @@
     font-size:12.5px;font-weight:900;color:#c3d2ea
   }
   .siglegend span{display:flex;align-items:center;gap:6px;white-space:nowrap}
-  .siglegend i{width:10px;height:10px;border-radius:50%;flex:none;background:#8fb3d9}
-  .siglegend i.w{background:#5cffae;animation:ledWork 1.9s ease-in-out infinite}
-  .siglegend i.e{background:#ff5d72;animation:ledErr 1.1s ease-in-out infinite}
+  .siglegend i{width:10px;height:10px;border-radius:50%;flex:none;background:#94a3b8}
+  .siglegend i.w{background:#10b981;animation:ledWork 1.9s ease-in-out infinite}
+  .siglegend i.h{background:#f59e0b;animation:ledHold 1.5s ease-in-out infinite}
+  .siglegend i.e{background:#ef4444;animation:ledErr 1.1s ease-in-out infinite}
   .siglegend em{margin-left:auto;font-style:normal;font-size:11.5px;font-weight:800;color:#8698bd;white-space:nowrap}
 
   /* 기본(폰): 세로 들여쓰기 나무 */
@@ -678,6 +723,70 @@
   }
   .gem-acts{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:7px}
 
+  /* ---------- 📋 대표님 종합 현황 ---------- */
+  .ceo-hero{
+    border-radius:18px;padding:14px 15px;margin:6px 0 12px;border:1px solid rgba(148,163,184,.36);
+    background:linear-gradient(140deg,rgba(148,163,184,.14),rgba(179,160,255,.10))
+  }
+  .ceo-hero .ch-k{font-size:12.5px;font-weight:900;letter-spacing:.07em;color:#cbd5e1}
+  .ceo-hero .ch-t{margin:5px 0 0;font-size:19px;font-weight:900;line-height:1.42;letter-spacing:-.02em;color:#fff}
+  .ceo-hero .ch-s{margin:7px 0 0;font-size:13px;font-weight:800;color:#cddcf3;line-height:1.45}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:2px 0 4px}
+  .tile{
+    border-radius:15px;border:1px solid var(--line);background:var(--card);
+    padding:11px 12px;border-left:3px solid rgba(148,163,184,.85);min-width:0
+  }
+  .tile.t-reg{border-left-color:rgba(148,163,184,.85)}
+  .tile.t-sale{border-left-color:rgba(16,185,129,.95)}
+  .tile.t-wait{border-left-color:rgba(245,158,11,.95)}
+  .tile.t-bad{border-left-color:rgba(239,68,68,.95)}
+  .tile.t-sale .tv{color:#6ee7b7}
+  .tile .tk{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:900;color:#c3d2ea;line-height:1.3}
+  .tile .tk .e{font-size:14px;line-height:1}
+  .tile .tv{margin-top:4px;font-size:21px;font-weight:900;letter-spacing:-.035em;line-height:1.15;color:#fff}
+  .tile .ts{margin-top:3px;font-size:12px;font-weight:800;color:#93a5c6;line-height:1.35}
+
+  .osteps{counter-reset:os;display:grid;gap:8px;margin:2px 0}
+  .ostep{
+    position:relative;border-radius:14px;border:1px solid rgba(255,255,255,.1);
+    background:rgba(255,255,255,.045);padding:10px 12px 10px 44px
+  }
+  .ostep::before{
+    counter-increment:os;content:counter(os);position:absolute;left:10px;top:10px;
+    width:24px;height:24px;border-radius:8px;display:grid;place-items:center;
+    font-size:13px;font-weight:900;color:#0c1220;background:rgba(255,255,255,.36)
+  }
+  .ostep.done::before{content:'✓';background:linear-gradient(140deg,var(--sale),#6ee7b7)}
+  .ostep.next::before{content:'→';background:linear-gradient(140deg,var(--hold),#fcd34d)}
+  .ostep b{display:block;font-size:16px;font-weight:900;line-height:1.35;letter-spacing:-.01em}
+  .ostep span{display:block;font-size:13.5px;font-weight:700;color:#a7b6d4;line-height:1.48;margin-top:1px}
+  .ostep.next{border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.09)}
+  .ostep.next b{color:#fff4dc}
+
+  .emoc{display:grid;gap:8px}
+  .emocard{border-radius:15px;border:1px solid var(--line);background:var(--card);padding:11px 13px}
+  .emocard .eh{display:flex;align-items:center;gap:8px}
+  .emocard .eh .e{font-size:20px;line-height:1}
+  .emocard .eh b{font-size:16px;font-weight:900;letter-spacing:-.02em;line-height:1.3}
+  .emocard .eh .chip{margin-left:auto}
+  .emocard p{margin:6px 0 0;font-size:14.5px;font-weight:700;color:#dfe8fb;line-height:1.5}
+  .emocard .nx{margin-top:4px;font-size:13px;font-weight:800;color:#bfe6ff;line-height:1.45}
+  .ebar{height:6px;margin-top:8px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden}
+  .ebar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--hold),var(--sale))}
+
+  .tline{display:grid;gap:8px;margin:2px 0 4px}
+  .tl{
+    display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:13px;
+    border:1px solid rgba(126,224,255,.26);background:rgba(126,224,255,.07)
+  }
+  .tl .tt{
+    flex:none;font-size:12px;font-weight:900;color:#08202b;background:#8ee6ff;
+    border-radius:7px;padding:2px 7px;white-space:nowrap;margin-top:1px
+  }
+  .tl .tx{min-width:0}
+  .tl .tx b{display:block;font-size:15px;font-weight:900;line-height:1.38;letter-spacing:-.01em}
+  .tl .tx span{display:block;font-size:13px;font-weight:700;color:#b7d7e8;line-height:1.4;margin-top:1px}
+
   footer{
     margin:26px 0 4px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);
     font-size:13.5px;color:var(--dim2);line-height:1.65;font-weight:700
@@ -687,7 +796,7 @@
 
   @media (min-width:720px){
     body{font-size:18px}
-    .tabs{grid-template-columns:repeat(6,1fr)}
+    .tabs{grid-template-columns:repeat(7,1fr)}
     .mk{grid-template-columns:1fr 1fr 1fr}
     .team{grid-template-columns:1fr 1fr}
     .loc{grid-template-columns:1fr 1fr 1fr}
@@ -717,7 +826,8 @@
   </div>
 
   <nav class="tabs" role="tablist" aria-label="본사 대시보드 메뉴">
-    <button class="tab" role="tab" id="t0" aria-controls="p0" aria-selected="true" data-p="p0"><em>📊</em><b>실시간 현황</b></button>
+    <button class="tab" role="tab" id="t6" aria-controls="p6" aria-selected="true" data-p="p6"><em>📋</em><b>종합 현황</b></button>
+    <button class="tab" role="tab" id="t0" aria-controls="p0" aria-selected="false" data-p="p0" tabindex="-1"><em>📊</em><b>실시간 현황</b></button>
     <button class="tab" role="tab" id="t1" aria-controls="p1" aria-selected="false" data-p="p1" tabindex="-1"><em>🧭</em><b>조직도</b></button>
     <button class="tab" role="tab" id="t2" aria-controls="p2" aria-selected="false" data-p="p2" tabindex="-1"><em>📦</em><b>보관 위치</b></button>
     <button class="tab" role="tab" id="t3" aria-controls="p3" aria-selected="false" data-p="p3" tabindex="-1"><em>🖐️</em><b>혼자 운영</b></button>
@@ -727,8 +837,33 @@
 
   <main>
 
+  <!-- ============ 6. 📋 대표님 종합 현황 (첫 화면) ============ -->
+  <section class="panel on" id="p6" role="tabpanel" aria-labelledby="t6" tabindex="0">
+
+    <div class="livebar">
+      <span class="dot" aria-hidden="true"></span>
+      <span class="lt">
+        <b>대표님, 지금 회사는 이렇게 돌아갑니다</b>
+        <i id="ceoBarS">현황을 불러오는 중…</i>
+      </span>
+      <button class="rf" type="button" id="ceoRefresh">🔄 새로고침</button>
+    </div>
+
+    <div id="ceoBody" aria-live="polite">
+      <div class="box"><p>현황을 불러오는 중…</p></div>
+    </div>
+
+    <div class="hint">
+      <b>🔒 여기에 없는 것 (일부러)</b>
+      <p>이 화면은 누구나 열 수 있는 공개 주소여서 고객 이름·주소·통관부호·주문번호, 서버 주소·계정, 금액·마진은 넣지 않고 <strong>상품명과 진행 단계</strong>만 보여 줍니다.</p>
+    </div>
+
+    <p class="fine" id="ceoNote"></p>
+
+  </section>
+
   <!-- ============ 0. 실시간 현황 ============ -->
-  <section class="panel on" id="p0" role="tabpanel" aria-labelledby="t0" tabindex="0">
+  <section class="panel" id="p0" role="tabpanel" aria-labelledby="t0" tabindex="0">
 
     <button type="button" class="ho-jump" data-go="p5">
       <span class="hj-i" aria-hidden="true">🆘</span>
@@ -752,6 +887,12 @@
       <button type="button" class="mini" id="stMkAll" aria-pressed="false">모두 펼치기</button>
     </div>
     <div class="mk-sum" id="stOverview" aria-label="전체 요약"></div>
+    <div class="cblog" aria-label="색 의미">
+      <span><i class="c-reg" aria-hidden="true"></i>회색 = 등록 완료(노출 중·아직 주문 전)</span>
+      <span><i class="c-sale" aria-hidden="true"></i>초록 = 실제 주문·발송·배송</span>
+      <span><i class="c-hold" aria-hidden="true"></i>주황 = 확인·보류·대기</span>
+      <span><i class="c-bad" aria-hidden="true"></i>빨강 = 반려·품절·오류</span>
+    </div>
     <div class="mkdet" id="stMarkets" aria-live="polite"></div>
 
     <h2 class="sec">직원별 지금 하는 일</h2>
@@ -793,9 +934,10 @@
     </div>
 
     <div class="siglegend" id="sigLegend" aria-label="직원 상태 색상 안내">
-      <span><i class="w" aria-hidden="true"></i>🟢 작업중</span>
-      <span><i class="e" aria-hidden="true"></i>🔴 확인필요</span>
-      <span><i aria-hidden="true"></i>⚪ 대기·완료</span>
+      <span><i class="w" aria-hidden="true"></i>진행 중</span>
+      <span><i class="h" aria-hidden="true"></i>확인 필요</span>
+      <span><i class="e" aria-hidden="true"></i>막힘</span>
+      <span><i aria-hidden="true"></i>대기·완료</span>
       <em id="sigUpdated">불러오는 중…</em>
     </div>
 
@@ -2328,14 +2470,16 @@
   /* 직원 상태 — 한글 예전 이름도 그대로 받아 줍니다 */
   var STATE_MAP = {
     working: {key:'working', cls:'run',  label:'진행중'},
-    error:   {key:'error',   cls:'blk',  label:'확인필요'},
+    error:   {key:'hold',    cls:'hold', label:'확인필요'},
+    bad:     {key:'bad',     cls:'bad',  label:'막힘'},
     idle:    {key:'idle',    cls:'done', label:'대기'},
     '진행중':   {key:'working', cls:'run',  label:'진행중'},
     '작업중':   {key:'working', cls:'run',  label:'작업중'},
     '대기':     {key:'idle',    cls:'wait', label:'대기'},
     '완료':     {key:'idle',    cls:'done', label:'완료'},
     '방금 완료':{key:'idle',    cls:'done', label:'방금 완료'},
-    '막힘':     {key:'error',   cls:'blk',  label:'막힘'}
+    '확인필요': {key:'hold',    cls:'hold', label:'확인필요'},
+    '막힘':     {key:'bad',     cls:'bad',  label:'막힘'}
   };
   function staffState(s){
     var m = STATE_MAP[s && s.state] || STATE_MAP.idle;
@@ -2384,14 +2528,25 @@
   var mdOpen = {coupang: true};
   var lastStatus = null;
 
-  function ring(pct){
-    var C = 2 * Math.PI * 15.2;
-    var p = Math.max(0, Math.min(100, Math.round((Number(pct) || 0) * 10) / 10));
-    var off = C * (1 - p / 100);
-    return '<span class="ring" role="img" aria-label="' + p + '%"><svg viewBox="0 0 36 36" aria-hidden="true" focusable="false">' +
-      '<circle class="bg" cx="18" cy="18" r="15.2"></circle>' +
-      '<circle class="fg" cx="18" cy="18" r="15.2" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '"></circle>' +
-      '</svg><b>' + p + '%</b></span>';
+  /* 상태 숫자 색 — 회색=등록 완료, 초록=실제 주문·발송, 주황=확인·대기, 빨강=반려·오류 */
+  function isZeroVal(v){
+    var s = String(v == null ? '' : v).replace(/,/g, '');
+    return s === '' || /(^|[^0-9])0\s*(건|개|원|명)?$/.test(s) || /없음|아직/.test(s);
+  }
+  function statClass(s){
+    var label = String(s.label || ''), tone = s.tone || '', zero = isZeroVal(s.value);
+    if (/반려|오류|품절|실패|에러/.test(label)) return zero ? 'reg' : 'bad';
+    if (/주문|발송|배송|출고|매출/.test(label)) return zero ? 'reg' : 'sale';
+    if (/판매중지|보류|대기|점검|증빙|확인/.test(label)) return zero ? 'reg' : 'hold';
+    if (tone === 'bad') return 'bad';
+    if (tone === 'warn') return 'hold';
+    return 'reg';
+  }
+  function orderIsSale(o){
+    if (!o) return false;
+    var v = String(o.value || '');
+    if (/없음|아직/.test(v)) return false;
+    return !isZeroVal(v);
   }
 
   /* 상세 필드가 없는 예전 status.json 도 그대로 그릴 수 있게 */
@@ -2433,7 +2588,6 @@
       }
       if (hl.sub) h += '<span class="sub">' + esc(hl.sub) + '</span>';
       h += '</span>';
-      if (m.meter) h += ring(m.meter.pct);
       h += '<span class="cv" aria-hidden="true">▾</span></button>';
       h += '<div class="md-b" id="mdb-' + esc(key) + '">';
 
@@ -2445,13 +2599,13 @@
       if (m.stats && m.stats.length){
         h += '<div class="md-stats">';
         m.stats.forEach(function(s){
-          h += '<div class="' + esc(s.tone || '') + '"><i>' + esc(s.label) + '</i><b>' + esc(s.value) + '</b></div>';
+          h += '<div class="' + esc(statClass(s)) + '"><i>' + esc(s.label) + '</i><b>' + esc(s.value) + '</b></div>';
         });
         h += '</div>';
       }
       var o = m.order;
       if (o){
-        h += '<div class="md-ord"><span class="tt">' + esc(o.tag || '오늘 주문') + '</span><span class="tx"><b>' + esc(o.value || '') + '</b>';
+        h += '<div class="md-ord' + (orderIsSale(o) ? ' sale' : '') + '"><span class="tt">' + esc(o.tag || '오늘 주문') + '</span><span class="tx"><b>' + esc(o.value || '') + '</b>';
         if (o.note) h += '<p>' + esc(o.note) + '</p>';
         if (o.steps && o.steps.length){
           h += '<ul>';
@@ -2484,7 +2638,9 @@
     if (ov){
       var ho = '';
       (d.overview || []).forEach(function(x){
-        ho += '<span>' + esc(x.label) + ' <b>' + esc(x.value) + '</b></span>';
+        var lab = String(x.label || ''), val = String(x.value || '');
+        var sale = /주문|발송|배송/.test(lab) && !isZeroVal(val) && !/없음|아직/.test(val);
+        ho += '<span' + (sale ? ' class="ov-sale"' : '') + '>' + esc(lab) + ' <b>' + esc(val) + '</b></span>';
       });
       ov.innerHTML = ho;
       ov.style.display = ho ? '' : 'none';
@@ -2549,7 +2705,104 @@
       blk.innerHTML = hb;
     }
 
+    renderCeo(d);
     renderOrgSignals(d);
+  }
+
+  /* ---------- 📋 대표님 종합 현황 (status.json > ceo) ---------- */
+  function ceoTone(t){ return (t === 'reg' || t === 'sale' || t === 'wait' || t === 'bad') ? ' t-' + t : ''; }
+
+  function renderCeo(d){
+    var box = document.getElementById('ceoBody');
+    var note = document.getElementById('ceoNote');
+    var barS = document.getElementById('ceoBarS');
+    if (!box) return;
+    var c = d && d.ceo;
+    if (!c){
+      box.innerHTML = '<div class="box"><p>종합 현황 칸이 아직 비어 있습니다. <span class="mono">status.json</span> 의 <span class="mono">ceo</span> 칸을 채우면 바로 표시됩니다.</p></div>';
+      if (barS) barS.textContent = '자료 없음';
+      return;
+    }
+    var h = '';
+
+    h += '<div class="ceo-hero">';
+    h += '<div class="ch-k">CEO BRIEF · ' + esc(c.updated_at || '-') + ' 기준</div>';
+    if (c.headline) h += '<p class="ch-t">' + esc(c.headline) + '</p>';
+    if (c.sub) h += '<p class="ch-s">' + esc(c.sub) + '</p>';
+    h += '</div>';
+
+    if (c.tiles && c.tiles.length){
+      h += '<h2 class="sec">한눈에</h2><div class="tiles">';
+      c.tiles.forEach(function(t){
+        h += '<div class="tile' + ceoTone(t.tone) + '">';
+        h += '<div class="tk"><span class="e" aria-hidden="true">' + esc(t.icon || '•') + '</span>' + esc(t.label || '') + '</div>';
+        h += '<div class="tv">' + esc(t.value || '-') + '</div>';
+        if (t.sub) h += '<div class="ts">' + esc(t.sub) + '</div>';
+        h += '</div>';
+      });
+      h += '</div>';
+    }
+
+    var sv = c.server;
+    if (sv){
+      h += '<h2 class="sec">🛰️ 서울 클라우드 — 24시간 무인 감시</h2>';
+      h += '<div class="livebar" style="margin:0 0 8px">';
+      h += '<span class="dot" aria-hidden="true"></span>';
+      h += '<span class="lt"><b>' + esc(sv.state || '가동 중') + '</b><i>' + esc(sv.head || '') + '</i></span>';
+      h += '</div>';
+      h += '<div class="box"><div class="kv">';
+      (sv.rows || []).forEach(function(r){
+        h += '<div class="row"><span class="k">' + esc(r.k) + '</span><span class="v">' + esc(r.v) + '</span></div>';
+      });
+      h += '</div>';
+      if (sv.note) h += '<p class="fine" style="margin:9px 0 0">' + esc(sv.note) + '</p>';
+      h += '</div>';
+    }
+
+    var o = c.order;
+    if (o){
+      h += '<h2 class="sec">🛒 오늘 첫 주문 진행 현황</h2>';
+      h += '<div class="box" style="border-color:rgba(255,217,138,.34);background:rgba(255,217,138,.06)">';
+      h += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
+      h += '<b style="font-size:17px;font-weight:900;letter-spacing:-.02em">' + esc(o.product || '') + '</b>';
+      if (o.market) h += '<span class="tag">' + esc(o.market) + '</span>';
+      h += '</div>';
+      if (o.state) h += '<p style="margin:7px 0 0;font-size:14px;font-weight:800;color:#ffe6b8;line-height:1.45">' + esc(o.state) + '</p>';
+      h += '</div>';
+      h += '<div class="osteps">';
+      (o.steps || []).forEach(function(s){
+        var cls = s.s === 'done' ? ' done' : (s.s === 'next' ? ' next' : '');
+        h += '<div class="ostep' + cls + '"><b>' + esc(s.t) + '</b>' + (s.n ? '<span>' + esc(s.n) + '</span>' : '') + '</div>';
+      });
+      h += '</div>';
+      if (o.note) h += '<p class="fine">' + esc(o.note) + '</p>';
+    }
+
+    if (c.emoticon && c.emoticon.length){
+      h += '<h2 class="sec">🎨 캐릭터 이모티콘 프로젝트</h2><div class="emoc">';
+      c.emoticon.forEach(function(e){
+        h += '<div class="emocard"><div class="eh"><span class="e" aria-hidden="true">' + esc(e.icon || '🎨') + '</span><b>' + esc(e.name || '') + '</b>';
+        if (e.badge) h += '<span class="chip ' + (e.tone === 'sale' ? 'sale' : e.tone === 'hold' ? 'hold' : 'done') + '">' + esc(e.badge) + '</span>';
+        h += '</div>';
+        if (e.state) h += '<p>' + esc(e.state) + '</p>';
+        if (e.next) h += '<div class="nx">다음 · ' + esc(e.next) + '</div>';
+        if (typeof e.pct === 'number') h += '<div class="ebar"><i style="width:' + Math.max(0, Math.min(100, e.pct)) + '%"></i></div>';
+        h += '</div>';
+      });
+      h += '</div>';
+    }
+
+    if (c.todo && c.todo.length){
+      h += '<h2 class="sec">📅 오늘 · 내일 체크포인트</h2><div class="tline">';
+      c.todo.forEach(function(x){
+        h += '<div class="tl"><span class="tt">' + esc(x.time) + '</span><span class="tx"><b>' + esc(x.t) + '</b>' + (x.n ? '<span>' + esc(x.n) + '</span>' : '') + '</span></div>';
+      });
+      h += '</div>';
+    }
+
+    box.innerHTML = h;
+    if (barS) barS.textContent = '기준 ' + (c.updated_at || '-') + ' · 탭을 열 때마다 새로 고침';
+    if (note) note.textContent = c.footnote || '';
   }
 
   /* ---------- 🚦 조직도 카드: 신호등 불빛 + 지금 하는 일 한 줄 ---------- */
@@ -2620,6 +2873,8 @@
       .catch(function(){
         var up = document.getElementById('stUpdated');
         if (up) up.textContent = '현황을 못 불러왔어요 · 잠시 뒤 🔄 새로고침을 눌러 주세요';
+        var cs = document.getElementById('ceoBarS');
+        if (cs) cs.textContent = '현황을 못 불러왔어요 · 🔄 새로고침을 눌러 주세요';
       })
       .then(function(){
         stBusy = false;
@@ -2629,6 +2884,8 @@
 
   var stRefresh = document.getElementById('stRefresh');
   if (stRefresh) stRefresh.addEventListener('click', loadStatus);
+  var ceoRefresh = document.getElementById('ceoRefresh');
+  if (ceoRefresh) ceoRefresh.addEventListener('click', loadStatus);
 
   /* 마켓 상세 카드 — 누르면 펼침/접힘 (다시 그려도 펼친 상태 유지) */
   var stMkBox = document.getElementById('stMarkets');
@@ -2669,7 +2926,8 @@
     if (document.hidden) return;
     var p0 = document.getElementById('p0');
     var p1 = document.getElementById('p1');
-    var on = (p0 && p0.classList.contains('on')) || (p1 && p1.classList.contains('on'));
+    var p6 = document.getElementById('p6');
+    var on = (p0 && p0.classList.contains('on')) || (p1 && p1.classList.contains('on')) || (p6 && p6.classList.contains('on'));
     if (on) loadStatus();
   }, 90000);
 
@@ -2685,7 +2943,7 @@
       t.tabIndex = on ? 0 : -1;
     });
     if (save) { try { localStorage.setItem(TKEY, id); } catch(e){} }
-    if (id === 'p0' || id === 'p1') loadStatus();
+    if (id === 'p0' || id === 'p1' || id === 'p6') loadStatus();
     window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
   }
 
@@ -2703,7 +2961,7 @@
 
   /* 주소에 #p2 처럼 오면 그 탭으로 */
   var hash = (location.hash || '').replace('#','');
-  var start = /^p[0-5]$/.test(hash) ? hash : null;
+  var start = /^p[0-6]$/.test(hash) ? hash : null;
   if (!start) { try { start = localStorage.getItem(TKEY); } catch(e){} }
   if (start && document.getElementById(start)) {
     show(start, false);
@@ -2715,7 +2973,7 @@
 
   /* 뒤로가기·주소 변경(#p3)으로 들어올 때도 그 탭으로 */  window.addEventListener('hashchange', function(){
     var h = (location.hash || '').replace('#','');
-    if (/^p[0-5]$/.test(h) && document.getElementById(h)) show(h, false);
+    if (/^p[0-6]$/.test(h) && document.getElementById(h)) show(h, false);
   });
 
   /* ---------- 오늘 점검 체크리스트 ---------- */

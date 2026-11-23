@@ -15,6 +15,7 @@
     { "src": "./icon-company-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
   "shortcuts": [
+    { "name": "📋 대표님 종합 현황", "short_name": "종합", "url": "./company.html#p6" },
     { "name": "📊 실시간 현황", "short_name": "현황", "url": "./company.html#p0" },
     { "name": "🧭 조직도", "short_name": "조직도", "url": "./company.html#p1" },
     { "name": "🚨 비상 대처", "short_name": "비상", "url": "./company.html#p4" }
