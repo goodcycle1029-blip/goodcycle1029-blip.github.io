@@ -5,9 +5,10 @@
    · 화면(HTML)은 항상 네트워크를 먼저 확인해 새 버전을 받고, 실패할 때만 저장본을 씁니다.
    · 랭킹 서버(구글 시트·Apps Script) 같은 외부 주소는 건드리지 않습니다.
    ========================================================================= */
-var CACHE = 'minigame-v12';
+var CACHE = 'minigame-v13';
 var CORE = [
   './index.html',
+  './company.html',
   './japan.html',
   './tower.html',
   './drop.html',
