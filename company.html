@@ -352,9 +352,9 @@
   }
   .tnode.st-working,.tnode.st-error,.tnode.st-idle{padding-right:24px}
   .tnode.st-working .row1,.tnode.st-error .row1,.tnode.st-idle .row1{padding-right:8px}
-  .tnode.st-working{box-shadow:0 0 0 1px rgba(63,245,154,.34),0 0 18px rgba(63,245,154,.20)}
+  .tnode.st-working{box-shadow:0 0 0 1px rgba(63,245,154,.42),0 0 22px rgba(63,245,154,.24)}
   .tnode.st-working .led{background:#5cffae;animation:ledWork 1.9s ease-in-out infinite}
-  .tnode.st-error{box-shadow:0 0 0 1px rgba(255,77,100,.44),0 0 20px rgba(255,77,100,.26)}
+  .tnode.st-error{box-shadow:0 0 0 1px rgba(255,77,100,.5),0 0 22px rgba(255,77,100,.28)}
   .tnode.st-error .led{background:#ff5d72;animation:ledErr 1.1s ease-in-out infinite}
   .tnode.st-idle .led{background:#8fb3d9}
   @keyframes ledWork{
@@ -447,6 +447,12 @@
   .orgtree.wide .t-duties{margin:8px 0 0 8px;padding-left:10px}
   .orgtree.wide .t-duties li{font-size:12.5px;line-height:1.45;padding:2px 0}
   .orgtree.wide .t-duties li::before{left:-10px;width:7px}
+  /* 가로 계통도는 카드가 좁아서 '지금' 줄을 두 줄까지 보이게 */
+  .orgtree.wide .tnode .tlive{align-items:flex-start;font-size:12px;line-height:1.32}
+  .orgtree.wide .tnode .tlive .lw{
+    white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
+  }
+  .orgtree.wide .tnode .tlive.open .lw{-webkit-line-clamp:unset;display:block}
 
   /* ---------- 🐥 나미한테 시키기(빠른 복사) ---------- */
   .ask{display:grid;gap:8px}
