@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="내 마켓 현황판">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#123a92"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect x="97" y="97" width="318" height="318" rx="52" fill="#ffffff"/>
+  <circle cx="167" cy="186" r="21" fill="#12b981"/>
+  <rect x="219" y="171" width="158" height="30" rx="15" fill="#dbe4f3"/>
+  <circle cx="167" cy="256" r="21" fill="#f2a30c"/>
+  <rect x="219" y="241" width="158" height="30" rx="15" fill="#dbe4f3"/>
+  <circle cx="167" cy="326" r="21" fill="#e2361f"/>
+  <rect x="219" y="311" width="158" height="30" rx="15" fill="#dbe4f3"/>
+</svg>

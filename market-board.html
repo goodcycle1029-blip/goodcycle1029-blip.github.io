@@ -1,0 +1,2638 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>내 마켓 현황판</title>
+<meta name="description" content="스마트스토어·쿠팡·G마켓·옥션·11번가 상품 엑셀을 폰 안에서만 읽어, 마켓별 신호등과 손볼 곳을 한 화면에 보여 줍니다.">
+<meta name="theme-color" content="#2468f2">
+<meta name="color-scheme" content="light">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="마켓 현황판">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="./market-manifest.json">
+<link rel="icon" href="./icon-market.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon-market-192.png">
+<style>
+/* 내 마켓 현황판 — 폰 우선 화면 (외부 글꼴·이미지 없음) */
+:root{
+  --ink:#12203a; --ink2:#35435c; --muted:#6c778c; --line:#e3e8f1;
+  --bg:#f3f6fb; --card:#ffffff; --acc:#2468f2; --acc2:#1650c9;
+  --ok:#0f9d58; --warn:#f2a30c; --bad:#e2361f; --none:#c2cad6;
+  --soft:#eef3fc;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg); color:var(--ink); font-size:15px; line-height:1.5;
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",Roboto,"Noto Sans KR",sans-serif;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:calc(26px + env(safe-area-inset-bottom));
+}
+body.is-busy{cursor:progress}
+button,input,select{font-family:inherit;font-size:inherit}
+button{cursor:pointer}
+a{color:var(--acc)}
+
+/* ── 상단 ─────────────────────────────────────── */
+.topbar{
+  position:sticky; top:0; z-index:40; background:rgba(255,255,255,.94);
+  backdrop-filter:saturate(1.5) blur(12px); border-bottom:1px solid var(--line);
+  padding-top:env(safe-area-inset-top);
+}
+.topin{
+  max-width:760px; margin:0 auto; padding:10px 14px 0; display:flex; align-items:center; gap:10px;
+}
+.logo{display:flex; align-items:center; gap:9px; min-width:0}
+.mark{
+  width:34px; height:34px; border-radius:11px; flex:none; display:grid; place-items:center;
+  background:linear-gradient(145deg,#3b82f6,#123a92); color:#fff; font-size:17px;
+  box-shadow:0 6px 14px rgba(36,104,242,.32);
+}
+.logo .tx{min-width:0}
+.logo b{display:block; font-size:16px; letter-spacing:-.02em; line-height:1.2; white-space:nowrap}
+.logo span{display:block; font-size:10.5px; color:var(--muted); font-weight:700; letter-spacing:.01em}
+.grow{flex:1}
+.install{
+  border:1px solid #cfe0ff; background:#eef5ff; color:#1848b0; font-weight:800; font-size:12.5px;
+  border-radius:11px; padding:8px 11px; white-space:nowrap; min-height:40px;
+}
+.install.done{border-color:#bfe8d1; background:#e8f7ef; color:#0b6b3a}
+.tabs{
+  max-width:760px; margin:8px auto 0; padding:0 10px 0; display:flex; gap:2px;
+}
+.tab{
+  flex:1; border:0; background:none; padding:11px 4px 10px; font-size:13.5px; font-weight:800;
+  color:var(--muted); border-bottom:3px solid transparent; white-space:nowrap; position:relative;
+}
+.tab.on{color:var(--acc); border-color:var(--acc)}
+.tab .n{
+  display:inline-block; min-width:19px; padding:0 5px; margin-left:4px; font-size:10.5px;
+  border-radius:999px; background:#ffe9e6; color:#b3261e; font-weight:800; vertical-align:1px;
+}
+.tab .n.zero{display:none}
+
+/* ── 본문 ─────────────────────────────────────── */
+.wrap{max-width:760px; margin:0 auto; padding:12px 12px 10px}
+.panel{display:none}
+.panel.on{display:block}
+.card{
+  background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px;
+  box-shadow:0 1px 2px rgba(18,32,58,.03), 0 10px 24px -20px rgba(18,32,58,.3);
+}
+.card + .card{margin-top:11px}
+h2.sec{
+  font-size:14px; margin:20px 2px 8px; display:flex; align-items:center; gap:7px; letter-spacing:-.01em;
+}
+h2.sec .sub{font-weight:600; color:var(--muted); font-size:11.5px}
+h3.sub{font-size:13px; margin:14px 0 6px; color:var(--ink2)}
+
+/* ── 파일 넣기 ────────────────────────────────── */
+.drop{
+  border:2px dashed #c5d6f2; border-radius:16px; text-align:center;
+  background:linear-gradient(180deg,#fbfdff,#f2f7ff); padding:18px 14px; transition:.15s; cursor:pointer;
+}
+.filters{display:flex; gap:7px; flex-wrap:wrap}
+.filters input{
+  flex:1 1 100%; min-width:0; border:1px solid var(--line); border-radius:10px;
+  padding:9px 11px; font-size:12.5px; background:#fff; color:var(--ink); min-height:42px;
+}
+.filters select{
+  flex:1 1 30%; min-width:0; border:1px solid var(--line); border-radius:10px; padding:9px 6px;
+  font-size:12px; background:#fff; color:var(--ink2); min-height:42px;
+}
+.drop.over{border-color:var(--acc); background:#e9f2ff}
+.drop .big{font-size:26px; line-height:1}
+.drop h3{margin:6px 0 3px; font-size:14.5px; letter-spacing:-.01em}
+.drop p{margin:0; color:var(--muted); font-size:11.5px; line-height:1.5}
+.drop .row{margin-top:12px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap}
+.drop.compact{padding:9px 12px; display:flex; align-items:center; gap:10px; text-align:left;
+  border-style:solid; border-color:var(--line); background:#fff; border-radius:13px}
+.drop.compact .big{font-size:18px}
+.drop.compact h3{font-size:12.5px; margin:0; font-weight:700; color:var(--ink2); flex:1; min-width:0;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.drop .lbl-short{display:none}
+.drop.compact .lbl-full{display:none}
+.drop.compact .lbl-short{display:inline}
+.drop.compact p{display:none}
+.drop.compact .row{margin:0 0 0 auto; flex-wrap:nowrap}
+.drop.compact .tbtn{padding:7px 9px; font-size:11.5px; min-height:36px}
+
+.tbtn{
+  border:1px solid var(--line); background:#fff; color:var(--ink2); border-radius:11px;
+  padding:10px 14px; font-size:13.5px; font-weight:800; min-height:44px; white-space:nowrap;
+}
+.tbtn:active{background:#f1f5fc}
+.tbtn.primary{background:var(--acc); border-color:var(--acc); color:#fff; box-shadow:0 8px 18px -10px rgba(36,104,242,.9)}
+.tbtn.primary:active{background:var(--acc2)}
+.tbtn.ghost{border-color:transparent; background:transparent; color:var(--muted)}
+.tbtn.link{background:none; border:0; color:var(--acc); padding:6px 2px; min-height:0; text-decoration:underline}
+
+/* ── KPI ──────────────────────────────────────── */
+.kpis{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:11px}
+.kpi{background:#fff; border:1px solid var(--line); border-radius:13px; padding:9px 10px}
+.kpi .lb{font-size:10.5px; color:var(--muted); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.kpi .vl{font-size:20px; font-weight:800; letter-spacing:-.03em; margin-top:1px; white-space:nowrap}
+.kpi .vl small{font-size:10.5px; font-weight:700; color:var(--muted); letter-spacing:0; margin-left:1px}
+.kpi.ok .vl{color:var(--ok)} .kpi.warn .vl{color:#b97500} .kpi.bad .vl{color:var(--bad)}
+
+/* ── 신호등 범례 ───────────────────────────────── */
+.siglegend{
+  display:flex; align-items:center; flex-wrap:wrap; gap:4px 11px; margin:0 2px 8px;
+  font-size:11.5px; font-weight:800; color:var(--ink2);
+}
+.siglegend span{display:flex; align-items:center; gap:5px; white-space:nowrap}
+.siglegend .lg{width:10px; height:10px; border-radius:50%; flex:none; background:var(--none)}
+.siglegend .lg.ok{background:#12b981; animation:ledOk 2.4s ease-in-out infinite}
+.siglegend .lg.warn{background:#f7a609; animation:ledWarn 1.7s ease-in-out infinite}
+.siglegend .lg.alert{background:#e2361f; animation:ledAlert 1.1s ease-in-out infinite}
+.siglegend em{margin-left:auto; font-style:normal; font-size:11px; font-weight:800; color:var(--muted); white-space:nowrap}
+
+/* ── 마켓 카드 (세로 한 줄에 하나) ───────────────── */
+.markets{display:flex; flex-direction:column; gap:8px}
+.mk{
+  position:relative; background:#fff; border:1px solid var(--line); border-radius:15px;
+  padding:11px 12px 10px 13px;
+}
+.mk .mktop{display:flex; align-items:center; gap:8px}
+.mk .led{
+  width:12px; height:12px; border-radius:50%; flex:none; background:var(--none);
+  box-shadow:0 0 0 3px #fff;
+}
+.mk .mkname{display:flex; align-items:center; gap:6px; font-weight:800; font-size:14px; min-width:0; white-space:nowrap}
+.mk .dot{width:8px; height:8px; border-radius:50%; display:inline-block; flex:none}
+.mk .siglab{
+  font-size:10px; font-weight:800; padding:2px 7px; border-radius:999px; background:#eef1f6; color:#5f6b7a; white-space:nowrap;
+}
+.mk .siglab.ok{background:#e8f7ef; color:#0b6b3a}
+.mk .siglab.warn{background:#fff4e0; color:#8a5300}
+.mk .siglab.alert{background:#ffebe9; color:#a3261c}
+.mk .mktotal{margin-left:auto; font-size:19px; font-weight:800; letter-spacing:-.03em; white-space:nowrap}
+.mk .mktotal small{font-size:10.5px; color:var(--muted); font-weight:700; margin-left:1px}
+.mk .mkmini{display:flex; gap:9px; flex-wrap:wrap; font-size:11px; color:var(--muted); margin-top:6px}
+.mk .mkmini b{color:var(--ink2); font-weight:800}
+.mk .mkmini .none{color:#9aa4b5}
+.mk .bar{display:flex; height:6px; border-radius:4px; overflow:hidden; background:#eef1f7; margin-top:8px}
+.mk .bar i{display:block; height:100%}
+
+.mk.sig-ok{box-shadow:0 0 0 1px rgba(18,185,129,.30), 0 10px 22px -18px rgba(18,185,129,.8)}
+.mk.sig-ok .led{background:#12b981; animation:ledOk 2.4s ease-in-out infinite}
+.mk.sig-warn{box-shadow:0 0 0 1px rgba(242,163,12,.36), 0 10px 22px -18px rgba(242,163,12,.8)}
+.mk.sig-warn .led{background:#f7a609; animation:ledWarn 1.7s ease-in-out infinite}
+.mk.sig-alert{box-shadow:0 0 0 1px rgba(226,54,31,.42), 0 10px 22px -18px rgba(226,54,31,.85)}
+.mk.sig-alert .led{background:#e2361f; animation:ledAlert 1.1s ease-in-out infinite}
+.mk.sig-empty{background:#fbfcfe; border-style:dashed; opacity:.92}
+.mk.sig-empty .led{background:var(--none)}
+
+@keyframes ledOk{
+  0%,100%{background:#12b981; box-shadow:0 0 0 3px #fff, 0 0 5px 1px rgba(18,185,129,.55)}
+  50%{background:#a6f3d5; box-shadow:0 0 0 3px #fff, 0 0 0 5px rgba(18,185,129,.14), 0 0 14px 4px rgba(18,185,129,.85)}
+}
+@keyframes ledWarn{
+  0%,100%{background:#f7a609; box-shadow:0 0 0 3px #fff, 0 0 5px 1px rgba(242,163,12,.6)}
+  50%{background:#ffe0a3; box-shadow:0 0 0 3px #fff, 0 0 0 5px rgba(242,163,12,.14), 0 0 14px 4px rgba(242,163,12,.9)}
+}
+@keyframes ledAlert{
+  0%,100%{background:#e2361f; box-shadow:0 0 0 3px #fff, 0 0 6px 1px rgba(226,54,31,.7)}
+  50%{background:#ffc2bb; box-shadow:0 0 0 3px #fff, 0 0 0 6px rgba(226,54,31,.18), 0 0 16px 5px rgba(226,54,31,.95)}
+}
+@media (prefers-reduced-motion:reduce){
+  .mk .led,.siglegend .lg{animation:none !important}
+}
+
+/* ── 한 줄 요약 + 펼침 ─────────────────────────── */
+.mk .sumline{
+  display:flex; align-items:center; gap:6px; margin-top:8px; font-size:12px; font-weight:700;
+  color:var(--ink2); cursor:pointer; user-select:none;
+}
+.mk .sumline .chip.sum{flex:none; background:#e9eef8; color:#3c4d69; font-size:10px; padding:1px 7px}
+.mk .sumline .stxt{min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.mk .sumline.open .stxt{white-space:normal; overflow-wrap:anywhere; line-height:1.45}
+.mk .sumline:focus-visible{outline:2px solid var(--acc); outline-offset:2px; border-radius:6px}
+.mk.sig-ok .sumline .chip.sum{background:#e8f7ef; color:#0b6b3a}
+.mk.sig-warn .sumline .chip.sum{background:#fff4e0; color:#8a5300}
+.mk.sig-alert .sumline .chip.sum{background:#ffebe9; color:#a3261c}
+
+/* ── 표 ───────────────────────────────────────── */
+.scroll{overflow-x:auto; -webkit-overflow-scrolling:touch}
+table.tbl{width:100%; border-collapse:collapse; font-size:12.5px}
+table.tbl th,table.tbl td{padding:8px 7px; border-bottom:1px solid #eef1f6; text-align:right; white-space:nowrap}
+table.tbl th{font-size:10.5px; color:var(--muted); font-weight:800; background:#fafbfe}
+table.tbl td:first-child,table.tbl th:first-child{text-align:left}
+table.tbl td.mkcell{font-weight:800; color:var(--ink2); display:flex; align-items:center; gap:6px}
+table.tbl td.nm{text-align:left; white-space:normal; min-width:132px; max-width:200px; line-height:1.4; font-weight:600}
+table.tbl td.on{color:var(--ok); font-weight:800}
+table.tbl td.rej{color:var(--bad); font-weight:800}
+table.tbl td.tdempty{text-align:center; color:#8b95a8; padding:22px 10px; white-space:normal}
+table.tbl tr.clk{cursor:pointer}
+table.tbl tr.clk:active{background:#f3f7ff}
+.dot{width:8px; height:8px; border-radius:50%; display:inline-block; flex:none}
+
+/* ── 상품 목록(폰에서 읽기 좋은 줄 목록) ────────── */
+.plist{margin-top:8px; max-height:62vh; overflow:auto; -webkit-overflow-scrolling:touch;
+  border-top:1px solid #f1f4f9}
+.prow{
+  display:flex; align-items:center; gap:8px; width:100%; text-align:left; background:#fff;
+  border:0; border-bottom:1px solid #f1f4f9; padding:10px 2px; color:var(--ink);
+}
+.prow:active{background:#f4f8ff}
+.prow .pdot{width:7px; height:7px; border-radius:50%; flex:none; align-self:flex-start; margin-top:6px}
+.prow .ptxt{flex:1; min-width:0}
+.prow .pname{display:block; font-weight:700; font-size:12.5px; line-height:1.38; overflow-wrap:anywhere}
+.prow .pmeta{display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:10.5px; color:var(--muted); margin-top:3px}
+.prow .pwarn{flex:none}
+.plist .empty{padding:18px 6px}
+
+/* ── 칩 ───────────────────────────────────────── */
+.chip{display:inline-block; font-size:10.5px; padding:1px 7px; border-radius:999px; background:var(--soft);
+  color:#1b4fd8; font-weight:800; white-space:nowrap}
+.chip.g{background:#e8f7ef; color:#0b6b3a}
+.chip.y{background:#fff4e0; color:#a05a00}
+.chip.r{background:#ffebe9; color:#b3261e}
+.chip.n{background:#eef1f6; color:#5f6b7a}
+
+/* ── 파일 목록 ─────────────────────────────────── */
+.filelist{display:flex; flex-direction:column; gap:8px}
+.fitem{border:1px solid var(--line); border-radius:12px; padding:9px 11px; background:#fff}
+.fitem .frow{display:flex; align-items:center; gap:8px}
+.fitem .frow + .frow{margin-top:6px}
+.fitem .fname{flex:1; min-width:0; font-weight:700; font-size:12.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.fitem .fmeta{font-size:10.5px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; text-align:right}
+.fitem select{font-size:11.5px; padding:5px 6px; border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--ink2); max-width:52%}
+.fitem .x{border:0; background:#f2f4f8; color:#7a8699; width:28px; height:28px; border-radius:8px; font-size:13px; flex:none}
+.fitem.bad{border-color:#ffd8d4; background:#fff8f7}
+.fitem.bad .fmeta{color:var(--bad)}
+
+/* ── 손볼 곳 ──────────────────────────────────── */
+.issuegrp .hd{display:flex; align-items:center; gap:7px; margin-bottom:4px; flex-wrap:wrap}
+.issuegrp .hd .ic{font-size:15px}
+.issuegrp .hd .ttl{font-size:13.5px; font-weight:800}
+.issuegrp .hd .sm{font-size:10.5px; color:var(--muted); font-weight:700}
+.issuegrp .hd .ct{margin-left:auto; font-size:11.5px; font-weight:800; color:#b3261e; background:#ffebe9; padding:1px 8px; border-radius:999px}
+.issuegrp .hd .ct.zero{background:#eef1f6; color:#5f6b7a}
+.irow{display:flex; gap:8px; align-items:flex-start; padding:8px 0; border-top:1px solid #f1f4f9; font-size:12.5px}
+.irow .mkl{flex:none; width:66px; color:var(--muted); font-size:10.5px; font-weight:800; padding-top:2px}
+.irow .txt{flex:1; min-width:0; word-break:break-word}
+.irow .txt b{font-weight:700; display:block; line-height:1.4}
+.irow .txt .why{display:block; color:var(--muted); font-size:11px; margin-top:2px; line-height:1.5}
+.tipcard{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:11px}
+.tipcard .note{flex:1; min-width:150px}
+.note{font-size:11.5px; color:var(--muted); line-height:1.55}
+.note.ok{color:#0b6b3a}
+.empty{padding:16px 6px; text-align:center; color:var(--muted); font-size:12.5px}
+.empty.small{padding:10px 4px}
+
+/* ── 가이드 ───────────────────────────────────── */
+.guidebox{max-width:760px}
+.guidebox .gcard h3{font-size:14px; margin:22px 0 8px; display:flex; align-items:center; gap:7px; letter-spacing:-.01em}
+.guidebox .gcard h3:first-child{margin-top:2px}
+.guidebox p{margin:0 0 9px; font-size:13px; line-height:1.65; color:var(--ink2)}
+.guidebox ol,.guidebox ul{margin:0 0 10px; padding-left:20px; font-size:13px; line-height:1.7; color:var(--ink2)}
+.guidebox li{margin-bottom:4px}
+.guidebox .k{font-weight:800; color:var(--ink)}
+.guidebox code{background:#eef2f9; border-radius:5px; padding:1px 5px; font-size:11.5px; word-break:break-all}
+.guidebox .mini{font-size:11.5px; color:var(--muted); line-height:1.6}
+.gbox{border:1px solid var(--line); background:#f8fafd; border-radius:12px; padding:10px 12px; margin:0 0 10px}
+.gbox.warn{border-color:#ffe0b8; background:#fffaf2}
+.gbox.safe{border-color:#c9ecd8; background:#f3fbf7}
+.gbox b{color:var(--ink)}
+.mkrow{display:flex; gap:9px; padding:9px 0; border-top:1px solid #f1f4f9; font-size:12.5px; align-items:flex-start}
+.mkrow:first-of-type{border-top:0}
+.mkrow .nm{flex:none; width:78px; font-weight:800; display:flex; gap:6px; align-items:center}
+.mkrow .how{flex:1; color:var(--ink2); line-height:1.55}
+.two{display:grid; grid-template-columns:1fr; gap:10px}
+.flash{animation:flash 1.1s ease 2}
+@keyframes flash{0%,100%{box-shadow:0 0 0 0 rgba(36,104,242,0)}50%{box-shadow:0 0 0 4px rgba(36,104,242,.18)}}
+
+/* ── 미니게임 놀이터 ───────────────────────────── */
+.playstrip{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:16px; padding:10px 12px;
+  background:#fff; border:1px dashed #d7dfec; border-radius:12px;
+}
+.playstrip a{
+  font-size:12px; font-weight:800; color:#1b4fd8; text-decoration:none;
+  border:1px solid #d6e4ff; background:#f3f8ff; border-radius:9px; padding:7px 10px; white-space:nowrap;
+}
+.playstrip span{font-size:11px; color:var(--muted); line-height:1.45}
+
+/* ── 하단 안내 ─────────────────────────────────── */
+.foot{margin-top:16px; text-align:center; font-size:10.5px; color:#94a0b3; line-height:1.6}
+.swstate{display:inline-block; margin-top:3px}
+.swstate.ok{color:#0b6b3a}
+
+/* ── 알림 · 진행 ───────────────────────────────── */
+#toasts{position:fixed; left:12px; right:12px; bottom:calc(14px + env(safe-area-inset-bottom)); z-index:90;
+  display:flex; flex-direction:column; gap:7px; align-items:center; pointer-events:none}
+.toast{
+  background:#12203a; color:#fff; border-radius:12px; padding:10px 14px; font-size:12.5px;
+  box-shadow:0 12px 30px rgba(18,32,58,.3); max-width:520px; width:fit-content;
+  animation:up .18s ease; line-height:1.45;
+}
+.toast.ok{background:#0b6b3a} .toast.bad{background:#a3261c}
+@keyframes up{from{transform:translateY(8px); opacity:0} to{transform:none; opacity:1}}
+#busy{
+  position:fixed; left:50%; top:calc(50% + env(safe-area-inset-top)); transform:translate(-50%,-50%);
+  background:rgba(18,32,58,.92); color:#fff; font-size:13px; font-weight:700; padding:12px 18px;
+  border-radius:13px; z-index:95; box-shadow:0 14px 34px rgba(18,32,58,.35);
+}
+#offlineBar{
+  position:fixed; left:0; right:0; bottom:0; z-index:85; background:#12203a; color:#fff;
+  font-size:11.5px; font-weight:700; text-align:center; padding:7px 10px calc(7px + env(safe-area-inset-bottom));
+}
+
+/* ── 상세 시트 ─────────────────────────────────── */
+.detail{
+  position:fixed; inset:0; z-index:80; background:rgba(8,16,32,.42); display:none;
+  align-items:flex-end; justify-content:center;
+}
+.detail.on{display:flex}
+.detail .sheet{
+  width:100%; max-width:760px; background:#fff; border-radius:18px 18px 0 0;
+  max-height:86vh; display:flex; flex-direction:column; animation:sheet .2s ease;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+@keyframes sheet{from{transform:translateY(18px); opacity:.7} to{transform:none; opacity:1}}
+.detail .hd{padding:13px 15px 10px; border-bottom:1px solid var(--line); display:flex; gap:10px; align-items:flex-start}
+.detail .hd .t{flex:1; font-weight:800; font-size:14px; line-height:1.4; word-break:break-word}
+.detail .bd{padding:12px 15px 18px; overflow:auto}
+.detail .kv{display:flex; justify-content:space-between; gap:10px; padding:7px 0; border-bottom:1px solid #f2f4f8; font-size:12.5px}
+.detail .kv span:first-child{color:var(--muted); font-size:11.5px; flex:none}
+.detail .kv span:last-child{text-align:right; word-break:break-word}
+.detail .w{border:1px solid #ffe0bd; background:#fffaf3; border-radius:11px; padding:9px 11px; margin:8px 0; font-size:12px; line-height:1.55}
+.detail .w b{display:block; font-size:11px; color:#8a5300; margin-bottom:2px}
+.closex{border:0; background:#f2f4f8; width:32px; height:32px; border-radius:9px; font-size:15px; color:#5f6b7a; flex:none}
+
+/* ── 넓은 화면(태블릿·PC에서도 확인용) ──────────── */
+@media (min-width:700px){
+  body{font-size:15px}
+  .kpis{grid-template-columns:repeat(6,1fr)}
+  .markets{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px}
+  .mk{padding:13px 14px}
+  .guidebox .two{grid-template-columns:1fr 1fr}
+  .drop.compact h3{font-size:13.5px}
+  .drop.compact .tbtn{padding:8px 12px; font-size:12.5px}
+}
+
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topin">
+    <div class="logo">
+      <span class="mark">📊</span>
+      <span class="tx"><b>내 마켓 현황판</b><span>v1.1 · 내 폰에서만 · 서버 전송 없음</span></span>
+    </div>
+    <span class="grow"></span>
+    <button class="install" id="btnInstall" type="button">📲 홈 화면에 추가</button>
+  </div>
+  <div class="tabs" role="tablist" aria-label="화면 고르기">
+    <button class="tab on" data-tab="board" role="tab">현황판</button>
+    <button class="tab" data-tab="issues" role="tab">손볼 곳 <span class="n zero" id="tabIssuesN">0</span></button>
+    <button class="tab" data-tab="guide" role="tab">설치·가이드</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ══ 현황판 ═══════════════════════════════════════ -->
+  <section class="panel on" id="tab-board" role="tabpanel">
+
+    <div class="drop" id="drop">
+      <div class="big dropinner">📥</div>
+      <h3 class="dropinner"><span class="lbl-full">마켓에서 내려받은 상품 엑셀을 넣어 주세요</span><span class="lbl-short">엑셀 파일 넣기</span></h3>
+      <p class="dropinner">스마트스토어 · 쿠팡 · G마켓 · 옥션 · 11번가 상품 목록(.xlsx / .csv)<br>여러 개를 한꺼번에 넣어도 됩니다</p>
+      <div class="row">
+        <button class="tbtn primary" id="btnPick" type="button"><span class="lbl-full">📂 파일 고르기</span><span class="lbl-short">＋ 추가</span></button>
+        <button class="tbtn" id="btnSample" type="button"><span class="lbl-full">🎲 샘플로 먼저 연습</span><span class="lbl-short">🎲 샘플</span></button>
+      </div>
+      <input type="file" id="fileInput" multiple accept=".xlsx,.xlsm,.csv,.txt,.tsv" hidden>
+    </div>
+
+    <div class="card" id="emptyHint" style="margin-top:11px">
+      <div class="note" style="line-height:1.7">
+        <b style="color:var(--ink)">처음이세요?</b> 순서대로 한 번만 해 보면 됩니다.<br>
+        ① <b>샘플로 먼저 연습</b> — 5개 마켓 가상 자료로 신호등을 바로 체험<br>
+        ② 마켓에서 상품 목록 엑셀 내려받기 (받는 곳은 <b>설치·가이드</b> 탭)<br>
+        ③ 엑셀을 넣으면 마켓별 불빛과 <b>손볼 곳</b>이 한 화면에 나옵니다
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <button class="tbtn" id="btnSampleEmpty" type="button">🎲 샘플로 먼저 연습</button>
+        <button class="tbtn" id="btnGuideFromBoard" type="button">📖 설치·가이드</button>
+      </div>
+    </div>
+
+    <div class="kpis" id="kpis"></div>
+
+    <h2 class="sec">마켓 한눈에 <span class="sub" id="generatedAt"></span></h2>
+    <div class="siglegend" aria-label="신호등 색 안내">
+      <span><i class="lg ok"></i>정상</span>
+      <span><i class="lg warn"></i>주의</span>
+      <span><i class="lg alert"></i>확인필요</span>
+      <span><i class="lg idle"></i>미등록</span>
+      <em id="sigSummary"></em>
+    </div>
+    <div class="markets" id="marketCards"></div>
+
+    <div id="statusSec">
+    <h2 class="sec">상태별 수량</h2>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="scroll"><table class="tbl" id="statusTable">
+        <thead><tr><th>마켓</th><th>전체</th><th>판매중</th><th>중지</th><th>대기</th>
+          <th>반려</th><th>품절</th><th>손볼 것</th><th>중복</th></tr></thead>
+        <tbody></tbody></table></div>
+    </div>
+    </div>
+
+    <h2 class="sec">넣은 파일</h2>
+    <div class="filelist" id="fileList"></div>
+
+    <div id="prodSec">
+    <h2 class="sec">상품 목록 <span class="sub" id="prodCount"></span></h2>
+    <div class="card">
+      <div class="filters">
+        <input id="q" type="search" placeholder="상품명으로 찾기" aria-label="상품명으로 찾기">
+        <select id="fMarket" aria-label="마켓 고르기"><option value="">마켓 전체</option></select>
+        <select id="fStatus" aria-label="판매상태 고르기">
+          <option value="">상태 전체</option>
+          <option>판매중</option><option>판매중지</option><option>승인대기</option>
+          <option>승인반려</option><option>품절</option><option>판매종료</option><option>기타</option>
+        </select>
+        <select id="fWarn" aria-label="점검 여부">
+          <option value="">전체</option><option value="1">점검만</option>
+        </select>
+      </div>
+      <div class="plist" id="prodList"></div>
+      <div class="note" style="margin-top:8px">상품을 누르면 상세가 열립니다.</div>
+    </div>
+    </div>
+
+    <div class="playstrip">
+      <a href="https://goodcycle1029-blip.github.io/" target="_blank" rel="noopener">🎮 미니게임 놀이터</a>
+      <span>잠깐 쉬어가는 무료 미니게임 — 엑셀 정리하다 머리 식힐 때</span>
+    </div>
+
+    <div class="foot">
+      내 마켓 현황판 v1.1 (웹앱) · 자료는 이 폰에만 저장됩니다<br>
+      <span class="swstate" id="swState">오프라인 저장 확인 중…</span>
+    </div>
+  </section>
+
+  <!-- ══ 손볼 곳 ══════════════════════════════════════ -->
+  <section class="panel" id="tab-issues" role="tabpanel">
+    <h2 class="sec" style="margin-top:6px">손볼 곳 <span class="sub" id="issuesTop">없음</span></h2>
+    <div class="card" style="padding:11px 13px">
+      <div class="note">지금 바로 고치면 좋은 것부터 7가지로 나눠 보여 줍니다. 불빛이 <b>🔴 확인필요</b>인 마켓은 여기 목록에 이유가 있습니다.</div>
+    </div>
+    <div id="issuesBody" style="margin-top:11px"></div>
+  </section>
+
+  <!-- ══ 설치·가이드 ══════════════════════════════════ -->
+  <section class="panel" id="tab-guide" role="tabpanel">
+    <div class="guidebox">
+
+      <div class="card gcard" id="installBox">
+        <h3>📲 폰에 앱으로 설치하기</h3>
+        <p>한 번만 해 두면 홈 화면 아이콘으로 바로 열립니다. 주소창 없이 앱처럼 뜨고, 인터넷이 잠깐 끊겨도 열립니다.</p>
+        <div class="gbox safe">
+          <b>안드로이드 (크롬·삼성 인터넷)</b>
+          <ol style="margin-top:6px;margin-bottom:0">
+            <li>이 화면을 연 브라우저 오른쪽 위 <b>⋮</b> (또는 <b>≡</b>) 를 누릅니다.</li>
+            <li><b>앱 설치</b> 또는 <b>홈 화면에 추가</b>를 누릅니다.</li>
+            <li>확인을 누르면 홈 화면에 <b>내 마켓 현황판</b> 아이콘이 생깁니다.</li>
+          </ol>
+        </div>
+        <div class="gbox">
+          <b>아이폰 (사파리)</b>
+          <ol style="margin-top:6px;margin-bottom:0">
+            <li>사파리 아래쪽 <b>공유</b> 버튼(□↑)을 누릅니다.</li>
+            <li>목록을 내려 <b>홈 화면에 추가</b>를 누릅니다.</li>
+            <li>오른쪽 위 <b>추가</b>를 누르면 끝입니다.</li>
+          </ol>
+        </div>
+        <p class="mini">위에 <b>📲 홈 화면에 추가</b> 버튼이 보이면 그 버튼을 눌러도 됩니다. 아이폰은 브라우저 메뉴로만 설치할 수 있어 버튼이 안내로 바뀝니다.</p>
+      </div>
+
+      <div class="card gcard">
+        <h3>📥 마켓별 엑셀 받는 곳</h3>
+        <p>마켓마다 메뉴 이름이 조금씩 다릅니다. 비슷한 이름을 찾아 <b>상품 목록</b>을 엑셀·CSV로 내려받으면 됩니다.</p>
+        <div class="mkrow"><span class="nm"><i class="dot" style="background:#03c75a"></i>스마트스토어</span>
+          <span class="how">상품관리 → <b>상품 조회/수정</b> → 상품 선택 → <b>[엑셀 일괄작업]</b> → 수정양식 다운로드</span></div>
+        <div class="mkrow"><span class="nm"><i class="dot" style="background:#e52528"></i>쿠팡</span>
+          <span class="how">상품관리 → <b>상품 조회/수정</b> → <b>[엑셀 대량 수정]</b> → 엑셀 다운로드 요청 (가격·재고·판매상태)</span></div>
+        <div class="mkrow"><span class="nm"><i class="dot" style="background:#00a651"></i>G마켓</span>
+          <span class="how">ESM PLUS → 상품 조회/수정 → 사이트 <b>G마켓</b> 선택 → 목록 오른쪽 위 <b>[엑셀 다운로드]</b></span></div>
+        <div class="mkrow"><span class="nm"><i class="dot" style="background:#e4002b"></i>옥션</span>
+          <span class="how">ESM PLUS → 상품 조회/수정 → 사이트 <b>옥션</b> 선택 → 목록 오른쪽 위 <b>[엑셀 다운로드]</b></span></div>
+        <div class="mkrow"><span class="nm"><i class="dot" style="background:#ff0038"></i>11번가</span>
+          <span class="how">상품관리 → <b>상품 조회/수정</b> → 판매상태 <b>전체</b>로 검색 → 오른쪽 위 <b>[엑셀 다운로드]</b></span></div>
+        <div class="gbox warn" style="margin-top:10px;margin-bottom:0">
+          <b>받을 때 팁</b> — 판매상태를 <b>전체</b>로 놓고 받아야 반려·중지 상품까지 보입니다. ESM PLUS는 G마켓·옥션이 한 파일에 같이 들어 있어도 되고, 따로 받아도 됩니다.
+        </div>
+      </div>
+
+      <div class="card gcard">
+        <h3>📂 파일 넣는 법</h3>
+        <ol>
+          <li>현황판 탭 위쪽 <b>[파일 고르기]</b>를 누릅니다.</li>
+          <li>폰의 <b>다운로드</b> 폴더에서 받아 둔 <code>.xlsx</code> · <code>.csv</code>를 고릅니다. 여러 개를 한 번에 골라도 됩니다.</li>
+          <li>잠시 뒤 마켓별 불빛과 숫자가 채워집니다.</li>
+        </ol>
+        <p class="mini">파일을 잘못 골랐거나 마켓을 잘못 알아보면, <b>넣은 파일</b> 목록에서 마켓을 바꾸거나 <b>✕</b>로 뺄 수 있습니다. 원본 파일은 지워지지 않습니다.</p>
+      </div>
+
+      <div class="card gcard">
+        <h3>🚦 신호등 읽는 법</h3>
+        <div class="gbox" style="margin-bottom:8px"><b>🟢 정상</b> — 손볼 항목 0건, 판매중 상품이 정상 운영 중</div>
+        <div class="gbox" style="margin-bottom:8px"><b>🟡 주의</b> — 중복 의심 · 원산지 누락 · 마켓 간 가격차(15% 이상), 또는 문제는 없는데 판매중이 0건</div>
+        <div class="gbox warn" style="margin-bottom:8px"><b>🔴 확인필요</b> — 승인반려 · 재고 0인데 판매중 · 금지·과장 표현 · 가격 이상 중 하나라도 있음</div>
+        <div class="gbox" style="margin-bottom:0"><b>⚪ 미등록</b> — 아직 그 마켓 파일을 넣지 않음</div>
+        <p class="mini" style="margin-top:8px;margin-bottom:0">카드의 <b>요약</b> 줄을 누르면 한 줄 설명이 펼쳐집니다. 불빛은 3초 안에 눈에 들어오게 천천히 깜빡입니다.</p>
+      </div>
+
+      <div class="card gcard">
+        <h3>🔧 손볼 곳 7가지</h3>
+        <ol>
+          <li><b>중복 의심</b> — 같은 마켓에 같은 상품이 두 번 등록</li>
+          <li><b>상품명 점검</b> — 최저가·1위·100%·효능 표현, 쓸 수 없는 문자, 100자 초과</li>
+          <li><b>재고 0인데 판매중</b> — 주문이 들어오면 취소·패널티로 이어짐</li>
+          <li><b>가격 확인</b> — 판매가가 비었거나 100원 미만</li>
+          <li><b>원산지 표시</b> — 비었거나 '기타'로 되어 있음</li>
+          <li><b>승인반려</b> — 반려 사유를 확인해 다시 올리기</li>
+          <li><b>마켓마다 가격이 다른 상품</b> — 같은 상품이 마켓 간 15% 이상 차이</li>
+        </ol>
+        <p class="mini">점검 목록은 <b>손볼 곳</b> 탭 아래 <b>[점검목록 CSV 저장]</b>으로 받아 엑셀에서 하나씩 처리할 수 있습니다.</p>
+      </div>
+
+      <div class="card gcard">
+        <h3>🔒 내 자료는 어디에 있나요?</h3>
+        <p>엑셀 파일은 <b>이 폰의 브라우저 안에서만</b> 읽습니다. 어느 서버로도 보내지 않고, 로그인도 가입도 없습니다.</p>
+        <ul>
+          <li>파일과 분석 결과는 이 브라우저의 저장 공간(IndexedDB)에만 남습니다.</li>
+          <li>앱을 껐다 켜도, 폰을 다시 시작해도 그대로 있습니다.</li>
+          <li>인터넷이 끊겨도 마지막 화면은 열립니다.</li>
+          <li>다른 사람 폰에서는 내 자료가 보이지 않습니다. 이 주소를 공유해도 각자 폰에 따로 저장됩니다.</li>
+        </ul>
+        <div class="gbox warn">
+          <b>지우고 싶을 때</b> — 아래 버튼을 누르면 이 폰에 저장된 파일과 결과가 모두 지워집니다. 마켓에 올라간 상품은 그대로입니다.
+        </div>
+        <button class="tbtn" id="btnClear" type="button">🗑 이 폰의 자료 모두 지우기</button>
+      </div>
+
+      <div class="card gcard">
+        <h3>🧐 자주 막히는 곳</h3>
+        <ul>
+          <li><b>“머리글 줄을 찾지 못했어요”</b> — 상품 목록이 아닌 파일이거나, 위쪽에 안내 문구만 있는 파일입니다. 마켓에서 <b>상품 조회/수정 → 엑셀 다운로드</b>로 다시 받아 보세요.</li>
+          <li><b>예전 <code>.xls</code> 파일</b> — 엑셀에서 열어 <b>다른 이름으로 저장 → Excel 통합 문서(.xlsx)</b>로 저장한 뒤 넣어 주세요.</li>
+          <li><b>상품이 0건</b> — 판매상태를 <b>전체</b>로 놓고 다시 내려받으세요.</li>
+          <li><b>글자가 깨져 보여요</b> — CSV는 utf-8·euc-kr을 자동으로 알아봅니다. 그래도 깨지면 엑셀에서 <b>CSV UTF-8</b>로 저장해 보세요.</li>
+          <li><b>파일이 너무 커요</b> — 40MB가 넘는 파일은 폰에서 열기 어렵습니다. 기간을 나눠 받아 보세요.</li>
+        </ul>
+      </div>
+
+      <div class="playstrip">
+        <a href="https://goodcycle1029-blip.github.io/" target="_blank" rel="noopener">🎮 미니게임 놀이터</a>
+        <span>잠깐 쉬어가는 무료 미니게임</span>
+      </div>
+
+      <div class="foot">내 마켓 현황판 v1.1 · 다른 셀러도 각자 폰에서 무료로 쓸 수 있습니다.</div>
+    </div>
+  </section>
+</div>
+
+<div class="detail" id="detail" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="sheet">
+    <div class="hd"><div class="t" id="detailTitle"></div>
+      <button class="closex" id="detailClose" type="button" aria-label="닫기">✕</button></div>
+    <div class="bd" id="detailBody"></div>
+  </div>
+</div>
+
+<div id="toasts" aria-live="polite"></div>
+<div id="busy" hidden></div>
+<div id="offlineBar" hidden>인터넷이 끊겨도 이 화면은 열려요 · 입력한 자료는 그대로 있습니다</div>
+
+<script>
+/* =============================================================================
+   내 마켓 현황판 — 판단·해석 엔진 (외부 라이브러리 0, 서버 0, 전부 폰 안에서)
+   -----------------------------------------------------------------------------
+   · xlsx(zip+xml) 읽기 : zip 풀기 + deflate 해제 + XML 해석을 직접 구현
+   · csv 읽기           : utf-8 / euc-kr(cp949) / utf-16 자동 판별
+   · 표 해석            : 마켓마다 다른 머리글을 스스로 찾고 짝지음
+   · 집계·점검          : 신호등(정상·주의·확인필요·미등록)과 손볼 곳 7종
+   이 파일은 데스크톱판 v1.1(board/xlsx_lite.py · tabular.py · analyze.py)의
+   판정 기준을 그대로 옮겨, 두 판의 숫자와 불빛이 같게 나오도록 했다.
+   ============================================================================= */
+var MKT = (function () {
+  "use strict";
+
+  function UserError(msg) {
+    this.name = "UserError";
+    this.message = msg;
+  }
+  UserError.prototype = Object.create(Error.prototype);
+  UserError.prototype.constructor = UserError;
+
+  /* ── 바이트 도우미 ─────────────────────────────────────────── */
+  function u16(d, p) { return d[p] | (d[p + 1] << 8); }
+  function u32(d, p) {
+    return (d[p] | (d[p + 1] << 8) | (d[p + 2] << 16) | (d[p + 3] << 24)) >>> 0;
+  }
+  function textOf(bytes) {
+    try {
+      return new TextDecoder("utf-8").decode(bytes);
+    } catch (e) {
+      var s = "";
+      for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+      return s;
+    }
+  }
+
+  /* ── deflate(raw) 해제 — 허프만 복호 (puff 방식) ───────────── */
+  function BitReader(data, pos) {
+    this.d = data;
+    this.p = pos || 0;
+    this.buf = 0;
+    this.cnt = 0;
+  }
+  BitReader.prototype.bit = function () {
+    if (this.cnt === 0) {
+      if (this.p >= this.d.length) throw new UserError("압축된 엑셀 내용을 푸는 중에 데이터가 끝났어요. 파일을 다시 받아 주세요.");
+      this.buf = this.d[this.p++];
+      this.cnt = 8;
+    }
+    var b = this.buf & 1;
+    this.buf >>= 1;
+    this.cnt--;
+    return b;
+  };
+  BitReader.prototype.bits = function (n) {
+    var v = 0;
+    for (var i = 0; i < n; i++) v |= this.bit() << i;
+    return v;
+  };
+  BitReader.prototype.align = function () {
+    this.buf = 0;
+    this.cnt = 0;
+  };
+
+  var LBASE = [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43,
+    51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258];
+  var LEXT = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3,
+    4, 4, 4, 4, 5, 5, 5, 5, 0];
+  var DBASE = [1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193,
+    257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577];
+  var DEXT = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8,
+    9, 9, 10, 10, 11, 11, 12, 12, 13, 13];
+  var CORDER = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15];
+
+  function buildHuff(lengths, n) {
+    var counts = new Int32Array(16);
+    for (var i = 0; i < n; i++) {
+      var L = lengths[i] || 0;
+      if (L > 15) throw new UserError("엑셀 안의 압축 표가 이상해요. 파일을 다시 받아 주세요.");
+      counts[L]++;
+    }
+    counts[0] = 0;
+    var offs = new Int32Array(16), total = 0;
+    for (i = 1; i < 16; i++) {
+      offs[i] = total;
+      total += counts[i];
+    }
+    var symbols = new Int32Array(total);
+    for (i = 0; i < n; i++) if (lengths[i]) symbols[offs[lengths[i]]++] = i;
+    return { counts: counts, symbols: symbols };
+  }
+
+  function decodeSym(br, huff) {
+    var code = 0, first = 0, index = 0;
+    for (var len = 1; len < 16; len++) {
+      code |= br.bit();
+      var count = huff.counts[len];
+      if (code - first < count) return huff.symbols[index + (code - first)];
+      index += count;
+      first = (first + count) << 1;
+      code <<= 1;
+    }
+    throw new UserError("엑셀 안의 압축 내용을 읽지 못했어요. 파일을 다시 받아 주세요.");
+  }
+
+  function OutBuffer(size) {
+    this.buf = new Uint8Array(size && size > 0 ? size : 65536);
+    this.len = 0;
+  }
+  OutBuffer.prototype.ensure = function (n) {
+    if (this.len + n <= this.buf.length) return;
+    var cap = this.buf.length || 1;
+    while (cap < this.len + n) cap *= 2;
+    var nb = new Uint8Array(cap);
+    nb.set(this.buf.subarray(0, this.len));
+    this.buf = nb;
+  };
+  OutBuffer.prototype.push = function (b) {
+    this.ensure(1);
+    this.buf[this.len++] = b;
+  };
+  OutBuffer.prototype.copy = function (dist, len) {
+    this.ensure(len);
+    var start = this.len - dist;
+    if (dist === 1) {
+      var v = this.buf[start];
+      for (var i = 0; i < len; i++) this.buf[this.len++] = v;
+      return;
+    }
+    for (var j = 0; j < len; j++) this.buf[this.len++] = this.buf[start + j];
+  };
+  OutBuffer.prototype.bytes = function () {
+    return this.buf.slice(0, this.len);
+  };
+
+  var FIXED = null;
+  function fixedTables() {
+    if (FIXED) return FIXED;
+    var lit = new Uint8Array(288), i;
+    for (i = 0; i < 144; i++) lit[i] = 8;
+    for (i = 144; i < 256; i++) lit[i] = 9;
+    for (i = 256; i < 280; i++) lit[i] = 7;
+    for (i = 280; i < 288; i++) lit[i] = 8;
+    var dist = new Uint8Array(30);
+    for (i = 0; i < 30; i++) dist[i] = 5;
+    FIXED = { lit: buildHuff(lit, 288), dist: buildHuff(dist, 30) };
+    return FIXED;
+  }
+
+  function inflateRaw(data, sizeHint) {
+    var br = new BitReader(data, 0);
+    var out = new OutBuffer(sizeHint > 0 ? Math.max(sizeHint, 16384) : 65536);
+    var last = 0;
+    while (!last) {
+      last = br.bit();
+      var type = br.bits(2);
+      if (type === 0) {
+        br.align();
+        var p = br.p;
+        if (p + 4 > data.length) throw new UserError("압축 데이터가 일찍 끝났어요.");
+        var len = u16(data, p);
+        var nlen = u16(data, p + 2);
+        if ((len ^ 0xffff) !== nlen) throw new UserError("압축 데이터가 손상되었어요.");
+        p += 4;
+        if (p + len > data.length) throw new UserError("압축 데이터가 일찍 끝났어요.");
+        out.ensure(len);
+        out.buf.set(data.subarray(p, p + len), out.len);
+        out.len += len;
+        br.p = p + len;
+        continue;
+      }
+      var litH, distH;
+      if (type === 1) {
+        var f = fixedTables();
+        litH = f.lit;
+        distH = f.dist;
+      } else if (type === 2) {
+        var hlit = br.bits(5) + 257;
+        var hdist = br.bits(5) + 1;
+        var hclen = br.bits(4) + 4;
+        var clen = new Uint8Array(19);
+        for (var i = 0; i < hclen; i++) clen[CORDER[i]] = br.bits(3);
+        var chuff = buildHuff(clen, 19);
+        var lens = new Uint8Array(hlit + hdist);
+        var n = 0;
+        while (n < lens.length) {
+          var sym = decodeSym(br, chuff);
+          if (sym < 16) {
+            lens[n++] = sym;
+          } else {
+            var rep = 0, val = 0;
+            if (sym === 16) {
+              if (n === 0) throw new UserError("압축 표가 손상되었어요.");
+              val = lens[n - 1];
+              rep = 3 + br.bits(2);
+            } else if (sym === 17) {
+              rep = 3 + br.bits(3);
+            } else if (sym === 18) {
+              rep = 11 + br.bits(7);
+            } else {
+              throw new UserError("압축 표가 손상되었어요.");
+            }
+            if (n + rep > lens.length) throw new UserError("압축 표가 손상되었어요.");
+            while (rep--) lens[n++] = val;
+          }
+        }
+        litH = buildHuff(lens.subarray(0, hlit), hlit);
+        distH = buildHuff(lens.subarray(hlit), hdist);
+      } else {
+        throw new UserError("엑셀 안의 압축 방식을 읽지 못했어요.");
+      }
+      for (;;) {
+        var s = decodeSym(br, litH);
+        if (s < 256) {
+          out.push(s);
+        } else if (s === 256) {
+          break;
+        } else {
+          s -= 257;
+          if (s >= 29) throw new UserError("압축 데이터가 손상되었어요.");
+          var ln = LBASE[s] + br.bits(LEXT[s]);
+          var ds = decodeSym(br, distH);
+          if (ds >= 30) throw new UserError("압축 데이터가 손상되었어요.");
+          var dd = DBASE[ds] + br.bits(DEXT[ds]);
+          if (dd > out.len) throw new UserError("압축 데이터가 손상되었어요.");
+          out.copy(dd, ln);
+        }
+      }
+    }
+    return out.bytes();
+  }
+
+  /* ── zip 풀기 ──────────────────────────────────────────────── */
+  function unzip(data) {
+    if (!data || data.length < 22) throw new UserError("이 파일은 엑셀(xlsx) 형식이 아니에요.");
+    var eocd = -1;
+    var floor = Math.max(0, data.length - 22 - 65535);
+    for (var i = data.length - 22; i >= floor; i--) {
+      if (data[i] === 0x50 && data[i + 1] === 0x4b && data[i + 2] === 0x05 && data[i + 3] === 0x06) {
+        eocd = i;
+        break;
+      }
+    }
+    if (eocd < 0) {
+      throw new UserError("이 파일은 엑셀(xlsx) 형식이 아니에요. 예전 .xls 파일이면 엑셀에서 'Excel 통합 문서(.xlsx)'로 저장한 뒤 다시 넣어 주세요.");
+    }
+    var count = u16(data, eocd + 10);
+    var cdOff = u32(data, eocd + 16);
+    var entries = Object.create(null), names = [];
+    var p = cdOff;
+    for (var k = 0; k < count; k++) {
+      if (p + 46 > data.length || u32(data, p) !== 0x02014b50) break;
+      var method = u16(data, p + 10);
+      var csize = u32(data, p + 20);
+      var usize = u32(data, p + 24);
+      var nlen = u16(data, p + 28);
+      var elen = u16(data, p + 30);
+      var clen = u16(data, p + 32);
+      var lho = u32(data, p + 42);
+      var name = textOf(data.subarray(p + 46, p + 46 + nlen));
+      p += 46 + nlen + elen + clen;
+      if (lho + 30 > data.length || u32(data, lho) !== 0x04034b50) continue;
+      var lnlen = u16(data, lho + 26);
+      var lelen = u16(data, lho + 28);
+      if (!csize) csize = u16(data, lho + 18) || u32(data, lho + 18);
+      if (!usize) usize = u32(data, lho + 22);
+      var dstart = lho + 30 + lnlen + lelen;
+      if (dstart > data.length) continue;
+      var raw = data.subarray(dstart, Math.min(data.length, dstart + csize));
+      var out;
+      if (method === 0) out = raw.slice();
+      else if (method === 8) out = inflateRaw(raw, usize);
+      else throw new UserError("엑셀 안의 압축 방식(" + method + ")은 읽지 못해요. 엑셀에서 다시 저장해 주세요.");
+      entries[name] = out;
+      names.push(name);
+    }
+    if (!names.length) throw new UserError("압축을 풀었지만 안에 든 파일을 찾지 못했어요.");
+    return { entries: entries, names: names };
+  }
+
+  /* ── xlsx → 시트별 행 ─────────────────────────────────────── */
+  function normPath(base, target) {
+    if (!target) return "";
+    if (target.charAt(0) === "/") return target.slice(1);
+    var parts = (base + "/" + target).split("/");
+    var out = [];
+    for (var i = 0; i < parts.length; i++) {
+      var seg = parts[i];
+      if (!seg || seg === ".") continue;
+      if (seg === "..") out.pop();
+      else out.push(seg);
+    }
+    return out.join("/");
+  }
+
+  function parseXml(bytes, label) {
+    var doc = new DOMParser().parseFromString(textOf(bytes), "application/xml");
+    var err = doc.getElementsByTagName("parsererror");
+    if (err && err.length) throw new UserError(label + " 구조를 읽지 못했어요. 엑셀에서 다시 저장해 주세요.");
+    return doc;
+  }
+
+  function colIndex(letters) {
+    var n = 0;
+    for (var i = 0; i < letters.length; i++) {
+      var c = letters.charCodeAt(i);
+      n = n * 26 + (c - 64);
+    }
+    return n - 1;
+  }
+
+  function cellValue(cell, shared) {
+    var t = cell.getAttribute("t");
+    if (t === "inlineStr") {
+      var is = cell.getElementsByTagName("is")[0];
+      if (!is) return "";
+      var ts = is.getElementsByTagName("t"), s = "";
+      for (var i = 0; i < ts.length; i++) s += ts[i].textContent || "";
+      return s;
+    }
+    var v = cell.getElementsByTagName("v")[0];
+    if (!v || v.textContent === null) return "";
+    var raw = v.textContent;
+    if (t === "s") {
+      var idx = parseInt(raw, 10);
+      return shared[idx] === undefined ? "" : shared[idx];
+    }
+    if (t === "str" || t === "e") return raw;
+    if (t === "b") return raw === "1" ? "TRUE" : "FALSE";
+    var num = parseFloat(raw);
+    if (!isFinite(num)) return raw;
+    return Math.floor(num) === num ? num : num;
+  }
+
+  function readXlsx(bytes) {
+    var z = unzip(bytes);
+    var shared = [];
+    if (z.entries["xl/sharedStrings.xml"]) {
+      var ss = parseXml(z.entries["xl/sharedStrings.xml"], "공유 문자열");
+      var sis = ss.getElementsByTagName("si");
+      for (var i = 0; i < sis.length; i++) {
+        var ts = sis[i].getElementsByTagName("t"), s = "";
+        for (var j = 0; j < ts.length; j++) s += ts[j].textContent || "";
+        shared.push(s);
+      }
+    }
+    var sheetPaths = [];
+    if (z.entries["xl/workbook.xml"]) {
+      var rels = Object.create(null);
+      if (z.entries["xl/_rels/workbook.xml.rels"]) {
+        var relDoc = parseXml(z.entries["xl/_rels/workbook.xml.rels"], "엑셀 관계");
+        var rl = relDoc.getElementsByTagName("Relationship");
+        for (var r = 0; r < rl.length; r++) rels[rl[r].getAttribute("Id")] = rl[r].getAttribute("Target") || "";
+      }
+      var wb = parseXml(z.entries["xl/workbook.xml"], "엑셀 통합 문서");
+      var sheets = wb.getElementsByTagName("sheet");
+      for (var k = 0; k < sheets.length; k++) {
+        var rid = sheets[k].getAttribute("r:id") || sheets[k].getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id");
+        var target = rels[rid] || "";
+        var path = target ? normPath("xl", target) : "xl/worksheets/sheet" + (k + 1) + ".xml";
+        sheetPaths.push({ name: sheets[k].getAttribute("name") || "Sheet" + (k + 1), path: path });
+      }
+    }
+    if (!sheetPaths.length) {
+      for (var q = 0; q < z.names.length; q++) {
+        if (z.names[q].indexOf("xl/worksheets/sheet") === 0 && /\.xml$/.test(z.names[q])) {
+          sheetPaths.push({ name: z.names[q].replace(/^.*\//, "").replace(/\.xml$/, ""), path: z.names[q] });
+        }
+      }
+    }
+    var out = [];
+    for (var m = 0; m < sheetPaths.length; m++) {
+      var raw = z.entries[sheetPaths[m].path];
+      if (!raw) continue;
+      var doc = parseXml(raw, "엑셀 시트");
+      var rowEls = doc.getElementsByTagName("row");
+      var rows = [];
+      for (var a = 0; a < rowEls.length; a++) {
+        var cells = rowEls[a].getElementsByTagName("c");
+        var map = {}, max = -1;
+        for (var b = 0; b < cells.length; b++) {
+          var ref = cells[b].getAttribute("r") || "";
+          var mt = /^([A-Z]+)/.exec(ref);
+          var idx = mt ? colIndex(mt[1]) : b;
+          var val = cellValue(cells[b], shared);
+          if (val !== "") {
+            map[idx] = val;
+            if (idx > max) max = idx;
+          }
+        }
+        if (max < 0) { rows.push([]); continue; }
+        var arr = new Array(max + 1);
+        for (var c = 0; c <= max; c++) arr[c] = map[c] === undefined ? "" : map[c];
+        rows.push(arr);
+      }
+      out.push({ name: sheetPaths[m].name, rows: trimRows(rows) });
+      if (out.length > 30) break;
+    }
+    return out;
+  }
+
+  function trimRows(rows) {
+    var out = [];
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i].slice();
+      while (r.length && (r[r.length - 1] === "" || r[r.length - 1] === null || r[r.length - 1] === undefined)) r.pop();
+      out.push(r);
+    }
+    while (out.length && out[out.length - 1].length === 0) out.pop();
+    return out;
+  }
+
+  /* ── CSV ─────────────────────────────────────────────────── */
+  function decodeBytes(bytes) {
+    if (bytes.length >= 2) {
+      if (bytes[0] === 0xff && bytes[1] === 0xfe) {
+        return { text: new TextDecoder("utf-16le").decode(bytes.subarray(2)), enc: "utf-16" };
+      }
+      if (bytes[0] === 0xfe && bytes[1] === 0xff) {
+        return { text: new TextDecoder("utf-16be").decode(bytes.subarray(2)), enc: "utf-16" };
+      }
+    }
+    if (bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {
+      bytes = bytes.subarray(3);
+    }
+    try {
+      return { text: new TextDecoder("utf-8", { fatal: true }).decode(bytes), enc: "utf-8" };
+    } catch (e) { /* 다음 후보 */ }
+    try {
+      return { text: new TextDecoder("euc-kr").decode(bytes), enc: "euc-kr" };
+    } catch (e) { /* 다음 후보 */ }
+    return { text: new TextDecoder("windows-1252").decode(bytes), enc: "cp1252" };
+  }
+
+  function pickDelimiter(text) {
+    var sample = text.slice(0, 8000);
+    var best = ",", bestN = -1;
+    var cands = [",", "\t", ";", "|"];
+    for (var i = 0; i < cands.length; i++) {
+      var n = sample.split(cands[i]).length - 1;
+      if (n > bestN) { bestN = n; best = cands[i]; }
+    }
+    return bestN > 0 ? best : ",";
+  }
+
+  function parseCsvText(text) {
+    var delim = pickDelimiter(text);
+    var rows = [], row = [], cur = "", inQ = false, i = 0;
+    while (i < text.length) {
+      var ch = text.charAt(i);
+      if (inQ) {
+        if (ch === '"') {
+          if (text.charAt(i + 1) === '"') { cur += '"'; i += 2; continue; }
+          inQ = false; i++; continue;
+        }
+        cur += ch; i++; continue;
+      }
+      if (ch === '"') { inQ = true; i++; continue; }
+      if (ch === delim) { row.push(cur.trim()); cur = ""; i++; continue; }
+      if (ch === "\r") {
+        if (text.charAt(i + 1) === "\n") i++;
+        row.push(cur.trim()); rows.push(row); row = []; cur = ""; i++; continue;
+      }
+      if (ch === "\n") {
+        row.push(cur.trim()); rows.push(row); row = []; cur = ""; i++; continue;
+      }
+      cur += ch; i++;
+    }
+    if (cur !== "" || row.length) { row.push(cur.trim()); rows.push(row); }
+    return rows;
+  }
+
+  /* ── 마켓 사전 ────────────────────────────────────────────── */
+  var MARKETS = [
+    { key: "smartstore", label: "스마트스토어", color: "#03c75a", site: "sell.smartstore.naver.com" },
+    { key: "coupang", label: "쿠팡", color: "#e52528", site: "wing.coupang.com" },
+    { key: "gmarket", label: "G마켓", color: "#00a651", site: "esmplus.gmarket.co.kr" },
+    { key: "auction", label: "옥션", color: "#e4002b", site: "esmplus.gmarket.co.kr" },
+    { key: "eleven", label: "11번가", color: "#ff0038", site: "sell.11st.co.kr" },
+    { key: "etc", label: "기타(직접 확인)", color: "#6b7280", site: "" }
+  ];
+  var MARKET_BY_KEY = {};
+  for (var mi = 0; mi < MARKETS.length; mi++) MARKET_BY_KEY[MARKETS[mi].key] = MARKETS[mi];
+  function marketLabel(key) {
+    return (MARKET_BY_KEY[key] || MARKET_BY_KEY.etc).label;
+  }
+
+  var FIELDS = {
+    product_id: [["상품번호", "상품id", "등록상품id", "상품코드", "goodsno", "goods_no",
+      "판매자상품번호", "사이트상품번호", "마스터번호", "상품관리번호", "vendoritemid", "옵션id"], 1],
+    seller_code: [["판매자상품코드", "판매자관리코드", "자체상품코드", "관리코드",
+      "업체상품코드", "자체코드", "sku", "sellerproductcode"], 2],
+    name: [["노출상품명", "상품명", "상품이름", "goodsname", "productname"], 1],
+    price: [["판매가격", "판매가", "정상가", "가격", "price", "salesprice"], 1],
+    sale_price: [["할인가", "즉시할인가", "할인적용가", "판매가(할인)"], 2],
+    stock: [["재고수량", "잔여수량", "재고", "stock", "quantity"], 1],
+    status: [["판매상태", "판매/승인상태", "판매상태코드", "승인상태", "전시상태", "sellstatus", "status"], 1],
+    category: [["카테고리명", "카테고리", "분류", "category"], 2],
+    brand: [["브랜드", "brand"], 3],
+    origin: [["원산지", "origin", "제조국"], 2],
+    registered_at: [["등록일", "등록일자", "등록일시", "최초등록일", "regdate"], 3],
+    updated_at: [["수정일", "최종수정일", "수정일시"], 4],
+    option: [["옵션명", "옵션", "옵션값", "option"], 3],
+    url: [["상품url", "상품주소", "url", "상세url"], 4],
+    reject_reason: [["반려사유", "반려이유", "거절사유", "승인반려사유", "오류사유"], 2],
+    site: [["사이트", "마켓", "판매사이트", "site"], 4]
+  };
+  var EXCLUDE = {
+    product_id: ["판매자", "자체", "업체", "관리", "sku", "옵션"],
+    name: ["옵션", "카테고리", "브랜드"],
+    price: ["할인", "배송", "정산", "수수료", "원가"],
+    stock: ["판매량", "주문", "최대"],
+    origin: ["원산지코드"]
+  };
+
+  function normalize(text) {
+    return String(text === null || text === undefined ? "" : text)
+      .replace(/[\s\-_/()\[\]{}<>·•:·.,'"~!@#$%^&*+=|\\]+/g, "").toLowerCase();
+  }
+
+  function guessMapping(headers) {
+    var normed = [], i, j;
+    for (i = 0; i < headers.length; i++) normed.push(normalize(headers[i]));
+    var cands = [];
+    var fields = Object.keys(FIELDS);
+    for (var f = 0; f < fields.length; f++) {
+      var field = fields[f], words = FIELDS[field][0], prio = FIELDS[field][1];
+      var ex = EXCLUDE[field] || [];
+      var sorted = words.slice().sort(function (a, b) { return normalize(b).length - normalize(a).length; });
+      for (i = 0; i < normed.length; i++) {
+        var h = normed[i];
+        if (!h) continue;
+        var bad = false;
+        for (j = 0; j < ex.length; j++) if (h.indexOf(normalize(ex[j])) >= 0) bad = true;
+        if (bad) continue;
+        for (j = 0; j < sorted.length; j++) {
+          var w = normalize(sorted[j]);
+          if (w && h.indexOf(w) >= 0) {
+            cands.push([prio, -w.length, field, i]);
+            break;
+          }
+        }
+      }
+    }
+    cands.sort(function (a, b) {
+      if (a[0] !== b[0]) return a[0] - b[0];
+      if (a[1] !== b[1]) return a[1] - b[1];
+      return a[3] - b[3];
+    });
+    var mapping = {}, used = {};
+    for (i = 0; i < cands.length; i++) {
+      var fd = cands[i][2], idx = cands[i][3];
+      if (mapping[fd] !== undefined || used[idx]) continue;
+      mapping[fd] = idx;
+      used[idx] = true;
+    }
+    return mapping;
+  }
+
+  var STATUS_ON = "판매중", STATUS_OFF = "판매중지", STATUS_REJECT = "승인반려",
+    STATUS_WAIT = "승인대기", STATUS_SOLD = "품절", STATUS_END = "판매종료", STATUS_OTHER = "기타";
+  var STATUS_ORDER = [STATUS_ON, STATUS_OFF, STATUS_WAIT, STATUS_REJECT, STATUS_SOLD, STATUS_END, STATUS_OTHER];
+
+  var STATUS_RULES = [
+    [STATUS_REJECT, ["승인반려", "반려", "거절", "불승인", "reject", "반송"]],
+    [STATUS_WAIT, ["승인대기", "승인요청", "심사중", "검수중", "대기", "pending", "임시저장"]],
+    [STATUS_END, ["판매종료", "종료", "판매기간종료", "기간만료"]],
+    [STATUS_SOLD, ["품절", "일시품절", "부분품절", "soldout", "재고없음"]],
+    [STATUS_OFF, ["판매중지", "중지", "판매불가", "직권중지", "판매보류", "비활성", "off", "stop", "미판매", "노출중지"]],
+    [STATUS_ON, ["판매중", "판매가능", "판매진행", "정상", "on", "sale", "승인완료", "전시중", "판매"]]
+  ];
+
+  function normalizeStatus(raw) {
+    var text = normalize(raw);
+    if (!text) return STATUS_OTHER;
+    var code = { "11": STATUS_ON, "21": STATUS_OFF, "22": STATUS_OFF, "31": STATUS_SOLD, "01": STATUS_WAIT, "02": STATUS_WAIT };
+    if (code[text]) return code[text];
+    for (var i = 0; i < STATUS_RULES.length; i++) {
+      var words = STATUS_RULES[i][1];
+      for (var j = 0; j < words.length; j++) {
+        var w = normalize(words[j]);
+        if (w && text.indexOf(w) >= 0) return STATUS_RULES[i][0];
+      }
+    }
+    return STATUS_OTHER;
+  }
+
+  var NAME_HINTS = [
+    ["smartstore", ["스마트스토어", "smartstore", "네이버", "naver"]],
+    ["coupang", ["쿠팡", "coupang", "wing"]],
+    ["gmarket", ["지마켓", "gmarket", "g마켓"]],
+    ["auction", ["옥션", "auction"]],
+    ["eleven", ["11번가", "11st", "eleven"]]
+  ];
+
+  function guessMarket(filename, headers, siteValues) {
+    var name = normalize(filename), i, j;
+    for (i = 0; i < NAME_HINTS.length; i++) {
+      for (j = 0; j < NAME_HINTS[i][1].length; j++) {
+        if (name.indexOf(normalize(NAME_HINTS[i][1][j])) >= 0) return NAME_HINTS[i][0];
+      }
+    }
+    var hdr = "";
+    for (i = 0; i < (headers || []).length; i++) hdr += normalize(headers[i]) + " ";
+    if (hdr.indexOf("esm") >= 0 || hdr.indexOf("지마켓") >= 0) return "gmarket";
+    if (hdr.indexOf("쿠팡") >= 0) return "coupang";
+    if (hdr.indexOf("11번가") >= 0) return "eleven";
+    var sites = {};
+    for (i = 0; i < (siteValues || []).length; i++) {
+      var s = normalize(siteValues[i]);
+      if (s) sites[s] = true;
+    }
+    if (sites["g마켓"] || sites["지마켓"] || sites["gmarket"]) return "gmarket";
+    if (sites["옥션"] || sites["auction"]) return "auction";
+    return "etc";
+  }
+
+  var NAME_RULES = [
+    [/(최저가|최저가격|업계최저|가장싼|최고가|최상급|최고급|1위|일등|유일한|유일무이)/,
+      "절대적 표현", "'최저가·1위·최고' 같은 표현은 근거를 요구받거나 노출이 제한될 수 있어요."],
+    [/(100\s*%|백퍼센트|완벽|완전|무조건|반드시|절대)/,
+      "과장 표현", "'100%·완벽·무조건' 같은 보장형 표현은 표시광고법상 문제가 될 수 있어요."],
+    [/(치료|완치|효능|효과\s*보장|부작용\s*없|다이어트\s*보장|항암|면역력\s*강화|숙면\s*보장)/,
+      "효능·의료 표현", "질병 치료·효능을 단정하는 표현은 건강기능식품·일반식품 모두 위험해요."],
+    [/(의사|약사|병원)\s*(추천|보증)/, "전문가 보증 표현", "의료인 추천·보증으로 읽히는 표현은 근거가 없으면 금지돼요."],
+    [/(정품|정식)\s*(보장|100)/, "보증 표현", "'정품 보장'은 근거(정품 인증) 없이 쓰면 문제가 될 수 있어요."],
+    [/(무료\s*배송|공짜|사은품\s*증정)/, "혜택 표현", "상품명에 배송·사은품 조건을 넣으면 실제 조건과 달라 보일 수 있어요."],
+    [/([\\*?"<>])/, "사용 금지 문자", "상품명에 쓸 수 없는 문자예요. 등록이 반려될 수 있어요."]
+  ];
+  var ORIGIN_BAD = { "": 1, "-": 1, "기타": 1, "미상": 1, "없음": 1, "unknown": 1, "n/a": 1, "해당없음": 1, "확인필요": 1 };
+  var GUIDE_WORDS = ["필수", "선택", "작성가이드", "입력", "예시", "설명", "가이드", "*"];
+
+  function headerScore(row) {
+    if (!row || !row.length) return 0;
+    var mapping = guessMapping(row);
+    var score = Object.keys(mapping).length;
+    if (mapping.name !== undefined) score += 3;
+    if (mapping.product_id !== undefined) score += 2;
+    if (mapping.status !== undefined) score += 2;
+    var longCells = 0;
+    for (var i = 0; i < row.length; i++) {
+      if (typeof row[i] === "string" && row[i].length > 45) longCells++;
+    }
+    return score - longCells * 2;
+  }
+
+  function findHeader(rows) {
+    var best = -1, bestScore = 0;
+    var limit = Math.min(rows.length, 15);
+    for (var i = 0; i < limit; i++) {
+      var s = headerScore(rows[i]);
+      if (s > bestScore) { best = i; bestScore = s; }
+    }
+    if (bestScore < 5) {
+      throw new UserError("표의 머리글 줄을 찾지 못했어요. 마켓에서 내려받은 '상품 목록' 파일이 맞는지, 상품명·판매가·판매상태 같은 칸 이름이 있는지 확인해 주세요.");
+    }
+    return best;
+  }
+
+  function isGuideRow(row, mapping) {
+    function cell(field) {
+      var idx = mapping[field];
+      return idx !== undefined && idx < row.length ? String(row[idx] === undefined ? "" : row[idx]).trim() : "";
+    }
+    var name = cell("name"), pid = cell("product_id");
+    if (!name) return true;                       // 상품명이 없으면 상품 줄이 아니다
+    if (GUIDE_WORDS.indexOf(name) >= 0 || name.charAt(0) === "*") return true;
+    function numeric(text) { return /[0-9]/.test(text); }
+    if (!pid && !numeric(cell("price")) && !numeric(cell("stock"))) return true;
+    return false;
+  }
+
+  function loadTable(filename, bytes) {
+    var ext = (filename || "").toLowerCase().match(/\.[a-z0-9]+$/);
+    ext = ext ? ext[0] : "";
+    var rows, sheet = "";
+    if (ext === ".xls") {
+      throw new UserError("예전 엑셀(.xls) 형식이에요. 엑셀에서 그 파일을 연 뒤 '다른 이름으로 저장 → Excel 통합 문서(*.xlsx)'로 저장해서 넣어 주세요.");
+    }
+    if (ext === ".xlsx" || ext === ".xlsm") {
+      var sheets = readXlsx(bytes);
+      if (!sheets.length) throw new UserError("엑셀 안에 값이 있는 시트가 없어요.");
+      var pick = sheets[0];
+      for (var i = 1; i < sheets.length; i++) if (sheets[i].rows.length > pick.rows.length) pick = sheets[i];
+      rows = pick.rows;
+      sheet = pick.name;
+    } else if (ext === ".csv" || ext === ".txt" || ext === ".tsv" || ext === "") {
+      var dec = decodeBytes(bytes);
+      rows = parseCsvText(dec.text);
+      sheet = "";
+    } else {
+      throw new UserError("엑셀(.xlsx) 또는 CSV(.csv) 파일만 넣을 수 있어요.");
+    }
+    var kept = [];
+    for (var a = 0; a < rows.length; a++) {
+      var has = false;
+      for (var b = 0; b < rows[a].length; b++) if (String(rows[a][b]).trim()) { has = true; break; }
+      if (has) kept.push(rows[a]);
+    }
+    rows = kept;
+    if (!rows.length) throw new UserError("파일이 비어 있어요.");
+
+    var headerRow = findHeader(rows);
+    var headers = [], keep = [], c;
+    for (c = 0; c < rows[headerRow].length; c++) headers.push(String(rows[headerRow][c] === undefined ? "" : rows[headerRow][c]).trim());
+    for (c = 0; c < headers.length; c++) if (headers[c]) keep.push(c);
+    var finalHeaders = [];
+    for (c = 0; c < keep.length; c++) finalHeaders.push(headers[keep[c]]);
+
+    var mapping = guessMapping(finalHeaders);
+    var body = [], r, line;
+    for (r = headerRow + 1; r < rows.length; r++) {
+      line = [];
+      for (c = 0; c < keep.length; c++) line.push(rows[r][keep[c]] === undefined ? "" : rows[r][keep[c]]);
+      if (isGuideRow(line, mapping)) continue;
+      body.push(line);
+    }
+    if (!body.length) {
+      for (r = headerRow + 1; r < rows.length; r++) {
+        line = [];
+        for (c = 0; c < keep.length; c++) line.push(rows[r][keep[c]] === undefined ? "" : rows[r][keep[c]]);
+        var ni = mapping.name;
+        var nm = ni !== undefined && ni < line.length ? String(line[ni]).trim() : "";
+        if (nm && GUIDE_WORDS.indexOf(nm) < 0 && nm.charAt(0) !== "*") body.push(line);
+      }
+    }
+    if (!body.length) {
+      throw new UserError("머리글은 찾았는데 그 아래에 상품 줄이 없어요. 판매상태를 '전체'로 놓고 다시 내려받아 보세요.");
+    }
+    if (mapping.name === undefined) {
+      throw new UserError("'상품명' 칸을 찾지 못했어요. 상품 목록 파일이 맞는지 확인해 주세요.");
+    }
+    return { headers: finalHeaders, rows: body, headerRow: headerRow, sheet: sheet, mapping: mapping };
+  }
+
+  /* ── 숫자·이름 정리 ───────────────────────────────────────── */
+  function toNumber(value) {
+    if (value === null || value === undefined || value === "") return null;
+    if (typeof value === "number") return isFinite(value) ? Math.round(value) : null;
+    var text = String(value).trim();
+    if (!text) return null;
+    if (text === "품절" || text === "없음" || text === "-") return 0;
+    var cleaned = text.replace(/[^0-9.\-]/g, "");
+    if (cleaned === "" || cleaned === "-" || cleaned === ".") return null;
+    var n = parseFloat(cleaned);
+    return isFinite(n) ? Math.round(n) : null;
+  }
+
+  function normName(text) {
+    return String(text || "").replace(/[\s\-_/·•\[\](){}<>"'’,.~!*+|]+/g, "").toLowerCase();
+  }
+
+  function clean(value) {
+    if (value === null || value === undefined) return "";
+    if (typeof value === "number") return String(value);
+    return String(value).replace(/\s+/g, " ").trim();
+  }
+
+  /* ── 상품 줄 만들기 ───────────────────────────────────────── */
+  function buildProducts(tables) {
+    var products = [];
+    for (var t = 0; t < tables.length; t++) {
+      var table = tables[t].table, market = tables[t].market, mapping = table.mapping;
+      var originKnown = mapping.origin !== undefined;
+      for (var r = 0; r < table.rows.length; r++) {
+        var row = table.rows[r];
+        var cellMap = (function (row, mapping) {
+          return function (field) {
+            var idx = mapping[field];
+            if (idx === undefined || idx >= row.length) return "";
+            return clean(row[idx]);
+          };
+        })(row, mapping);
+        var name = cellMap("name");
+        if (!name) continue;
+        var rowMarket = market;
+        var siteValue = cellMap("site");
+        if ((market === "gmarket" || market === "auction") && siteValue) {
+          var sn = normalize(siteValue);
+          if (sn === "옥션" || sn === "auction") rowMarket = "auction";
+          else if (sn === "지마켓" || sn === "g마켓" || sn === "gmarket") rowMarket = "gmarket";
+        }
+        var price = toNumber(cellMap("price"));
+        var salePrice = toNumber(cellMap("sale_price"));
+        var stock = toNumber(cellMap("stock"));
+        var statusRaw = cellMap("status");
+        var status = statusRaw ? normalizeStatus(statusRaw) : "";
+        if (!status) {
+          status = stock === 0 ? STATUS_SOLD : STATUS_OTHER;
+          statusRaw = statusRaw || "(판매상태 칸 없음)";
+        }
+        var warnings = [], m, i;
+        for (i = 0; i < NAME_RULES.length; i++) {
+          m = NAME_RULES[i][0].exec(name);
+          if (m) warnings.push({ k: NAME_RULES[i][1], t: NAME_RULES[i][2], f: m[0] });
+        }
+        if (name.length > 100) {
+          warnings.push({ k: "상품명 길이", t: "상품명이 100자를 넘어요. 마켓에서 잘리거나 반려될 수 있어요.", f: name.length + "자" });
+        }
+        if (stock === 0 && status === STATUS_ON) {
+          warnings.push({ k: "재고 0", t: "재고가 0인데 판매중이에요. 주문이 들어오면 취소·패널티로 이어질 수 있어요.", f: "재고 0" });
+        }
+        if (price === null) {
+          warnings.push({ k: "가격", t: "판매가를 숫자로 읽지 못했어요. 엑셀 칸을 확인해 주세요.", f: "" });
+        } else if (price < 100) {
+          warnings.push({ k: "가격", t: "판매가가 100원 미만이에요. 마켓 최저가 제한에 걸릴 수 있어요.", f: price + "원" });
+        }
+        var origin = cellMap("origin");
+        if (originKnown && ORIGIN_BAD[origin.trim().toLowerCase()]) {
+          warnings.push({ k: "원산지", t: "원산지가 비었거나 '기타'로 되어 있어요. 수입 상품은 원산지 표시가 필요해요.", f: origin || "비어 있음" });
+        }
+        products.push({
+          market: rowMarket,
+          market_label: marketLabel(rowMarket),
+          site: siteValue,
+          id: cellMap("product_id"),
+          seller_code: cellMap("seller_code"),
+          name: name,
+          price: price,
+          sale_price: salePrice,
+          stock: stock,
+          status: status,
+          status_raw: statusRaw,
+          category: cellMap("category"),
+          origin: origin,
+          brand: cellMap("brand"),
+          registered_at: cellMap("registered_at"),
+          reject_reason: cellMap("reject_reason"),
+          file: tables[t].filename,
+          warnings: warnings,
+          _origin_known: originKnown,
+          _nname: normName(name)
+        });
+      }
+    }
+    return products;
+  }
+
+  function marketSummary(products, originKnown) {
+    var counts = {}, withWarn = 0, prices = [], stockSum = 0, i;
+    for (i = 0; i < STATUS_ORDER.length; i++) counts[STATUS_ORDER[i]] = 0;
+    for (i = 0; i < products.length; i++) {
+      var p = products[i];
+      counts[p.status] = (counts[p.status] || 0) + 1;
+      if (p.warnings.length) withWarn++;
+      if (typeof p.price === "number" && p.price > 0) prices.push(p.price);
+      if (typeof p.stock === "number") stockSum += p.stock;
+    }
+    var sum = 0;
+    for (i = 0; i < prices.length; i++) sum += prices[i];
+    return {
+      total: products.length,
+      counts: counts,
+      with_warning: withWarn,
+      price_min: prices.length ? Math.min.apply(null, prices) : null,
+      price_max: prices.length ? Math.max.apply(null, prices) : null,
+      price_avg: prices.length ? Math.round(sum / prices.length) : null,
+      stock_sum: stockSum,
+      origin_known: originKnown
+    };
+  }
+
+  /* ── 신호등 ───────────────────────────────────────────────── */
+  var SIG_ALERT = "alert", SIG_WARN = "warn", SIG_OK = "ok", SIG_EMPTY = "empty";
+  var SIGNAL_LABELS = { alert: "확인필요", warn: "주의", ok: "정상", empty: "미등록" };
+  var SIGNAL_ICONS = { alert: "🔴", warn: "🟡", ok: "🟢", empty: "⚪" };
+  var SERIOUS = [["reject", "승인반려"], ["stock_zero", "재고0 판매중"], ["name_rule", "금지·과장 표현"], ["price", "가격 확인"]];
+  var CAUTION = [["dup", "중복 의심"], ["origin", "원산지 누락"], ["spread", "마켓 간 가격차"]];
+
+  function marketIssueCounts(issues) {
+    var out = {};
+    function bump(key, field) {
+      if (!key) return;
+      if (!out[key]) out[key] = {};
+      out[key][field] = (out[key][field] || 0) + 1;
+    }
+    var i, j;
+    for (i = 0; i < (issues.rejects || []).length; i++) bump(issues.rejects[i].market, "reject");
+    for (i = 0; i < (issues.stock_zero || []).length; i++) bump(issues.stock_zero[i].market, "stock_zero");
+    for (i = 0; i < (issues.price || []).length; i++) bump(issues.price[i].market, "price");
+    for (i = 0; i < (issues.origin || []).length; i++) bump(issues.origin[i].market, "origin");
+    var nr = issues.name_rules || {};
+    for (var k in nr) {
+      if (!nr.hasOwnProperty(k)) continue;
+      for (j = 0; j < nr[k].length; j++) bump(nr[k][j].market, "name_rule");
+    }
+    for (i = 0; i < (issues.duplicates || []).length; i++) bump(issues.duplicates[i].market, "dup");
+    for (i = 0; i < (issues.price_spread || []).length; i++) {
+      var ms = issues.price_spread[i].markets || [];
+      for (j = 0; j < ms.length; j++) bump(ms[j].key, "spread");
+    }
+    return out;
+  }
+
+  function signalState(total, on, serious, caution) {
+    if (total <= 0) return SIG_EMPTY;
+    if (serious > 0) return SIG_ALERT;
+    if (caution > 0) return SIG_WARN;
+    if (on <= 0) return SIG_WARN;
+    return SIG_OK;
+  }
+
+  function comma(n) {
+    return Number(n || 0).toLocaleString("ko-KR");
+  }
+
+  function signalLine(state, summary, ic) {
+    var counts = (summary || {}).counts || {};
+    var on = counts[STATUS_ON] || 0, i, bits;
+    if (state === SIG_EMPTY) return "파일 없음 · 엑셀을 넣어 주세요";
+    if (state === SIG_ALERT) {
+      bits = [];
+      for (i = 0; i < SERIOUS.length && bits.length < 2; i++) {
+        if (ic[SERIOUS[i][0]]) bits.push(SERIOUS[i][1] + " " + ic[SERIOUS[i][0]] + "건");
+      }
+      return "판매중 " + comma(on) + "건 · " + bits.join(" · ") + " 확인 필요";
+    }
+    if (state === SIG_WARN) {
+      bits = [];
+      for (i = 0; i < CAUTION.length && bits.length < 2; i++) {
+        if (ic[CAUTION[i][0]]) bits.push(CAUTION[i][1] + " " + ic[CAUTION[i][0]] + "건");
+      }
+      if (bits.length) return "판매중 " + comma(on) + "건 · " + bits.join(" · ") + " 주의";
+      return "판매중 0건 · 판매중지 " + comma(counts[STATUS_OFF] || 0) + "건";
+    }
+    var avg = (summary || {}).price_avg;
+    if (typeof avg === "number" && avg > 0) return "이상 없음 · 평균가 " + comma(avg) + "원";
+    return "이상 없음 · 판매중 " + comma(on) + "건";
+  }
+
+  function buildSignals(markets, issues) {
+    var byKey = {}, i;
+    for (i = 0; i < markets.length; i++) byKey[markets[i].key] = markets[i];
+    var per = marketIssueCounts(issues);
+    var keys = [];
+    for (i = 0; i < MARKETS.length; i++) if (MARKETS[i].key !== "etc") keys.push(MARKETS[i].key);
+    if (byKey.etc) keys.push("etc");
+    var out = [];
+    for (i = 0; i < keys.length; i++) {
+      var key = keys[i], info = MARKET_BY_KEY[key], summary = byKey[key], ic = per[key] || {};
+      var total = summary ? summary.total : 0;
+      var on = summary ? (summary.counts[STATUS_ON] || 0) : 0;
+      var serious = 0, caution = 0, j;
+      for (j = 0; j < SERIOUS.length; j++) serious += ic[SERIOUS[j][0]] || 0;
+      for (j = 0; j < CAUTION.length; j++) caution += ic[CAUTION[j][0]] || 0;
+      var state = signalState(total, on, serious, caution);
+      var items = {};
+      for (j = 0; j < SERIOUS.length; j++) items[SERIOUS[j][0]] = ic[SERIOUS[j][0]] || 0;
+      for (j = 0; j < CAUTION.length; j++) items[CAUTION[j][0]] = ic[CAUTION[j][0]] || 0;
+      out.push({
+        key: key,
+        label: info.label,
+        color: info.color,
+        state: state,
+        state_label: SIGNAL_LABELS[state],
+        state_icon: SIGNAL_ICONS[state],
+        line: signalLine(state, summary, ic),
+        total: total,
+        on: on,
+        off: summary ? (summary.counts[STATUS_OFF] || 0) : 0,
+        wait: summary ? (summary.counts[STATUS_WAIT] || 0) : 0,
+        reject: summary ? (summary.counts[STATUS_REJECT] || 0) : 0,
+        sold: summary ? (summary.counts[STATUS_SOLD] || 0) : 0,
+        also: summary ? (summary.counts[STATUS_OTHER] || 0) : 0,
+        with_warning: summary ? summary.with_warning : 0,
+        price_avg: summary ? summary.price_avg : null,
+        counts: summary ? summary.counts : {},
+        serious: serious,
+        caution: caution,
+        items: items
+      });
+    }
+    return out;
+  }
+
+  /* ── 전체 분석 ────────────────────────────────────────────── */
+  function analyze(tables, note) {
+    var products = buildProducts(tables);
+    var byMarket = {}, i, j, k;
+    for (i = 0; i < products.length; i++) {
+      if (!byMarket[products[i].market]) byMarket[products[i].market] = [];
+      byMarket[products[i].market].push(products[i]);
+    }
+    var markets = [];
+    for (i = 0; i < MARKETS.length; i++) {
+      var key = MARKETS[i].key, group = byMarket[key];
+      if (!group) continue;
+      var info = MARKET_BY_KEY[key];
+      var files = {}, originKnown = false;
+      for (j = 0; j < group.length; j++) {
+        files[group[j].file] = true;
+        if (group[j]._origin_known) originKnown = true;
+      }
+      var sum = marketSummary(group, originKnown);
+      sum.key = key;
+      sum.label = info.label;
+      sum.color = info.color;
+      sum.files = Object.keys(files).sort();
+      sum.site = info.site;
+      markets.push(sum);
+    }
+
+    // 같은 마켓 안 중복
+    var dupGroups = [];
+    for (k in byMarket) {
+      if (!byMarket.hasOwnProperty(k)) continue;
+      var seen = {}, order = [];
+      var group = byMarket[k];
+      for (i = 0; i < group.length; i++) {
+        if (!seen[group[i]._nname]) { seen[group[i]._nname] = []; order.push(group[i]._nname); }
+        seen[group[i]._nname].push(group[i]);
+      }
+      for (j = 0; j < order.length; j++) {
+        var rows = seen[order[j]];
+        if (rows.length < 2) continue;
+        var ids = [];
+        for (i = 0; i < rows.length; i++) if (rows[i].id) ids.push(rows[i].id);
+        dupGroups.push({
+          market: k,
+          market_label: marketLabel(k),
+          name: rows[0].name,
+          count: rows.length,
+          ids: ids,
+          prices: rows.map(function (x) { return x.price; }),
+          statuses: rows.map(function (x) { return x.status; })
+        });
+      }
+    }
+    // 같은 상품번호가 두 번 나온 경우
+    var idSeen = {}, idOrder = [];
+    for (i = 0; i < products.length; i++) {
+      var p = products[i];
+      if (!p.id) continue;
+      var idk = p.market + "\u0001" + p.id;
+      if (!idSeen[idk]) { idSeen[idk] = []; idOrder.push(idk); }
+      idSeen[idk].push(p);
+    }
+    for (j = 0; j < idOrder.length; j++) {
+      var rows2 = idSeen[idOrder[j]];
+      if (rows2.length < 2) continue;
+      var already = false;
+      for (i = 0; i < dupGroups.length; i++) {
+        if (dupGroups[i].market === rows2[0].market && dupGroups[i].ids.length === rows2.length - 1 &&
+          dupGroups[i].ids.indexOf(rows2[0].id) >= 0) { already = true; break; }
+      }
+      if (already) continue;
+      dupGroups.push({
+        market: rows2[0].market,
+        market_label: marketLabel(rows2[0].market),
+        name: rows2[0].name,
+        count: rows2.length,
+        ids: [rows2[0].id],
+        prices: rows2.map(function (x) { return x.price; }),
+        statuses: rows2.map(function (x) { return x.status; })
+      });
+    }
+    dupGroups.sort(function (a, b) {
+      if (a.market !== b.market) return a.market < b.market ? -1 : 1;
+      return b.count - a.count;
+    });
+
+    // 여러 마켓에 같은 상품
+    var cross = {};
+    for (i = 0; i < products.length; i++) {
+      if (!cross[products[i]._nname]) cross[products[i]._nname] = {};
+      cross[products[i]._nname][products[i].market] = true;
+    }
+    var crossCount = 0;
+    for (k in cross) if (cross.hasOwnProperty(k) && Object.keys(cross[k]).length > 1) crossCount++;
+
+    // 마켓 간 가격차 (15% 이상)
+    var priceMap = {};
+    for (i = 0; i < products.length; i++) {
+      var pp = products[i];
+      if (typeof pp.price === "number" && pp.price > 0) {
+        if (!priceMap[pp._nname]) priceMap[pp._nname] = [];
+        priceMap[pp._nname].push(pp);
+      }
+    }
+    var spread = [];
+    for (k in priceMap) {
+      if (!priceMap.hasOwnProperty(k)) continue;
+      var prs = priceMap[k], mset = {};
+      for (i = 0; i < prs.length; i++) mset[prs[i].market] = true;
+      if (Object.keys(mset).length < 2) continue;
+      var prices = prs.map(function (x) { return x.price; });
+      var lo = Math.min.apply(null, prices), hi = Math.max.apply(null, prices);
+      if (lo > 0 && (hi - lo) / lo >= 0.15) {
+        spread.push({
+          name: prs[0].name, low: lo, high: hi,
+          diff_pct: Math.round((hi - lo) / lo * 100),
+          markets: prs.map(function (x) { return { key: x.market, label: x.market_label, price: x.price }; })
+        });
+      }
+    }
+    spread.sort(function (a, b) { return b.diff_pct - a.diff_pct; });
+
+    function collect(kind) {
+      var out = [];
+      for (var z = 0; z < products.length; z++) {
+        var w = products[z].warnings;
+        for (var y = 0; y < w.length; y++) {
+          if (w[y].k === kind) {
+            out.push({ market: products[z].market, market_label: products[z].market_label,
+              name: products[z].name, id: products[z].id, found: w[y].f, text: w[y].t, status: products[z].status });
+          }
+        }
+      }
+      return out;
+    }
+
+    var NAME_RULE_KINDS = ["절대적 표현", "과장 표현", "효능·의료 표현", "전문가 보증 표현", "보증 표현", "혜택 표현", "사용 금지 문자", "상품명 길이"];
+    var nameRules = {};
+    for (i = 0; i < products.length; i++) {
+      for (j = 0; j < products[i].warnings.length; j++) {
+        var w = products[i].warnings[j];
+        if (NAME_RULE_KINDS.indexOf(w.k) >= 0) {
+          if (!nameRules[w.k]) nameRules[w.k] = [];
+          nameRules[w.k].push({ market: products[i].market, market_label: products[i].market_label,
+            name: products[i].name, found: w.f, text: w.t });
+        }
+      }
+    }
+
+    var rejects = [];
+    for (i = 0; i < products.length; i++) {
+      if (products[i].status === STATUS_REJECT) {
+        rejects.push({ market: products[i].market, market_label: products[i].market_label,
+          name: products[i].name, id: products[i].id, reason: products[i].reject_reason,
+          status_raw: products[i].status_raw });
+      }
+    }
+
+    var issues = {
+      duplicates: dupGroups,
+      name_rules: nameRules,
+      stock_zero: collect("재고 0"),
+      price: collect("가격"),
+      origin: collect("원산지"),
+      rejects: rejects,
+      price_spread: spread.slice(0, 20)
+    };
+
+    var withWarning = 0;
+    for (i = 0; i < products.length; i++) if (products[i].warnings.length) withWarning++;
+    var totals = {
+      products: products.length,
+      markets: markets.length,
+      files: tables.length,
+      with_warning: withWarning,
+      duplicates: dupGroups.length,
+      on: 0, off: 0, wait: 0, reject: 0, sold: 0, cross_market: crossCount, stock_sum: 0
+    };
+    for (i = 0; i < markets.length; i++) {
+      totals.on += markets[i].counts[STATUS_ON] || 0;
+      totals.off += markets[i].counts[STATUS_OFF] || 0;
+      totals.wait += markets[i].counts[STATUS_WAIT] || 0;
+      totals.reject += markets[i].counts[STATUS_REJECT] || 0;
+      totals.sold += markets[i].counts[STATUS_SOLD] || 0;
+      totals.stock_sum += markets[i].stock_sum || 0;
+    }
+
+    var parts = [totals.markets + "개 마켓 · 상품 " + comma(totals.products) + "개", "판매중 " + comma(totals.on)];
+    if (totals.with_warning) parts.push("손볼 것 " + comma(totals.with_warning));
+    if (totals.duplicates) parts.push("중복 의심 " + totals.duplicates);
+    var headline = parts.join(" · ");
+
+    var signals = buildSignals(markets, issues);
+    var signalCounts = { alert: 0, warn: 0, ok: 0, empty: 0 };
+    for (i = 0; i < signals.length; i++) signalCounts[signals[i].state]++;
+    if (signalCounts.alert) headline += " · 🔴 확인필요 " + signalCounts.alert + "곳";
+
+    var files = [];
+    for (i = 0; i < tables.length; i++) {
+      var tb = tables[i].table;
+      files.push({
+        filename: tables[i].filename,
+        market: tables[i].market,
+        market_label: marketLabel(tables[i].market),
+        sheet: tables[i].sheet || "",
+        header_row: tb.headerRow + 1,
+        rows: tb.rows.length,
+        columns: tb.headers.length,
+        mapped: Object.keys(tb.mapping).sort()
+      });
+    }
+
+    var cleanProducts = [];
+    for (i = 0; i < products.length; i++) {
+      var cp = {};
+      for (k in products[i]) if (products[i].hasOwnProperty(k) && k.charAt(0) !== "_") cp[k] = products[i][k];
+      cleanProducts.push(cp);
+    }
+
+    var now = new Date();
+    function pad(n) { return (n < 10 ? "0" : "") + n; }
+    return {
+      generated_at: now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate()) +
+        " " + pad(now.getHours()) + ":" + pad(now.getMinutes()),
+      headline: headline,
+      totals: totals,
+      markets: markets,
+      signals: signals,
+      signal_counts: signalCounts,
+      signal_labels: SIGNAL_LABELS,
+      issues: issues,
+      files: files,
+      note: note || "",
+      products: cleanProducts
+    };
+  }
+
+  /* ── 테스트에서 쓰는 공개 API ─────────────────────────────── */
+  return {
+    UserError: UserError,
+    inflateRaw: inflateRaw,
+    unzip: unzip,
+    readXlsx: readXlsx,
+    decodeBytes: decodeBytes,
+    parseCsvText: parseCsvText,
+    loadTable: loadTable,
+    guessMarket: guessMarket,
+    guessMapping: guessMapping,
+    normalizeStatus: normalizeStatus,
+    analyze: analyze,
+    toNumber: toNumber,
+    normName: normName,
+    signalState: signalState,
+    signalLine: signalLine,
+    MARKETS: MARKETS,
+    SIGNAL_LABELS: SIGNAL_LABELS,
+    SIGNAL_ICONS: SIGNAL_ICONS,
+    STATUS: { ON: STATUS_ON, OFF: STATUS_OFF, REJECT: STATUS_REJECT, WAIT: STATUS_WAIT, SOLD: STATUS_SOLD, END: STATUS_END, OTHER: STATUS_OTHER }
+  };
+})();
+
+</script>
+<script>
+/* =============================================================================
+   내 마켓 현황판 — 화면 (폰 전용 PWA)
+   · 파일은 폰 안에서만 읽습니다(서버 전송 없음)
+   · 결과와 원본은 브라우저 저장소(IndexedDB)에 남아 앱을 껐다 켜도 유지됩니다
+   ============================================================================= */
+(function () {
+  "use strict";
+
+  var SAMPLES = [
+    {"name":"샘플_스마트스토어_상품목록.xlsx","market":"smartstore","b64":"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"},
+    {"name":"샘플_쿠팡_등록상품.xlsx","market":"coupang","b64":"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"},
+    {"name":"샘플_G마켓_상품목록.csv","market":"gmarket","b64":"RVNNIFBMVVMgu/PHsLjxt88gKLv5x8MpIC0gv6y9wL/rILChu/MgtaXAzMXNDQq758DMxq4su/PHsLn4yKMsu/PHsLjtLMbHuMWwoSzA57DtvPa3rizGx7jFu/PFwizEq8XXsO24riy/+LvqwfYNCsH2uLbEzyxHTS0zMDAxLLv5x8MgwK+4riC6uLD8v+ux4iAzwb4sMTQ1MDAsMTYsxse4xcHfLMHWuea/68ewLMDPursNCsH2uLbEzyxHTS0zMDAyLLv5x8MgtOuzqrmrILW1uLYsOTkwMCwyMSzGx7jFwd8swda55r/rx7AsseLFuA0Kwfa4tsTPLEdNLTMwMDMsu/nHwyC41sa8ILz2s7PH1Cw3NTAwLDAsxse4xcHfwfYsu/3IsL/rx7Aswd+xuQ0Kwfa4tsTPLEdNLTMwMDQsu/nHwyC5q7yxILnMtM8gvLHHs7HiLDE5OTAwLDYsxse4xcHfLLv9yLC/68ewLMHfsbkNCg=="},
+    {"name":"샘플_옥션_상품목록.csv","market":"auction","b64":"RVNNIFBMVVMgu/PHsLjxt88gKLv5x8MpIC0gv6y9wL/rILChu/MgtaXAzMXNDQq758DMxq4su/PHsLn4yKMsu/PHsLjtLMbHuMWwoSzA57DtvPa3rizGx7jFu/PFwizEq8XXsO24riy/+LvqwfYNCr/BvMcsQVUtNDAwMSy7+cfDIMCvuK4guriw/L/rseIgM8G+LDE0NTAwLDksxse4xcHfLMHWuea/68ewLMDPursNCr/BvMcsQVUtNDAwMiy7+cfDILTrs6q5qyC1tbi2LDk5MDAsNCzGx7jFwd8swda55r/rx7AswM+6uw0Kv8G8xyxBVS00MDAzLLv5x8MguNbGvCC89rOzx9QsNzUwMCwyLMbHuMXB3yy7/ciwv+vHsCzB37G5DQo="},
+    {"name":"샘플_11번가_상품목록.csv","market":"eleven","b64":"77u/7IOB7ZKI67KI7Zi4LOyDge2SiOuqhSztjJDrp6TqsIAs7J6s6rOg7IiY65+JLO2MkOunpOyDge2DnCzsubTthYzqs6Drpqws7JuQ7IKw7KeADQoxMS01MDAxLOyDmO2UjCDrrLTshKAg66+464uIIOyEoO2Sjeq4sCwxOTkwMCwxMSztjJDrp6TspJEs7IOd7Zmc7Jqp7ZKILOykkeq1rQ0KMTEtNTAwMizsg5jtlIwg7KCR7J207IudIOyImOuCqSDrsJTqtazri4gsOTkwMCw3LO2MkOunpOykkSzsg53tmZzsmqntkogs7KSR6rWtDQoxMS01MDAzLOyDmO2UjCDsi6TrpqzsvZgg7KO867Cp66ek7Yq4LDkyMDAsMyztjJDrp6TspJEs7KO867Cp7Jqp7ZKILOykkeq1rQ0K"}
+  ];
+  var VERSION = "1.0";
+  var S = {
+    files: [],
+    result: null,
+    filter: { q: "", market: "", status: "", warn: "" },
+    tab: "board",
+    busy: false
+  };
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (v) {
+    return String(v === null || v === undefined ? "" : v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  };
+  var num = function (v) {
+    return (typeof v === "number" && isFinite(v)) ? v.toLocaleString("ko-KR") : "-";
+  };
+  var won = function (v) {
+    return (typeof v === "number" && isFinite(v)) ? v.toLocaleString("ko-KR") + "원" : "-";
+  };
+
+  /* ── 저장소 (IndexedDB) ─────────────────────────────────── */
+  var DB_NAME = "market-board-db", DB_VER = 1, dbPromise = null;
+  function dbOpen() {
+    if (dbPromise) return dbPromise;
+    dbPromise = new Promise(function (resolve, reject) {
+      if (!window.indexedDB) { reject(new Error("이 브라우저는 저장 공간을 지원하지 않아요.")); return; }
+      var req = indexedDB.open(DB_NAME, DB_VER);
+      req.onupgradeneeded = function () {
+        var db = req.result;
+        if (!db.objectStoreNames.contains("files")) db.createObjectStore("files", { keyPath: "id" });
+        if (!db.objectStoreNames.contains("meta")) db.createObjectStore("meta");
+      };
+      req.onsuccess = function () { resolve(req.result); };
+      req.onerror = function () { reject(req.error || new Error("저장 공간을 열지 못했어요.")); };
+    });
+    return dbPromise;
+  }
+  function tx(store, mode) {
+    return dbOpen().then(function (db) {
+      return db.transaction(store, mode).objectStore(store);
+    });
+  }
+  function dbPutFile(rec) {
+    var copy = { id: rec.id, name: rec.name, market: rec.market || "", added: rec.added,
+      bytes: rec.bytes, error: rec.error || "" };
+    return tx("files", "readwrite").then(function (st) {
+      return new Promise(function (res, rej) {
+        var r = st.put(copy);
+        r.onsuccess = function () { res(); };
+        r.onerror = function () { rej(r.error); };
+      });
+    });
+  }
+  function dbDelFile(id) {
+    return tx("files", "readwrite").then(function (st) {
+      return new Promise(function (res) { var r = st.delete(id); r.onsuccess = function () { res(); }; r.onerror = function () { res(); }; });
+    });
+  }
+  function dbAllFiles() {
+    return tx("files", "readonly").then(function (st) {
+      return new Promise(function (res, rej) {
+        var r = st.getAll();
+        r.onsuccess = function () { res(r.result || []); };
+        r.onerror = function () { rej(r.error); };
+      });
+    });
+  }
+  function dbGetMeta(key) {
+    return tx("meta", "readonly").then(function (st) {
+      return new Promise(function (res) {
+        var r = st.get(key);
+        r.onsuccess = function () { res(r.result === undefined ? null : r.result); };
+        r.onerror = function () { res(null); };
+      });
+    });
+  }
+  function dbSetMeta(key, value) {
+    return tx("meta", "readwrite").then(function (st) {
+      return new Promise(function (res) {
+        var r = st.put(value, key);
+        r.onsuccess = function () { res(); };
+        r.onerror = function () { res(); };
+      });
+    });
+  }
+  function dbClear() {
+    return dbOpen().then(function (db) {
+      return new Promise(function (res) {
+        var t = db.transaction(["files", "meta"], "readwrite");
+        t.objectStore("files").clear();
+        t.objectStore("meta").clear();
+        t.oncomplete = function () { res(); };
+        t.onerror = function () { res(); };
+      });
+    });
+  }
+
+  function nowText() {
+    var d = new Date(), p = function (n) { return (n < 10 ? "0" : "") + n; };
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+  }
+  function newId() {
+    return "f" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+  function b64bytes(b64) {
+    var bin = atob(b64), out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out.buffer;
+  }
+
+  /* ── 알림 ──────────────────────────────────────────────── */
+  function toast(msg, kind) {
+    var box = $("toasts");
+    box.innerHTML = "";
+    var el = document.createElement("div");
+    el.className = "toast " + (kind || "");
+    el.textContent = msg;
+    box.appendChild(el);
+    setTimeout(function () { el.style.opacity = "0"; el.style.transition = "opacity .3s"; }, 3200);
+    setTimeout(function () { el.remove(); }, 3600);
+  }
+  function setBusy(text) {
+    S.busy = !!text;
+    var el = $("busy");
+    if (!el) return;
+    if (text) { el.textContent = text; el.hidden = false; }
+    else { el.hidden = true; el.textContent = ""; }
+    document.body.classList.toggle("is-busy", !!text);
+  }
+
+  /* ── 탭 ────────────────────────────────────────────────── */
+  function switchTab(name) {
+    S.tab = name;
+    var tabs = document.querySelectorAll(".tab");
+    for (var i = 0; i < tabs.length; i++) {
+      var on = tabs[i].getAttribute("data-tab") === name;
+      tabs[i].classList.toggle("on", on);
+      tabs[i].setAttribute("aria-selected", on ? "true" : "false");
+    }
+    var panels = document.querySelectorAll(".panel");
+    for (var j = 0; j < panels.length; j++) {
+      panels[j].classList.toggle("on", panels[j].id === "tab-" + name);
+    }
+    window.scrollTo({ top: 0, behavior: "auto" });
+    try { localStorage.setItem("mb_tab", name); } catch (e) { /* 무시 */ }
+  }
+
+  /* ── 파일 넣기 ─────────────────────────────────────────── */
+  function siteValues(table) {
+    var idx = table.mapping.site;
+    if (idx === undefined) return [];
+    var out = [], n = Math.min(table.rows.length, 300);
+    for (var i = 0; i < n; i++) {
+      var v = table.rows[i][idx];
+      if (v !== undefined && String(v).trim()) out.push(String(v).trim());
+    }
+    return out;
+  }
+
+  function parseFile(name, buffer) {
+    var table = MKT.loadTable(name, new Uint8Array(buffer));
+    return { table: table, market: MKT.guessMarket(name, table.headers, siteValues(table)) };
+  }
+
+  function addFileRecords(items) {
+    // items: [{name, bytes, marketServer?}]
+    var failed = [];
+    setBusy("파일을 읽는 중… (" + items.length + "개)");
+    var chain = Promise.resolve();
+    items.forEach(function (it) {
+      chain = chain.then(function () {
+        var rec = { id: newId(), name: it.name, market: it.market || "", added: nowText(), bytes: it.bytes, error: "" };
+        try {
+          var parsed = parseFile(it.name, it.bytes);
+          rec._parsed = parsed.table;
+          rec.market = it.market || parsed.market;
+        } catch (e) {
+          rec.error = e && e.message ? e.message : String(e);
+          if (!rec.market) rec.market = MKT.guessMarket(it.name, [], []);
+          failed.push(it.name + ": " + rec.error);
+        }
+        S.files.push(rec);
+        return dbPutFile(rec).catch(function () { /* 저장 실패해도 화면은 계속 */ });
+      });
+    });
+    return chain.then(function () {
+      return analyzeAndRender();
+    }).then(function () {
+      setBusy("");
+      if (failed.length) toast(failed[0], "bad");
+      else toast(items.length + "개 파일을 넣었어요. 신호등을 확인해 보세요.", "ok");
+    });
+  }
+
+  function handleFiles(fileList) {
+    var arr = [], i;
+    for (i = 0; i < fileList.length; i++) arr.push(fileList[i]);
+    if (!arr.length) return;
+    var tooBig = arr.filter(function (f) { return f.size > 40 * 1024 * 1024; });
+    if (tooBig.length) {
+      toast(tooBig[0].name + ": 40MB가 넘는 파일은 폰에서 열기 어려워요.", "bad");
+      arr = arr.filter(function (f) { return f.size <= 40 * 1024 * 1024; });
+      if (!arr.length) return;
+    }
+    var items = [];
+    var chain = Promise.resolve();
+    arr.forEach(function (f) {
+      chain = chain.then(function () {
+        return f.arrayBuffer().then(function (buf) {
+          items.push({ name: f.name, bytes: buf });
+        });
+      });
+    });
+    chain.then(function () { return addFileRecords(items); }).catch(function (e) {
+      setBusy("");
+      toast("파일을 읽지 못했어요: " + (e && e.message ? e.message : e), "bad");
+    });
+  }
+
+  function addSamples() {
+    var items = [], i;
+    for (i = 0; i < SAMPLES.length; i++) {
+      var s = SAMPLES[i];
+      if (S.files.some(function (f) { return f.name === s.name; })) continue;
+      items.push({ name: s.name, bytes: b64bytes(s.b64), market: s.market });
+    }
+    if (!items.length) { toast("샘플은 이미 들어 있어요. 파일 목록에서 지우고 다시 눌러 보세요."); return; }
+    return addFileRecords(items).then(function () {
+      switchTab("board");
+      toast("샘플 " + items.length + "개를 넣었어요. 불빛과 요약을 눌러 보세요!", "ok");
+    });
+  }
+
+  /* ── 분석 ──────────────────────────────────────────────── */
+  function analyzeAndRender() {
+    var tables = [], problems = [], i;
+    for (i = 0; i < S.files.length; i++) {
+      var f = S.files[i];
+      if (f.error && !f._parsed) { problems.push(f.name + ": " + f.error); continue; }
+      if (!f._parsed) {
+        try {
+          var parsed = parseFile(f.name, f.bytes);
+          f._parsed = parsed.table;
+          if (!f.market) f.market = parsed.market;
+        } catch (e) {
+          f.error = e && e.message ? e.message : String(e);
+          problems.push(f.name + ": " + f.error);
+          continue;
+        }
+      }
+      tables.push({
+        filename: f.name,
+        market: f.market || MKT.guessMarket(f.name, f._parsed.headers, []),
+        table: f._parsed,
+        sheet: f._parsed.sheet || ""
+      });
+    }
+    if (tables.length) {
+      S.result = MKT.analyze(tables, "");
+      dbSetMeta("result", JSON.stringify(S.result)).catch(function () {});
+    } else {
+      S.result = null;
+      dbSetMeta("result", "").catch(function () {});
+    }
+    render();
+    if (problems.length && S.files.length && !tables.length) toast(problems[0], "bad");
+    return Promise.resolve();
+  }
+
+  /* ── 그리기 ────────────────────────────────────────────── */
+  var EMPTY = null;
+  function view() {
+    if (S.result) return S.result;
+    if (!EMPTY) EMPTY = MKT.analyze([]);
+    return EMPTY;
+  }
+
+  function render() {
+    var r = view();
+    var hasData = !!(r.totals.products > 0);
+    $("drop").classList.toggle("compact", hasData);
+    $("emptyHint").hidden = hasData;
+    $("kpis").hidden = !hasData;
+    $("statusSec").hidden = !hasData;
+    $("prodSec").hidden = !hasData;
+
+    $("kpis").innerHTML = [
+      kpi("전체 상품", num(r.totals.products), ""),
+      kpi("판매중", num(r.totals.on), "ok"),
+      kpi("손볼 것", num(r.totals.with_warning), r.totals.with_warning ? "warn" : ""),
+      kpi("중복 의심", num(r.totals.duplicates), r.totals.duplicates ? "bad" : ""),
+      kpi("자료 있는 마켓", num(r.totals.markets) + "<small>곳</small>", ""),
+      kpi("재고 합계", num(r.totals.stock_sum) + "<small>개</small>", "")
+    ].join("");
+
+    var sc = r.signal_counts || {};
+    var bits = [];
+    if (sc.alert) bits.push("확인필요 " + sc.alert + "곳");
+    if (sc.warn) bits.push("주의 " + sc.warn + "곳");
+    if (sc.ok) bits.push("정상 " + sc.ok + "곳");
+    if (sc.empty) bits.push("미등록 " + sc.empty + "곳");
+    $("sigSummary").textContent = bits.join(" · ");
+    $("generatedAt").textContent = r.totals.products ? "· " + r.generated_at + " 기준" : "";
+
+    $("marketCards").innerHTML = (r.signals || []).map(cardHtml).join("");
+    var sumlines = document.querySelectorAll("#marketCards .sumline");
+    for (var i = 0; i < sumlines.length; i++) {
+      (function (el) {
+        function toggle() { el.classList.toggle("open"); el.setAttribute("aria-expanded", el.classList.contains("open") ? "true" : "false"); }
+        el.addEventListener("click", toggle);
+        el.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+        });
+      })(sumlines[i]);
+    }
+
+    $("statusTable").tBodies[0].innerHTML = r.markets.length ? r.markets.map(function (m) {
+      var c = m.counts || {};
+      var dup = (r.issues.duplicates || []).filter(function (d) { return d.market === m.key; }).length;
+      return "<tr><td class='mkcell'><span class='dot' style='background:" + esc(m.color) + "'></span>" + esc(m.label) + "</td>" +
+        "<td>" + num(m.total) + "</td><td class='on'>" + num(c["판매중"] || 0) + "</td>" +
+        "<td>" + num(c["판매중지"] || 0) + "</td><td>" + num(c["승인대기"] || 0) + "</td>" +
+        "<td class='rej'>" + num(c["승인반려"] || 0) + "</td><td>" + num(c["품절"] || 0) + "</td>" +
+        "<td>" + num(m.with_warning) + "</td><td>" + num(dup) + "</td></tr>";
+    }).join("") : "<tr><td colspan='9' class='tdempty'>아직 자료가 없어요</td></tr>";
+
+    $("fileList").innerHTML = S.files.length ? S.files.map(function (f) {
+      var opts = MKT.MARKETS.map(function (m) {
+        return '<option value="' + m.key + '"' + (m.key === f.market ? " selected" : "") + ">" + esc(m.label) + "</option>";
+      }).join("");
+      var meta = f.error ? "⚠ " + esc(f.error) : esc(f.added);
+      return '<div class="fitem' + (f.error ? " bad" : "") + '">' +
+        '<div class="frow"><span class="fname" title="' + esc(f.name) + '">' + esc(f.name) + "</span>" +
+        '<button class="x" data-del="' + esc(f.id) + '" aria-label="이 파일 빼기">✕</button></div>' +
+        '<div class="frow"><select data-fid="' + esc(f.id) + '" class="mksel" aria-label="마켓 바꾸기">' + opts + "</select>" +
+        '<span class="fmeta">' + meta + "</span></div></div>";
+    }).join("") : '<div class="empty small">아직 넣은 파일이 없어요. 위의 <b>[샘플로 먼저 연습]</b>을 눌러 보세요.</div>';
+
+    var dels = document.querySelectorAll("[data-del]");
+    for (i = 0; i < dels.length; i++) {
+      dels[i].addEventListener("click", function (e) {
+        var id = e.currentTarget.getAttribute("data-del");
+        var f = S.files.filter(function (x) { return x.id === id; })[0];
+        if (!confirm("이 파일을 현황판에서 뺄까요?\n(폰에 저장된 사본만 지웁니다. 원본은 마켓에 그대로 있어요)")) return;
+        S.files = S.files.filter(function (x) { return x.id !== id; });
+        dbDelFile(id).catch(function () {});
+        analyzeAndRender();
+        toast((f ? f.name : "파일") + "을 뺐어요.");
+      });
+    }
+    var sels = document.querySelectorAll(".mksel");
+    for (i = 0; i < sels.length; i++) {
+      sels[i].addEventListener("change", function (e) {
+        var id = e.target.getAttribute("data-fid"), val = e.target.value;
+        var f = S.files.filter(function (x) { return x.id === id; })[0];
+        if (!f) return;
+        f.market = val;
+        dbPutFile(f).catch(function () {});
+        analyzeAndRender();
+        toast("마켓을 " + MKT.MARKETS.filter(function (m) { return m.key === val; })[0].label + "로 바꿨어요.");
+      });
+    }
+
+    var fm = $("fMarket"), cur = fm.value;
+    fm.innerHTML = '<option value="">마켓 전체</option>' + r.markets.map(function (m) {
+      return '<option value="' + esc(m.key) + '">' + esc(m.label) + "</option>";
+    }).join("");
+    fm.value = cur;
+
+    renderProducts(r);
+    renderIssues(r);
+
+    var total = issuesTotal(r);
+    var badge = $("tabIssuesN");
+    badge.textContent = total;
+    badge.classList.toggle("zero", !total);
+    $("issuesTop").textContent = total ? total + "건" : "없음";
+  }
+
+  function kpi(label, value, kind) {
+    return '<div class="kpi ' + (kind || "") + '"><div class="lb">' + esc(label) +
+      '</div><div class="vl">' + value + "</div></div>";
+  }
+
+  function cardHtml(m) {
+    var stt = m.state || "empty";
+    var c = m.counts || {};
+    var total = m.total || 0;
+    var seg = [["판매중", "#0f9d58"], ["승인대기", "#f2a30c"], ["승인반려", "#e2361f"], ["판매중지", "#c7ccd4"]];
+    var bar = seg.map(function (s) {
+      var n = c[s[0]] || 0;
+      return n ? '<i style="width:' + (n / Math.max(1, total) * 100).toFixed(2) + "%;background:" + s[1] + '"></i>' : "";
+    }).join("");
+    var mini = stt === "empty" ? '<span class="none">아직 파일 없음</span>'
+      : "<span>판매중 <b>" + num(m.on) + "</b></span>" +
+        "<span>중지 " + num(m.off) + "</span>" +
+        "<span>반려 " + num(m.reject) + "</span>" +
+        "<span>대기 " + num(m.wait) + "</span>";
+    return '<div class="mk sig-' + stt + '">' +
+      '<div class="mktop"><span class="led ' + stt + '" aria-hidden="true"></span>' +
+      '<span class="mkname"><i class="dot" style="background:' + esc(m.color) + '"></i>' + esc(m.label) + "</span>" +
+      '<span class="siglab ' + stt + '">' + esc(m.state_label) + "</span>" +
+      '<span class="mktotal">' + num(total) + "<small>개</small></span></div>" +
+      '<div class="mkmini">' + mini + "</div>" +
+      '<div class="bar">' + bar + "</div>" +
+      '<div class="sumline" role="button" tabindex="0" aria-expanded="false" aria-label="요약 펼치기: ' + esc(m.line) + '">' +
+      '<span class="chip sum">요약</span><span class="stxt">' + esc(m.line) + "</span></div></div>";
+  }
+
+  function statusChip(s) {
+    var cls = { "판매중": "g", "승인반려": "r", "승인대기": "y", "품절": "n", "판매중지": "n" }[s] || "n";
+    return '<span class="chip ' + cls + '">' + esc(s) + "</span>";
+  }
+
+  function renderProducts(r) {
+    var f = S.filter, q = f.q.toLowerCase();
+    var all = r.products || [];
+    var list = all.filter(function (p) {
+      if (q && String(p.name).toLowerCase().indexOf(q) < 0) return false;
+      if (f.market && p.market !== f.market) return false;
+      if (f.status && p.status !== f.status) return false;
+      if (f.warn && !(p.warnings && p.warnings.length)) return false;
+      return true;
+    });
+    $("prodCount").textContent = "· " + list.length.toLocaleString("ko-KR") + " / " + all.length.toLocaleString("ko-KR") + "개";
+    var LIMIT = 200;
+    var html = list.slice(0, LIMIT).map(function (p) {
+      var idx = all.indexOf(p);
+      var w = (p.warnings && p.warnings.length)
+        ? '<span class="chip r">점검 ' + p.warnings.length + "</span>"
+        : "";
+      return '<button class="prow" data-idx="' + idx + '">' +
+        '<span class="pdot" style="background:' + esc(marketColor(p.market)) + '"></span>' +
+        '<span class="ptxt"><span class="pname">' + esc(p.name) + "</span>" +
+        '<span class="pmeta">' + esc(p.market_label) + " · " + won(p.price) +
+        " · 재고 " + (p.stock === null ? "-" : num(p.stock)) + " " + statusChip(p.status) + "</span></span>" +
+        '<span class="pwarn">' + w + "</span></button>";
+    }).join("");
+    var box = $("prodList");
+    box.innerHTML = html || '<div class="empty small">' +
+      (all.length ? "조건에 맞는 상품이 없어요" : "아직 상품이 없어요. 위에서 엑셀을 넣어 주세요.") + "</div>";
+    if (list.length > LIMIT) {
+      box.innerHTML += '<div class="note" style="padding:10px 4px">… ' + (list.length - LIMIT) +
+        "개 더 있어요. 검색으로 좁혀 보세요.</div>";
+    }
+    var btns = box.querySelectorAll(".prow");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener("click", function (e) {
+        var idx = parseInt(e.currentTarget.getAttribute("data-idx"), 10);
+        showDetail(all[idx]);
+      });
+    }
+  }
+
+  function marketColor(key) {
+    for (var i = 0; i < MKT.MARKETS.length; i++) if (MKT.MARKETS[i].key === key) return MKT.MARKETS[i].color;
+    return "#6b7280";
+  }
+
+  function showDetail(p) {
+    if (!p) return;
+    $("detailTitle").textContent = p.name;
+    var w = (p.warnings || []).map(function (x) {
+      return '<div class="w"><b>' + esc(x.k) + (x.f ? " · " + esc(x.f) : "") + "</b>" + esc(x.t) + "</div>";
+    }).join("") || '<div class="note">이 상품에서 걸린 항목이 없어요. 👍</div>';
+    $("detailBody").innerHTML =
+      kv("마켓", p.market_label) + kv("상품번호", p.id || "-") + kv("판매가", won(p.price)) +
+      kv("재고", p.stock === null ? "-" : num(p.stock) + "개") +
+      kv("상태", p.status + (p.status_raw && p.status_raw !== p.status ? " (" + p.status_raw + ")" : "")) +
+      kv("카테고리", p.category || "-") + kv("원산지", p.origin || "-") +
+      (p.reject_reason ? kv("반려사유", p.reject_reason) : "") + kv("파일", p.file || "-") +
+      '<h3 class="sub">점검</h3>' + w;
+    $("detail").classList.add("on");
+    $("detail").setAttribute("aria-hidden", "false");
+  }
+  function kv(k, v) {
+    return '<div class="kv"><span>' + esc(k) + "</span><span>" + esc(v) + "</span></div>";
+  }
+
+  /* ── 손볼 곳 ───────────────────────────────────────────── */
+  function issuesTotal(r) {
+    var iss = r.issues || {};
+    var n = (iss.duplicates || []).length + (iss.stock_zero || []).length + (iss.price || []).length +
+      (iss.origin || []).length + (iss.rejects || []).length;
+    var nr = iss.name_rules || {};
+    for (var k in nr) if (nr.hasOwnProperty(k)) n += nr[k].length;
+    return n;
+  }
+
+  function renderIssues(r) {
+    if (!r.totals.products) {
+      $("issuesBody").innerHTML = '<div class="card"><div class="empty">' +
+        "아직 자료가 없어요.<br>현황판 탭에서 엑셀을 넣거나 <b>샘플로 먼저 연습</b>을 눌러 보세요.</div></div>";
+      return;
+    }
+    var iss = r.issues || {}, out = [];
+    var dup = iss.duplicates || [];
+    out.push(group("🔁", "중복 의심", "같은 마켓에 같은 상품이 두 번", dup.length,
+      dup.map(function (d) {
+        return row(d.market_label, d.name, "같은 상품이 " + d.count + "번 등록됨" + (d.ids && d.ids.length ? " · 번호 " + d.ids.join(", ") : ""));
+      }), "같은 마켓 안에서 겹치는 상품이 없어요. 좋아요!"));
+
+    var nr = [];
+    var nrk = iss.name_rules || {};
+    Object.keys(nrk).forEach(function (k) {
+      nrk[k].forEach(function (it) { nr.push(row(it.market_label, it.name, k + " · " + it.found + " — " + it.text)); });
+    });
+    out.push(group("✍️", "상품명 점검", "과장·효능·금지 문자", nr.length, nr, "상품명에서 걸리는 표현을 찾지 못했어요."));
+
+    var sz = (iss.stock_zero || []).map(function (it) {
+      return row(it.market_label, it.name, "재고 0인데 판매중 — " + it.text);
+    });
+    out.push(group("📦", "재고 0인데 판매중", "주문이 들어오면 취소·패널티", sz.length, sz, "재고 0으로 판매중인 상품이 없어요."));
+
+    var pr = (iss.price || []).map(function (it) {
+      return row(it.market_label, it.name, (it.found || "가격 없음") + " — " + it.text);
+    });
+    out.push(group("💸", "가격 확인 필요", "비었거나 100원 미만", pr.length, pr, "가격이 비었거나 너무 낮은 상품이 없어요."));
+
+    var or = (iss.origin || []).map(function (it) {
+      return row(it.market_label, it.name, (it.found || "비어 있음") + " — " + it.text);
+    });
+    var noOrigin = (r.markets || []).filter(function (m) { return !m.origin_known; }).map(function (m) { return m.label; });
+    out.push(group("🌏", "원산지 표시 확인", "수입 상품은 원산지가 필요", or.length, or,
+      "원산지가 비어 있는 상품이 없어요." + (noOrigin.length ? " (원산지 칸이 없는 파일: " + noOrigin.join(", ") + ")" : "")));
+
+    var rj = (iss.rejects || []).map(function (it) {
+      return row(it.market_label, it.name, it.reason ? "반려 사유: " + it.reason : "사유는 마켓 화면에서 확인하세요");
+    });
+    out.push(group("⛔", "승인반려 상품", "다시 올리기 전에 원인 확인", rj.length, rj, "승인반려 상품이 없어요."));
+
+    var ps = (iss.price_spread || []).map(function (it) {
+      return row("여러 마켓", it.name, it.diff_pct + "% 차이 — " +
+        it.markets.map(function (m) { return m.label + " " + won(m.price); }).join(" / "));
+    });
+    out.push(group("⚖️", "마켓마다 가격이 다른 상품", "15% 이상 벌어지면 확인", ps.length, ps, "마켓 간 가격이 크게 벌어진 상품이 없어요."));
+
+    out.push('<div class="card tipcard"><div class="note">점검 목록을 CSV로 받아 엑셀에서 하나씩 처리할 수 있어요.</div>' +
+      '<button class="tbtn" id="btnCsv">⬇ 점검목록 CSV 저장</button></div>');
+    $("issuesBody").innerHTML = out.join("");
+    $("btnCsv").addEventListener("click", downloadIssuesCsv);
+  }
+
+  function group(icon, title, sub, count, rows, emptyMsg) {
+    if (!count) {
+      return '<div class="card issuegrp"><div class="hd"><span class="ic">' + icon + "</span>" +
+        '<span class="ttl">' + esc(title) + '</span><span class="ct zero">0건</span></div>' +
+        '<div class="note ok">' + esc(emptyMsg) + "</div></div>";
+    }
+    return '<div class="card issuegrp"><div class="hd"><span class="ic">' + icon + "</span>" +
+      '<span class="ttl">' + esc(title) + "</span>" +
+      (sub ? '<span class="sm">' + esc(sub) + "</span>" : "") +
+      '<span class="ct">' + count + "건</span></div>" + rows.slice(0, 150).join("") +
+      (count > 150 ? '<div class="note">…외 ' + (count - 150) + "건 (CSV로 받아 보세요)</div>" : "") + "</div>";
+  }
+  function row(market, name, why) {
+    return '<div class="irow"><div class="mkl">' + esc(market) + '</div><div class="txt"><b>' +
+      esc(name) + '</b><span class="why">' + esc(why) + "</span></div></div>";
+  }
+
+  function downloadIssuesCsv() {
+    var r = view();
+    if (!r.totals.products) { toast("먼저 엑셀을 넣어 주세요", "bad"); return; }
+    var lines = [["구분", "마켓", "상품명", "상품번호", "내용"]];
+    var iss = r.issues;
+    (iss.rejects || []).forEach(function (it) {
+      lines.push(["승인반려", it.market_label, it.name, it.id || "", it.reason || it.status_raw]);
+    });
+    (iss.stock_zero || []).forEach(function (it) { lines.push(["재고0 판매중", it.market_label, it.name, it.id || "", it.text]); });
+    (iss.price || []).forEach(function (it) { lines.push(["가격", it.market_label, it.name, it.id || "", (it.found || "") + " " + it.text]); });
+    (iss.origin || []).forEach(function (it) { lines.push(["원산지", it.market_label, it.name, it.id || "", (it.found || "") + " " + it.text]); });
+    var nr = iss.name_rules || {};
+    Object.keys(nr).forEach(function (k) {
+      nr[k].forEach(function (it) { lines.push(["상품명", it.market_label, it.name, "", k + " " + it.found + " " + it.text]); });
+    });
+    (iss.duplicates || []).forEach(function (it) { lines.push(["중복", it.market_label, it.name, (it.ids || []).join(" "), "같은 상품 " + it.count + "번"]); });
+    (iss.price_spread || []).forEach(function (it) {
+      lines.push(["가격차", "여러 마켓", it.name, "", it.diff_pct + "% (" + it.markets.map(function (m) { return m.label + " " + m.price; }).join(" / ") + ")"]);
+    });
+    var csv = lines.map(function (cells) {
+      return cells.map(function (c) {
+        var t = String(c === null || c === undefined ? "" : c);
+        return /[",\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+      }).join(",");
+    }).join("\r\n");
+    var blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "내마켓현황판_점검목록_" + (r.generated_at || "").replace(/[ .:]/g, "-").replace(/-$/, "") + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+    toast("점검목록 CSV를 저장했어요.", "ok");
+  }
+
+  /* ── 설치 안내 · PWA ───────────────────────────────────── */
+  var installEvent = null;
+  function isStandalone() {
+    return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+      window.navigator.standalone === true;
+  }
+  function updateInstallUi() {
+    var btn = $("btnInstall");
+    if (!btn) return;
+    if (isStandalone()) {
+      btn.textContent = "✅ 앱으로 실행 중";
+      btn.classList.add("done");
+      return;
+    }
+    btn.textContent = installEvent ? "📲 앱으로 설치" : "📲 홈 화면에 추가";
+  }
+  window.addEventListener("beforeinstallprompt", function (e) {
+    e.preventDefault();
+    installEvent = e;
+    updateInstallUi();
+  });
+  window.addEventListener("appinstalled", function () {
+    installEvent = null;
+    updateInstallUi();
+    toast("홈 화면에 설치했어요. 이제 아이콘을 눌러 바로 열 수 있어요.", "ok");
+  });
+
+  function onInstallClick() {
+    if (isStandalone()) { switchTab("guide"); return; }
+    if (installEvent) {
+      installEvent.prompt();
+      installEvent.userChoice.then(function (res) {
+        if (res && res.outcome === "accepted") toast("설치를 시작했어요. 홈 화면을 확인해 보세요.", "ok");
+        installEvent = null;
+        updateInstallUi();
+      }).catch(function () { installEvent = null; updateInstallUi(); });
+      return;
+    }
+    switchTab("guide");
+    var box = $("installBox");
+    if (box) box.classList.add("flash");
+  }
+
+  function registerSW() {
+    if (!("serviceWorker" in navigator)) return;
+    var isFile = location.protocol === "file:";
+    if (isFile) return;
+    navigator.serviceWorker.register("./market-sw.js", { scope: "./market-board" }).then(function (reg) {
+      $("swState").textContent = "오프라인에서도 열려요 (저장됨)";
+      $("swState").className = "swstate ok";
+      if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
+    }).catch(function () {
+      $("swState").textContent = "오프라인 저장은 인터넷 주소로 열 때만 돼요";
+      $("swState").className = "swstate";
+    });
+  }
+
+  function updateOnline() {
+    var off = navigator.onLine === false;
+    $("offlineBar").hidden = !off;
+  }
+  window.addEventListener("online", updateOnline);
+  window.addEventListener("offline", updateOnline);
+
+  /* ── 자료 지우기 ───────────────────────────────────────── */
+  function clearAll() {
+    if (!confirm("이 폰에 저장된 파일과 분석 결과를 모두 지울까요?\n(마켓에 올라간 상품은 그대로예요)")) return;
+    dbClear().catch(function () {}).then(function () {
+      S.files = [];
+      S.result = null;
+      S.filter = { q: "", market: "", status: "", warn: "" };
+      $("q").value = "";
+      analyzeAndRender();
+      toast("이 폰에 저장된 자료를 지웠어요.", "ok");
+      switchTab("board");
+    });
+  }
+
+  /* ── 시작 ──────────────────────────────────────────────── */
+  function bind() {
+    var tabs = document.querySelectorAll(".tab");
+    for (var i = 0; i < tabs.length; i++) {
+      tabs[i].addEventListener("click", function (e) { switchTab(e.currentTarget.getAttribute("data-tab")); });
+    }
+    $("btnPick").addEventListener("click", function (e) { e.stopPropagation(); $("fileInput").click(); });
+    $("fileInput").addEventListener("change", function (e) { handleFiles(e.target.files); e.target.value = ""; });
+    $("btnSample").addEventListener("click", function (e) { e.stopPropagation(); addSamples(); });
+    $("btnSampleEmpty").addEventListener("click", function (e) { e.stopPropagation(); addSamples(); });
+    $("drop").addEventListener("click", function (e) {
+      if (e.target === $("drop") || e.target.classList.contains("dropinner")) $("fileInput").click();
+    });
+    var drop = $("drop");
+    ["dragenter", "dragover"].forEach(function (ev) {
+      drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("over"); });
+    });
+    ["dragleave", "drop"].forEach(function (ev) {
+      drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("over"); });
+    });
+    drop.addEventListener("drop", function (e) {
+      if (e.dataTransfer && e.dataTransfer.files) handleFiles(e.dataTransfer.files);
+    });
+    document.addEventListener("dragover", function (e) { e.preventDefault(); });
+    document.addEventListener("drop", function (e) { e.preventDefault(); });
+
+    $("q").addEventListener("input", function (e) { S.filter.q = e.target.value.trim(); renderProducts(view()); });
+    $("fMarket").addEventListener("change", function (e) { S.filter.market = e.target.value; renderProducts(view()); });
+    $("fStatus").addEventListener("change", function (e) { S.filter.status = e.target.value; renderProducts(view()); });
+    $("fWarn").addEventListener("change", function (e) { S.filter.warn = e.target.value; renderProducts(view()); });
+
+    $("detailClose").addEventListener("click", function () {
+      $("detail").classList.remove("on");
+      $("detail").setAttribute("aria-hidden", "true");
+    });
+    $("detail").addEventListener("click", function (e) {
+      if (e.target === $("detail")) { $("detail").classList.remove("on"); $("detail").setAttribute("aria-hidden", "true"); }
+    });
+    $("btnInstall").addEventListener("click", onInstallClick);
+    $("btnClear").addEventListener("click", clearAll);
+    $("btnGuideFromBoard").addEventListener("click", function () { switchTab("guide"); });
+  }
+
+  function boot() {
+    bind();
+    updateOnline();
+    updateInstallUi();
+    registerSW();
+    try {
+      var t = localStorage.getItem("mb_tab");
+      switchTab(t === "issues" || t === "guide" ? t : "board");
+    } catch (e) { switchTab("board"); }
+    setBusy("저장된 자료를 불러오는 중…");
+    dbAllFiles().then(function (files) {
+      S.files = files || [];
+      return dbGetMeta("result");
+    }).then(function (json) {
+      var useCache = false;
+      if (json) {
+        try { S.result = JSON.parse(json); useCache = !!(S.result && S.result.totals); } catch (e) { useCache = false; }
+      }
+      if (useCache) {
+        setBusy("");
+        render();
+      } else {
+        return analyzeAndRender().then(function () { setBusy(""); });
+      }
+    }).catch(function (e) {
+      setBusy("");
+      render();
+      toast("저장 공간을 열지 못했어요. 이번에 넣은 자료는 창을 닫으면 사라질 수 있어요.", "bad");
+    }).then(function () {
+      if (!S.files.length && !S.result) {
+        setTimeout(function () { if ($("emptyHint")) $("emptyHint").hidden = false; }, 60);
+      }
+    });
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+
+  /* 테스트에서 쓰는 작은 창구 */
+  window.__MB = {
+    state: S,
+    analyze: function () { return analyzeAndRender(); },
+    addSamples: addSamples,
+    files: function () { return S.files; },
+    result: function () { return view(); },
+    clear: function () { S.files = []; S.result = null; return analyzeAndRender(); }
+  };
+})();
+
+</script>
+</body>
+</html>
