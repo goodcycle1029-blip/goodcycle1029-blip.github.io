@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0a0f1c">
 <title>굳사이클 AI 컴퍼니 본사 · 조직도 · 운영 매뉴얼</title>
-<meta name="description" content="굳사이클 AI 컴퍼니 실시간 현황 — 마켓별 수량, 직원별 지금 하는 일, 막힌 곳. 조직도, 부재중 대직표, 보관 위치, 혼자 운영 매뉴얼, 비상 대처까지 폰에서 한 손으로 보는 본사 대시보드.">
+<meta name="description" content="굳사이클 AI 컴퍼니 실시간 현황 — 5대 마켓(스마트스토어·쿠팡·G마켓·옥션·11번가)별 등록·판매중·반려·오늘 주문·손볼 곳 상세, 직원별 지금 하는 일, 막힌 곳. 조직도, 부재중 대직표, 보관 위치, 혼자 운영 매뉴얼, 비상 대처까지 폰에서 한 손으로 보는 본사 대시보드.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="./company-manifest.json">
 <link rel="apple-touch-icon" href="./icon-company-192.png">
@@ -290,6 +290,98 @@
   .bar{height:6px;margin:7px 0 0;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden}
   .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--mn),var(--cy))}
   .mcard .mn{margin-top:5px;font-size:12px;font-weight:700;color:#93a5c6;line-height:1.4}
+
+  /* ---------- 📊 마켓별 상세 (5대 마켓 아코디언) ---------- */
+  .secrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:26px 0 10px}
+  .secrow h2.sec{margin:0}
+  .mini{
+    -webkit-appearance:none;appearance:none;font:inherit;font-size:12px;font-weight:900;cursor:pointer;flex:none;
+    min-height:34px;padding:0 11px;border-radius:10px;border:1px solid rgba(255,255,255,.2);
+    background:rgba(255,255,255,.08);color:#dbe6ff
+  }
+  .mini:active{transform:scale(.97)}
+  .mini:focus-visible{outline:3px solid var(--cy);outline-offset:2px}
+
+  .mk-sum{display:flex;flex-wrap:wrap;gap:6px;padding:0 0 9px;margin-top:-4px}
+  .mk-sum span{
+    flex:none;display:flex;align-items:baseline;gap:5px;padding:5px 9px;border-radius:10px;
+    border:1px solid var(--line);background:rgba(255,255,255,.05);
+    font-size:11px;font-weight:800;color:#a7b6d4;white-space:nowrap
+  }
+  .mk-sum b{font-size:14px;font-weight:900;color:#fff;letter-spacing:-.03em}
+
+  .mkdet{display:grid;gap:9px}
+  .md{
+    border-radius:16px;border:1px solid var(--line);background:var(--card);overflow:hidden;
+    border-left:3px solid rgba(143,240,192,.72)
+  }
+  .md.t-warn{border-left-color:rgba(255,217,138,.9)}
+  .md.t-wait{border-left-color:rgba(126,224,255,.85)}
+  .md.t-bad{border-left-color:rgba(255,157,196,.9)}
+  .md.open{background:rgba(255,255,255,.075)}
+  .md-h{
+    -webkit-appearance:none;appearance:none;font:inherit;color:var(--ink);cursor:pointer;
+    width:100%;display:flex;align-items:center;gap:10px;padding:11px 12px;background:none;border:0;text-align:left;min-height:64px
+  }
+  .md-h:active{background:rgba(255,255,255,.05)}
+  .md-h:focus-visible{outline:3px solid var(--cy);outline-offset:-3px;border-radius:14px}
+  .md-h .e{font-size:18px;line-height:1;flex:none;align-self:flex-start;margin-top:2px}
+  .md-h .tx{min-width:0;flex:1}
+  .md-h .nm{display:block;font-size:15.5px;font-weight:900;letter-spacing:-.02em;line-height:1.25}
+  .md-h .val{display:flex;align-items:baseline;gap:5px;min-width:0;margin-top:1px}
+  .md-h .val b{font-size:22px;font-weight:900;letter-spacing:-.035em;line-height:1.15}
+  .md-h .val b.word{font-size:16px;letter-spacing:-.02em;color:#d9fff0}
+  .md-h .val i{font-style:normal;font-size:11.5px;font-weight:800;color:#9fb1d2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .md-h .sub{display:block;margin-top:1px;font-size:11px;font-weight:700;color:#8698bd;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .md-h .cv{flex:none;width:18px;text-align:center;font-size:12px;color:#8fa2c4;transition:transform .2s}
+  .md.open .md-h .cv{transform:rotate(180deg)}
+
+  .ring{position:relative;flex:none;width:46px;height:46px;display:grid;place-items:center}
+  .ring svg{position:absolute;inset:0;width:46px;height:46px;transform:rotate(-90deg)}
+  .ring circle{fill:none;stroke-width:3.6}
+  .ring .bg{stroke:rgba(255,255,255,.16)}
+  .ring .fg{stroke:var(--mn);stroke-linecap:round}
+  .md.t-warn .ring .fg{stroke:var(--gd)}
+  .md.t-wait .ring .fg{stroke:var(--cy)}
+  .md.t-bad .ring .fg{stroke:var(--pk)}
+  .ring b{position:relative;font-size:10.5px;font-weight:900;letter-spacing:-.05em;color:#eaf1ff;line-height:1}
+
+  .md-b{display:none;padding:10px 12px 13px;border-top:1px solid rgba(255,255,255,.08)}
+  .md.open .md-b{display:block}
+  .md-meter{margin:0 0 9px}
+  .md-meter .top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-size:11px;font-weight:800;color:#a7b6d4;margin-bottom:4px}
+  .md-meter .top b{font-size:11.5px;font-weight:900;color:#fff;white-space:nowrap}
+  .md-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 0 9px}
+  .md-stats div{padding:7px 9px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);min-width:0}
+  .md-stats i{display:block;font-style:normal;font-size:10.5px;font-weight:800;color:#93a5c6;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .md-stats b{display:block;margin-top:1px;font-size:16.5px;font-weight:900;letter-spacing:-.03em;line-height:1.25}
+  .md-stats .ok b{color:#a8f7cf}
+  .md-stats .warn b{color:#ffe6b8}
+  .md-stats .bad b{color:#ffd0e2}
+
+  .md-ord{display:flex;gap:8px;padding:9px 10px;border-radius:11px;margin:0 0 9px;background:rgba(126,224,255,.08);border:1px solid rgba(126,224,255,.26)}
+  .md-ord .tt{flex:none;height:17px;margin-top:1px;padding:0 6px;border-radius:5px;background:#8ee6ff;color:#08202b;font-size:10px;font-weight:900;line-height:17px;letter-spacing:-.01em}
+  .md-ord .tx{min-width:0}
+  .md-ord b{display:block;font-size:13.5px;font-weight:900;line-height:1.35;color:#eaf7ff;letter-spacing:-.01em}
+  .md-ord p{margin:2px 0 0;font-size:11.5px;font-weight:700;color:#b7d7e8;line-height:1.45}
+  .md-ord ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:3px}
+  .md-ord li{position:relative;padding-left:11px;font-size:11.5px;font-weight:700;color:#d5e9f5;line-height:1.45;overflow-wrap:anywhere}
+  .md-ord li::before{content:'';position:absolute;left:2px;top:6px;width:4px;height:4px;border-radius:50%;background:#8ee6ff}
+  .md-ord li b{display:inline;font-size:11px;font-weight:900;color:#8ee6ff}
+
+  .md-iss{display:grid;gap:5px;margin:0 0 9px}
+  .md-iss div{display:flex;gap:6px;font-size:12px;font-weight:700;line-height:1.45;color:#dbe6f8;overflow-wrap:anywhere}
+  .md-iss .d{flex:none;width:6px;height:6px;border-radius:50%;margin-top:7px;background:#8fb3d9}
+  .md-iss .ok .d{background:#5cffae}
+  .md-iss .warn .d{background:#ffd98a}
+  .md-iss .bad .d{background:#ff5d72}
+  .md-iss .info .d{background:#7ee0ff}
+
+  .md-foot{margin:0;font-size:10.5px;font-weight:800;color:#8698bd;line-height:1.4}
+  .md-chg{list-style:none;margin:4px 0 0;padding:0;display:grid;gap:3px}
+  .md-chg li{position:relative;padding-left:9px;font-size:11.5px;font-weight:700;color:#a7b6d4;line-height:1.45;overflow-wrap:anywhere}
+  .md-chg li::before{content:'';position:absolute;left:1px;top:7px;width:4px;height:1px;background:rgba(255,255,255,.4)}
+  .md-note{margin:9px 0 0;padding:7px 9px;border-radius:9px;font-size:11.5px;font-weight:700;color:#9fb1d2;line-height:1.45;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
 
   .st-staff{display:grid;gap:8px}
   .scard{border-radius:15px;border:1px solid var(--line);background:var(--card);padding:11px 13px}
@@ -655,8 +747,12 @@
 
     <p class="lead" id="stHeadline">현황을 불러오는 중…</p>
 
-    <h2 class="sec">마켓별 현재 수량</h2>
-    <div class="mk" id="stMarkets" aria-live="polite"></div>
+    <div class="secrow">
+      <h2 class="sec">마켓별 상세 현황</h2>
+      <button type="button" class="mini" id="stMkAll" aria-pressed="false">모두 펼치기</button>
+    </div>
+    <div class="mk-sum" id="stOverview" aria-label="전체 요약"></div>
+    <div class="mkdet" id="stMarkets" aria-live="polite"></div>
 
     <h2 class="sec">직원별 지금 하는 일</h2>
     <div class="st-staff" id="stStaff" aria-live="polite"></div>
@@ -2284,7 +2380,130 @@
     }
   }
 
+  /* ---------- 📊 마켓별 상세 카드(5대 마켓) ---------- */
+  var mdOpen = {coupang: true};
+  var lastStatus = null;
+
+  function ring(pct){
+    var C = 2 * Math.PI * 15.2;
+    var p = Math.max(0, Math.min(100, Math.round((Number(pct) || 0) * 10) / 10));
+    var off = C * (1 - p / 100);
+    return '<span class="ring" role="img" aria-label="' + p + '%"><svg viewBox="0 0 36 36" aria-hidden="true" focusable="false">' +
+      '<circle class="bg" cx="18" cy="18" r="15.2"></circle>' +
+      '<circle class="fg" cx="18" cy="18" r="15.2" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '"></circle>' +
+      '</svg><b>' + p + '%</b></span>';
+  }
+
+  /* 상세 필드가 없는 예전 status.json 도 그대로 그릴 수 있게 */
+  function mdFromSummary(list){
+    return (list || []).map(function(m){
+      var pct = (m.on_sale != null && m.limit) ? Math.round(m.on_sale / m.limit * 1000) / 10 : 0;
+      var sub = [];
+      if (m.limit) sub.push('한도 ' + num(m.limit));
+      if (m.total != null) sub.push('전체 ' + num(m.total));
+      return {
+        key: m.name, name: m.name, icon: m.icon, tone: m.tone,
+        headline: { value: m.status_label ? null : num(m.on_sale), label: m.status_label || '판매중', sub: sub.join(' · ') },
+        meter: m.limit ? { label: '한도 사용률', pct: pct, text: num(m.on_sale) + ' / ' + num(m.limit) } : null,
+        stats: [], order: null,
+        issues: m.note ? [{ tone: 'info', text: m.note }] : [],
+        checked: '', changes: []
+      };
+    });
+  }
+
+  function renderMarkets(d){
+    var box = document.getElementById('stMarkets');
+    if (!box) return;
+    var list = (d.markets_detail && d.markets_detail.length) ? d.markets_detail : mdFromSummary(d.markets);
+    var h = '';
+    list.forEach(function(m){
+      var key = m.key || m.name;
+      var tone = m.tone || 'ok';
+      var open = !!mdOpen[key];
+      var hl = m.headline || {};
+      h += '<article class="md t-' + esc(tone) + (open ? ' open' : '') + '" data-k="' + esc(key) + '">';
+      h += '<button type="button" class="md-h" data-k="' + esc(key) + '" aria-expanded="' + (open ? 'true' : 'false') + '" aria-controls="mdb-' + esc(key) + '">';
+      h += '<span class="e" aria-hidden="true">' + esc(m.icon || '🛒') + '</span>';
+      h += '<span class="tx"><span class="nm">' + esc(m.name) + '</span>';
+      if (hl.value != null && hl.value !== ''){
+        h += '<span class="val"><b>' + esc(hl.value) + '</b><i>' + esc(hl.label || '') + '</i></span>';
+      } else {
+        h += '<span class="val"><b class="word">' + esc(hl.label || '') + '</b></span>';
+      }
+      if (hl.sub) h += '<span class="sub">' + esc(hl.sub) + '</span>';
+      h += '</span>';
+      if (m.meter) h += ring(m.meter.pct);
+      h += '<span class="cv" aria-hidden="true">▾</span></button>';
+      h += '<div class="md-b" id="mdb-' + esc(key) + '">';
+
+      if (m.meter){
+        var mp = Math.max(0, Math.min(100, Math.round((Number(m.meter.pct) || 0) * 10) / 10));
+        h += '<div class="md-meter"><div class="top"><span>' + esc(m.meter.label || '') + '</span><b>' + esc(m.meter.text || '') + '</b></div>' +
+             '<div class="bar"><i style="width:' + mp + '%"></i></div></div>';
+      }
+      if (m.stats && m.stats.length){
+        h += '<div class="md-stats">';
+        m.stats.forEach(function(s){
+          h += '<div class="' + esc(s.tone || '') + '"><i>' + esc(s.label) + '</i><b>' + esc(s.value) + '</b></div>';
+        });
+        h += '</div>';
+      }
+      var o = m.order;
+      if (o){
+        h += '<div class="md-ord"><span class="tt">' + esc(o.tag || '오늘 주문') + '</span><span class="tx"><b>' + esc(o.value || '') + '</b>';
+        if (o.note) h += '<p>' + esc(o.note) + '</p>';
+        if (o.steps && o.steps.length){
+          h += '<ul>';
+          o.steps.forEach(function(st){
+            h += '<li>' + (st.time ? '<b>' + esc(st.time) + '</b> ' : '') + esc(st.text) + '</li>';
+          });
+          h += '</ul>';
+        }
+        h += '</span></div>';
+      }
+      if (m.issues && m.issues.length){
+        h += '<div class="md-iss">';
+        m.issues.forEach(function(it){
+          h += '<div class="' + esc(it.tone || 'info') + '"><span class="d" aria-hidden="true"></span><span>' + esc(it.text) + '</span></div>';
+        });
+        h += '</div>';
+      }
+      if (m.checked) h += '<div class="md-foot">🕒 마지막 점검 ' + esc(m.checked) + '</div>';
+      if (m.changes && m.changes.length){
+        h += '<ul class="md-chg">';
+        m.changes.forEach(function(c){ h += '<li>' + esc(c) + '</li>'; });
+        h += '</ul>';
+      }
+      if (m.note) h += '<p class="md-note">' + esc(m.note) + '</p>';
+      h += '</div></article>';
+    });
+    box.innerHTML = h;
+
+    var ov = document.getElementById('stOverview');
+    if (ov){
+      var ho = '';
+      (d.overview || []).forEach(function(x){
+        ho += '<span>' + esc(x.label) + ' <b>' + esc(x.value) + '</b></span>';
+      });
+      ov.innerHTML = ho;
+      ov.style.display = ho ? '' : 'none';
+    }
+    syncMkAll();
+  }
+
+  function syncMkAll(){
+    var btn = document.getElementById('stMkAll');
+    var box = document.getElementById('stMarkets');
+    if (!btn || !box) return;
+    var all = box.querySelectorAll('.md');
+    var full = all.length > 0 && box.querySelectorAll('.md.open').length === all.length;
+    btn.textContent = full ? '모두 접기' : '모두 펼치기';
+    btn.setAttribute('aria-pressed', full ? 'true' : 'false');
+  }
+
   function renderStatus(d){
+    lastStatus = d;
     var up = document.getElementById('stUpdated');
     var head = document.getElementById('stHeadline');
     var mk = document.getElementById('stMarkets');
@@ -2297,31 +2516,7 @@
     if (note) note.textContent = d.note || '';
 
     if (mk){
-      var h = '';
-      (d.markets || []).forEach(function(m){
-        var tone = m.tone || 'ok';
-        h += '<div class="mcard t-' + esc(tone) + '">';
-        h += '<div class="mh"><span class="e" aria-hidden="true">' + esc(m.icon || '🛒') + '</span><span class="nm">' + esc(m.name) + '</span></div>';
-        if (m.status_label){
-          h += '<div class="mv"><span class="lab">' + esc(m.status_label) + '</span></div>';
-        } else {
-          h += '<div class="mv"><span class="n">' + num(m.on_sale) + '</span>' +
-               (m.limit ? '<span class="lim"> / ' + num(m.limit) + '</span>' : '') + '</div>';
-        }
-        var sub = [];
-        if (!m.status_label) sub.push('판매중');
-        if (m.pending) sub.push('<b>대기 ' + num(m.pending) + '</b>');
-        if (m.limit) sub.push('한도 ' + num(m.limit));
-        if (m.total != null && m.total !== m.on_sale && m.total !== m.limit) sub.push('전체 ' + num(m.total));
-        if (sub.length) h += '<div class="ms">' + sub.join(' · ') + '</div>';
-        if (m.on_sale != null && m.limit){
-          var pct = Math.min(100, Math.round(m.on_sale / m.limit * 1000) / 10);
-          h += '<div class="bar" role="img" aria-label="한도 대비 ' + pct + '%"><i style="width:' + pct + '%"></i></div>';
-        }
-        if (m.note) h += '<div class="mn">' + esc(m.note) + '</div>';
-        h += '</div>';
-      });
-      mk.innerHTML = h;
+      renderMarkets(d);
     }
 
     if (stf){
@@ -2434,6 +2629,40 @@
 
   var stRefresh = document.getElementById('stRefresh');
   if (stRefresh) stRefresh.addEventListener('click', loadStatus);
+
+  /* 마켓 상세 카드 — 누르면 펼침/접힘 (다시 그려도 펼친 상태 유지) */
+  var stMkBox = document.getElementById('stMarkets');
+  if (stMkBox){
+    stMkBox.addEventListener('click', function(e){
+      var t = e.target, btn = null;
+      while (t && t !== stMkBox){
+        if (t.classList && t.classList.contains('md-h')) { btn = t; break; }
+        t = t.parentNode;
+      }
+      if (!btn) return;
+      var k = btn.getAttribute('data-k');
+      mdOpen[k] = !mdOpen[k];
+      var art = btn.parentNode;
+      if (art && art.classList) art.classList.toggle('open', !!mdOpen[k]);
+      btn.setAttribute('aria-expanded', mdOpen[k] ? 'true' : 'false');
+      syncMkAll();
+    });
+  }
+  var stMkAll = document.getElementById('stMkAll');
+  if (stMkAll) stMkAll.addEventListener('click', function(){
+    var box = document.getElementById('stMarkets');
+    if (!box) return;
+    var cards = [].slice.call(box.querySelectorAll('.md'));
+    var full = cards.length > 0 && box.querySelectorAll('.md.open').length === cards.length;
+    cards.forEach(function(a){
+      var k = a.getAttribute('data-k');
+      mdOpen[k] = !full;
+      a.classList.toggle('open', !full);
+      var hb = a.querySelector('.md-h');
+      if (hb) hb.setAttribute('aria-expanded', full ? 'false' : 'true');
+    });
+    syncMkAll();
+  });
   loadStatus();
   /* 현황 탭·조직도 탭을 보고 있을 때만 90초마다 조용히 새로 받음 */
   setInterval(function(){
