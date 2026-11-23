@@ -344,6 +344,51 @@
   .tnode.boss{border-color:rgba(126,224,255,.5);background:linear-gradient(120deg,rgba(126,224,255,.16),rgba(255,255,255,.04))}
   .tnode.sup{border-style:dashed;border-color:rgba(179,160,255,.62);background:linear-gradient(120deg,rgba(179,160,255,.14),rgba(255,255,255,.04))}
 
+  /* ---------- 🚦 실시간 신호등(직원 카드 불빛 + 지금 하는 일) ---------- */
+  .tnode{position:relative}
+  .tnode .led{
+    position:absolute;top:9px;right:10px;width:11px;height:11px;border-radius:50%;
+    background:rgba(255,255,255,.22);box-shadow:0 0 0 2px rgba(10,15,28,.55)
+  }
+  .tnode.st-working,.tnode.st-error,.tnode.st-idle{padding-right:24px}
+  .tnode.st-working .row1,.tnode.st-error .row1,.tnode.st-idle .row1{padding-right:8px}
+  .tnode.st-working{box-shadow:0 0 0 1px rgba(63,245,154,.34),0 0 18px rgba(63,245,154,.20)}
+  .tnode.st-working .led{background:#5cffae;animation:ledWork 1.9s ease-in-out infinite}
+  .tnode.st-error{box-shadow:0 0 0 1px rgba(255,77,100,.44),0 0 20px rgba(255,77,100,.26)}
+  .tnode.st-error .led{background:#ff5d72;animation:ledErr 1.1s ease-in-out infinite}
+  .tnode.st-idle .led{background:#8fb3d9}
+  @keyframes ledWork{
+    0%,100%{background:#3ff09a;box-shadow:0 0 0 2px rgba(10,15,28,.55),0 0 6px 1px rgba(63,245,154,.70)}
+    50%{background:#c8ffe2;box-shadow:0 0 0 2px rgba(10,15,28,.55),0 0 0 6px rgba(63,245,154,.18),0 0 16px 5px rgba(63,245,154,.92)}
+  }
+  @keyframes ledErr{
+    0%,100%{background:#ff3f57;box-shadow:0 0 0 2px rgba(10,15,28,.55),0 0 6px 1px rgba(255,77,100,.75)}
+    50%{background:#ffc3cb;box-shadow:0 0 0 2px rgba(10,15,28,.55),0 0 0 7px rgba(255,77,100,.20),0 0 18px 6px rgba(255,77,100,.95)}
+  }
+  .tnode .tlive{
+    margin:7px -2px 0;display:flex;align-items:center;gap:6px;min-width:0;
+    font-size:12.5px;font-weight:800;line-height:1.35;color:#c9d8ef;cursor:pointer
+  }
+  .tnode .tlive .lk{
+    flex:none;font-size:10px;font-weight:900;letter-spacing:.03em;color:#08200f;
+    background:#8ff0c0;border-radius:5px;padding:1px 4px
+  }
+  .tnode.st-error .tlive .lk{background:#ffa3b1;color:#2a0710}
+  .tnode.st-idle .tlive .lk{background:#a9c3e2;color:#0b1526}
+  .tnode .tlive .lw{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tnode .tlive.open .lw{white-space:normal;overflow-wrap:anywhere}
+
+  /* 상단 색상 범례 한 줄 */
+  .siglegend{
+    display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;margin:2px 0 9px;
+    font-size:12.5px;font-weight:900;color:#c3d2ea
+  }
+  .siglegend span{display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .siglegend i{width:10px;height:10px;border-radius:50%;flex:none;background:#8fb3d9}
+  .siglegend i.w{background:#5cffae;animation:ledWork 1.9s ease-in-out infinite}
+  .siglegend i.e{background:#ff5d72;animation:ledErr 1.1s ease-in-out infinite}
+  .siglegend em{margin-left:auto;font-style:normal;font-size:11.5px;font-weight:800;color:#8698bd;white-space:nowrap}
+
   /* 기본(폰): 세로 들여쓰기 나무 */
   .tree ul:not(.t-duties){padding-left:14px}
   .tree ul:not(.t-duties)>li{position:relative;padding-left:16px}
@@ -528,6 +573,13 @@
     <div class="tbar">
       <button type="button" class="tbtn" id="orgWide">↔️ 가로 계통도로 보기</button>
       <span class="thint">폰에서는 세로 나무, 넓게 보려면 위 버튼</span>
+    </div>
+
+    <div class="siglegend" id="sigLegend" aria-label="직원 상태 색상 안내">
+      <span><i class="w" aria-hidden="true"></i>🟢 작업중</span>
+      <span><i class="e" aria-hidden="true"></i>🔴 확인필요</span>
+      <span><i aria-hidden="true"></i>⚪ 대기·완료</span>
+      <em id="sigUpdated">불러오는 중…</em>
     </div>
 
     <div class="orgtree" id="orgTree" aria-label="조직 계통도">
@@ -955,7 +1007,22 @@
 
   /* ---------- 📊 실시간 현황 (status.json) ---------- */
   var stBusy = false;
-  var STATE_CLASS = {'진행중':'run','대기':'wait','막힘':'blk','완료':'done','방금 완료':'done'};
+  /* 직원 상태 — 한글 예전 이름도 그대로 받아 줍니다 */
+  var STATE_MAP = {
+    working: {key:'working', cls:'run',  label:'진행중'},
+    error:   {key:'error',   cls:'blk',  label:'확인필요'},
+    idle:    {key:'idle',    cls:'done', label:'대기'},
+    '진행중':   {key:'working', cls:'run',  label:'진행중'},
+    '작업중':   {key:'working', cls:'run',  label:'작업중'},
+    '대기':     {key:'idle',    cls:'wait', label:'대기'},
+    '완료':     {key:'idle',    cls:'done', label:'완료'},
+    '방금 완료':{key:'idle',    cls:'done', label:'방금 완료'},
+    '막힘':     {key:'error',   cls:'blk',  label:'막힘'}
+  };
+  function staffState(s){
+    var m = STATE_MAP[s && s.state] || STATE_MAP.idle;
+    return {key:m.key, cls:m.cls, label:(s && s.state_label) || m.label};
+  }
 
   function esc(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
@@ -1038,13 +1105,14 @@
     if (stf){
       var hs = '';
       (d.staff || []).forEach(function(s){
-        var cls = STATE_CLASS[s.state] || 'wait';
+        var st = staffState(s);
         hs += '<article class="scard">';
         hs += '<div class="sh"><span class="e" aria-hidden="true">' + esc(s.emoji || '🤖') + '</span><b>' + esc(s.name) + '</b>';
         if (s.role) hs += '<i>' + esc(s.role) + '</i>';
-        if (s.state) hs += '<span class="chip ' + cls + '">' + esc(s.state) + '</span>';
+        hs += '<span class="chip ' + st.cls + '">' + esc(st.label) + '</span>';
         hs += '</div>';
-        if (s.task) hs += '<p>' + esc(s.task) + '</p>';
+        var line = s.current_task || s.task;
+        if (line) hs += '<p>' + esc(line) + '</p>';
         if (s.detail) hs += '<div class="sd">' + esc(s.detail) + '</div>';
         hs += '</article>';
       });
@@ -1063,6 +1131,62 @@
       });
       blk.innerHTML = hb;
     }
+
+    renderOrgSignals(d);
+  }
+
+  /* ---------- 🚦 조직도 카드: 신호등 불빛 + 지금 하는 일 한 줄 ---------- */
+  function renderOrgSignals(d){
+    var tree = document.getElementById('orgTree');
+    if (!tree) return;
+    var staff = d.staff || [];
+    [].forEach.call(tree.querySelectorAll('.tnode'), function(n){
+      var nb = n.querySelector('b');
+      if (!nb) return;
+      var name = nb.textContent || '';
+      var hit = null;
+      for (var i = 0; i < staff.length; i++){
+        if (staff[i] && staff[i].name && name.indexOf(staff[i].name) >= 0){ hit = staff[i]; break; }
+      }
+      var oldLed = n.querySelector('.led'); if (oldLed) oldLed.parentNode.removeChild(oldLed);
+      var oldLine = n.querySelector('.tlive'); if (oldLine) oldLine.parentNode.removeChild(oldLine);
+      n.classList.remove('st-working', 'st-error', 'st-idle');
+      n.removeAttribute('aria-label');
+      if (!hit) return;
+
+      var st = staffState(hit);
+      n.classList.add('st-' + st.key);
+
+      var led = document.createElement('i');
+      led.className = 'led';
+      led.setAttribute('aria-hidden', 'true');
+      n.appendChild(led);
+
+      var line = String(hit.current_task || hit.task || '').trim();
+      if (line){
+        var box = document.createElement('div');
+        box.className = 'tlive';
+        var lk = document.createElement('span');
+        lk.className = 'lk'; lk.textContent = '지금';
+        var lw = document.createElement('span');
+        lw.className = 'lw'; lw.textContent = line;
+        box.appendChild(lk); box.appendChild(lw);
+        box.setAttribute('title', line);
+        box.setAttribute('role', 'button');
+        box.setAttribute('tabindex', '0');
+        function toggle(){ box.classList.toggle('open'); }
+        box.addEventListener('click', toggle);
+        box.addEventListener('keydown', function(e){
+          if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
+        });
+        n.appendChild(box);
+      }
+
+      n.setAttribute('aria-label', name + ' · ' + st.label + (line ? ' · 지금 ' + line : ''));
+    });
+
+    var upd = document.getElementById('sigUpdated');
+    if (upd) upd.textContent = d.updated_at ? '기준 ' + d.updated_at + ' · 90초마다 새로 고침' : '';
   }
 
   function loadStatus(){
@@ -1089,11 +1213,13 @@
   var stRefresh = document.getElementById('stRefresh');
   if (stRefresh) stRefresh.addEventListener('click', loadStatus);
   loadStatus();
-  /* 현황 탭을 보고 있을 때만 90초마다 조용히 새로 받음 */
+  /* 현황 탭·조직도 탭을 보고 있을 때만 90초마다 조용히 새로 받음 */
   setInterval(function(){
     if (document.hidden) return;
     var p0 = document.getElementById('p0');
-    if (p0 && p0.classList.contains('on')) loadStatus();
+    var p1 = document.getElementById('p1');
+    var on = (p0 && p0.classList.contains('on')) || (p1 && p1.classList.contains('on'));
+    if (on) loadStatus();
   }, 90000);
 
   /* ---------- 탭 ---------- */
@@ -1108,7 +1234,7 @@
       t.tabIndex = on ? 0 : -1;
     });
     if (save) { try { localStorage.setItem(TKEY, id); } catch(e){} }
-    if (id === 'p0') loadStatus();
+    if (id === 'p0' || id === 'p1') loadStatus();
     window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
   }
 
