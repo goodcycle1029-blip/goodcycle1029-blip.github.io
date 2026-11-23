@@ -1867,7 +1867,7 @@ var MKT = (function () {
     {"name":"샘플_옥션_상품목록.csv","market":"auction","b64":"RVNNIFBMVVMgu/PHsLjxt88gKLv5x8MpIC0gv6y9wL/rILChu/MgtaXAzMXNDQq758DMxq4su/PHsLn4yKMsu/PHsLjtLMbHuMWwoSzA57DtvPa3rizGx7jFu/PFwizEq8XXsO24riy/+LvqwfYNCr/BvMcsQVUtNDAwMSy7+cfDIMCvuK4guriw/L/rseIgM8G+LDE0NTAwLDksxse4xcHfLMHWuea/68ewLMDPursNCr/BvMcsQVUtNDAwMiy7+cfDILTrs6q5qyC1tbi2LDk5MDAsNCzGx7jFwd8swda55r/rx7AswM+6uw0Kv8G8xyxBVS00MDAzLLv5x8MguNbGvCC89rOzx9QsNzUwMCwyLMbHuMXB3yy7/ciwv+vHsCzB37G5DQo="},
     {"name":"샘플_11번가_상품목록.csv","market":"eleven","b64":"77u/7IOB7ZKI67KI7Zi4LOyDge2SiOuqhSztjJDrp6TqsIAs7J6s6rOg7IiY65+JLO2MkOunpOyDge2DnCzsubTthYzqs6Drpqws7JuQ7IKw7KeADQoxMS01MDAxLOyDmO2UjCDrrLTshKAg66+464uIIOyEoO2Sjeq4sCwxOTkwMCwxMSztjJDrp6TspJEs7IOd7Zmc7Jqp7ZKILOykkeq1rQ0KMTEtNTAwMizsg5jtlIwg7KCR7J207IudIOyImOuCqSDrsJTqtazri4gsOTkwMCw3LO2MkOunpOykkSzsg53tmZzsmqntkogs7KSR6rWtDQoxMS01MDAzLOyDmO2UjCDsi6TrpqzsvZgg7KO867Cp66ek7Yq4LDkyMDAsMyztjJDrp6TspJEs7KO867Cp7Jqp7ZKILOykkeq1rQ0K"}
   ];
-  var VERSION = "1.0";
+  var VERSION = "1.1";
   var S = {
     files: [],
     result: null,
@@ -2552,7 +2552,8 @@ var MKT = (function () {
     $("btnSample").addEventListener("click", function (e) { e.stopPropagation(); addSamples(); });
     $("btnSampleEmpty").addEventListener("click", function (e) { e.stopPropagation(); addSamples(); });
     $("drop").addEventListener("click", function (e) {
-      if (e.target === $("drop") || e.target.classList.contains("dropinner")) $("fileInput").click();
+      if (e.target.closest && e.target.closest("button")) return;
+      $("fileInput").click();
     });
     var drop = $("drop");
     ["dragenter", "dragover"].forEach(function (ev) {
