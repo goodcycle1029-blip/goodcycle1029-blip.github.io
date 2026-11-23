@@ -6,7 +6,7 @@
    · 화면은 인터넷을 먼저 확인해 새 버전을 받고, 실패하면 저장본을 씁니다.
    · 외부 주소(미니게임 링크 등)는 가로채지 않습니다.
    ========================================================================= */
-var CACHE = 'market-board-v2';
+var CACHE = 'market-board-v3';
 var CORE = [
   './market-board.html',
   './market-manifest.json',

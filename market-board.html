@@ -171,30 +171,46 @@ h3.sub{font-size:13px; margin:14px 0 6px; color:var(--ink2)}
 .mk .siglab.ok{background:#e8f7ef; color:#0b6b3a}
 .mk .siglab.warn{background:#fff4e0; color:#8a5300}
 .mk .siglab.alert{background:#ffebe9; color:#a3261c}
-.mk .mktotal{margin-left:auto; font-size:19px; font-weight:800; letter-spacing:-.03em; white-space:nowrap}
-.mk .mktotal small{font-size:10.5px; color:var(--muted); font-weight:700; margin-left:1px}
 .mk .mkmini{display:flex; gap:9px; flex-wrap:wrap; font-size:11px; color:var(--muted); margin-top:6px}
 .mk .mkmini b{color:var(--ink2); font-weight:800}
 .mk .mkmini .none{color:#9aa4b5}
 
-/* ── 판매중 비율 게이지(카드 안 큰 막대) ─────────── */
-.mk .gtop{display:flex; align-items:baseline; gap:6px; margin-top:9px}
-.mk .gtop .glb{font-size:11px; font-weight:800; color:var(--muted); letter-spacing:.01em}
-.mk .gtop .gp{margin-left:auto; font-size:12px; font-weight:800; color:var(--ink); white-space:nowrap; line-height:1}
-.mk .gtop .gp b{font-size:23px; letter-spacing:-.04em; margin-right:1px; vertical-align:-2px}
-.mk .gbar{
-  display:flex; height:15px; border-radius:8px; overflow:hidden; background:#edf0f6; margin-top:5px;
-  box-shadow:inset 0 0 0 1px rgba(18,32,58,.05);
-}
-.mk .gbar i{display:block; flex:1 1 0; min-width:9px; height:100%; transform-origin:left center;
-  animation:barIn .5s ease both}
-.mk .gbar i + i{box-shadow:inset 2px 0 0 #fff}
-.mk .glg{display:flex; flex-wrap:wrap; gap:3px 11px; margin-top:7px; font-size:10.5px; font-weight:700; color:var(--ink2)}
-.mk .glg span{display:inline-flex; align-items:center; gap:4px; white-space:nowrap}
-.mk .glg i{width:8px; height:8px; border-radius:2px; flex:none}
-.mk .glg b{font-weight:800; color:var(--ink); margin-left:1px}
+/* ── 도넛 차트 (동글동글) ──────────────────────── */
+.dwrap{position:relative; flex:none; width:92px; height:92px; display:grid; place-items:center}
+.dwrap .dsvg{width:100%; height:100%; display:block; overflow:visible;
+  animation:donutIn .55s cubic-bezier(.34,1.56,.64,1) both}
+.dwrap .dctr{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  pointer-events:none; line-height:1; text-align:center}
+.dwrap .dctr .pv{display:flex; align-items:baseline; gap:1px}
+.dwrap .dctr .pv b{font-size:23px; font-weight:800; letter-spacing:-.05em; color:var(--ink)}
+.dwrap .dctr .pv i{font-style:normal; font-size:10px; font-weight:800; color:var(--muted)}
+.dwrap .dctr em{font-style:normal; font-size:9px; font-weight:800; color:var(--muted); margin-top:3px; letter-spacing:.01em}
+.dwrap.mid{width:68px; height:68px}
+.dwrap.mid .dctr .pv b{font-size:17px}
+.dwrap.mid .dctr .pv i{font-size:8px}
+@keyframes donutIn{from{transform:scale(.55) rotate(-25deg); opacity:0} to{transform:scale(1) rotate(0); opacity:1}}
+
+/* 카드 안: 도넛 + 이름표 붙은 숫자 4칸 */
+.mk .dbody{display:flex; align-items:center; gap:12px; margin-top:10px; flex-wrap:wrap}
+.mk .dnums{flex:1 1 150px; min-width:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(88px,1fr)); gap:5px 6px}
+.dnum{display:flex; align-items:baseline; justify-content:space-between; gap:3px;
+  padding:5px 8px; border-radius:10px; background:#f5f7fb; border:1px solid #e9edf5; min-width:0}
+.dnum .dl{font-size:9.5px; font-weight:800; color:var(--muted); white-space:nowrap; letter-spacing:-.01em}
+.dnum .dv{font-size:12px; font-weight:800; color:var(--ink); white-space:nowrap}
+.dnum .dv b{font-size:14px; letter-spacing:-.03em}
+.dnum .dv small{font-size:9px; color:var(--muted); font-weight:700; margin-left:1px}
+.dnum.tot{background:#eef4ff; border-color:#d9e6ff}
+.dnum.tot .dl{color:#2f5da8} .dnum.tot .dv,.dnum.tot .dv b{color:#1848b0}
+.dnum.on{background:#eafaf2; border-color:#c8efdb}
+.dnum.on .dl{color:#0b7a58} .dnum.on .dv,.dnum.on .dv b{color:#0b6b3a}
+.dnum.wait{background:#fff8ea; border-color:#ffe7bd}
+.dnum.wait .dl{color:#8a5300} .dnum.wait .dv,.dnum.wait .dv b{color:#8a5300}
+.dnum.bad{background:#fff0ee; border-color:#ffd6cf}
+.dnum.bad .dl{color:#a3261c} .dnum.bad .dv,.dnum.bad .dv b{color:#a3261c}
+.dnum.rest{grid-column:span 2; background:#f4f6fa; border-color:#e6eaf2}
+.dnum.zero{opacity:.46}
+.dnum.zero .dv b{font-weight:700}
 .mk .gnone{font-size:11px; color:#9aa4b5; margin-top:8px; padding:9px 10px; border:1px dashed #d5dde9; border-radius:9px; text-align:center}
-@keyframes barIn{from{transform:scaleX(.02); opacity:.4} to{transform:scaleX(1); opacity:1}}
 
 .mk.sig-ok{box-shadow:0 0 0 1px rgba(18,185,129,.30), 0 10px 22px -18px rgba(18,185,129,.8)}
 .mk.sig-ok .led{background:#12b981; animation:ledOk 2.4s ease-in-out infinite}
@@ -218,28 +234,49 @@ h3.sub{font-size:13px; margin:14px 0 6px; color:var(--ink2)}
   50%{background:#ffc2bb; box-shadow:0 0 0 3px #fff, 0 0 0 6px rgba(226,54,31,.18), 0 0 16px 5px rgba(226,54,31,.95)}
 }
 @media (prefers-reduced-motion:reduce){
-  .mk .led,.siglegend .lg{animation:none !important}
-  .mk .gbar i,.cmpbar{animation:none !important}
+  .mk .led,.siglegend .lg,.dled{animation:none !important}
+  .dwrap .dsvg{animation:none !important}
 }
 
-/* ── 전체 마켓 비교(가로 막대 한 장) ─────────────── */
-.cmpcard{padding:13px 13px 11px}
-.cmp{display:flex; flex-direction:column; gap:9px}
-.cmprow{display:grid; grid-template-columns:78px minmax(0,1fr) 42px; align-items:center; gap:8px}
-.cmpl{display:flex; align-items:center; gap:5px; font-size:11.5px; font-weight:800; color:var(--ink2);
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.cmpl .dot{width:8px; height:8px}
-.cmptrack{position:relative; height:18px; border-radius:6px; background:#f0f3f9; overflow:hidden}
-.cmpbar{display:flex; height:100%; border-radius:6px; overflow:hidden; min-width:14px;
-  transform-origin:left center; animation:barIn .55s ease both}
-.cmpbar i{display:block; flex:1 1 0; min-width:5px; height:100%}
-.cmpbar i + i{box-shadow:inset 1.5px 0 0 #fff}
-.cmpn{text-align:right; font-size:13.5px; font-weight:800; letter-spacing:-.02em; white-space:nowrap}
-.cmpn small{font-size:10px; color:var(--muted); font-weight:700; margin-left:1px}
+/* ── 전체 마켓 비교(작은 도넛 카드 그리드) ──────── */
+.cmpcard{padding:11px 11px 10px}
+.cmpgrid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px}
+.dtile{
+  position:relative; display:flex; flex-direction:column; align-items:center; min-width:0;
+  background:#fff; border:1px solid var(--line); border-radius:14px; padding:7px 7px 6px;
+}
+.dtile .dthead{display:flex; align-items:center; gap:5px; width:100%; min-width:0}
+.dtile .dthead .dot{width:7px; height:7px; border-radius:50%; flex:none}
+.dtile .dthead .nm{font-size:11px; font-weight:800; color:var(--ink2); white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis; min-width:0}
+.dtile .dthead .mn{margin-left:auto; font-size:9.5px; font-weight:800; color:var(--muted); white-space:nowrap}
+.dtile .dled{width:9px; height:9px; border-radius:50%; flex:none; margin-left:auto; background:var(--none)}
+.dtile .dthead .mn + .dled{margin-left:0}
+.dtile .dtnums{display:flex; align-items:center; justify-content:center; gap:4px; margin-top:6px; flex-wrap:nowrap}
+.dtile .dtnums .nn{display:inline-flex; align-items:baseline; gap:3px; padding:2px 6px; border-radius:999px;
+  font-size:9px; font-weight:800; color:var(--muted); white-space:nowrap; letter-spacing:-.01em}
+.dtile .dtnums .nn b{font-size:12px; letter-spacing:-.02em}
+.dtile .dtnums .nn.on{background:#eafaf2; color:#0b7a58; box-shadow:inset 0 0 0 1px #c8efdb}
+.dtile .dtnums .nn.on b{color:#0b6b3a}
+.dtile .dtnums .nn.tot{background:#eef2f8; color:#4a5872; box-shadow:inset 0 0 0 1px #dde4ef}
+.dtile .dtnums .nn.tot b{color:#12203a}
+.dtile .dttags{display:flex; gap:4px; flex-wrap:wrap; justify-content:center; margin-top:5px; min-height:17px}
+.tag{font-size:9px; font-weight:800; padding:2px 6px; border-radius:999px; white-space:nowrap; line-height:1.2}
+.tag.bad{background:#ffebe9; color:#a3261c; box-shadow:inset 0 0 0 1px #ffd3cc}
+.tag.wait{background:#fff4e0; color:#8a5300; box-shadow:inset 0 0 0 1px #ffe4b5}
+.tag.ok{background:#eef4ff; color:#3c4d69}
+.dtile.sig-ok{box-shadow:0 0 0 1px rgba(18,185,129,.22)}
+.dtile.sig-ok .dled{background:#12b981; animation:ledOk 2.4s ease-in-out infinite}
+.dtile.sig-warn{box-shadow:0 0 0 1px rgba(242,163,12,.28)}
+.dtile.sig-warn .dled{background:#f7a609; animation:ledWarn 1.7s ease-in-out infinite}
+.dtile.sig-alert{box-shadow:0 0 0 1px rgba(226,54,31,.32)}
+.dtile.sig-alert .dled{background:#e2361f; animation:ledAlert 1.1s ease-in-out infinite}
+.dtile.all{background:linear-gradient(180deg,#f7faff,#eef4ff); border-color:#d9e6ff}
+.dtile.all .dthead .nm{color:#1848b0}
+.dtile.all .dtnums .nn.on b{color:#0b7a58}
 .cmpnote{margin-top:9px; padding-top:8px; border-top:1px solid #f1f4f9; font-size:10.5px; color:var(--muted);
   line-height:1.5; display:flex; gap:7px; flex-wrap:wrap}
 .cmpnote b{color:var(--ink2); font-weight:800}
-.cmpnote .rt{margin-left:auto; white-space:nowrap}
 .cmpkey{display:flex; flex-wrap:wrap; gap:3px 10px; margin-top:7px; font-size:10.5px; font-weight:700; color:var(--ink2)}
 .cmpkey span{display:inline-flex; align-items:center; gap:4px; white-space:nowrap}
 .cmpkey i{width:8px; height:8px; border-radius:2px; flex:none}
@@ -359,6 +396,44 @@ table.tbl tr.clk:active{background:#f3f7ff}
 }
 .playstrip span{font-size:11px; color:var(--muted); line-height:1.45}
 
+/* ── 개선 의견 남기기 ───────────────────────────── */
+.fbstrip{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:8px; padding:10px 12px;
+  background:#fff; border:1px solid var(--line); border-radius:12px;
+}
+.fbstrip .tbtn.fb{background:#f3f8ff; border-color:#d6e4ff; color:#1b4fd8; font-size:12px; padding:7px 11px; min-height:38px}
+.fbstrip span{font-size:11px; color:var(--muted); line-height:1.45}
+.fbmodal{
+  position:fixed; inset:0; z-index:88; background:rgba(8,16,32,.42);
+  display:none; align-items:flex-end; justify-content:center;
+}
+.fbmodal.on{display:flex}
+.fbsheet{
+  width:100%; max-width:520px; background:#fff; border-radius:18px 18px 0 0; padding:14px 15px calc(16px + env(safe-area-inset-bottom));
+  animation:sheet .2s ease; max-height:92vh; overflow:auto;
+}
+.fbhd{display:flex; align-items:center; gap:10px; margin-bottom:6px}
+.fbhd b{flex:1; font-size:15px; letter-spacing:-.01em}
+.fbnote{margin:0 0 10px; font-size:11px; color:var(--muted); line-height:1.6}
+.fbnote b{color:var(--ink2)}
+.fbtags{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:9px}
+.fbtag{
+  border:1px solid var(--line); background:#f7f9fd; color:var(--ink2); border-radius:999px;
+  padding:7px 11px; font-size:12px; font-weight:800; min-height:36px;
+}
+.fbtag.on{background:#e8f1ff; border-color:#a9c8ff; color:#1848b0; box-shadow:0 4px 10px -6px rgba(36,104,242,.8)}
+#fbText{
+  width:100%; border:1px solid var(--line); border-radius:11px; padding:10px 12px;
+  font-size:13px; color:var(--ink); min-height:44px; background:#fff;
+}
+#fbText:focus{outline:2px solid #bcd4ff; outline-offset:1px; border-color:#a9c8ff}
+.fbprev{
+  margin:9px 0 10px; padding:9px 11px; border-radius:10px; background:#f6f8fc; border:1px dashed #dde4ef;
+  font-family:inherit; font-size:11px; color:var(--ink2); line-height:1.55; white-space:pre-wrap; word-break:break-all; min-height:56px;
+}
+.fbcopy{width:100%; justify-content:center; font-size:13.5px}
+
+
 /* ── 하단 안내 ─────────────────────────────────── */
 .foot{margin-top:16px; text-align:center; font-size:10.5px; color:#94a0b3; line-height:1.6}
 .swstate{display:inline-block; margin-top:3px}
@@ -410,6 +485,8 @@ table.tbl tr.clk:active{background:#f3f7ff}
 @media (min-width:700px){
   body{font-size:15px}
   .kpis{grid-template-columns:repeat(6,1fr)}
+  .cmpgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .dwrap.mid{width:80px; height:80px}
   .markets{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px}
   .mk{padding:13px 14px}
   .guidebox .two{grid-template-columns:1fr 1fr}
@@ -424,7 +501,7 @@ table.tbl tr.clk:active{background:#f3f7ff}
   <div class="topin">
     <div class="logo">
       <span class="mark">📊</span>
-      <span class="tx"><b>내 마켓 현황판</b><span>v1.2 · 내 폰에서만 · 서버 전송 없음</span></span>
+      <span class="tx"><b>내 마켓 현황판</b><span>v1.3 · 내 폰에서만 · 서버 전송 없음</span></span>
     </div>
     <span class="grow"></span>
     <button class="install" id="btnInstall" type="button">📲 홈 화면에 추가</button>
@@ -468,7 +545,7 @@ table.tbl tr.clk:active{background:#f3f7ff}
     <div class="kpis" id="kpis"></div>
 
     <div id="cmpSec" hidden>
-      <h2 class="sec">전체 마켓 비교 <span class="sub">막대 길이 = 상품 수</span></h2>
+      <h2 class="sec">전체 마켓 비교 <span class="sub">동그라미 = 판매중 비율</span></h2>
       <div class="card cmpcard" id="cmpChart"></div>
     </div>
 
@@ -520,8 +597,13 @@ table.tbl tr.clk:active{background:#f3f7ff}
       <span>잠깐 쉬어가는 무료 미니게임 — 엑셀 정리하다 머리 식힐 때</span>
     </div>
 
+    <div class="fbstrip">
+      <button class="tbtn fb" id="btnFeedback" type="button">💬 개선 의견 남기기</button>
+      <span>이 앱을 알려 준 분께 한 줄만 전해 주세요</span>
+    </div>
+
     <div class="foot">
-      내 마켓 현황판 v1.2 (웹앱) · 자료는 이 폰에만 저장됩니다<br>
+      내 마켓 현황판 v1.3 (웹앱) · 자료는 이 폰에만 저장됩니다<br>
       <span class="swstate" id="swState">오프라인 저장 확인 중…</span>
     </div>
   </section>
@@ -598,7 +680,7 @@ table.tbl tr.clk:active{background:#f3f7ff}
         <div class="gbox" style="margin-bottom:0"><b>⚪ 미등록</b> — 아직 그 마켓 파일을 넣지 않음</div>
         <p class="mini" style="margin-top:8px;margin-bottom:0">카드의 <b>요약</b> 줄을 누르면 한 줄 설명이 펼쳐집니다. 불빛은 3초 안에 눈에 들어오게 천천히 깜빡입니다.</p>
         <div class="gbox" style="margin-top:8px">
-          <b>막대 읽는 법</b> — 카드마다 <b>판매중 OO%</b> 큰 숫자는 그 마켓 상품 중 판매중 비율입니다. 두툼한 막대의 <b style="color:#0b7a58">초록</b>은 판매중, <b style="color:#a86a00">노랑</b>은 대기·중지, <b style="color:#b3261e">빨강</b>은 반려·품절입니다. 맨 위 <b>전체 마켓 비교</b>는 막대 길이로 마켓별 상품 수를 견줘 보여 줍니다.
+          <b>도넛 읽는 법</b> — 마켓 카드마다 동그란 <b>도넛</b> 가운데 큰 숫자는 그 마켓 상품 중 <b>판매중 비율(%)</b>입니다. 도넛의 <b style="color:#0b7a58">초록</b>은 판매중, <b style="color:#a86a00">노랑</b>은 대기·중지, <b style="color:#b3261e">빨강</b>은 반려·품절, 회색은 종료·기타예요. 도넛 옆에는 <b>전체 등록</b>·<b>판매중</b>·<b>대기·중지</b>·<b>반려·품절</b> 개수를 이름표와 함께 따로 적어 두어서, 어느 숫자가 무엇인지 헷갈리지 않습니다. 맨 위 <b>전체 마켓 비교</b>도 마켓마다 작은 도넛 한 장씩 나란히 놓고, 그 아래에 <b>판매중 O개 · 전체 O개</b>를 각각 적었습니다.
         </div>
       </div>
 
@@ -647,7 +729,7 @@ table.tbl tr.clk:active{background:#f3f7ff}
         <span>잠깐 쉬어가는 무료 미니게임</span>
       </div>
 
-      <div class="foot">내 마켓 현황판 v1.2 · 다른 셀러도 각자 폰에서 무료로 쓸 수 있습니다.</div>
+      <div class="foot">내 마켓 현황판 v1.3 · 다른 셀러도 각자 폰에서 무료로 쓸 수 있습니다.</div>
     </div>
   </section>
 </div>
@@ -657,6 +739,24 @@ table.tbl tr.clk:active{background:#f3f7ff}
     <div class="hd"><div class="t" id="detailTitle"></div>
       <button class="closex" id="detailClose" type="button" aria-label="닫기">✕</button></div>
     <div class="bd" id="detailBody"></div>
+  </div>
+</div>
+
+<div class="fbmodal" id="fbModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="fbTitle">
+  <div class="fbsheet">
+    <div class="fbhd"><b id="fbTitle">💬 개선 의견 남기기</b>
+      <button class="closex" id="fbClose" type="button" aria-label="닫기">✕</button></div>
+    <p class="fbnote">이 앱을 알려 준 분이나 단톡방에 <b>붙여넣어</b> 보내 주세요. 적은 글은 <b>이 폰 밖으로 나가지 않습니다</b>. 이름·전화번호·이메일은 적지 마세요.</p>
+    <div class="fbtags" role="group" aria-label="의견 종류 고르기">
+      <button class="fbtag" type="button" data-tag="불편한 점">😣 불편한 점</button>
+      <button class="fbtag" type="button" data-tag="기능 추가">✨ 기능 추가</button>
+      <button class="fbtag" type="button" data-tag="오류 제보">🐞 오류 제보</button>
+      <button class="fbtag" type="button" data-tag="칭찬">👏 칭찬</button>
+    </div>
+    <input id="fbText" type="text" maxlength="120" autocomplete="off"
+      placeholder="한 줄로 적어 주세요 (예: 도넛이 더 컸으면 좋겠어요)" aria-label="개선 의견 한 줄">
+    <pre class="fbprev" id="fbPrev" aria-live="polite"></pre>
+    <button class="tbtn primary fbcopy" id="fbCopy" type="button">📋 의견 복사해서 전달하기</button>
   </div>
 </div>
 
@@ -1917,7 +2017,7 @@ var MKT = (function () {
     {"name":"샘플_옥션_상품목록.csv","market":"auction","b64":"RVNNIFBMVVMgu/PHsLjxt88gKLv5x8MpIC0gv6y9wL/rILChu/MgtaXAzMXNDQq758DMxq4su/PHsLn4yKMsu/PHsLjtLMbHuMWwoSzA57DtvPa3rizGx7jFu/PFwizEq8XXsO24riy/+LvqwfYNCr/BvMcsQVUtNDAwMSy7+cfDIMCvuK4guriw/L/rseIgM8G+LDE0NTAwLDksxse4xcHfLMHWuea/68ewLMDPursNCr/BvMcsQVUtNDAwMiy7+cfDILTrs6q5qyC1tbi2LDk5MDAsNCzGx7jFwd8swda55r/rx7AswM+6uw0Kv8G8xyxBVS00MDAzLLv5x8MguNbGvCC89rOzx9QsNzUwMCwyLMbHuMXB3yy7/ciwv+vHsCzB37G5DQo="},
     {"name":"샘플_11번가_상품목록.csv","market":"eleven","b64":"77u/7IOB7ZKI67KI7Zi4LOyDge2SiOuqhSztjJDrp6TqsIAs7J6s6rOg7IiY65+JLO2MkOunpOyDge2DnCzsubTthYzqs6Drpqws7JuQ7IKw7KeADQoxMS01MDAxLOyDmO2UjCDrrLTshKAg66+464uIIOyEoO2Sjeq4sCwxOTkwMCwxMSztjJDrp6TspJEs7IOd7Zmc7Jqp7ZKILOykkeq1rQ0KMTEtNTAwMizsg5jtlIwg7KCR7J207IudIOyImOuCqSDrsJTqtazri4gsOTkwMCw3LO2MkOunpOykkSzsg53tmZzsmqntkogs7KSR6rWtDQoxMS01MDAzLOyDmO2UjCDsi6TrpqzsvZgg7KO867Cp66ek7Yq4LDkyMDAsMyztjJDrp6TspJEs7KO867Cp7Jqp7ZKILOykkeq1rQ0K"}
   ];
-  var VERSION = "1.2";
+  var VERSION = "1.3";
   var S = {
     files: [],
     result: null,
@@ -2305,7 +2405,7 @@ var MKT = (function () {
       '</div><div class="vl">' + value + "</div></div>";
   }
 
-  /* 상태를 색 3~4가지로 묶어 막대·범례에 같이 쓴다.
+  /* 상태를 색 4가지로 묶어 도넛 조각·범례에 같이 쓴다.
      초록=판매중, 노랑=대기·중지, 빨강=반려·품절, 회색=종료·기타 */
   var GSEG = [
     { label: "판매중", color: "#12b981", fields: ["판매중"] },
@@ -2326,67 +2426,124 @@ var MKT = (function () {
     return { segs: segs, on: on, pct: total > 0 ? Math.round(on / total * 100) : 0 };
   }
 
-  function segBar(segs) {
-    return segs.filter(function (s) { return s.n > 0; }).map(function (s) {
-      return '<i style="flex-grow:' + s.n + ';background:' + s.color + '"></i>';
-    }).join("");
+  /* ── 동글동글 도넛 ───────────────────────────────────────
+     상태 4색을 둥근 끝(stroke-linecap:round) 호로 이어 그린 링.
+     pathLength=100 으로 두어 조각 넓이를 % 로 바로 셈한다. */
+  function donutSvg(segs, opt) {
+    opt = opt || {};
+    var r = opt.r || 40, w = opt.w || 12;
+    var total = 0, live = 0, i;
+    for (i = 0; i < segs.length; i++) {
+      total += segs[i].n || 0;
+      if (segs[i].n) live++;
+    }
+    var gap = live > 1 ? 3.2 : 0;
+    var out = ['<svg class="dsvg" viewBox="0 0 100 100" aria-hidden="true" focusable="false">' +
+      '<g transform="rotate(-90 50 50)">' +
+      '<circle cx="50" cy="50" r="' + r + '" fill="none" stroke="#eef1f6" stroke-width="' + w + '"/>'];
+    var acc = 0;
+    for (i = 0; i < segs.length; i++) {
+      var n = segs[i].n || 0;
+      if (!n || !total) continue;
+      var share = n / total * 100;
+      var len = live > 1 ? Math.max(share - gap, 0.8) : 100;
+      var start = acc + (live > 1 ? gap / 2 : 0);
+      out.push('<circle class="arc" cx="50" cy="50" r="' + r + '" fill="none" stroke="' + segs[i].color +
+        '" stroke-width="' + w + '" stroke-linecap="round" pathLength="100" stroke-dasharray="' +
+        len.toFixed(2) + " " + (100 - len).toFixed(2) + '" stroke-dashoffset="' + (-start).toFixed(2) + '"/>');
+      acc += share;
+    }
+    out.push("</g></svg>");
+    return out.join("");
   }
 
-  function segLegend(segs) {
-    return segs.filter(function (s) { return s.n > 0; }).map(function (s) {
-      return '<span><i style="background:' + s.color + '"></i>' + esc(s.label) + " <b>" + num(s.n) + "</b></span>";
-    }).join("");
+  /* 도넛 + 가운데 큰 % (작은 이름표 포함) */
+  function donutBox(segs, pct, cls, label) {
+    return '<div class="dwrap ' + (cls || "") + '">' + donutSvg(segs) +
+      '<div class="dctr"><span class="pv"><b>' + pct + '</b><i>%</i></span>' +
+      (label ? "<em>" + esc(label) + "</em>" : "") + "</div></div>";
+  }
+
+  /* 이름표가 붙은 숫자 한 칸 — 숫자마다 무엇인지 따로 읽히게 */
+  function dnum(label, n, kind) {
+    return '<div class="dnum ' + kind + (n ? "" : " zero") + '">' +
+      '<span class="dl">' + esc(label) + '</span>' +
+      '<span class="dv"><b>' + num(n) + "</b><small>개</small></span></div>";
   }
 
   function cardHtml(m) {
     var stt = m.state || "empty";
     var total = m.total || 0;
     var g = gauge(m.counts, total);
-    var body;
+    var body, aria = esc(m.label) + " 전체 등록 " + num(total) + "개";
     if (stt === "empty") {
       body = '<div class="gnone">엑셀을 넣으면 판매중 비율이 여기에 나옵니다</div>';
     } else {
-      body = '<div class="gtop"><span class="glb">판매중</span>' +
-        '<span class="gp"><b>' + g.pct + "</b>%</span></div>" +
-        '<div class="gbar" role="img" aria-label="' + esc(m.label) + " 상품 " + num(total) +
-        "개 중 판매중 " + num(g.on) + "개, " + g.pct + '%">' + segBar(g.segs) + "</div>" +
-        '<div class="glg">' + segLegend(g.segs) + "</div>";
+      var wait = g.segs[1].n, bad = g.segs[2].n, rest = g.segs[3].n;
+      aria += ", 판매중 " + num(g.on) + "개, 대기·중지 " + num(wait) + "개, 반려·품절 " + num(bad) + "개";
+      body = '<div class="dbody">' +
+        donutBox(g.segs, g.pct, "", "판매중") +
+        '<div class="dnums">' +
+        dnum("전체 등록", total, "tot") + dnum("판매중", g.on, "on") +
+        dnum("대기·중지", wait, "wait") + dnum("반려·품절", bad, "bad") +
+        (rest ? dnum("종료·기타", rest, "rest") : "") +
+        "</div></div>";
     }
-    return '<div class="mk sig-' + stt + '">' +
+    return '<div class="mk sig-' + stt + '" role="group" aria-label="' + aria + '">' +
       '<div class="mktop"><span class="led ' + stt + '" aria-hidden="true"></span>' +
       '<span class="mkname"><i class="dot" style="background:' + esc(m.color) + '"></i>' + esc(m.label) + "</span>" +
-      '<span class="siglab ' + stt + '">' + esc(m.state_label) + "</span>" +
-      '<span class="mktotal">' + num(total) + "<small>개</small></span></div>" +
+      '<span class="siglab ' + stt + '">' + esc(m.state_label) + "</span></div>" +
       body +
       '<div class="sumline" role="button" tabindex="0" aria-expanded="false" aria-label="요약 펼치기: ' + esc(m.line) + '">' +
       '<span class="chip sum">요약</span><span class="stxt">' + esc(m.line) + "</span></div></div>";
   }
 
-  /* ── 전체 마켓 비교: 상품 수만큼 길어지는 가로 막대 ── */
+  /* ── 전체 마켓 비교: 마켓마다 작은 도넛 한 장 + 이름표 붙은 숫자 ── */
   function compareHtml(r) {
     var rows = (r.signals || []).filter(function (m) { return (m.total || 0) > 0; });
     if (!rows.length) return "";
-    var max = 0, i;
-    for (i = 0; i < rows.length; i++) if (rows[i].total > max) max = rows[i].total;
+    var i, j;
     rows = rows.slice().sort(function (a, b) {
       return b.total - a.total || String(a.label).localeCompare(String(b.label), "ko");
     });
-    var body = rows.map(function (m) {
+    var cells = rows.map(function (m) {
       var g = gauge(m.counts, m.total);
-      var w = Math.max(9, m.total / Math.max(1, max) * 100);
-      var tip = m.label + " 상품 " + num(m.total) + "개";
-      for (i = 0; i < g.segs.length; i++) if (g.segs[i].n) tip += " · " + g.segs[i].label + " " + num(g.segs[i].n);
-      return '<div class="cmprow">' +
-        '<span class="cmpl"><i class="dot" style="background:' + esc(m.color) + '"></i>' + esc(m.label) + "</span>" +
-        '<span class="cmptrack"><span class="cmpbar" style="width:' + w.toFixed(1) + '%" role="img" aria-label="' +
-        esc(tip) + '">' + segBar(g.segs) + "</span></span>" +
-        '<span class="cmpn">' + num(m.total) + "<small>개</small></span></div>";
+      var stt = m.state || "ok";
+      var tip = m.label + " 전체 " + num(m.total) + "개 중 판매중 " + num(g.on) + "개 (" + g.pct + "%)";
+      var tags = [];
+      if (m.reject) tags.push('<span class="tag bad">반려 ' + num(m.reject) + "</span>");
+      if (m.sold) tags.push('<span class="tag bad">품절 ' + num(m.sold) + "</span>");
+      if (m.wait) tags.push('<span class="tag wait">대기 ' + num(m.wait) + "</span>");
+      if (m.off) tags.push('<span class="tag wait">중지 ' + num(m.off) + "</span>");
+      return '<div class="dtile sig-' + stt + '" role="img" aria-label="' + esc(tip) + '">' +
+        '<div class="dthead"><i class="dot" style="background:' + esc(m.color) + '"></i>' +
+        '<span class="nm">' + esc(m.label) + "</span>" +
+        '<span class="dled ' + stt + '" aria-hidden="true"></span></div>' +
+        donutBox(g.segs, g.pct, "mid", "") +
+        '<div class="dtnums"><span class="nn on">판매중 <b>' + num(g.on) + "</b>개</span>" +
+        '<span class="nn tot">전체 <b>' + num(m.total) + "</b>개</span></div>" +
+        '<div class="dttags">' + (tags.join("") || '<span class="tag ok">이상 없음</span>') + "</div></div>";
     }).join("");
-    var pct = r.totals.products ? Math.round(r.totals.on / r.totals.products * 100) : 0;
-    return '<div class="cmp">' + body + "</div>" +
-      '<div class="cmpnote"><span>막대 길이 = 상품 수 (가장 많은 곳을 100%로)</span>' +
-      '<span class="rt">전체 <b>' + num(r.totals.products) + "개</b> 중 판매중 <b>" + num(r.totals.on) +
-      "개</b> · " + pct + "%</span></div>" +
+
+    var sum = [0, 0, 0, 0];
+    for (i = 0; i < rows.length; i++) {
+      var gg = gauge(rows[i].counts, rows[i].total);
+      for (j = 0; j < 4; j++) sum[j] += gg.segs[j].n;
+    }
+    var allSegs = GSEG.map(function (s, k) { return { label: s.label, color: s.color, n: sum[k] }; });
+    var allTotal = 0;
+    for (i = 0; i < 4; i++) allTotal += sum[i];
+    var allPct = allTotal ? Math.round(sum[0] / allTotal * 100) : 0;
+    var allTile = '<div class="dtile all" role="img" aria-label="전체 마켓 합계 ' +
+      esc("전체 " + num(allTotal) + "개 중 판매중 " + num(sum[0]) + "개") + '">' +
+      '<div class="dthead"><span class="nm">전체 합계</span><span class="mn">' + rows.length + '곳</span></div>' +
+      donutBox(allSegs, allPct, "mid", "") +
+      '<div class="dtnums"><span class="nn on">판매중 <b>' + num(sum[0]) + "</b>개</span>" +
+      '<span class="nn tot">전체 <b>' + num(allTotal) + "</b>개</span></div>" +
+      '<div class="dttags"><span class="tag ok">마켓 ' + rows.length + '곳</span></div></div>';
+
+    return '<div class="cmpgrid">' + cells + allTile + "</div>" +
+      '<div class="cmpnote"><span>동그라미 = 판매중 비율, 가운데 숫자가 <b>%</b>예요</span></div>' +
       '<div class="cmpkey"><span><i style="background:#12b981"></i>판매중</span>' +
       '<span><i style="background:#f7a609"></i>대기·중지</span>' +
       '<span><i style="background:#e2361f"></i>반려·품절</span>' +
@@ -2579,6 +2736,83 @@ var MKT = (function () {
     toast("점검목록 CSV를 저장했어요.", "ok");
   }
 
+  /* ── 개선 의견 남기기 (폰 밖으로 나가지 않음) ──────────── */
+  var FB = { tag: "", text: "" };
+
+  function fbText() {
+    var tag = FB.tag || "개선 의견";
+    var body = String(FB.text || "").replace(/\s+/g, " ").trim() || "(아직 적지 않았어요)";
+    return "[내 마켓 현황판 v" + VERSION + " 개선 의견]\n" +
+      "· 종류: " + tag + "\n" +
+      "· 의견: " + body;
+  }
+
+  function fbPaint() {
+    var tags = document.querySelectorAll(".fbtag");
+    for (var i = 0; i < tags.length; i++) {
+      var on = tags[i].getAttribute("data-tag") === FB.tag;
+      tags[i].classList.toggle("on", on);
+      tags[i].setAttribute("aria-pressed", on ? "true" : "false");
+    }
+    $("fbPrev").textContent = fbText();
+  }
+
+  function fbOpen() {
+    $("fbModal").classList.add("on");
+    $("fbModal").setAttribute("aria-hidden", "false");
+    fbPaint();
+    setTimeout(function () { try { $("fbText").focus(); } catch (e) { /* 무시 */ } }, 60);
+  }
+
+  function fbClose() {
+    $("fbModal").classList.remove("on");
+    $("fbModal").setAttribute("aria-hidden", "true");
+  }
+
+  function copyText(t) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(t).then(function () { return true; }, function () { return legacyCopy(t); });
+    }
+    return Promise.resolve(legacyCopy(t));
+  }
+
+  function legacyCopy(t) {
+    try {
+      var ta = document.createElement("textarea");
+      ta.value = t;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.top = "-1000px";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, t.length);
+      var ok = document.execCommand("copy");
+      ta.remove();
+      return ok;
+    } catch (e) { return false; }
+  }
+
+  function fbCopy() {
+    FB.text = $("fbText").value;
+    if (!String(FB.text).trim()) {
+      toast("한 줄만 적어 주세요. 짧아도 좋아요.", "bad");
+      try { $("fbText").focus(); } catch (e) { /* 무시 */ }
+      return;
+    }
+    var t = fbText();
+    copyText(t).then(function (ok) {
+      if (ok) {
+        var btn = $("fbCopy");
+        btn.textContent = "✅ 복사됐어요 — 붙여넣기 하세요";
+        setTimeout(function () { btn.textContent = "📋 의견 복사해서 전달하기"; }, 2600);
+        toast("복사 완료! 공유해 준 분이나 단톡방에 붙여넣어 보내 주세요", "ok");
+      } else {
+        toast("복사가 막혔어요. 아래 미리보기 글을 길게 눌러 복사해 주세요.", "bad");
+      }
+    });
+  }
+
   /* ── 설치 안내 · PWA ───────────────────────────────────── */
   var installEvent = null;
   function isStandalone() {
@@ -2699,6 +2933,25 @@ var MKT = (function () {
     $("btnInstall").addEventListener("click", onInstallClick);
     $("btnClear").addEventListener("click", clearAll);
     $("btnGuideFromBoard").addEventListener("click", function () { switchTab("guide"); });
+
+    // 개선 의견
+    $("btnFeedback").addEventListener("click", fbOpen);
+    $("fbClose").addEventListener("click", fbClose);
+    $("fbCopy").addEventListener("click", fbCopy);
+    $("fbText").addEventListener("input", function (e) { FB.text = e.target.value; $("fbPrev").textContent = fbText(); });
+    $("fbText").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); fbCopy(); } });
+    var fbTags = document.querySelectorAll(".fbtag");
+    for (var t = 0; t < fbTags.length; t++) {
+      fbTags[t].addEventListener("click", function (e) {
+        var v = e.currentTarget.getAttribute("data-tag");
+        FB.tag = FB.tag === v ? "" : v;
+        fbPaint();
+      });
+    }
+    $("fbModal").addEventListener("click", function (e) { if (e.target === $("fbModal")) fbClose(); });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && $("fbModal").classList.contains("on")) fbClose();
+    });
   }
 
   function boot() {
