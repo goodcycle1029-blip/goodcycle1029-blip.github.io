@@ -2068,14 +2068,6 @@ var MKT = (function () {
         preset_label: it.status_label || "", preset_note: it.note || "", limit: it.limit || null
       });
     }
-    /* ESM PLUS는 G마켓·옥션이 같은 파일(같은 행)을 쓰므로 합계에서 한 번만 셉니다. */
-    for (i = 0; i < markets.length; i++) {
-      if (markets[i].key === "auction") {
-        for (j = 0; j < markets.length; j++) {
-          if (markets[j].key === "gmarket" && markets[j].total === markets[i].total) markets[i].dedupe = true;
-        }
-      }
-    }
     var issues = { duplicates: [], name_rules: {}, stock_zero: [], price: [], origin: [],
       rejects: [], price_spread: [] };
     var signals = buildSignals(markets, issues);
@@ -2085,7 +2077,6 @@ var MKT = (function () {
       var sg = signals[i], mk = byKey[sg.key];
       sg.preset = true;
       if (!mk) continue;
-      sg.dedupe = !!mk.dedupe;
       sg.preset_label = mk.preset_label;
       sg.preset_note = mk.preset_note;
       sg.limit = mk.limit;
@@ -2126,7 +2117,7 @@ var MKT = (function () {
       signal_counts: signalCounts, signal_labels: SIGNAL_LABELS,
       issues: issues, files: [], note: meta.note || "",
       overview: meta.overview || [], work: meta.work || [], blocked: meta.blocked || [],
-      products: []
+      order: meta.order || null, products: []
     };
   }
 
@@ -2707,14 +2698,13 @@ var MKT = (function () {
 
     var sum = [0, 0, 0, 0];
     for (i = 0; i < rows.length; i++) {
-      if (rows[i].dedupe) continue;
       var gg = gauge(rows[i].counts, rows[i].total);
       for (j = 0; j < 4; j++) sum[j] += gg.segs[j].n;
     }
     var allSegs = GSEG.map(function (s, k) { return { label: s.label, color: s.color, n: sum[k] }; });
     var allTotal = 0;
     for (i = 0; i < 4; i++) allTotal += sum[i];
-    var allTile = '<div class="dtile all" role="img" aria-label="전체 마켓 합계 ' +
+    var allTile = r.preset ? "" : '<div class="dtile all" role="img" aria-label="전체 마켓 합계 ' +
       esc("전체 " + num(allTotal) + "개 중 판매중(주문 전) " + num(sum[0]) + "개") + '">' +
       '<div class="dthead"><span class="nm">전체 합계</span><span class="mn">' + rows.length + '곳</span></div>' +
       donutBox(allSegs, allTotal, "mid", "전체") +
@@ -3031,12 +3021,22 @@ var MKT = (function () {
     var h = '<div class="plive"><span class="chip2">🏢 굳사이클 실제 현황 <b>' +
       esc(r.updated_at || "") + "</b> 기준</span>" +
       '<span class="stamp">회사 앱(status.json)에서 방금 읽음</span></div>';
-    if (r.work && r.work.length) {
-      h += '<ul class="pwork">' + r.work.map(function (w) {
-        return "<li><span class=\"wt\">" + esc(w.time || "지금") + "</span><span><b>" +
-          esc(w.title || "") + "</b>" + (w.note ? " — " + esc(w.note) : "") + "</span></li>";
-      }).join("") + "</ul>";
+    var items = (r.work || []).map(function (w) {
+      return "<li><span class=\"wt\">" + esc(w.time || "지금") + "</span><span><b>" +
+        esc(w.title || "") + "</b>" + (w.note ? " — " + esc(w.note) : "") + "</span></li>";
+    });
+    var od = r.order;
+    if (od && od.steps && od.steps.length) {
+      var done = 0, nextStep = "";
+      for (var s2 = 0; s2 < od.steps.length; s2++) {
+        if (od.steps[s2].s === "done") done++;
+        else if (!nextStep) nextStep = od.steps[s2].t;
+      }
+      items.push("<li><span class=\"wt\">주문</span><span><b>첫 주문 " + done + " / " + od.steps.length +
+        "단계</b>" + (od.product ? " — " + esc(od.product) : "") +
+        (nextStep ? " · 다음: " + esc(nextStep) : "") + "</span></li>");
     }
+    if (items.length) h += '<ul class="pwork">' + items.join("") + "</ul>";
     return h;
   }
 
@@ -3082,7 +3082,10 @@ var MKT = (function () {
         PRE.on = true;
         S.result = MKT.presetAnalyze(list, {
           source: "status.json", updated_at: d.updated_at || "", headline: d.headline || "",
-          overview: d.overview || [], work: d.work || [], blocked: d.blocked || [], note: d.note || ""
+          overview: d.overview || [], work: d.work || [], blocked: d.blocked || [], note: d.note || "",
+          order: (d.ceo && d.ceo.order) ? {
+            product: d.ceo.order.product || "", steps: d.ceo.order.steps || []
+          } : null
         });
         setBusy("");
         render();
