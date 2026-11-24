@@ -855,6 +855,32 @@
   .ebar{height:6px;margin-top:8px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden}
   .ebar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--hold),var(--sale))}
 
+  /* ---------- 🚀 진행 중인 프로젝트 (내 마켓 현황판 등) ---------- */
+  .proj{display:grid;gap:9px;margin:2px 0 4px}
+  .pcard{border-radius:16px;border:1px solid var(--line);background:var(--card);padding:12px 13px;border-left:3px solid rgba(148,163,184,.8)}
+  .pcard.t-sale{border-left-color:rgba(16,185,129,.9)}
+  .pcard.t-wait{border-left-color:rgba(245,158,11,.9)}
+  .pcard.t-bad{border-left-color:rgba(239,68,68,.9)}
+  .pcard .ph{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .pcard .ph .e{font-size:20px;line-height:1;flex:none}
+  .pcard .ph b{font-size:16.5px;font-weight:900;letter-spacing:-.02em;line-height:1.3}
+  .pcard .ph .chip{margin-left:auto}
+  .pcard .ptag{display:block;margin-top:4px;font-size:12.5px;font-weight:800;color:#bfe6ff;line-height:1.45}
+  .pcard .psum{margin:7px 0 0;font-size:14.5px;font-weight:700;color:#dfe8fb;line-height:1.52}
+  .pcard .kv{margin-top:7px}
+  .pcard .kv .row{grid-template-columns:minmax(74px,.72fr) 1.55fr;gap:8px;padding:7px 0}
+  .pcard .kv .k{font-size:12.5px;color:#bcd0ea}
+  .pcard .kv .v{font-size:13px;line-height:1.52}
+  .pcard .pnx{margin:9px 0 0;padding:8px 10px;border-radius:10px;background:rgba(126,224,255,.07);border:1px solid rgba(126,224,255,.26);font-size:12.5px;font-weight:800;line-height:1.55;color:#dbe6f8}
+  .pcard .pnx b{color:#eafff5}
+  .pcard .pnx ol{margin:3px 0 0;padding-left:19px}
+  .pcard .pnx li{margin:2px 0}
+  .pcard .pgo{display:inline-flex;align-items:center;gap:5px;margin-top:10px;min-height:44px;padding:0 14px;border-radius:12px;text-decoration:none;font-size:14px;font-weight:900;color:#08202b;background:linear-gradient(140deg,var(--mn),#c9ffe4);border:1px solid rgba(143,240,192,.55)}
+  .pcard .pgo:active{transform:scale(.98)}
+  .pcard .pgo:focus-visible{outline:3px solid var(--cy);outline-offset:2px}
+  .acc-b a,.kv .v a,.pcard a.pgo{font-weight:900}
+  .acc-b a{color:#9fe9ff}
+
   .tline{display:grid;gap:8px;margin:2px 0 4px}
   .tl{
     display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:13px;
@@ -1253,6 +1279,7 @@
         <ul>
           <li><b>대문(놀이터)</b> — 게임 3종 + 일본 여행 도우미</li>
           <li><b>company.html</b> — 지금 보고 있는 이 본사 안내판</li>
+          <li><b>market-board.html</b> — <a href="market-board.html" target="_blank" rel="noopener">내 마켓 현황판(셀러 배포용)</a> — 다른 셀러분들도 각자 폰에서 무료로 쓰는 화면</li>
         </ul>
         <p>공개 페이지라서 <b>전화번호·메일·사서함번호·사업자번호·비밀번호·키는 한 글자도 넣지 않았습니다.</b> 그런 내용은 드라이브 안쪽과 금고에만 있습니다.</p>
       </div>
@@ -2875,6 +2902,36 @@
     return h + '</div>';
   }
 
+  /* 🚀 진행 중인 프로젝트 — 다른 셀러에게 나눠 준 것도 여기에 같이 나옵니다 */
+  function projectsHTML(list){
+    var h = '<div class="proj">';
+    list.forEach(function(p){
+      if (!p) return;
+      h += '<article class="pcard' + ceoTone(p.tone) + '">';
+      h += '<div class="ph"><span class="e" aria-hidden="true">' + esc(p.icon || '🚀') + '</span><b>' + esc(p.name || '') + '</b>';
+      if (p.state) h += '<span class="chip ' + esc(p.chip || 'done') + '">' + esc(p.state) + '</span>';
+      h += '</div>';
+      if (p.tag) h += '<span class="ptag">' + esc(p.tag) + '</span>';
+      if (p.sum) h += '<p class="psum">' + esc(p.sum) + '</p>';
+      if (p.rows && p.rows.length){
+        h += '<div class="kv">';
+        p.rows.forEach(function(r){
+          h += '<div class="row"><span class="k">' + esc(r.k) + '</span><span class="v">' + esc(r.v) + '</span></div>';
+        });
+        h += '</div>';
+      }
+      if (p.next && p.next.length){
+        h += '<div class="pnx"><b>다음에 손볼 곳</b><ol>';
+        p.next.forEach(function(n){ h += '<li>' + esc(n) + '</li>'; });
+        h += '</ol></div>';
+      }
+      if (p.link) h += '<a class="pgo" href="' + esc(p.link) + '" target="_blank" rel="noopener">' + esc(p.linkText || '바로 열기') + ' →</a>';
+      if (p.note) h += '<p class="fine">' + esc(p.note) + '</p>';
+      h += '</article>';
+    });
+    return h + '</div>';
+  }
+
   /* 「한눈에」 4칸 상세 — 타일의 d(상세) 칸을 패널로 펼칩니다 */
   var tileOpen = {};   /* 펼침 상태 — 90초 새로고침으로 다시 그려도 유지 */
   function tilePid(i){ return 'tl-' + i; }
@@ -2983,6 +3040,12 @@
     if (c.emoticon && c.emoticon.length){
       h += '<h2 class="sec">🎨 캐릭터 이모티콘 프로젝트</h2>';
       h += emoticonHTML(c.emoticon);
+    }
+
+    if (c.projects && c.projects.length){
+      h += '<h2 class="sec">🚀 진행 중인 프로젝트</h2>';
+      h += '<p class="fine" style="margin:-2px 0 8px">굳사이클 안에서 만들고 있는 것과, 다른 셀러분들께 나눠 드린 것까지 함께 둡니다.</p>';
+      h += projectsHTML(c.projects);
     }
 
     if (c.todo && c.todo.length){
