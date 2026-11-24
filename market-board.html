@@ -1440,7 +1440,7 @@ var MKT = (function () {
       if (s) sites[s] = true;
     }
     if (sites["g마켓"] || sites["지마켓"] || sites["gmarket"]) return "gmarket";
-    if (sites["옥션"] || sites["auction"]) return "auction";
+    if (sites["옥션"] || sites["a옥션"] || sites["auction"]) return "auction";
     if (sites["롯데온"] || sites["lotteon"] || sites["lotte on"]) return "lotteon";
     return "etc";
   }
@@ -1606,9 +1606,12 @@ var MKT = (function () {
         var rowMarket = market;
         var siteValue = cellMap("site");
         if ((market === "gmarket" || market === "auction") && siteValue) {
+          /* ESM PLUS는 한 파일에 G마켓·옥션이 같이 들어옵니다.
+             사이트 값이 "옥션"·"A옥션"·"지마켓"·"G마켓" 어느 쪽으로 적혀 있어도
+             줄마다 제 사이트로 나눠 셉니다(합산하지 않음). */
           var sn = normalize(siteValue);
-          if (sn === "옥션" || sn === "auction") rowMarket = "auction";
-          else if (sn === "지마켓" || sn === "g마켓" || sn === "gmarket") rowMarket = "gmarket";
+          if (sn.indexOf("옥션") >= 0 || sn.indexOf("auction") >= 0) rowMarket = "auction";
+          else if (sn.indexOf("지마켓") >= 0 || sn.indexOf("g마켓") >= 0 || sn.indexOf("gmarket") >= 0) rowMarket = "gmarket";
         }
         var price = toNumber(cellMap("price"));
         var salePrice = toNumber(cellMap("sale_price"));
@@ -2704,7 +2707,7 @@ var MKT = (function () {
     var allSegs = GSEG.map(function (s, k) { return { label: s.label, color: s.color, n: sum[k] }; });
     var allTotal = 0;
     for (i = 0; i < 4; i++) allTotal += sum[i];
-    var allTile = r.preset ? "" : '<div class="dtile all" role="img" aria-label="전체 마켓 합계 ' +
+    var allTile = '<div class="dtile all" role="img" aria-label="전체 마켓 합계 ' +
       esc("전체 " + num(allTotal) + "개 중 판매중(주문 전) " + num(sum[0]) + "개") + '">' +
       '<div class="dthead"><span class="nm">전체 합계</span><span class="mn">' + rows.length + '곳</span></div>' +
       donutBox(allSegs, allTotal, "mid", "전체") +
