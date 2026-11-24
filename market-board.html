@@ -2057,12 +2057,16 @@ var MKT = (function () {
       var on = Math.max(0, toNumber(it.on_sale) || 0);
       var wait = Math.max(0, toNumber(it.pending) || 0);
       var total = Math.max(0, toNumber(it.total) || 0);
+      /* 판매중지는 status.json에 off로 따로 적혀 있으면 그 값을 그대로 씁니다.
+         (옥션·G마켓 전체 건수 = 판매중 + 판매중지) */
+      var off = (it.off === null || it.off === undefined || it.off === "") ? null : Math.max(0, toNumber(it.off) || 0);
       /* status.json의 pending은 마켓마다 뜻이 달라 메모로 구분합니다.
          예) 쿠팡 "승인반려 80" → 반려, 그 밖에는 승인대기 */
       var pendingReject = /반려/.test(it.note || "");
       counts[STATUS_ON] = on;
       counts[pendingReject ? STATUS_REJECT : STATUS_WAIT] = wait;
-      counts[STATUS_OTHER] = Math.max(0, total - on - wait);
+      if (off !== null) counts[STATUS_OFF] = off;
+      counts[STATUS_OTHER] = Math.max(0, total - on - wait - (off === null ? 0 : off));
       markets.push({
         key: it.key, label: it.label || info.label, color: info.color, site: info.site,
         total: total, counts: counts, with_warning: 0,
@@ -2092,7 +2096,8 @@ var MKT = (function () {
         var bits = ["판매중 " + comma(sg.on) + "건"];
         if (sg.wait) bits.push("승인대기 " + comma(sg.wait) + "건");
         if (sg.reject) bits.push("승인반려 " + comma(sg.reject) + "건");
-        var rest = sg.total - sg.on - sg.wait;
+        if (sg.off) bits.push("판매중지 " + comma(sg.off) + "건");
+        var rest = sg.total - sg.on - sg.wait - (sg.off || 0);
         if (rest > 0) bits.push("그 밖 상태 " + comma(rest) + "건");
         if (mk.limit) bits.push("한도 " + comma(sg.on) + " / " + comma(mk.limit));
         sg.line = bits.join(" · ") + (mk.preset_note ? " — " + mk.preset_note : "");
@@ -3076,7 +3081,7 @@ var MKT = (function () {
           var m = src[i], key = presetKeyOf(m.name);
           if (!key) continue;
           list.push({
-            key: key, label: m.name, on_sale: m.on_sale, pending: m.pending, total: m.total,
+            key: key, label: m.name, on_sale: m.on_sale, pending: m.pending, total: m.total, off: m.off,
             limit: m.limit, note: m.note, status_label: m.status_label
           });
         }
