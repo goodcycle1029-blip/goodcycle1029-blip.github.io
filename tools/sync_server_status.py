@@ -118,6 +118,12 @@ except Exception as e:
     out["promo"] = {}
 
 try:
+    out["qna"] = json.load(open("/opt/gcu/state/qna/qna_summary.json"))
+except Exception as e:
+    out["qna"] = {}
+    out["qna_error"] = str(e)
+
+try:
     out["kernel"] = os.uname().release
 except Exception:
     pass
@@ -165,6 +171,16 @@ def build(d: dict) -> dict:
         coupang_row = "연결 대기 — 윙 연동정보의 허용 IP 반영을 기다리는 중"
     else:
         coupang_row = "결제완료 주문 조회 200 OK · 자동 상품준비중 켜짐"
+    qna = d.get("qna") or {}
+    qna_last = str(qna.get("last_run") or "")
+    qna_row = ("10분마다 스마트스토어 상품Q&A·고객문의 + 쿠팡 상품Q&A·고객센터문의"
+               + (f" · 최근 {qna_last[5:16]}" if qna_last else ""))
+    if not qna:
+        draft_row = "아직 첫 회차 전 — 미답변 문의를 찾으면 초안과 메일 알림"
+    else:
+        draft_row = (f"대기 {qna.get('drafts_ready', 0)}건 · 이번 회차 새 문의 "
+                     f"{qna.get('new_this_run', 0)}건 · 보낸 답변 {qna.get('sent_total', 0)}건"
+                     " — 전송은 대표 확인 후")
     head = f"마지막 점검 {at[5:10].replace('-', '/')} {at_short} · 현재 {streak}회 연속 정상"
     if errs:
         head += f" (누적 실행 {runs}회 · 실패 {errs}회)"
@@ -172,6 +188,8 @@ def build(d: dict) -> dict:
     rows = [
         {"k": "감시 주기", "v": "5분마다 자동 확인 · 24시간 (하루 288회)"},
         {"k": "감시 대상", "v": "스마트스토어 + 쿠팡 — 새 주문(결제완료)·취소·반품"},
+        {"k": "고객문의 자동 감지", "v": qna_row},
+        {"k": "고객문의 답변 초안", "v": draft_row},
         {"k": "마진 기준", "v": "최소 세후 10%+ · 일본 전문몰 30% & 아마존·라쿠텐 인기도 30~60% 중위권 틈새 집중 (가격 방어선 5.5%)"},
         {"k": "마진 자동 점검", "v": "매일 08:30 — 10% 미만은 가격을 올리지 않고 05:00 교체 풀에, 5.5% 미만만 가격 자동 상향"},
         {"k": "지금까지 실행", "v": f"현재 {streak}회 연속 정상 · 누적 {runs}회(실패 {errs}회)" if runs is not None else "-"},
@@ -185,7 +203,9 @@ def build(d: dict) -> dict:
         {"k": "홍보 자동 제작", "v": promo_row(d)},
         {"k": "자동 복구", "v": "재부팅·크래시 뒤 스스로 다시 시작 (오늘 재부팅 1회로 실증)"},
     ]
-    note = ("쿠팡도 결제완료 주문을 5분마다 보며 자동으로 상품준비중까지 넘깁니다. "
+    note = ("고객문의는 10분마다 두 마켓을 훑어 미답변만 골라 답변 초안을 만들고 메일로 알립니다. "
+            "고객에게 실제로 보내는 일은 대표가 초안을 확인한 뒤에만 합니다. "
+            "쿠팡도 결제완료 주문을 5분마다 보며 자동으로 상품준비중까지 넘깁니다. "
             "엘덱스 자동 신청은 안전 스위치가 꺼져 있어 사람이 직접 신청합니다. "
             "홍보 묶음은 월·수·금 07:30 에 서버가 미리 만들어 두고, 올리는 일은 대표가 확인한 뒤 합니다. "
             "서버 주소·계정·열쇠는 공개 화면에 넣지 않습니다.")
@@ -212,31 +232,45 @@ def main() -> int:
     ceo = st.setdefault("ceo", {})
     ceo["server"] = sv
     ceo["updated_at"] = now.strftime("%Y-%m-%d %H:%M")
+    qn = d.get("qna") or {}
     ceo["headline"] = (f"서울 클라우드는 지금 {d.get('streak', d.get('runs_since'))}회 연속 정상으로 돌고 있고(누적 실행 "
-                       f"{d.get('runs_since')}회·실패 {d.get('errors_since')}회), 스마트스토어와 쿠팡 주문을 함께 보고 있습니다. "
-                       "오늘 첫 주문은 엘덱스 신청접수까지 끝나 내일 09:00 트래킹 입력만 남았습니다.")
+                       f"{d.get('runs_since')}회·실패 {d.get('errors_since')}회), 주문은 5분마다·고객문의는 10분마다 "
+                       "함께 보고 있습니다. 고객문의는 답변 초안과 메일 알림까지만 자동이고, 실제 전송은 대표가 확인한 뒤에 합니다.")
+    if qn:
+        ceo["headline"] += (f" 지금 답변 초안 대기 {qn.get('drafts_ready', 0)}건 · 보낸 답변 "
+                            f"{qn.get('sent_total', 0)}건입니다.")
     tiles = ceo.get("tiles") or []
     for t in tiles:
         if t.get("label") == "서울 클라우드":
             t["value"] = "정상 가동"
-            t["sub"] = (f"{d.get('streak', d.get('runs_since'))}회 연속 정상"
-                        + (f" · 누적 실패 {d.get('errors_since')}회" if d.get("errors_since") else ""))
+            t["sub"] = (f"{d.get('streak', d.get('runs_since'))}회 연속 정상 · 주문 5분 · 문의 10분"
+                        + " · 매일 08:30 마진")
             t["tone"] = "reg"
             rows = (t.get("d") or {}).get("rows") or []
-            for r in rows:
-                if r.get("k") == "최근 정상 점검":
-                    r["v"] = sv["rows"][3]["v"]
-                    r.pop("src", None)
-                if r.get("k") == "감시 주기":
-                    r["v"] = "5분마다 자동 확인 · 24시간 (하루 288회)"
-                if r.get("k") == "감시 대상":
-                    r["v"] = "스마트스토어 + 쿠팡 — 새 주문(결제완료)·취소·반품"
+            by_key = {r.get("k"): r for r in rows}
+            fresh = {r["k"]: r["v"] for r in sv["rows"]}
+            # 이미 있는 줄은 값만 갱신(대표가 손으로 다듬은 문구는 살린다)
+            for k in ("최근 정상 점검", "감시 주기", "감시 대상",
+                      "고객문의 자동 감지", "고객문의 답변 초안"):
+                if k in by_key and k in fresh:
+                    by_key[k]["v"] = fresh[k]
+                    by_key[k].pop("src", None)
+            # 없던 줄(고객문의)은 '감시 대상' 바로 뒤에 넣는다
+            insert_at = next((i + 1 for i, r in enumerate(rows)
+                              if r.get("k") == "감시 대상"), len(rows))
+            for k in ("고객문의 자동 감지", "고객문의 답변 초안"):
+                if k in fresh and k not in by_key:
+                    rows.insert(insert_at, {"k": k, "v": fresh[k]})
+                    by_key[k] = rows[insert_at]
+                    insert_at += 1
             dd = t.setdefault("d", {})
-            dd["sum"] = (f"사람 없이 24시간 도는 주문 감시 서버입니다. 지금 {d.get('streak', d.get('runs_since'))}회 연속 정상이고, "
-                         "스마트스토어와 쿠팡 주문을 5분마다 함께 보고 있습니다. 점검 항목은 모두 통과했습니다.")
-            dd["note"] = "아래 「🛰️ 서울 클라우드」 섹션에 점검 항목이 더 있습니다. 여기 시각은 서버가 마지막으로 남긴 기록 기준입니다."
+            dd["sum"] = (f"사람 없이 24시간 도는 주문·문의 감시 서버입니다. 지금 {d.get('streak', d.get('runs_since'))}회 연속 정상이고, "
+                         "스마트스토어와 쿠팡 주문을 5분마다, 고객문의를 10분마다 함께 보고 있습니다. "
+                         "문의는 답변 초안과 메일 알림까지만 하고, 실제 전송은 대표가 확인한 뒤에 합니다.")
+            dd.setdefault("note", "아래 「🛰️ 서울 클라우드」 섹션에 점검 항목이 더 있습니다. "
+                                  "여기 시각은 서버가 마지막으로 남긴 기록 기준입니다.")
     with open(STATUS, "w", encoding="utf-8") as f:
-        json.dump(st, f, ensure_ascii=False, indent=2)
+        json.dump(st, f, ensure_ascii=False, indent=1)   # 기존 파일과 같은 1칸 들여쓰기
     print("status.json 갱신 완료:", STATUS)
     return 0
 
