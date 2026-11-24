@@ -112,6 +112,12 @@ except Exception:
     pass
 
 try:
+    p = json.load(open("/opt/gcu/state/promo_last.json"))
+    out["promo"] = p
+except Exception as e:
+    out["promo"] = {}
+
+try:
     out["kernel"] = os.uname().release
 except Exception:
     pass
@@ -127,6 +133,18 @@ def fetch() -> dict:
         raise RuntimeError((r.stderr or r.stdout).strip()[:400])
     line = [x for x in r.stdout.strip().splitlines() if x.startswith("{")][-1]
     return json.loads(line)
+
+
+def promo_row(d: dict) -> str:
+    """서버가 만든 마지막 홍보 묶음 한 줄."""
+    p = d.get("promo") or {}
+    if not p:
+        return "월·수·금 07:30 — 9:16 쇼츠 15초 + 카드뉴스 4장 + /seo·/copy·/viral 문안 (아직 첫 회차 전)"
+    at = str(p.get("at", ""))
+    size = p.get("video")
+    sz = f" · 영상 {size / 1e6:.1f}MB" if isinstance(size, (int, float)) and size else ""
+    return (f"월·수·금 07:30 자동 · 최근 {at[5:16]} {p.get('item', '')}"
+            f" (검수 {p.get('score', '-')}점{sz})")
 
 
 def build(d: dict) -> dict:
@@ -162,10 +180,12 @@ def build(d: dict) -> dict:
         {"k": "상품 매핑", "v": f"{mapped}/{products} ({pct}%)" if mapped else "-"},
         {"k": "새 주문 알림", "v": "메일 발송 정상 — 새 주문·오류가 생기면 바로 메일로"},
         {"k": "서버 자원", "v": f"메모리 {d.get('mem_avail_mb', '-')}MB 여유 · 스왑 {d.get('swap_total_mb', '-')}MB · 디스크 {d.get('disk_free_gb', '-')}GB"},
+        {"k": "홍보 자동 제작", "v": promo_row(d)},
         {"k": "자동 복구", "v": "재부팅·크래시 뒤 스스로 다시 시작 (오늘 재부팅 1회로 실증)"},
     ]
     note = ("쿠팡도 결제완료 주문을 5분마다 보며 자동으로 상품준비중까지 넘깁니다. "
             "엘덱스 자동 신청은 안전 스위치가 꺼져 있어 사람이 직접 신청합니다. "
+            "홍보 묶음은 월·수·금 07:30 에 서버가 미리 만들어 두고, 올리는 일은 대표가 확인한 뒤 합니다. "
             "서버 주소·계정·열쇠는 공개 화면에 넣지 않습니다.")
     return {
         "state": "정상 가동" if d.get("health_ok") else "확인 필요",
