@@ -6,7 +6,7 @@
    · 화면은 인터넷을 먼저 확인해 새 버전을 받고, 실패하면 저장본을 씁니다.
    · 외부 주소(미니게임 링크 등)는 가로채지 않습니다.
    ========================================================================= */
-var CACHE = 'market-board-v6';
+var CACHE = 'market-board-v7';
 var CORE = [
   './market-board.html',
   './market-manifest.json',
@@ -53,8 +53,10 @@ self.addEventListener('fetch', function (event) {
   if (!isMine(url)) return;
 
   if (req.mode === 'navigate') {
+    /* 화면은 브라우저 임시 저장(http cache)을 건너뛰고 늘 새로 받습니다.
+       그래야 새 버전이 올라온 날 바로 보입니다. */
     event.respondWith(
-      fetch(req).then(function (res) {
+      fetch(req, { cache: 'no-store' }).then(function (res) {
         var copy = res.clone();
         caches.open(CACHE).then(function (c) { c.put('./market-board.html', copy); }).catch(function () {});
         return res;
