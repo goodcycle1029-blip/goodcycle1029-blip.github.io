@@ -875,6 +875,10 @@
   .pcard .pnx b{color:#eafff5}
   .pcard .pnx ol{margin:3px 0 0;padding-left:19px}
   .pcard .pnx li{margin:2px 0}
+  .pcard .mbcnt{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:9px;padding:8px 10px;border-radius:11px;background:rgba(36,104,242,.14);border:1px solid rgba(126,180,255,.36)}
+  .pcard .mbcnt .ci{font-size:12.5px;font-weight:800;color:#dbe8fb}
+  .pcard .mbcnt .ci b{font-size:15px;color:#fff;font-variant-numeric:tabular-nums}
+  .pcard .mbcnt .cn2{font-size:11.5px;color:#b9cdea}
   .pcard .pgo{display:inline-flex;align-items:center;gap:5px;margin-top:10px;min-height:44px;padding:0 14px;border-radius:12px;text-decoration:none;font-size:14px;font-weight:900;color:#08202b;background:linear-gradient(140deg,var(--mn),#c9ffe4);border:1px solid rgba(143,240,192,.55)}
   .pcard .pgo:active{transform:scale(.98)}
   .pcard .pgo:focus-visible{outline:3px solid var(--cy);outline-offset:2px}
@@ -1279,7 +1283,8 @@
         <ul>
           <li><b>대문(놀이터)</b> — 게임 3종 + 일본 여행 도우미</li>
           <li><b>company.html</b> — 지금 보고 있는 이 본사 안내판</li>
-          <li><b>market-board.html</b> — <a href="market-board.html" target="_blank" rel="noopener">내 마켓 현황판(셀러 배포용)</a> — 다른 셀러분들도 각자 폰에서 무료로 쓰는 화면</li>
+          <li><b>market-board.html</b> — <a href="market-board.html" target="_blank" rel="noopener">내 마켓 현황판(셀러 배포용)</a> — 다른 셀러분들도 각자 폰에서 무료로 쓰는 화면 (v1.5)</li>
+          <li><b>market-board.html?preset=goodcycle</b> — <a href="market-board.html?preset=goodcycle" target="_blank" rel="noopener">대표님 실제 수치로 바로 열기</a> — status.json의 지금 숫자(스마트스토어 1,000 · 쿠팡 1,394 · G마켓 2,000 · 옥션 2,000)가 그대로 뜨는 화면</li>
         </ul>
         <p>공개 페이지라서 <b>전화번호·메일·사서함번호·사업자번호·비밀번호·키는 한 글자도 넣지 않았습니다.</b> 그런 내용은 드라이브 안쪽과 금고에만 있습니다.</p>
       </div>
@@ -2903,6 +2908,45 @@
   }
 
   /* 🚀 진행 중인 프로젝트 — 다른 셀러에게 나눠 준 것도 여기에 같이 나옵니다 */
+  /* 📊 내 마켓 현황판 — 실제 방문·사용 숫자 (status.json > ceo.projects[].counter) */
+  var mbCfg = null, mbCnt = { at: 0, visit: null, use: null, busy: false };
+  function mbCountHTML(p){
+    mbCfg = p.counter;
+    function v(x){ return x == null ? '…' : num(x); }
+    return '<div class="mbcnt" data-mbc="1">' +
+      '<span class="ci">👀 누적 방문 <b data-mbv="visit">' + v(mbCnt.visit) + '</b></span>' +
+      '<span class="ci">🧾 사용 <b data-mbv="use">' + v(mbCnt.use) + '</b></span>' +
+      '<span class="cn2">' + esc(p.counter.note || '숫자만 익명으로 셉니다') + '</span></div>';
+  }
+  function mbPaint(){
+    if (!mbCfg) return;
+    var box = document.querySelector('[data-mbc]');
+    if (!box) return;
+    var bv = box.querySelector('[data-mbv="visit"]'), bu = box.querySelector('[data-mbv="use"]');
+    if (bv && mbCnt.visit != null) bv.textContent = num(mbCnt.visit);
+    if (bu && mbCnt.use != null) bu.textContent = num(mbCnt.use);
+  }
+  function mbLoad(){
+    if (!mbCfg || mbCnt.busy) return;
+    if (mbCnt.at && Date.now() - mbCnt.at < 60000) { mbPaint(); return; }
+    mbCnt.busy = true;
+    var ns = mbCfg.namespace || 'goodcycle1029-blip.github.io';
+    function get(key){
+      return fetch('https://abacus.jasoncameron.dev/get/' + encodeURIComponent(ns) + '/' + encodeURIComponent(key), { cache: 'no-store' })
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(j){ return (j && typeof j.value === 'number') ? j.value : null; })
+        .catch(function(){ return null; });
+    }
+    Promise.all([get(mbCfg.visitKey || 'marketboard-visits'), get(mbCfg.useKey || 'marketboard-uses')])
+      .then(function(v){
+        if (typeof v[0] === 'number') mbCnt.visit = v[0];
+        if (typeof v[1] === 'number') mbCnt.use = v[1];
+        mbCnt.at = Date.now();
+        mbPaint();
+      })
+      .then(function(){ mbCnt.busy = false; });
+  }
+
   function projectsHTML(list){
     var h = '<div class="proj">';
     list.forEach(function(p){
@@ -2913,6 +2957,7 @@
       h += '</div>';
       if (p.tag) h += '<span class="ptag">' + esc(p.tag) + '</span>';
       if (p.sum) h += '<p class="psum">' + esc(p.sum) + '</p>';
+      if (p.counter) h += mbCountHTML(p);
       if (p.rows && p.rows.length){
         h += '<div class="kv">';
         p.rows.forEach(function(r){
@@ -2929,6 +2974,7 @@
       if (p.note) h += '<p class="fine">' + esc(p.note) + '</p>';
       h += '</article>';
     });
+    if (mbCfg){ setTimeout(mbLoad, 0); }
     return h + '</div>';
   }
 

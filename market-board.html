@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>내 마켓 현황판</title>
-<meta name="description" content="스마트스토어·쿠팡·G마켓·옥션·11번가 상품 엑셀을 폰 안에서만 읽어, 마켓별 신호등과 손볼 곳을 한 화면에 보여 줍니다.">
+<meta name="description" content="스마트스토어·쿠팡·G마켓·옥션·11번가·롯데ON 상품 엑셀을 폰 안에서만 읽어, 마켓별 신호등과 손볼 곳을 한 화면에 보여 줍니다.">
 <meta name="theme-color" content="#2468f2">
 <meta name="color-scheme" content="light">
 <meta name="mobile-web-app-capable" content="yes">
@@ -496,6 +496,28 @@ table.tbl tr.clk:active{background:#f3f7ff}
 .detail .w b{display:block; font-size:11px; color:#8a5300; margin-bottom:2px}
 .closex{border:0; background:#f2f4f8; width:32px; height:32px; border-radius:9px; font-size:15px; color:#5f6b7a; flex:none}
 
+/* ── 굳사이클 실시간 현황 · 카운터 ───────────────── */
+.presetbar{margin:10px 0 0;border:1px solid #cfe0ff;background:linear-gradient(180deg,#f7faff,#eef4ff);border-radius:14px;padding:10px 11px}
+.presetbar.on{border-color:#9dc0ff;background:linear-gradient(180deg,#eef5ff,#e3eeff)}
+.presetbar .prow{display:flex;gap:8px;flex-wrap:wrap}
+.presetbar .pnote{margin:7px 0 0;font-size:11.5px;line-height:1.55;color:#40506b}
+.presetbar .pnote b{color:#12203a}
+.tbtn.live{background:#2468f2;border-color:#2468f2;color:#fff;font-weight:800}
+.plive{margin-top:9px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.plive .chip2{background:#fff;border:1px solid #d7e3f7;border-radius:9px;padding:5px 9px;font-size:11.5px;color:#2a3a55;white-space:nowrap}
+.plive .chip2 b{font-size:13px;color:#12203a}
+.plive .stamp{font-size:10.5px;color:#5b6b85;margin-left:2px}
+.pwork{list-style:none;margin:9px 0 0;padding:9px 0 0;border-top:1px dashed #c9dbf5}
+.pwork li{display:flex;gap:7px;font-size:11.5px;line-height:1.5;color:#31405c;padding:2px 0}
+.pwork li .wt{flex:none;font-weight:800;color:#1b57c9;min-width:40px}
+.pwork li b{color:#12203a}
+.cntbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0 0;padding:8px 10px;border:1px solid var(--line);background:#fff;border-radius:12px;font-size:11.5px;color:#4a5872}
+.cntbar .cn{display:inline-flex;gap:4px;align-items:center}
+.cntbar b{font-size:13px;color:#12203a;font-variant-numeric:tabular-nums}
+.cntbar .cnote{color:#8592a8;font-size:10.5px}
+.fbmail{display:block;text-align:center;margin-top:8px;text-decoration:none}
+.fitem .smp{display:inline-block;background:#eef4ff;color:#1b57c9;border-radius:6px;padding:0 5px;font-size:10px;font-weight:800;margin-right:3px}
+
 /* ── 넓은 화면(태블릿·PC에서도 확인용) ──────────── */
 @media (min-width:700px){
   body{font-size:15px}
@@ -516,7 +538,7 @@ table.tbl tr.clk:active{background:#f3f7ff}
   <div class="topin">
     <div class="logo">
       <span class="mark">📊</span>
-      <span class="tx"><b>내 마켓 현황판</b><span>v1.4 · 내 폰에서만 · 서버 전송 없음</span></span>
+      <span class="tx"><b>내 마켓 현황판</b><span>v1.5 · 내 폰에서만 · 상품 자료는 서버로 안 감</span></span>
     </div>
     <span class="grow"></span>
     <button class="install" id="btnInstall" type="button">📲 홈 화면에 추가</button>
@@ -533,10 +555,26 @@ table.tbl tr.clk:active{background:#f3f7ff}
   <!-- ══ 현황판 ═══════════════════════════════════════ -->
   <section class="panel on" id="tab-board" role="tabpanel">
 
+    <!-- ══ 굳사이클(본사) 실제 현황 · 방문/사용 카운터 ═══════ -->
+    <div class="presetbar" id="presetBar">
+      <div class="prow">
+        <button class="tbtn live" id="btnPreset" type="button">🏢 굳사이클(내 마켓) 실시간 불러오기</button>
+        <button class="tbtn" id="btnPresetOff" type="button" hidden>📄 내 파일로 보기</button>
+      </div>
+      <div id="presetLive" hidden></div>
+      <p class="pnote" id="presetNote">굳사이클 본사 현황(status.json)의 <b>지금 숫자</b>를 그대로 불러와 보여 줍니다. 다른 셀러는 각자 엑셀을 넣어 쓰는 화면 그대로입니다.</p>
+    </div>
+
+    <div class="cntbar" id="cntBar" hidden>
+      <span class="cn"><span aria-hidden="true">👀</span> 누적 방문 <b id="cntVisit">–</b></span>
+      <span class="cn"><span aria-hidden="true">🧾</span> 파일 분석(사용) <b id="cntUse">–</b></span>
+      <span class="cnote">숫자만 익명으로 셉니다 · 상품 자료·이름·주소는 보내지 않습니다</span>
+    </div>
+
     <div class="drop" id="drop">
       <div class="big dropinner">📥</div>
       <h3 class="dropinner"><span class="lbl-full">마켓에서 내려받은 상품 엑셀을 넣어 주세요</span><span class="lbl-short">엑셀 파일 넣기</span></h3>
-      <p class="dropinner">스마트스토어 · 쿠팡 · G마켓 · 옥션 · 11번가 상품 목록(.xlsx / .csv)<br>여러 개를 한꺼번에 넣어도 됩니다</p>
+      <p class="dropinner">스마트스토어 · 쿠팡 · G마켓 · 옥션 · 11번가 · 롯데ON 상품 목록(.xlsx / .csv)<br>여러 개를 한꺼번에 넣어도 됩니다</p>
       <div class="row">
         <button class="tbtn primary" id="btnPick" type="button"><span class="lbl-full">📂 파일 고르기</span><span class="lbl-short">＋ 추가</span></button>
         <button class="tbtn" id="btnSample" type="button"><span class="lbl-full">🎲 샘플로 먼저 연습</span><span class="lbl-short">🎲 샘플</span></button>
@@ -547,7 +585,7 @@ table.tbl tr.clk:active{background:#f3f7ff}
     <div class="card" id="emptyHint" style="margin-top:11px">
       <div class="note" style="line-height:1.7">
         <b style="color:var(--ink)">처음이세요?</b> 순서대로 한 번만 해 보면 됩니다.<br>
-        ① <b>샘플로 먼저 연습</b> — 5개 마켓 가상 자료로 신호등을 바로 체험<br>
+        ① <b>샘플로 먼저 연습</b> — 6개 마켓 가상 자료(샘플 미리보기)로 신호등을 바로 체험<br>
         ② 마켓에서 상품 목록 엑셀 내려받기 (받는 곳은 <b>설치·가이드</b> 탭)<br>
         ③ 엑셀을 넣으면 마켓별 불빛과 <b>손볼 곳</b>이 한 화면에 나옵니다
       </div>
@@ -620,7 +658,7 @@ table.tbl tr.clk:active{background:#f3f7ff}
     </div>
 
     <div class="foot">
-      내 마켓 현황판 v1.4 (웹앱) · 자료는 이 폰에만 저장됩니다<br>
+      내 마켓 현황판 v1.5 (웹앱) · 올린 자료는 이 폰에만 저장됩니다<br>
       <span class="swstate" id="swState">오프라인 저장 확인 중…</span>
     </div>
   </section>
@@ -673,6 +711,8 @@ table.tbl tr.clk:active{background:#f3f7ff}
           <span class="how">ESM PLUS → 상품 조회/수정 → 사이트 <b>옥션</b> 선택 → 목록 오른쪽 위 <b>[엑셀 다운로드]</b></span></div>
         <div class="mkrow"><span class="nm"><i class="dot" style="background:#ff0038"></i>11번가</span>
           <span class="how">상품관리 → <b>상품 조회/수정</b> → 판매상태 <b>전체</b>로 검색 → 오른쪽 위 <b>[엑셀 다운로드]</b></span></div>
+        <div class="mkrow"><span class="nm"><i class="dot" style="background:#e5006d"></i>롯데ON</span>
+          <span class="how">판매자센터(partner.lotteon.com) → <b>상품관리</b> → <b>상품 조회</b> → 판매상태 <b>전체</b>로 검색 → <b>[엑셀 다운로드]</b></span></div>
         <div class="gbox warn" style="margin-top:10px;margin-bottom:0">
           <b>받을 때 팁</b> — 판매상태를 <b>전체</b>로 놓고 받아야 반려·중지 상품까지 보입니다. ESM PLUS는 G마켓·옥션이 한 파일에 같이 들어 있어도 되고, 따로 받아도 됩니다.
           파일 안에 <b>사이트</b> 칸이 있으면 그 값을 보고 G마켓·옥션을 나눠 셉니다.
@@ -775,6 +815,8 @@ table.tbl tr.clk:active{background:#f3f7ff}
       placeholder="한 줄로 적어 주세요 (예: 도넛이 더 컸으면 좋겠어요)" aria-label="개선 의견 한 줄">
     <pre class="fbprev" id="fbPrev" aria-live="polite"></pre>
     <button class="tbtn primary fbcopy" id="fbCopy" type="button">📋 의견 복사해서 전달하기</button>
+    <a class="tbtn fbmail" id="fbMail" href="mailto:goodcycle1029@gmail.com">✉️ 메일로 바로 보내기</a>
+    <p class="fbnote">메일은 <b>goodcycle1029@gmail.com</b> 앞으로 갑니다. 누르면 메일 앱이 열리고, 적은 내용은 그대로 채워집니다(보내기는 직접 누르셔야 합니다).</p>
   </div>
 </div>
 
@@ -1261,6 +1303,7 @@ var MKT = (function () {
     { key: "gmarket", label: "G마켓", color: "#00a651", site: "esmplus.gmarket.co.kr" },
     { key: "auction", label: "옥션", color: "#e4002b", site: "esmplus.gmarket.co.kr" },
     { key: "eleven", label: "11번가", color: "#ff0038", site: "sell.11st.co.kr" },
+    { key: "lotteon", label: "롯데ON", color: "#e5006d", site: "partner.lotteon.com" },
     { key: "etc", label: "기타(직접 확인)", color: "#6b7280", site: "" }
   ];
   var MARKET_BY_KEY = {};
@@ -1374,7 +1417,8 @@ var MKT = (function () {
     ["coupang", ["쿠팡", "coupang", "wing"]],
     ["gmarket", ["지마켓", "gmarket", "g마켓"]],
     ["auction", ["옥션", "auction"]],
-    ["eleven", ["11번가", "11st", "eleven"]]
+    ["eleven", ["11번가", "11st", "eleven"]],
+    ["lotteon", ["롯데온", "롯데on", "lotteon", "lotte on"]]
   ];
 
   function guessMarket(filename, headers, siteValues) {
@@ -1389,6 +1433,7 @@ var MKT = (function () {
     if (hdr.indexOf("esm") >= 0 || hdr.indexOf("지마켓") >= 0) return "gmarket";
     if (hdr.indexOf("쿠팡") >= 0) return "coupang";
     if (hdr.indexOf("11번가") >= 0) return "eleven";
+    if (hdr.indexOf("롯데온") >= 0 || hdr.indexOf("lotteon") >= 0) return "lotteon";
     var sites = {};
     for (i = 0; i < (siteValues || []).length; i++) {
       var s = normalize(siteValues[i]);
@@ -1396,6 +1441,7 @@ var MKT = (function () {
     }
     if (sites["g마켓"] || sites["지마켓"] || sites["gmarket"]) return "gmarket";
     if (sites["옥션"] || sites["auction"]) return "auction";
+    if (sites["롯데온"] || sites["lotteon"] || sites["lotte on"]) return "lotteon";
     return "etc";
   }
 
@@ -1994,6 +2040,86 @@ var MKT = (function () {
     };
   }
 
+  /* ── 본사(status.json) 실제 현황 → 현황판 결과 ─────────────
+     엑셀 없이 마켓별 판매중·대기 건수만으로 같은 모양의 결과를 만듭니다.
+     상품 단위 점검(중복·가격·원산지)은 엑셀이 있어야 하므로 비워 둡니다. */
+  function presetAnalyze(list, meta) {
+    meta = meta || {};
+    var markets = [], i, j;
+    for (i = 0; i < (list || []).length; i++) {
+      var it = list[i], info = MARKET_BY_KEY[it.key];
+      if (!info) continue;
+      var counts = {};
+      for (j = 0; j < STATUS_ORDER.length; j++) counts[STATUS_ORDER[j]] = 0;
+      var on = Math.max(0, toNumber(it.on_sale) || 0);
+      var wait = Math.max(0, toNumber(it.pending) || 0);
+      var total = Math.max(0, toNumber(it.total) || 0);
+      /* status.json의 pending은 마켓마다 뜻이 달라 메모로 구분합니다.
+         예) 쿠팡 "승인반려 80" → 반려, 그 밖에는 승인대기 */
+      var pendingReject = /반려/.test(it.note || "");
+      counts[STATUS_ON] = on;
+      counts[pendingReject ? STATUS_REJECT : STATUS_WAIT] = wait;
+      counts[STATUS_OTHER] = Math.max(0, total - on - wait);
+      markets.push({
+        key: it.key, label: it.label || info.label, color: info.color, site: info.site,
+        total: total, counts: counts, with_warning: 0,
+        price_min: null, price_max: null, price_avg: null, stock_sum: 0,
+        origin_known: false, files: [],
+        preset_label: it.status_label || "", preset_note: it.note || "", limit: it.limit || null
+      });
+    }
+    var issues = { duplicates: [], name_rules: {}, stock_zero: [], price: [], origin: [],
+      rejects: [], price_spread: [] };
+    var signals = buildSignals(markets, issues);
+    var byKey = {};
+    for (i = 0; i < markets.length; i++) byKey[markets[i].key] = markets[i];
+    for (i = 0; i < signals.length; i++) {
+      var sg = signals[i], mk = byKey[sg.key];
+      sg.preset = true;
+      if (!mk) continue;
+      sg.preset_label = mk.preset_label;
+      sg.preset_note = mk.preset_note;
+      sg.limit = mk.limit;
+      if (!sg.total) {
+        var lab = mk.preset_label || "아직 등록 전";
+        sg.empty_text = lab + (mk.preset_note ? " — " + mk.preset_note : "");
+        sg.line = sg.empty_text;
+      } else {
+        var bits = ["판매중 " + comma(sg.on) + "건"];
+        if (sg.wait) bits.push("승인대기 " + comma(sg.wait) + "건");
+        if (sg.reject) bits.push("승인반려 " + comma(sg.reject) + "건");
+        var rest = sg.total - sg.on - sg.wait;
+        if (rest > 0) bits.push("그 밖 상태 " + comma(rest) + "건");
+        if (mk.limit) bits.push("한도 " + comma(sg.on) + " / " + comma(mk.limit));
+        sg.line = bits.join(" · ") + (mk.preset_note ? " — " + mk.preset_note : "");
+      }
+    }
+    var totals = { products: 0, markets: markets.length, files: 0, with_warning: 0, duplicates: 0,
+      on: 0, off: 0, wait: 0, reject: 0, sold: 0, cross_market: 0, stock_sum: 0 };
+    for (i = 0; i < markets.length; i++) {
+      totals.products += markets[i].total;
+      totals.on += markets[i].counts[STATUS_ON] || 0;
+      totals.wait += markets[i].counts[STATUS_WAIT] || 0;
+    }
+    var signalCounts = { alert: 0, warn: 0, ok: 0, empty: 0 };
+    for (i = 0; i < signals.length; i++) signalCounts[signals[i].state]++;
+    var now = new Date();
+    function p2(n) { return (n < 10 ? "0" : "") + n; }
+    return {
+      preset: true,
+      source: meta.source || "status.json",
+      updated_at: meta.updated_at || "",
+      generated_at: meta.updated_at || (now.getFullYear() + "-" + p2(now.getMonth() + 1) + "-" +
+        p2(now.getDate()) + " " + p2(now.getHours()) + ":" + p2(now.getMinutes())),
+      headline: meta.headline || "",
+      totals: totals, markets: markets, signals: signals,
+      signal_counts: signalCounts, signal_labels: SIGNAL_LABELS,
+      issues: issues, files: [], note: meta.note || "",
+      overview: meta.overview || [], work: meta.work || [], blocked: meta.blocked || [],
+      products: []
+    };
+  }
+
   /* ── 테스트에서 쓰는 공개 API ─────────────────────────────── */
   return {
     UserError: UserError,
@@ -2007,6 +2133,7 @@ var MKT = (function () {
     guessMapping: guessMapping,
     normalizeStatus: normalizeStatus,
     analyze: analyze,
+    presetAnalyze: presetAnalyze,
     toNumber: toNumber,
     normName: normName,
     signalState: signalState,
@@ -2035,7 +2162,7 @@ var MKT = (function () {
     {"name":"샘플_옥션_상품목록.csv","market":"auction","b64":"RVNNIFBMVVMgu/PHsLjxt88gKLv5x8MpIC0gv6y9wL/rILChu/MgtaXAzMXNDQq758DMxq4su/PHsLn4yKMsu/PHsLjtLMbHuMWwoSzA57DtvPa3rizGx7jFu/PFwizEq8XXsO24riy/+LvqwfYNCr/BvMcsQVUtNDAwMSy7+cfDIMCvuK4guriw/L/rseIgM8G+LDE0NTAwLDksxse4xcHfLMHWuea/68ewLMDPursNCr/BvMcsQVUtNDAwMiy7+cfDILTrs6q5qyC1tbi2LDk5MDAsNCzGx7jFwd8swda55r/rx7AswM+6uw0Kv8G8xyxBVS00MDAzLLv5x8MguNbGvCC89rOzx9QsNzUwMCwyLMbHuMXB3yy7/ciwv+vHsCzB37G5DQo="},
     {"name":"샘플_11번가_상품목록.csv","market":"eleven","b64":"77u/7IOB7ZKI67KI7Zi4LOyDge2SiOuqhSztjJDrp6TqsIAs7J6s6rOg7IiY65+JLO2MkOunpOyDge2DnCzsubTthYzqs6Drpqws7JuQ7IKw7KeADQoxMS01MDAxLOyDmO2UjCDrrLTshKAg66+464uIIOyEoO2Sjeq4sCwxOTkwMCwxMSztjJDrp6TspJEs7IOd7Zmc7Jqp7ZKILOykkeq1rQ0KMTEtNTAwMizsg5jtlIwg7KCR7J207IudIOyImOuCqSDrsJTqtazri4gsOTkwMCw3LO2MkOunpOykkSzsg53tmZzsmqntkogs7KSR6rWtDQoxMS01MDAzLOyDmO2UjCDsi6TrpqzsvZgg7KO867Cp66ek7Yq4LDkyMDAsMyztjJDrp6TspJEs7KO867Cp7Jqp7ZKILOykkeq1rQ0K"}
   ];
-  var VERSION = "1.4";
+  var VERSION = "1.5";
   var S = {
     files: [],
     result: null,
@@ -2221,10 +2348,12 @@ var MKT = (function () {
         return dbPutFile(rec).catch(function () { /* 저장 실패해도 화면은 계속 */ });
       });
     });
+    if (PRE.on) { PRE.on = false; presetPaint(); }
     return chain.then(function () {
       return analyzeAndRender();
     }).then(function () {
       setBusy("");
+      if (!failed.length) cntUse();
       if (failed.length) toast(failed[0], "bad");
       else toast(items.length + "개 파일을 넣었어요. 신호등을 확인해 보세요.", "ok");
     });
@@ -2313,6 +2442,20 @@ var MKT = (function () {
     return EMPTY;
   }
 
+  /* 본사 현황에서는 손볼 것·중복 같은 상품 단위 점검을 하지 않으므로,
+     status.json의 요약 4칸을 그대로 KPI로 씁니다. */
+  function presetKpis(r) {
+    var out = [], ov = r.overview || [], i;
+    if (ov.length) {
+      for (i = 0; i < ov.length; i++) out.push(kpi(ov[i].label, esc(ov[i].value), i === 0 ? "reg" : ""));
+    }
+    if (!out.length) {
+      out.push(kpi("판매중", num(r.totals.on), "reg"));
+      out.push(kpi("등록 상품", num(r.totals.products), ""));
+    }
+    return out.join("");
+  }
+
   function render() {
     var r = view();
     var hasData = !!(r.totals.products > 0);
@@ -2321,9 +2464,9 @@ var MKT = (function () {
     $("kpis").hidden = !hasData;
     $("cmpSec").hidden = !hasData;
     $("statusSec").hidden = !hasData;
-    $("prodSec").hidden = !hasData;
+    $("prodSec").hidden = !hasData || !!r.preset;
 
-    $("kpis").innerHTML = [
+    $("kpis").innerHTML = r.preset ? presetKpis(r) : [
       kpi("전체 상품", num(r.totals.products), ""),
       kpi("판매중(주문 전)", num(r.totals.on), "reg"),
       kpi("손볼 것", num(r.totals.with_warning), r.totals.with_warning ? "warn" : ""),
@@ -2365,11 +2508,18 @@ var MKT = (function () {
         "<td>" + num(m.with_warning) + "</td><td>" + num(dup) + "</td></tr>";
     }).join("") : "<tr><td colspan='9' class='tdempty'>아직 자료가 없어요</td></tr>";
 
-    $("fileList").innerHTML = S.files.length ? S.files.map(function (f) {
+    if (r.preset) {
+      $("fileList").innerHTML = '<div class="fitem"><div class="frow"><span class="fname">status.json (굳사이클 본사 현황)</span>' +
+        '<span class="fmeta">' + esc(r.updated_at || "") + ' 기준</span></div>' +
+        '<div class="frow"><span class="fmeta">마켓별 판매중·대기 건수만 받아 옵니다. 상품 이름·가격·전화·계정은 들어 있지 않습니다.</span></div></div>';
+    } else $("fileList").innerHTML = S.files.length ? S.files.map(function (f) {
       var opts = MKT.MARKETS.map(function (m) {
         return '<option value="' + m.key + '"' + (m.key === f.market ? " selected" : "") + ">" + esc(m.label) + "</option>";
       }).join("");
-      var meta = f.error ? "⚠ " + esc(f.error) : esc(f.added);
+      var meta = (f.error ? "⚠ " + esc(f.error) : esc(f.added));
+      if (!f.error && String(f.name || "").indexOf("샘플_") === 0) {
+        meta = '<span class="smp">샘플 미리보기</span>' + meta;
+      }
       return '<div class="fitem' + (f.error ? " bad" : "") + '">' +
         '<div class="frow"><span class="fname" title="' + esc(f.name) + '">' + esc(f.name) + "</span>" +
         '<button class="x" data-del="' + esc(f.id) + '" aria-label="이 파일 빼기">✕</button></div>' +
@@ -2497,7 +2647,7 @@ var MKT = (function () {
     var g = gauge(m.counts, total);
     var body, aria = esc(m.label) + " 전체 등록 " + num(total) + "개";
     if (stt === "empty") {
-      body = '<div class="gnone">엑셀을 넣으면 상품 상태와 전체 건수가 여기에 나옵니다</div>';
+      body = '<div class="gnone">' + esc(m.empty_text || "엑셀을 넣으면 상품 상태와 전체 건수가 여기에 나옵니다") + '</div>';
     } else {
       var wait = g.segs[1].n, bad = g.segs[2].n, rest = g.segs[3].n;
       aria += ", 판매중(주문 전) " + num(g.on) + "개, 대기·확인 " + num(wait) + "개, 반려·품절 " + num(bad) + "개";
@@ -2651,6 +2801,19 @@ var MKT = (function () {
   }
 
   function renderIssues(r) {
+    if (r.preset) {
+      var ph = '<div class="card"><div class="note"><b style="color:var(--ink)">🏢 지금은 굳사이클 본사 현황입니다.</b> ' +
+        '상품 하나하나의 점검(중복·가격·원산지)은 엑셀 파일을 넣어야 나옵니다. ' +
+        '<b>내 파일로 보기</b>를 누르면 각자 올린 자료로 돌아갑니다.</div>' +
+        '<div class="note" style="margin-top:6px">상품 단위 점검을 하지 않으므로 아래 7가지는 모두 0건으로 표시됩니다. ' +
+        '대표님 실제 할 일은 회사 앱 <b>company.html</b>의 「오늘 · 내일 체크포인트」에 정리되어 있습니다.</div></div>';
+      var wk = (r.work || []).length ? '<div class="card" style="margin-top:10px"><div class="note" style="line-height:1.7"><b style="color:var(--ink)">지금 돌아가고 있는 작업</b><br>' +
+        r.work.map(function (w) {
+          return "· <b>" + esc(w.time || "지금") + "</b> " + esc(w.title || "") + (w.note ? " — " + esc(w.note) : "");
+        }).join("<br>") + "</div></div>" : "";
+      $("issuesBody").innerHTML = ph + wk;
+      return;
+    }
     if (!r.totals.products) {
       $("issuesBody").innerHTML = '<div class="card"><div class="empty">' +
         "아직 자료가 없어요.<br>현황판 탭에서 엑셀을 넣거나 <b>샘플로 먼저 연습</b>을 눌러 보세요.</div></div>";
@@ -2775,6 +2938,12 @@ var MKT = (function () {
       tags[i].setAttribute("aria-pressed", on ? "true" : "false");
     }
     $("fbPrev").textContent = fbText();
+    var mail = $("fbMail");
+    if (mail) {
+      mail.href = "mailto:goodcycle1029@gmail.com?subject=" +
+        encodeURIComponent("내 마켓 현황판 v" + VERSION + " 개선 의견") +
+        "&body=" + encodeURIComponent(fbText());
+    }
   }
 
   function fbOpen() {
@@ -2831,6 +3000,143 @@ var MKT = (function () {
         toast("복사가 막혔어요. 아래 미리보기 글을 길게 눌러 복사해 주세요.", "bad");
       }
     });
+  }
+
+  /* ── 굳사이클(본사) 실제 현황 불러오기 ────────────────────
+     status.json은 공개 안내판과 같은 파일이라 전화·메일·계정·금액이 없습니다.
+     엑셀 파일은 이때도 서버로 가지 않습니다(이름·가격 전송 없음). */
+  var PRE = { on: false, loading: false, data: null };
+  var PRESET_NAME = {
+    "스마트스토어": "smartstore", "쿠팡": "coupang", "지마켓": "gmarket", "g마켓": "gmarket",
+    "옥션": "auction", "11번가": "eleven", "롯데온": "lotteon", "롯데on": "lotteon"
+  };
+
+  function presetKeyOf(name) {
+    var n = String(name || "").replace(/\s+/g, "").toLowerCase();
+    return PRESET_NAME[n] || "";
+  }
+
+  function presetHtml(r) {
+    var out = [], i, ov = r.overview || [];
+    for (i = 0; i < ov.length; i++) {
+      out.push('<span class="chip2">' + esc(ov[i].label) + ' <b>' + esc(ov[i].value) + "</b></span>");
+    }
+    var h = '<div class="plive">' + out.join("") +
+      '<span class="stamp">status.json · ' + esc(r.updated_at || "") + " 기준</span></div>";
+    if (r.work && r.work.length) {
+      h += '<ul class="pwork">' + r.work.map(function (w) {
+        return "<li><span class=\"wt\">" + esc(w.time || "지금") + "</span><span><b>" +
+          esc(w.title || "") + "</b>" + (w.note ? " — " + esc(w.note) : "") + "</span></li>";
+      }).join("") + "</ul>";
+    }
+    return h;
+  }
+
+  function presetPaint() {
+    var live = !!PRE.on, r = S.result;
+    $("btnPreset").hidden = live;
+    $("btnPresetOff").hidden = !live;
+    $("presetBar").classList.toggle("on", live);
+    if (live && r && r.preset) {
+      $("presetLive").hidden = false;
+      $("presetLive").innerHTML = presetHtml(r);
+      $("presetNote").innerHTML = "지금 보시는 숫자는 <b>굳사이클 본사 현황판(status.json)의 실제 값</b>입니다. " +
+        "다른 셀러분은 <b>내 파일로 보기</b>를 눌러 각자 엑셀로 쓰시면 됩니다.";
+    } else {
+      $("presetLive").hidden = true;
+      $("presetLive").innerHTML = "";
+      $("presetNote").innerHTML = "굳사이클 본사 현황(status.json)의 <b>지금 숫자</b>를 그대로 불러와 보여 줍니다. " +
+        "다른 셀러는 각자 엑셀을 넣어 쓰는 화면 그대로입니다.";
+    }
+  }
+
+  function presetLoad(quiet) {
+    if (PRE.loading) return Promise.resolve();
+    PRE.loading = true;
+    if (!quiet) setBusy("굳사이클 실제 현황을 불러오는 중…");
+    return fetch("./status.json?_=" + Date.now(), { cache: "no-store" })
+      .then(function (res) {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      })
+      .then(function (d) {
+        var list = [], i, src = (d && d.markets) || [];
+        for (i = 0; i < src.length; i++) {
+          var m = src[i], key = presetKeyOf(m.name);
+          if (!key) continue;
+          list.push({
+            key: key, label: m.name, on_sale: m.on_sale, pending: m.pending, total: m.total,
+            limit: m.limit, note: m.note, status_label: m.status_label
+          });
+        }
+        if (!list.length) throw new Error("status.json에 마켓 숫자가 없습니다");
+        PRE.data = d;
+        PRE.on = true;
+        S.result = MKT.presetAnalyze(list, {
+          source: "status.json", updated_at: d.updated_at || "", headline: d.headline || "",
+          overview: d.overview || [], work: d.work || [], blocked: d.blocked || [], note: d.note || ""
+        });
+        setBusy("");
+        render();
+        presetPaint();
+        if (!quiet) toast("굳사이클 실제 현황을 불러왔어요 · " + (d.updated_at || ""), "ok");
+      })
+      .catch(function (e) {
+        setBusy("");
+        PRE.on = false;
+        presetPaint();
+        if (!quiet) toast("실제 현황을 못 불러왔어요: " + (e && e.message ? e.message : e), "bad");
+      })
+      .then(function () { PRE.loading = false; });
+  }
+
+  function presetOff() {
+    PRE.on = false;
+    switchTab("board");
+    return analyzeAndRender().then(function () {
+      presetPaint();
+      toast(S.files.length ? "내가 올린 자료로 돌아왔어요." : "내 파일 화면으로 돌아왔어요. 엑셀을 넣어 주세요.");
+    });
+  }
+
+  /* ── 방문·사용 카운터 (개인정보 없이 숫자만) ─────────────
+     abacus.jasoncameron.dev — 주소마다 숫자 하나만 올리고 읽습니다.
+     이름·전화·상품 자료는 보내지 않습니다. 막히면 조용히 감춥니다. */
+  var CNT = {
+    ns: "goodcycle1029-blip.github.io", visit: "marketboard-visits", use: "marketboard-uses",
+    base: "https://abacus.jasoncameron.dev"
+  };
+
+  function cntCall(key, hit) {
+    if (location.protocol === "file:") return Promise.resolve(null);
+    var url = CNT.base + "/" + (hit ? "hit" : "get") + "/" +
+      encodeURIComponent(CNT.ns) + "/" + encodeURIComponent(key);
+    return fetch(url, { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { return (j && typeof j.value === "number") ? j.value : null; })
+      .catch(function () { return null; });
+  }
+
+  function cntPaint(visit, use) {
+    var bar = $("cntBar");
+    if (!bar) return;
+    var got = false;
+    if (typeof visit === "number") { $("cntVisit").textContent = visit.toLocaleString("ko-KR"); got = true; }
+    if (typeof use === "number") { $("cntUse").textContent = use.toLocaleString("ko-KR"); got = true; }
+    bar.hidden = !got;
+  }
+
+  function cntBoot() {
+    cntCall(CNT.visit, true).then(function (v) {
+      if (typeof v !== "number") { cntPaint(null, null); return; }
+      return cntCall(CNT.use, false).then(function (u) { cntPaint(v, u); });
+    }).catch(function () {});
+  }
+
+  function cntUse() {
+    cntCall(CNT.use, true).then(function (u) {
+      if (typeof u === "number") $("cntUse").textContent = u.toLocaleString("ko-KR");
+    }).catch(function () {});
   }
 
   /* ── 설치 안내 · PWA ───────────────────────────────────── */
@@ -2954,6 +3260,10 @@ var MKT = (function () {
     $("btnClear").addEventListener("click", clearAll);
     $("btnGuideFromBoard").addEventListener("click", function () { switchTab("guide"); });
 
+    // 굳사이클 실제 현황
+    $("btnPreset").addEventListener("click", function () { presetLoad(false); });
+    $("btnPresetOff").addEventListener("click", presetOff);
+
     // 개선 의견
     $("btnFeedback").addEventListener("click", fbOpen);
     $("fbClose").addEventListener("click", fbClose);
@@ -2979,6 +3289,7 @@ var MKT = (function () {
     updateOnline();
     updateInstallUi();
     registerSW();
+    cntBoot();
     try {
       var t = localStorage.getItem("mb_tab");
       switchTab(t === "issues" || t === "guide" ? t : "board");
@@ -3006,6 +3317,7 @@ var MKT = (function () {
       if (!S.files.length && !S.result) {
         setTimeout(function () { if ($("emptyHint")) $("emptyHint").hidden = false; }, 60);
       }
+      if (/(?:^|[?&])preset=goodcycle/.test(location.search)) return presetLoad(true);
     });
   }
 
@@ -3019,7 +3331,10 @@ var MKT = (function () {
     addSamples: addSamples,
     files: function () { return S.files; },
     result: function () { return view(); },
-    clear: function () { S.files = []; S.result = null; return analyzeAndRender(); }
+    clear: function () { S.files = []; S.result = null; return analyzeAndRender(); },
+    preset: function () { return presetLoad(true); },
+    presetOff: function () { return presetOff(); },
+    isPreset: function () { return !!PRE.on; }
   };
 })();
 
