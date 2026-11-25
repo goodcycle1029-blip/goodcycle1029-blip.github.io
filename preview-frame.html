@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>미리보기 프레임</title>
+<style>
+  html,body{margin:0;background:#8a8a8a}
+  body{display:flex;justify-content:center}
+  iframe{display:block;border:0;background:#fff}
+</style>
+</head>
+<body>
+<iframe id="f" src="./preview-coupang.html" title="미리보기"></iframe>
+<script>
+  var p = new URLSearchParams(location.search);
+  var w = parseInt(p.get('w'), 10) || 390;
+  var h = parseInt(p.get('h'), 10) || 4800;
+  var f = document.getElementById('f');
+  f.style.width = w + 'px';
+  f.style.height = h + 'px';
+</script>
+</body>
+</html>
