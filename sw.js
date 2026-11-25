@@ -5,11 +5,11 @@
    · 화면(HTML)·이미지는 항상 네트워크를 먼저 확인해 새 버전을 받고, 실패할 때만 저장본을 씁니다.
    · 실시간 현황(status.json)은 캐시하지 않고 그대로 통과시킵니다.
    ========================================================================= */
-var CACHE = 'japanmartbox-shop-v1';
+var CACHE = 'japanmartbox-shop-v2';
 var CORE = [
   './index.html',
-  './assets/hero_jmb_v2.jpg',
-  './assets/card_store.jpg',
+  './assets/hero_jmb_v3.jpg',
+  './assets/band_atelier.jpg',
   './assets/banner_jmb_v1.jpg',
   './manifest-portal.json',
   './icon-portal-192.png',

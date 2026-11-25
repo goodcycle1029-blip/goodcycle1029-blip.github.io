@@ -6,282 +6,270 @@
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#fcf9f4">
 <title>재팬마트박스 | 일본 현지 구매대행 공식몰</title>
-<meta name="description" content="재팬마트박스는 일본 현지에서 직접 구매해 검수한 뒤 보내드리는 구매대행 브랜드입니다. 주방·도자기, 문구·다이어리, 공구, 캠핑, 낚시, 시계까지 대표 상품을 한 화면에서.">
+<meta name="description" content="재팬마트박스는 일본 현지에서 직접 구매해 검수한 뒤 보내드리는 구매대행 브랜드입니다. 대표 상품 여섯 가지를 한 화면에서 보고, 스마트스토어·쿠팡에서 바로 구매하세요.">
 <meta property="og:title" content="재팬마트박스 | 일본 현지 구매대행">
-<meta property="og:description" content="도쿄에서 고른 물건을, 한국 문 앞까지. 정품 직구 · 검수 후 발송 · 관부가세 안내.">
+<meta property="og:description" content="도쿄에서 고른 물건을, 한국 문 앞까지. 일본 현지 구매 · 검수 후 발송 · 관부가세 안내.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://goodcycle1029-blip.github.io/assets/banner_jmb_v1.jpg">
 <link rel="canonical" href="https://goodcycle1029-blip.github.io/">
 <link rel="manifest" href="./manifest-portal.json">
 <link rel="icon" href="./icon-portal-192.png">
 <link rel="apple-touch-icon" href="./icon-portal-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap">
 <style>
 /* ==========================================================================
-   재팬마트박스 공식몰 — 디자인 시스템 jmb-editorial-1
+   재팬마트박스 공식몰 — jmb-editorial-1 (compact)
    흰 바탕(#fcf9f4) · 먹빛(#101e3c) · 주홍 1점(#b02f1a) · 1px 선 · 그림자 없음
    ========================================================================== */
 :root{
   --bg:#fcf9f4; --bg2:#f6f3ee; --card:#ffffff;
   --ink:#101e3c; --ink-black:#00051a; --body:#1c1c19; --muted:#45464e; --label:#75777e;
-  --acc:#b02f1a; --acc2:#8e2515; --acc-soft:#ffdad3;
+  --acc:#b02f1a; --acc-soft:#ffdad3;
   --line:#e6e1d8; --line-strong:#d3cdc0;
-  --r-img:18px; --r-hero:22px; --r-input:8px;
   --sans:"Pretendard","Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",Roboto,system-ui,sans-serif;
-  --num:ui-monospace,"Space Grotesk",SFMono-Regular,Menlo,Consolas,monospace;
-  --wrap:1200px;
+  --num:"Space Grotesk",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --wrap:1160px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{background:var(--bg);-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+html{background:var(--bg);-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:64px}
 body{
   margin:0;background:var(--bg);color:var(--body);
-  font-family:var(--sans);font-size:16px;line-height:1.6;
+  font-family:var(--sans);font-size:15px;line-height:1.6;
   -webkit-font-smoothing:antialiased;letter-spacing:-.005em;
-  padding-bottom:calc(20px + env(safe-area-inset-bottom));
+  padding-bottom:env(safe-area-inset-bottom)
 }
 a{color:inherit;text-decoration:none}
 img{display:block;max-width:100%}
+figure{margin:0}
 button{font:inherit;color:inherit}
-.wrap{max-width:var(--wrap);margin:0 auto;padding:0 20px}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 18px}
 .skip{position:absolute;left:-9999px}
-.skip:focus{left:12px;top:12px;z-index:99;background:var(--ink);color:#fff;padding:10px 14px;border-radius:8px}
+.skip:focus{left:10px;top:10px;z-index:99;background:var(--ink);color:#fff;padding:9px 13px;border-radius:8px}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:4px}
 
 /* ── 상단 ─────────────────────────────────────────────── */
-.head{
-  position:sticky;top:0;z-index:30;background:var(--bg);
-  border-bottom:1px solid var(--line);
-}
-.head .wrap{display:flex;align-items:center;gap:18px;min-height:64px}
-.logo{display:flex;align-items:center;gap:10px;min-width:0}
+.head{position:sticky;top:0;z-index:30;background:rgba(252,249,244,.94);backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--line)}
+.head .wrap{display:flex;align-items:center;gap:16px;min-height:54px}
+.logo{display:flex;align-items:center;gap:9px;min-width:0}
 .logo .mk{
-  flex:none;width:30px;height:30px;border-radius:6px;background:var(--ink);color:#fff;
+  flex:none;width:26px;height:26px;border-radius:5px;background:var(--ink);color:#fff;
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--num);font-size:11px;font-weight:700;letter-spacing:.04em
+  font-family:var(--num);font-size:10px;font-weight:700;letter-spacing:.04em
 }
-.logo .tx{display:flex;flex-direction:column;line-height:1.15;min-width:0}
-.logo b{font-family:var(--num);font-size:12px;font-weight:700;letter-spacing:.18em;color:var(--ink-black);white-space:nowrap}
-.logo span{font-size:10.5px;font-weight:600;color:var(--label);letter-spacing:.06em}
-.nav{display:none;margin-left:auto;gap:26px}
-.nav a{font-size:13.5px;font-weight:600;color:var(--muted);padding:6px 0;border-bottom:1px solid transparent}
+.logo .tx{display:flex;flex-direction:column;line-height:1.12;min-width:0}
+.logo b{font-family:var(--num);font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--ink-black);white-space:nowrap}
+.logo span{font-size:9.5px;font-weight:600;color:var(--label);letter-spacing:.04em}
+.nav{display:none;margin-left:auto;gap:24px}
+.nav a{font-size:12.5px;font-weight:600;color:var(--muted);padding:5px 0;border-bottom:1px solid transparent}
 .nav a:hover{color:var(--ink);border-bottom-color:var(--ink)}
 .head .cta{margin-left:auto}
-.head .cta.ghost{display:none}
 .btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  min-height:46px;padding:0 20px;border-radius:999px;
-  font-size:14px;font-weight:650;letter-spacing:-.01em;border:1px solid var(--ink);
-  transition:background .18s,border-color .18s,color .18s,transform .18s
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  min-height:42px;padding:0 16px;border-radius:999px;
+  font-size:13px;font-weight:650;letter-spacing:-.01em;border:1px solid var(--ink);
+  transition:background .18s,border-color .18s,color .18s,transform .18s;white-space:nowrap
 }
 .btn:active{transform:scale(.985)}
 .btn.solid{background:var(--ink);color:#fff}
 .btn.solid:hover{background:var(--ink-black);border-color:var(--ink-black)}
 .btn.ghost{background:transparent;color:var(--ink)}
 .btn.ghost:hover{background:var(--bg2)}
-.btn .ar{font-family:var(--num);font-size:13px}
-.nav,.head .cta.ghost{display:none}
+.btn .ar{font-family:var(--num);font-size:12px;line-height:1}
+.head .btn{min-height:36px;padding:0 13px;font-size:12px}
 
 /* ── 히어로 ───────────────────────────────────────────── */
-.hero{padding:40px 0 44px;border-bottom:1px solid var(--line)}
-.hero .wrap{display:grid;gap:34px}
+.hero{padding:26px 0 30px;border-bottom:1px solid var(--line)}
+.hero .wrap{display:grid;gap:16px;grid-template-areas:"copy" "fig" "foot"}
+.hero-copy{grid-area:copy}
+.hero-fig{grid-area:fig}
+.hero-foot{grid-area:foot}
 .eyebrow{
-  margin:0 0 16px;font-family:var(--num);font-size:11px;font-weight:600;
+  margin:0 0 10px;font-family:var(--num);font-size:10px;font-weight:600;
   letter-spacing:.16em;text-transform:uppercase;color:var(--acc)
 }
 .hero h1{
   margin:0;color:var(--ink-black);font-weight:700;
-  font-size:clamp(31px,8.4vw,56px);line-height:1.14;letter-spacing:-.035em;
+  font-size:clamp(26px,7.2vw,50px);line-height:1.16;letter-spacing:-.035em;
   word-break:keep-all;overflow-wrap:anywhere
 }
-.rv-line{display:block;overflow:hidden;padding-bottom:.06em}
-.rv-line>span{display:block;transform:translateY(112%);transition:transform 1s cubic-bezier(.2,.85,.2,1)}
+.rv-line{display:block;overflow:hidden;padding-bottom:.04em}
+.rv-line>span{display:block;transform:translateY(112%);transition:transform .9s cubic-bezier(.2,.85,.2,1)}
 .in .rv-line>span{transform:translateY(0)}
-.rv-line:nth-child(2)>span{transition-delay:.12s}
+.rv-line:nth-child(2)>span{transition-delay:.1s}
 .mark{
   background-image:linear-gradient(var(--acc-soft),var(--acc-soft));
-  background-repeat:no-repeat;background-position:0 84%;background-size:0% 34%;
-  transition:background-size .9s cubic-bezier(.2,.8,.2,1) .55s;padding:0 .04em
+  background-repeat:no-repeat;background-position:0 86%;background-size:0% 32%;
+  transition:background-size .8s cubic-bezier(.2,.8,.2,1) .45s;padding:0 .04em
 }
-.in .mark{background-size:100% 34%}
-.hero p.lead{margin:20px 0 0;max-width:32em;font-size:16px;line-height:1.72;color:var(--muted);word-break:keep-all}
-.hero .acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
-.hero .acts .btn{flex:1 1 auto}
-.hero-fig{
-  margin:0;border:1px solid var(--line);border-radius:var(--r-hero);overflow:hidden;background:var(--bg2)
-}
-.hero-fig img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3}
+.in .mark{background-size:100% 32%}
+.hero p.lead{margin:12px 0 0;max-width:30em;font-size:14px;line-height:1.68;color:var(--muted);word-break:keep-all}
+.hero p.lead b{font-weight:650;color:var(--ink);font-variant-numeric:tabular-nums}
+.hero-fig{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--bg2)}
+.hero-fig img{width:100%;height:100%;object-fit:cover;aspect-ratio:16/11}
+.acts{display:flex;gap:8px;margin-top:16px}
+.acts .btn{flex:1 1 0;padding:0 12px}
 .stats{
   display:grid;grid-template-columns:repeat(3,1fr);gap:0;
-  margin:34px 0 0;padding:22px 0 0;border-top:1px solid var(--line)
+  margin:16px 0 0;padding:14px 0 0;border-top:1px solid var(--line)
 }
-.stats div{padding:0 14px;border-left:1px solid var(--line)}
+.stats div{padding:0 10px;border-left:1px solid var(--line)}
 .stats div:first-child{padding-left:0;border-left:0}
-.stats dt{font-size:11.5px;font-weight:600;color:var(--label);letter-spacing:.02em;margin-bottom:6px}
+.stats dt{font-size:10.5px;font-weight:600;color:var(--label);margin-bottom:3px;white-space:nowrap}
 .stats dd{
   margin:0;font-family:var(--num);font-weight:700;color:var(--ink);
-  font-size:clamp(22px,6.4vw,30px);line-height:1.1;letter-spacing:-.03em;
+  font-size:clamp(18px,5.4vw,26px);line-height:1.1;letter-spacing:-.03em;
   font-variant-numeric:tabular-nums;white-space:nowrap
 }
-.stats dd small{font-size:.5em;font-weight:600;color:var(--label);margin-left:2px;letter-spacing:0}
+.stats dd small{font-size:.52em;font-weight:600;color:var(--label);margin-left:1px;letter-spacing:0}
+.stat-note{margin:8px 0 0;font-size:10.5px;color:var(--label);letter-spacing:.01em}
 
 /* ── 공통 섹션 ─────────────────────────────────────────── */
-sec,.sec{display:block}
-.sec{padding:56px 0;border-bottom:1px solid var(--line)}
-.sec-head{margin-bottom:28px}
-.sec-head .eyebrow{margin-bottom:12px}
+.sec{padding:38px 0;border-bottom:1px solid var(--line)}
+.sec-head{margin-bottom:18px}
+.sec-head .eyebrow{margin-bottom:8px}
 .sec-head h2{
-  margin:0;color:var(--ink-black);font-size:clamp(24px,5.6vw,34px);line-height:1.24;
+  margin:0;color:var(--ink-black);font-size:clamp(21px,5.2vw,30px);line-height:1.25;
   letter-spacing:-.03em;font-weight:700;word-break:keep-all
 }
-.sec-head p{margin:12px 0 0;max-width:38em;font-size:15px;line-height:1.7;color:var(--muted);word-break:keep-all}
+.sec-head p{margin:8px 0 0;max-width:36em;font-size:13.5px;line-height:1.65;color:var(--muted);word-break:keep-all}
 
-/* ── 카탈로그 ─────────────────────────────────────────── */
-.tools{
-  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
-  margin:0 0 22px;padding:0
-}
-.chip{
-  -webkit-appearance:none;appearance:none;cursor:pointer;background:transparent;
-  border:1px solid var(--line-strong);border-radius:999px;
-  min-height:42px;padding:0 16px;font-size:13.5px;font-weight:600;color:var(--muted);
-  transition:background .16s,border-color .16s,color .16s
-}
-.chip:hover{border-color:var(--ink);color:var(--ink)}
-.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
-.search{
-  position:relative;margin-left:auto;flex:1 1 230px;max-width:320px;min-width:190px
-}
-.search input{
-  width:100%;min-height:42px;padding:0 14px 0 38px;border:1px solid var(--line-strong);
-  border-radius:999px;background:var(--card);color:var(--ink);font-size:14px;font-family:var(--sans)
-}
-.search input::placeholder{color:var(--label)}
-.search input:focus{outline:2px solid var(--ink);outline-offset:1px;border-color:var(--ink)}
-.search .ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:15px;height:15px;opacity:.55}
-.grid{display:grid;grid-template-columns:1fr;gap:26px 22px}
+/* ── 대표 상품 ────────────────────────────────────────── */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 12px}
 .card{display:flex;flex-direction:column;min-width:0}
 .card .ph{
-  display:block;position:relative;border:1px solid var(--line);border-radius:var(--r-img);
+  display:block;position:relative;border:1px solid var(--line);border-radius:14px;
   background:var(--card);overflow:hidden
 }
 .card .ph img{width:100%;height:auto;aspect-ratio:1;object-fit:contain;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 .card:hover .ph{border-color:var(--line-strong)}
-.card:hover .ph img{transform:scale(1.03)}
-.card .cat{
-  margin:14px 0 6px;font-size:11px;font-weight:700;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--acc)
-}
+.card:hover .ph img{transform:scale(1.035)}
+.card .cat{margin:9px 0 3px;font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
 .card .nm{
-  margin:0;font-size:15.5px;line-height:1.45;font-weight:600;color:var(--ink);
-  letter-spacing:-.015em;word-break:keep-all;overflow-wrap:anywhere;
+  margin:0;font-size:13px;line-height:1.42;font-weight:650;color:var(--ink);
+  letter-spacing:-.02em;word-break:keep-all;overflow-wrap:anywhere;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
 }
+.card .mt{margin:3px 0 0;font-size:11px;line-height:1.4;color:var(--label);word-break:keep-all;
+  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 .card .pr{
-  margin:10px 0 0;font-family:var(--num);font-size:17px;font-weight:700;color:var(--ink-black);
+  margin:5px 0 0;font-family:var(--num);font-size:15px;font-weight:700;color:var(--ink-black);
   letter-spacing:-.02em;font-variant-numeric:tabular-nums
 }
-.card .go{
-  margin-top:8px;display:flex;align-items:center;gap:6px;
-  font-size:12.5px;font-weight:600;color:var(--label)
-}
-.card:hover .go{color:var(--acc)}
-.card .go .ar{font-family:var(--num)}
-.empty{
-  padding:44px 0;text-align:center;color:var(--label);font-size:14.5px;
-  border:1px dashed var(--line-strong);border-radius:var(--r-img)
-}
-.note{margin:26px 0 0;font-size:12.5px;line-height:1.65;color:var(--label);word-break:keep-all}
-.more{display:flex;justify-content:center;margin-top:32px}
+.card .pr small{font-size:.72em;font-weight:600;margin-left:1px}
+.more{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:24px}
+.more .btn{min-height:44px;font-size:12.5px;padding:0 10px}
+.note{margin:14px 0 0;font-size:11px;line-height:1.6;color:var(--label);word-break:keep-all}
+
+/* ── 브랜드 밴드 ──────────────────────────────────────── */
+.band{border-bottom:1px solid var(--line);background:var(--bg2)}
+.band img{width:100%;height:auto;aspect-ratio:2.2/1;object-fit:cover}
+.band .cap{display:flex;gap:10px;align-items:baseline;padding:12px 18px;border-top:1px solid var(--line)}
+.band .cap b{font-family:var(--num);font-size:9.5px;font-weight:700;letter-spacing:.16em;color:var(--acc);white-space:nowrap}
+.band .cap span{font-size:11.5px;line-height:1.55;color:var(--muted);word-break:keep-all}
 
 /* ── 구매 안내 ────────────────────────────────────────── */
-.guide{display:grid;gap:32px}
-.guide-fig{margin:0;border:1px solid var(--line);border-radius:var(--r-hero);overflow:hidden;background:var(--bg2)}
-.guide-fig img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3}
+.guide{display:grid;gap:0}
 .steps{list-style:none;margin:0;padding:0;display:grid;gap:0}
-.steps li{display:flex;gap:16px;padding:20px 0;border-top:1px solid var(--line)}
+.steps li{display:flex;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
 .steps li:first-child{border-top:0;padding-top:0}
 .steps .sn{
-  flex:none;font-family:var(--num);font-size:12px;font-weight:700;color:var(--acc);
-  letter-spacing:.04em;padding-top:3px;font-variant-numeric:tabular-nums
+  flex:none;font-family:var(--num);font-size:11px;font-weight:700;color:var(--acc);
+  letter-spacing:.02em;padding-top:2px;font-variant-numeric:tabular-nums
 }
-.steps b{display:block;font-size:16.5px;font-weight:650;color:var(--ink);letter-spacing:-.02em;line-height:1.4}
-.steps span{display:block;margin-top:5px;font-size:14px;line-height:1.65;color:var(--muted)}
-.trust{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.steps b{display:block;font-size:14px;font-weight:650;color:var(--ink);letter-spacing:-.02em;line-height:1.4}
+.steps span{display:block;margin-top:2px;font-size:12.5px;line-height:1.6;color:var(--muted);word-break:keep-all}
+.trust{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
 .trust em{
-  font-style:normal;font-size:12px;font-weight:600;color:var(--muted);
-  border:1px solid var(--line);border-radius:999px;padding:5px 11px;background:var(--card)
+  font-style:normal;font-size:10.5px;font-weight:600;color:var(--muted);
+  border:1px solid var(--line);border-radius:999px;padding:4px 9px;background:var(--card)
 }
 
 /* ── 입점 마켓 ────────────────────────────────────────── */
-.mk-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.mk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .mk{
-  display:flex;align-items:center;gap:14px;padding:20px 18px;
-  border:1px solid var(--line);border-radius:var(--r-img);background:var(--card);
+  display:flex;align-items:center;gap:8px;padding:12px 12px;
+  border:1px solid var(--line);border-radius:12px;background:var(--card);
   transition:border-color .16s,background .16s
 }
 a.mk:hover{border-color:var(--ink);background:#fffdfa}
 .mk .nm{flex:1;min-width:0}
-.mk .nm b{display:block;font-size:15.5px;font-weight:650;color:var(--ink);letter-spacing:-.02em}
-.mk .nm span{display:block;margin-top:3px;font-size:12.5px;color:var(--label)}
-.mk .ar{font-family:var(--num);font-size:15px;color:var(--label)}
-a.mk:hover .ar{color:var(--ink)}
+.mk .nm b{display:block;font-size:12.5px;font-weight:650;color:var(--ink);letter-spacing:-.02em;word-break:keep-all}
+.mk .nm span{display:block;margin-top:1px;font-size:10.5px;color:var(--label);word-break:keep-all}
 .mk .tag{
-  flex:none;font-size:10.5px;font-weight:700;letter-spacing:.06em;color:var(--label);
-  border:1px solid var(--line);border-radius:6px;padding:3px 7px
+  flex:none;font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--label);
+  border:1px solid var(--line);border-radius:5px;padding:2px 5px
 }
+.mk .ar{font-family:var(--num);font-size:12px;color:var(--label)}
+a.mk:hover .ar{color:var(--ink)}
 
 /* ── 문의 / 푸터 ──────────────────────────────────────── */
-.contact{padding:56px 0;border-bottom:1px solid var(--line);text-align:center}
-.contact h2{margin:0 0 12px;font-size:clamp(22px,5.2vw,30px);letter-spacing:-.03em;color:var(--ink-black);font-weight:700}
-.contact p{margin:0 auto;max-width:34em;font-size:14.5px;line-height:1.7;color:var(--muted);word-break:keep-all}
+.contact{padding:32px 0;border-bottom:1px solid var(--line);text-align:center}
+.contact h2{margin:0 0 8px;font-size:clamp(19px,4.8vw,26px);letter-spacing:-.03em;color:var(--ink-black);font-weight:700}
+.contact p{margin:0 auto;max-width:32em;font-size:13px;line-height:1.65;color:var(--muted);word-break:keep-all}
 .contact .mail{
-  display:inline-block;margin-top:18px;font-family:var(--num);font-size:15px;font-weight:600;
-  color:var(--ink);border-bottom:1px solid var(--ink);padding-bottom:2px;word-break:break-all
+  display:inline-block;margin-top:12px;font-family:var(--num);font-size:13.5px;font-weight:600;
+  color:var(--ink);border-bottom:1px solid var(--ink);padding-bottom:1px;word-break:break-all
 }
-.foot{padding:34px 0 10px}
-.foot .top{display:flex;flex-wrap:wrap;gap:12px;align-items:baseline}
-.foot .wm{font-family:var(--num);font-size:11.5px;font-weight:700;letter-spacing:.18em;color:var(--ink)}
-.foot .mt{font-size:12px;color:var(--label)}
-.foot .biz{margin:18px 0 0;font-size:11.5px;line-height:1.85;color:var(--label);word-break:keep-all}
+.foot{padding:22px 0 26px}
+.foot .top{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline}
+.foot .wm{font-family:var(--num);font-size:10.5px;font-weight:700;letter-spacing:.16em;color:var(--ink)}
+.foot .tt{font-size:11px;color:var(--label)}
+.foot .biz{margin:12px 0 0;font-size:10.5px;line-height:1.8;color:var(--label);word-break:keep-all}
 .foot .biz b{font-weight:600;color:var(--muted)}
 .foot .biz span{white-space:nowrap}
-.copy{margin:16px 0 0;font-size:11px;color:var(--label);letter-spacing:.02em}
+.copy{margin:10px 0 0;font-size:10px;color:var(--label);letter-spacing:.02em}
 
 /* ── 넓은 화면 ─────────────────────────────────────────── */
 @media (min-width:640px){
-  .wrap{padding:0 32px}
-  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 24px}
-  .mk-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .hero .acts .btn{flex:0 0 auto;padding:0 26px}
-  .stats{margin-top:38px}
+  .wrap{padding:0 28px}
+  .hero{padding:36px 0 38px}
+  .hero-fig img{aspect-ratio:16/9}
+  .acts .btn{flex:0 0 auto;padding:0 20px}
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:26px 16px}
+  .more{display:flex;justify-content:flex-start}
+  .band .cap{padding:13px 28px}
+  .mk-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .mk{flex-direction:column;align-items:flex-start;gap:4px;padding:14px}
+  .mk .ar{display:none}
 }
 @media (min-width:900px){
-  .wrap{padding:0 48px}
-  .head .wrap{min-height:76px}
+  .wrap{padding:0 40px}
+  .head .wrap{min-height:68px}
   .nav{display:flex}
   .head .cta{margin-left:0}
-  .head .cta.ghost{display:inline-flex}
-  .hero{padding:64px 0 60px}
-  .hero .wrap{grid-template-columns:1.02fr 1fr;gap:56px;align-items:center}
-  .hero-fig img{aspect-ratio:1/1}
-  .hero p.lead{font-size:17px}
-  .stats{margin-top:44px}
-  .sec{padding:76px 0}
-  .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:44px 28px}
-  .guide{grid-template-columns:1fr 1.05fr;gap:56px;align-items:center}
-  .mk-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
-  .mk{flex-direction:column;align-items:flex-start;gap:10px;padding:24px 20px}
-  .mk .ar{display:none}
+  .logo b{font-size:12px}
+  .logo .mk{width:29px;height:29px;font-size:11px}
+  .hero{padding:52px 0 56px}
+  .hero .wrap{grid-template-columns:1.02fr 1fr;grid-template-areas:"copy fig" "foot fig";column-gap:48px;gap:24px 48px;align-items:start}
+  .hero-fig{align-self:stretch;display:flex}
+  .hero-fig img{aspect-ratio:auto;height:100%;min-height:100%}
+  .hero p.lead{font-size:15px}
+  .sec{padding:62px 0}
+  .sec-head{margin-bottom:26px}
+  .guide{grid-template-columns:1fr 1.15fr;gap:48px;align-items:start}
+  .guide .sec-head{margin-bottom:0}
+  .foot .biz{font-size:11.5px}
+  .sec-head p{font-size:14.5px}
+  .card .nm{font-size:14px}
+  .card .pr{font-size:17px}
+  .band .cap{padding:14px 40px}
+  .band img{aspect-ratio:2.8/1}
+  .steps{gap:0}
+  .contact{padding:44px 0}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   .rv-line>span{transform:none!important;transition:none!important}
-  .mark{background-size:100% 34%!important;transition:none!important}
+  .mark{background-size:100% 32%!important;transition:none!important}
   .card .ph img{transition:none}
   *{animation:none!important}
 }
 </style>
 </head>
 <body>
-<a class="skip" href="#catalog">대표 상품으로 바로 가기</a>
+<a class="skip" href="#selected">대표 상품으로 바로 가기</a>
 
 <header class="head">
   <div class="wrap">
@@ -290,12 +278,11 @@ a.mk:hover .ar{color:var(--ink)}
       <span class="tx"><b>JAPAN MART BOX</b><span>일본 현지 구매대행</span></span>
     </a>
     <nav class="nav" aria-label="주요 메뉴">
-      <a href="#catalog">대표 상품</a>
+      <a href="#selected">대표 상품</a>
       <a href="#guide">구매 안내</a>
       <a href="#markets">입점 마켓</a>
       <a href="#contact">문의</a>
     </nav>
-    <a class="btn ghost cta" href="#markets">입점 마켓 보기</a>
     <a class="btn solid cta" href="https://smartstore.naver.com/japanmartbox" target="_blank" rel="noopener noreferrer">스마트스토어<span class="ar" aria-hidden="true">↗</span></a>
   </div>
 </header>
@@ -309,80 +296,128 @@ a.mk:hover .ar{color:var(--ink)}
           <span class="rv-line"><span>도쿄에서 고른 물건을,</span></span>
           <span class="rv-line"><span><span class="mark">한국 문 앞까지</span>.</span></span>
         </h1>
-        <p class="lead">일본 현지 판매처에서 직접 구매하고, 발송 전 구성과 외관을 확인한 뒤 보내드립니다. 주방·도자기부터 문구, 공구, 캠핑, 낚시, 시계까지 — 지금 <span data-stat="total">6,368</span>개 상품을 판매하고 있습니다.</p>
+        <p class="lead">일본 현지 판매처에서 직접 사고, 구성과 상태를 확인한 뒤 보내드립니다. 지금 네 곳의 마켓에서 <b><span data-stat="total">6,368</span>개</b> 상품을 판매하고 있습니다.</p>
+      </div>
+
+      <figure class="hero-fig">
+        <img src="./assets/hero_jmb_v3.jpg?v=4" width="1400" height="933" alt="한지 위에 놓인 청자 다완과 마른 가지 — 재팬마트박스" fetchpriority="high">
+      </figure>
+
+      <div class="hero-foot">
         <div class="acts">
-          <a class="btn solid" href="#catalog">대표 상품 보기<span class="ar" aria-hidden="true">↓</span></a>
-          <a class="btn ghost" href="https://smartstore.naver.com/japanmartbox" target="_blank" rel="noopener noreferrer">스마트스토어 열기<span class="ar" aria-hidden="true">↗</span></a>
+          <a class="btn solid" href="#selected">대표 상품 보기<span class="ar" aria-hidden="true">↓</span></a>
+          <a class="btn ghost" href="https://smartstore.naver.com/japanmartbox" target="_blank" rel="noopener noreferrer">스마트스토어<span class="ar" aria-hidden="true">↗</span></a>
         </div>
         <dl class="stats">
           <div><dt>판매중 상품</dt><dd><span data-count="6368">0</span><small>개</small></dd></div>
-          <div><dt>입점 오픈마켓</dt><dd><span data-count="4">0</span><small>곳</small></dd></div>
-          <div><dt>상품 카테고리</dt><dd><span data-count="7">0</span><small>개</small></dd></div>
+          <div><dt>입점 마켓</dt><dd><span data-count="4">0</span><small>곳</small></dd></div>
+          <div><dt>취급 카테고리</dt><dd><span data-count="5">0</span><small>개</small></dd></div>
         </dl>
+        <p class="stat-note">2026년 11월 25일 기준 · 스마트스토어·쿠팡·G마켓·옥션 합산</p>
       </div>
-      <figure class="hero-fig">
-        <img src="./assets/hero_jmb_v2.jpg" width="1536" height="1024" alt="한지 위에 놓인 청자 다완과 마른 가지 — 재팬마트박스 브랜드 이미지" fetchpriority="high">
-      </figure>
     </div>
   </section>
 
-  <section class="sec" id="catalog" aria-labelledby="catalogTitle">
+  <section class="sec" id="selected" aria-labelledby="selectedTitle">
     <div class="wrap">
       <div class="sec-head">
-        <p class="eyebrow">Selected · 대표 상품</p>
-        <h2 id="catalogTitle">지금 판매 중인 대표 상품</h2>
-        <p>카테고리별로 실제 판매 중인 상품을 골라 담았습니다. 원하는 상품을 누르면 스마트스토어 판매 페이지로 이동합니다.</p>
+        <p class="eyebrow">01 — Selected</p>
+        <h2 id="selectedTitle">지금 살 수 있는 대표 상품 여섯</h2>
+        <p>브랜드가 직접 고른 여섯 점입니다. 사진을 누르면 판매 페이지로 이어집니다.</p>
       </div>
 
-      <div class="tools" role="group" aria-label="상품 분류와 검색">
-        <button type="button" class="chip" data-cat="전체" aria-pressed="true">전체</button>
-        <button type="button" class="chip" data-cat="주방·식기" aria-pressed="false">주방·식기</button>
-        <button type="button" class="chip" data-cat="문구·다이어리" aria-pressed="false">문구·다이어리</button>
-        <button type="button" class="chip" data-cat="공구·DIY" aria-pressed="false">공구·DIY</button>
-        <button type="button" class="chip" data-cat="수예·취미" aria-pressed="false">수예·취미</button>
-        <button type="button" class="chip" data-cat="캠핑·아웃도어" aria-pressed="false">캠핑·아웃도어</button>
-        <button type="button" class="chip" data-cat="스포츠·레저" aria-pressed="false">스포츠·레저</button>
-        <button type="button" class="chip" data-cat="시계·패션" aria-pressed="false">시계·패션</button>
-        <div class="search">
-          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-          <label class="skip" for="q">상품 검색</label>
-          <input id="q" type="search" placeholder="상품명으로 찾기 (예: 만년필)" autocomplete="off">
-        </div>
+      <div class="grid">
+        <a class="card" href="https://smartstore.naver.com/japanmartbox/products/13876368850" target="_blank" rel="noopener noreferrer">
+          <span class="ph"><img src="./assets/products/13876368850.jpg?v=4" width="800" height="800" alt="오이겐 남부철기 철주전자 1.2L" loading="lazy"></span>
+          <span class="cat">주방 · 다기</span>
+          <h3 class="nm">남부철기 철주전자 1.2L</h3>
+          <p class="mt">오이겐 · 오차차모미지</p>
+          <p class="pr">399,600<small>원</small></p>
+        </a>
+
+        <a class="card" href="https://smartstore.naver.com/japanmartbox/products/13876368848" target="_blank" rel="noopener noreferrer">
+          <span class="ph"><img src="./assets/products/13876368848.jpg?v=4" width="800" height="800" alt="호보니치 테쵸 2027 커즌 본체 A5 다이어리" loading="lazy"></span>
+          <span class="cat">문구 · 다이어리</span>
+          <h3 class="nm">호보니치 테쵸 2027 커즌 A5</h3>
+          <p class="mt">1일 1페이지 · 본체</p>
+          <p class="pr">67,700<small>원</small></p>
+        </a>
+
+        <a class="card" href="https://smartstore.naver.com/japanmartbox/products/13876368846" target="_blank" rel="noopener noreferrer">
+          <span class="ph"><img src="./assets/products/13876368846.jpg?v=4" width="800" height="800" alt="플래티넘 3776 센추리 시농소 화이트 F 만년필" loading="lazy"></span>
+          <span class="cat">문구 · 만년필</span>
+          <h3 class="nm">플래티넘 3776 센추리 F</h3>
+          <p class="mt">시농소 화이트 · PNB-15000-2-2</p>
+          <p class="pr">316,500<small>원</small></p>
+        </a>
+
+        <a class="card" href="https://smartstore.naver.com/japanmartbox/products/13888442821" target="_blank" rel="noopener noreferrer">
+          <span class="ph"><img src="./assets/products/13888442821.jpg?v=4" width="800" height="800" alt="세이코 손목시계 SRPG07J1" loading="lazy"></span>
+          <span class="cat">시계</span>
+          <h3 class="nm">세이코 프레사지 SRPG07J1</h3>
+          <p class="mt">오토매틱 · 스테인리스</p>
+          <p class="pr">1,016,000<small>원</small></p>
+        </a>
+
+        <a class="card" href="https://smartstore.naver.com/japanmartbox/products/13888442730" target="_blank" rel="noopener noreferrer">
+          <span class="ph"><img src="./assets/products/13888442730.jpg?v=4" width="800" height="800" alt="캡틴스태그 아이스박스 51L" loading="lazy"></span>
+          <span class="cat">캠핑</span>
+          <h3 class="nm">캡틴스태그 아이스박스 51L</h3>
+          <p class="mt">스테인리스 · UE 시리즈</p>
+          <p class="pr">321,100<small>원</small></p>
+        </a>
+
+        <a class="card" href="https://smartstore.naver.com/japanmartbox/products/13876368841" target="_blank" rel="noopener noreferrer">
+          <span class="ph"><img src="./assets/products/13876368841.jpg?v=4" width="800" height="800" alt="KTC 네프로스 NBRC390 컴팩트 라쳇핸들" loading="lazy"></span>
+          <span class="cat">공구</span>
+          <h3 class="nm">KTC 네프로스 라쳇핸들</h3>
+          <p class="mt">NBRC390 · 9.5sq</p>
+          <p class="pr">102,400<small>원</small></p>
+        </a>
       </div>
 
-      <div class="grid" id="grid" aria-live="polite"></div>
-      <p class="note">표시 가격은 2026년 11월 21일 스마트스토어 판매가 기준입니다. 최신 가격·재고·옵션은 각 판매 페이지에서 확인해 주세요. 상품 이미지는 판매처가 제공한 상품 사진입니다.</p>
+      <div class="more">
+        <a class="btn solid" href="https://smartstore.naver.com/japanmartbox/category/34omHRIGS00dHJTSiA3Yt_ALL_PRODUCT" target="_blank" rel="noopener noreferrer">스마트스토어 전체 상품<span class="ar" aria-hidden="true">→</span></a>
+        <a class="btn ghost" href="https://shop.coupang.com/A01817324" target="_blank" rel="noopener noreferrer">쿠팡 스토어<span class="ar" aria-hidden="true">→</span></a>
+      </div>
+
+      <p class="note">표시 가격은 2026년 11월 25일 판매가이며, 해외구매대행 상품이라 관부가세가 별도일 수 있습니다. 최신 가격·재고·옵션은 판매 페이지에서 확인해 주세요.</p>
+    </div>
+  </section>
+
+  <section class="band" aria-label="재팬마트박스 브랜드 이미지">
+    <img src="./assets/band_atelier.jpg?v=4" width="1400" height="636" alt="한지 위에 겹쳐 놓은 청자와 백자 접시" loading="lazy">
+    <div class="cap">
+      <b>ATELIER</b>
+      <span>한 점씩 골라, 보내기 전에 한 번 더 확인합니다.</span>
     </div>
   </section>
 
   <section class="sec" id="guide" aria-labelledby="guideTitle">
     <div class="wrap guide">
-      <figure class="guide-fig">
-        <img src="./assets/card_store.jpg" width="1536" height="1024" alt="한지 위에 겹쳐 놓은 청자와 백자 접시 — 검수 후 발송 안내 이미지" loading="lazy">
-      </figure>
+      <div class="sec-head">
+        <p class="eyebrow">02 — How it works</p>
+        <h2 id="guideTitle">주문은 세 단계</h2>
+        <p>주문이 들어오면 일본 현지에서 실제로 사고, 확인하고, 통관해 보냅니다.</p>
+      </div>
       <div>
-        <div class="sec-head">
-          <p class="eyebrow">How it works · 구매 안내</p>
-          <h2 id="guideTitle">주문 하나에 세 단계</h2>
-          <p>주문이 들어오면 일본 현지에서 실제로 사고, 확인하고, 통관해 보냅니다. 과정은 짧게, 안내는 먼저 드립니다.</p>
-        </div>
         <ol class="steps">
-          <li>
-            <span class="sn">01</span>
-            <span><b>일본 현지에서 직접 구매</b><span>주문하신 상품을 일본 판매처에서 그대로 구매합니다. 원산지와 모델명은 상품 페이지에 적힌 그대로입니다.</span></span>
-          </li>
-          <li>
-            <span class="sn">02</span>
-            <span><b>검수 후 발송</b><span>배대지에 입고되면 구성품과 외관을 확인합니다. 이상이 있으면 교환을 요청하고, 확인된 뒤에 국제배송을 시작합니다.</span></span>
-          </li>
-          <li>
-            <span class="sn">03</span>
-            <span><b>관부가세·통관 안내</b><span>상품가와 현지 배송비 합산이 미화 $150를 넘으면 관세·부가세가 붙을 수 있어, 결제 전에 미리 알려 드립니다.</span></span>
-          </li>
-        </ol>
-        <div class="trust" aria-label="구매 안내 표시">
-          <em>해외구매대행</em><em>평균 7~14일</em><em>개인통관고유부호 필요</em><em>묶음배송 요청 가능</em>
-        </div>
+        <li>
+          <span class="sn">01</span>
+          <span><b>일본 현지에서 직접 구매</b><span>주문하신 상품을 일본 판매처에서 그대로 구매합니다. 원산지와 모델명은 상품 페이지에 적힌 그대로입니다.</span></span>
+        </li>
+        <li>
+          <span class="sn">02</span>
+          <span><b>검수 후 발송</b><span>배대지에 입고되면 구성품과 외관을 확인합니다. 이상이 있으면 교환을 요청하고, 확인된 뒤 국제배송을 시작합니다.</span></span>
+        </li>
+        <li>
+          <span class="sn">03</span>
+          <span><b>관부가세·통관 안내</b><span>상품가와 현지 배송비 합산이 미화 $150를 넘으면 관세·부가세가 붙을 수 있어, 결제 전에 미리 알려 드립니다.</span></span>
+        </li>
+      </ol>
+      <div class="trust" aria-label="구매 안내 표시">
+        <em>해외구매대행</em><em>평균 7~14일</em><em>개인통관고유부호 필요</em><em>묶음배송 요청 가능</em>
+      </div>
       </div>
     </div>
   </section>
@@ -390,13 +425,13 @@ a.mk:hover .ar{color:var(--ink)}
   <section class="sec" id="markets" aria-labelledby="marketsTitle">
     <div class="wrap">
       <div class="sec-head">
-        <p class="eyebrow">Where to buy · 입점 마켓</p>
+        <p class="eyebrow">03 — Where to buy</p>
         <h2 id="marketsTitle">공식 입점 마켓</h2>
         <p>같은 상품을 아래 마켓에서도 만나 보실 수 있습니다. 마켓별 배송·결제 조건은 각 판매처 안내를 따릅니다.</p>
       </div>
       <div class="mk-grid">
         <a class="mk" href="https://smartstore.naver.com/japanmartbox" target="_blank" rel="noopener noreferrer">
-          <span class="mk-tx nm"><b>네이버 스마트스토어</b><span>japanmartbox · 대표 스토어</span></span>
+          <span class="nm"><b>네이버 스마트스토어</b><span>japanmartbox</span></span>
           <span class="tag">공식</span><span class="ar" aria-hidden="true">↗</span>
         </a>
         <a class="mk" href="https://shop.coupang.com/A01817324" target="_blank" rel="noopener noreferrer">
@@ -404,11 +439,11 @@ a.mk:hover .ar{color:var(--ink)}
           <span class="tag">공식</span><span class="ar" aria-hidden="true">↗</span>
         </a>
         <div class="mk">
-          <span class="nm"><b>G마켓 · 옥션</b><span>재팬마트박스 상품 판매 중</span></span>
+          <span class="nm"><b>G마켓 · 옥션</b><span>재팬마트박스</span></span>
           <span class="tag">입점</span>
         </div>
         <div class="mk">
-          <span class="nm"><b>11번가</b><span>글로벌셀러 japanmartbox</span></span>
+          <span class="nm"><b>11번가</b><span>글로벌셀러</span></span>
           <span class="tag">입점</span>
         </div>
       </div>
@@ -418,7 +453,7 @@ a.mk:hover .ar{color:var(--ink)}
   <section class="contact" id="contact" aria-labelledby="contactTitle">
     <div class="wrap">
       <h2 id="contactTitle">찾는 상품이 있으신가요?</h2>
-      <p>판매 중인 상품 중 원하시는 것을 찾지 못하셨다면, 상품명이나 일본 판매처 주소를 알려 주세요. 구매 가능 여부와 예상 금액을 확인해 드립니다.</p>
+      <p>상품명이나 일본 판매처 주소를 알려 주시면 구매 가능 여부와 예상 금액을 확인해 드립니다.</p>
       <a class="mail" href="mailto:goodcycle1029@gmail.com?subject=%5B%EC%9E%AC%ED%8C%AC%EB%A7%88%ED%8A%B8%EB%B0%95%EC%8A%A4%5D%20%EC%83%81%ED%92%88%20%EB%AC%B8%EC%9D%98">goodcycle1029@gmail.com</a>
     </div>
   </section>
@@ -428,13 +463,12 @@ a.mk:hover .ar{color:var(--ink)}
   <div class="wrap">
     <div class="top">
       <span class="wm">JAPAN MART BOX</span>
-      <span class="mt">일본 현지 구매대행 · 정품 직구</span>
+      <span class="tt">일본 현지 구매대행 · 정품 직구</span>
     </div>
     <p class="biz">
-      <b>상호</b> 굳사이클(Goodcycle) · <b>대표</b> 임성남<br>
-      <b>사업자등록번호</b> <span>228-08-67911</span> · <b>통신판매업 신고</b> <span>제 2026-울산중구-0280 호</span><br>
-      <b>사업장</b> 울산광역시 남구 · <b>고객센터</b> <span>070-8064-7086</span> (평일 10:00~18:00)<br>
-      <b>이메일</b> <span>goodcycle1029@gmail.com</span>
+      <b>상호</b> 굳사이클(Goodcycle) · <b>대표</b> 임성남 · <b>사업자등록번호</b> <span>228-08-67911</span><br>
+      <b>통신판매업 신고</b> <span>제 2026-울산중구-0280 호</span> · <b>사업장</b> 울산광역시 남구<br>
+      <b>고객센터</b> <span>070-8064-7086</span> (평일 10:00~18:00) · <b>이메일</b> <span>goodcycle1029@gmail.com</span>
     </p>
     <p class="copy">© 2026 Japan Mart Box. All rights reserved.</p>
   </div>
@@ -443,97 +477,13 @@ a.mk:hover .ar{color:var(--ink)}
 <script>
 (function () {
   'use strict';
-  var CATALOG = [
-    {id:"13876368850",n:"오이겐 남부철기 철주전자 1.2L IH대응 오차차모미지",c:"주방용품",p:399600,i:"assets/products/13876368850.jpg"},
-    {id:"13876368855",n:"도코나메야키 급수 다관 300ml 기츠사코 아카스 스테인리스 차망",c:"주방용품",p:58500,i:"assets/products/13876368855.jpg"},
-    {id:"13886412682",n:"카이 세키마고로쿠 다마스커스 페티나이프 150mm AE5203",c:"주방용품",p:102900,i:"assets/products/13886412682.jpg"},
-    {id:"13876368852",n:"말차 다도 7종 세트 말차완 차센 차센대 차샤쿠 차거름 차포",c:"주방용품",p:63000,i:"assets/products/13876368852.jpg"},
-    {id:"13888442738",n:"요시카와 편수냄비 24cm SH9160",c:"주방용품",p:46300,i:"assets/products/13888442738.jpg"},
-    {id:"13876368848",n:"호보니치 테쵸 2027 커즌 본체 A5 1일 1페이지 다이어리",c:"문구/사무용품",p:67700,i:"assets/products/13876368848.jpg"},
-    {id:"13876368846",n:"플래티넘 3776 센추리 시농소 화이트 F 만년필 PNB-15000-2-2",c:"문구/사무용품",p:316500,i:"assets/products/13876368846.jpg"},
-    {id:"13876397727",n:"세일러 프로피트 카주얼 만년필 골드트림 블랙 중필 11-0570-420",c:"문구/사무용품",p:87200,i:"assets/products/13876397727.jpg"},
-    {id:"13876368841",n:"KTC 네프로스 NBRC390 9.5sq 컴팩트 라쳇핸들 수공구 렌치",c:"공구",p:102400,i:"assets/products/13876368841.jpg"},
-    {id:"13882582819",n:"츠네사부로 대패 寿常三郎 청지1호강 70mm TP-45",c:"공구",p:440300,i:"assets/products/13882582819.jpg"},
-    {id:"13882994411",n:"미쓰토요 디지매틱 캘리퍼 CD-15AX 500-151-30 0-150mm",c:"공구",p:227300,i:"assets/products/13882994411.jpg"},
-    {id:"13886412777",n:"크니펙스 코브라 워터펌프 플라이어 8701-250 250mm",c:"공구",p:76600,i:"assets/products/13886412777.jpg"},
-    {id:"13876368845",n:"클로버 타쿠미 45-150 교체식 줄바늘 세트 콤보 레드 뜨개바늘",c:"수예",p:166400,i:"assets/products/13876368845.jpg"},
-    {id:"13886370145",n:"톰보 밴드 디럭스 21 No.1521 21홀 복음 하모니카 C조",c:"악기",p:157600,i:"assets/products/13886370145.jpg"},
-    {id:"13876397725",n:"고메이엔 킨센레이 고형먹 2정형 사경용 서예 먹",c:"화방용품",p:253600,i:"assets/products/13876397725.jpg"},
-    {id:"13888442730",n:"캡틴스태그 아이스박스 51L UE-76",c:"캠핑",p:321100,i:"assets/products/13888442730.jpg"},
-    {id:"13888442733",n:"캡틴스태그 랜턴 UK-4057",c:"캠핑",p:84300,i:"assets/products/13888442733.jpg"},
-    {id:"13886370840",n:"스노우피크 시스템보틀500 TW-071R",c:"캠핑",p:161700,i:"assets/products/13886370840.jpg"},
-    {id:"13886370844",n:"다이와 24 루비아스 SF1000S-P 스피닝릴",c:"낚시",p:458500,i:"assets/products/13886370844.jpg"},
-    {id:"13888442826",n:"시마노 낚싯대 S64SUL-R",c:"낚시",p:658400,i:"assets/products/13888442826.jpg"},
-    {id:"13886412847",n:"시마노 25 알테그라 C2500SHG 스피닝릴",c:"낚시",p:190300,i:"assets/products/13886412847.jpg"},
-    {id:"13888442821",n:"세이코 손목시계 SRPG07J1",c:"시계",p:1016000,i:"assets/products/13888442821.jpg"},
-    {id:"13886412783",n:"카시오 에디피스 EFV-100DJ-2BJF 블루",c:"시계",p:126000,i:"assets/products/13886412783.jpg"},
-    {id:"13886412781",n:"카시오 G-SHOCK GA-2100-7A7JF 화이트",c:"시계",p:157300,i:"assets/products/13886412781.jpg"}
-  ];
-  /* 판매처 분류 → 화면 분류 */
-  var GROUP = {
-    '주방용품':'주방·식기','문구/사무용품':'문구·다이어리','공구':'공구·DIY',
-    '수예':'수예·취미','악기':'수예·취미','화방용품':'수예·취미',
-    '캠핑':'캠핑·아웃도어','낚시':'스포츠·레저','시계':'시계·패션'
-  };
-  var grid = document.getElementById('grid');
-  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
-  var input = document.getElementById('q');
-  var state = {cat:'전체', q:''};
   var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  function won(n){ return n.toLocaleString('ko-KR') + '원'; }
-  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
-
-  function matches(p){
-    if (state.cat !== '전체' && GROUP[p.c] !== state.cat) return false;
-    if (!state.q) return true;
-    var q = state.q.toLowerCase();
-    return (p.n + ' ' + p.c + ' ' + (GROUP[p.c] || '')).toLowerCase().indexOf(q) >= 0;
-  }
-
-  function render(){
-    var list = CATALOG.filter(matches);
-    if (!list.length){
-      grid.innerHTML = '<p class="empty">조건에 맞는 상품이 없습니다. 다른 분류를 골라 보시거나 스마트스토어에서 전체 상품을 확인해 주세요.</p>';
-      return;
-    }
-    grid.innerHTML = list.map(function(p, k){
-      var url = 'https://smartstore.naver.com/japanmartbox/products/' + p.id;
-      return '<a class="card" href="' + url + '" target="_blank" rel="noopener noreferrer">' +
-        '<span class="ph"><img src="./' + p.i + '?v=3" width="800" height="800" alt="' + esc(p.n) + '"></span>' +
-        '<span class="cat">' + esc(GROUP[p.c] || p.c) + '</span>' +
-        '<h3 class="nm">' + esc(p.n) + '</h3>' +
-        '<p class="pr">' + won(p.p) + '</p>' +
-        '<span class="go">스마트스토어에서 보기 <span class="ar" aria-hidden="true">↗</span></span>' +
-        '</a>';
-    }).join('');
-  }
-
-  chips.forEach(function(b){
-    b.addEventListener('click', function(){
-      state.cat = b.getAttribute('data-cat');
-      chips.forEach(function(x){ x.setAttribute('aria-pressed', String(x === b)); });
-      render();
-    });
-  });
-  function resetChips(){
-    chips.forEach(function(x){ x.setAttribute('aria-pressed', String(x.getAttribute('data-cat') === '전체')); });
-  }
-  if (input){
-    input.addEventListener('input', function(){
-      state.q = input.value.trim();
-      /* 검색어를 넣으면 분류를 풀고 전체에서 찾습니다 */
-      if (state.q && state.cat !== '전체'){ state.cat = '전체'; resetChips(); }
-      render();
-    });
-  }
-  render();
 
   /* 숫자 카운트업 */
   var counted = false;
   function countUp(el, to){
     if (reduced){ el.textContent = to.toLocaleString('ko-KR'); return; }
-    var t0 = null, dur = 1200;
+    var t0 = null, dur = 1100;
     function frame(t){
       if (t0 === null) t0 = t;
       var k = Math.min(1, (t - t0) / dur);
@@ -551,7 +501,7 @@ a.mk:hover .ar{color:var(--ink)}
     });
   }
 
-  /* 실시간 판매중 수치(status.json)로 보정 — 숫자는 이 값을 받은 뒤에 올라갑니다 */
+  /* 실시간 판매중 수치(status.json)로 보정 */
   function syncTotal(done){
     var finish = function(){ if (done){ var d = done; done = null; d(); } };
     if (!window.fetch){ finish(); return; }
@@ -566,8 +516,9 @@ a.mk:hover .ar{color:var(--ink)}
         if (m){
           var n = parseInt(m[1].replace(/,/g, ''), 10);
           if (n && n >= 100){
-            var statEl = document.querySelector('[data-stat="total"]');
-            if (statEl) statEl.textContent = n.toLocaleString('ko-KR');
+            Array.prototype.forEach.call(document.querySelectorAll('[data-stat="total"]'), function(el){
+              el.textContent = n.toLocaleString('ko-KR');
+            });
             var dd = document.querySelector('.stats [data-count]');
             if (dd) dd.setAttribute('data-count', String(n));
           }
@@ -580,9 +531,9 @@ a.mk:hover .ar{color:var(--ink)}
   }
 
   /* 스크롤 진입 애니메이션 */
-  var revealTargets = document.querySelectorAll('.hero, .sec, .contact');
+  var targets = document.querySelectorAll('.hero, .sec, .band, .contact');
   if (reduced || !('IntersectionObserver' in window)){
-    Array.prototype.forEach.call(revealTargets, function(el){ el.classList.add('in'); });
+    Array.prototype.forEach.call(targets, function(el){ el.classList.add('in'); });
     syncTotal(animateAll);
   } else {
     document.querySelector('.hero').classList.add('in');
@@ -590,17 +541,9 @@ a.mk:hover .ar{color:var(--ink)}
       entries.forEach(function(e){
         if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
       });
-    }, {rootMargin:'0px 0px -8% 0px', threshold:0.06});
-    Array.prototype.forEach.call(revealTargets, function(el){ io.observe(el); });
-    var statsEl = document.querySelector('.stats');
-    var seen = false;
-    var io2 = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if (e.isIntersecting && !seen){ seen = true; io2.disconnect(); syncTotal(animateAll); }
-      });
-    }, {threshold:0.4});
-    if (statsEl) io2.observe(statsEl);
-    /* 통계가 첫 화면 안에 있어도 값이 늦게 도착해 0으로 남지 않도록 */
+    }, {rootMargin:'0px 0px -6% 0px', threshold:0.05});
+    Array.prototype.forEach.call(targets, function(el){ io.observe(el); });
+    syncTotal(animateAll);
     setTimeout(function(){ syncTotal(animateAll); }, 1200);
   }
 
