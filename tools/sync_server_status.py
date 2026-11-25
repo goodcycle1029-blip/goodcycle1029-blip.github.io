@@ -7,12 +7,15 @@
 
 company.html 은 status.json 의 `ceo.server` 를 읽어 「🛰️ 서울 클라우드」 섹션과
 「한눈에」 첫 칸의 '최근 정상 점검'(src=server_head) 을 채운다.
+서울 서버가 남긴 AI 소견(`state/hanul_ai_opinion.json`)은 `hanul_opinion` 칸으로 옮겨 담는다 —
+company.html 이 CEO 브리프 아래 「🧠 한울₁ AI 소견」 카드로 그린다.
 IP·계정·키·메일주소는 공개 페이지에 넣지 않는다.
 """
 from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime
@@ -176,6 +179,12 @@ try:
     out["kernel"] = os.uname().release
 except Exception:
     pass
+
+try:
+    out["hanul_opinion"] = json.load(open("/opt/gcu/state/hanul_ai_opinion.json"))
+except Exception as e:
+    out["hanul_opinion"] = {}
+    out["hanul_opinion_error"] = str(e)
 print(json.dumps(out, ensure_ascii=False))
 '''
 
@@ -284,6 +293,69 @@ def build(d: dict) -> dict:
     }
 
 
+def pretty_model(model: str) -> str:
+    """모델 이름을 화면용 짧은 이름으로 — 긴 영문·숫자 열은 공개 검사에서 키로 오인된다.
+
+    gemini-flash-lite-latest → Gemini Flash Lite · gemini-3.5-flash-lite → Gemini 3.5 Flash Lite
+    """
+    m = str(model or "").strip()
+    if not m or "규칙" in m:
+        return "규칙 기반 요약"
+    m = re.sub(r"(?i)^gemini[-_ ]?", "", m)
+    m = re.sub(r"(?i)[-_ ]?latest$", "", m)
+    parts = [p for p in re.split(r"[-_]", m) if p]
+    out = []
+    for p in parts:
+        out.append(p.upper() if re.fullmatch(r"\d+(?:\.\d+)?", p) else p.capitalize())
+    return ("Gemini " + " ".join(out)).strip()
+
+
+def public_opinion(op: dict):
+    """서울 서버가 남긴 AI 소견에서 공개 화면에 필요한 칸만 골라 담는다.
+
+    서버 쪽에서 이미 가렸지만, 공개 주소로 나가는 길목에서 한 번 더 가린다
+    (서버 주소·IP·메일·파일 경로·금액·키로 보이는 문자열).
+    """
+    if not isinstance(op, dict) or not op.get("lines"):
+        return None
+
+    def clean(s, limit=220):
+        s = str(s or "")
+        s = re.sub(r"\b\d{1,3}(?:\.\d{1,3}){3}\b", "서버", s)
+        s = re.sub(r"[\w.+-]+@[\w-]+\.[\w.]+", "메일 주소", s)
+        s = re.sub(r"/opt/[\w./-]*", "서버 내부", s)
+        s = re.sub(r"\d[\d,]*\s*원", "해당 금액", s)
+        s = re.sub(r"\b[A-Za-z0-9_-]{28,}\b", "키", s)
+        return s.strip()[:limit]
+
+    verdict = str(op.get("verdict") or "ok")
+    if verdict not in ("ok", "warn", "alert"):
+        verdict = "ok"
+    lines = [clean(x) for x in (op.get("lines") or []) if str(x).strip()][:4]
+    if not lines:
+        return None
+    checks = []
+    for r in (op.get("checks") or [])[:8]:
+        if isinstance(r, dict) and str(r.get("k") or "").strip():
+            checks.append({"k": clean(r.get("k"), 40), "v": clean(r.get("v"))})
+    cross = op.get("cross") or {}
+    model = pretty_model(op.get("model"))
+    return {
+        "at": clean(op.get("at"), 30),
+        "at_iso": clean(op.get("at_iso"), 40),
+        "verdict": verdict,
+        "badge": clean(op.get("badge") or {"ok": "정상", "warn": "확인 필요", "alert": "경보"}[verdict], 20),
+        "model": model,
+        "lines": lines,
+        "checks": checks,
+        "cross": {"public_ok": bool(cross.get("public_ok")),
+                  "public_age_min": cross.get("public_age_min"),
+                  "public_at": clean(cross.get("public_at"), 40)},
+        "next_at": clean(op.get("next_at"), 10),
+        "scope": "읽기·진단·기록·알림 전용 — 마켓 변경·결제·고객 발송 없음",
+    }
+
+
 def main() -> int:
     check = "--check" in sys.argv
     d = fetch()
@@ -298,6 +370,9 @@ def main() -> int:
     now = datetime.now()
     ceo = st.setdefault("ceo", {})
     ceo["server"] = sv
+    op = public_opinion(d.get("hanul_opinion") or {})
+    if op:
+        st["hanul_opinion"] = op
     ceo["updated_at"] = now.strftime("%Y-%m-%d %H:%M")
     qn = d.get("qna") or {}
     ceo["headline"] = (f"서울 클라우드는 지금 {d.get('streak', d.get('runs_since'))}회 연속 정상으로 돌고 있고(누적 실행 "

@@ -757,6 +757,41 @@
   .ceo-hero .ch-k{font-size:12.5px;font-weight:900;letter-spacing:.07em;color:#cbd5e1}
   .ceo-hero .ch-t{margin:5px 0 0;font-size:19px;font-weight:900;line-height:1.42;letter-spacing:-.02em;color:#fff}
   .ceo-hero .ch-s{margin:7px 0 0;font-size:13px;font-weight:800;color:#cddcf3;line-height:1.45}
+
+  /* ---------- 🧠 한울₁ AI 소견 (status.json > hanul_opinion) ---------- */
+  .aiop{
+    position:relative;border-radius:18px;padding:13px 14px 12px;margin:0 0 14px;overflow:hidden;
+    border:1px solid rgba(143,240,192,.4);
+    background:linear-gradient(140deg,rgba(143,240,192,.13),rgba(126,224,255,.07))
+  }
+  .aiop::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:rgba(143,240,192,.9)}
+  .aiop.warn{border-color:rgba(245,158,11,.5);background:linear-gradient(140deg,rgba(245,158,11,.14),rgba(126,224,255,.06))}
+  .aiop.warn::before{background:rgba(245,158,11,.95)}
+  .aiop.alert{border-color:rgba(239,68,68,.55);background:linear-gradient(140deg,rgba(239,68,68,.17),rgba(126,224,255,.05))}
+  .aiop.alert::before{background:rgba(239,68,68,.95)}
+  .aiop .ah{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .aiop .ah .e{font-size:16px;line-height:1}
+  .aiop .ah b{font-size:14.5px;font-weight:900;letter-spacing:-.01em;color:#eafff5}
+  .aiop .ab{
+    margin-left:auto;flex:none;font-size:11.5px;font-weight:900;padding:3px 9px;border-radius:999px;white-space:nowrap;
+    background:rgba(16,185,129,.18);border:1px solid rgba(16,185,129,.55);color:#a7f3d0
+  }
+  .aiop.warn .ab{background:rgba(245,158,11,.2);border-color:rgba(245,158,11,.6);color:#fde68a}
+  .aiop.alert .ab{background:rgba(239,68,68,.22);border-color:rgba(239,68,68,.65);color:#fecaca}
+  .aiop .at{margin:6px 0 0;font-size:11.5px;font-weight:800;color:#a3b6d2;line-height:1.45}
+  .aiop ul{margin:9px 0 0;padding:0;list-style:none;display:grid;gap:7px}
+  .aiop li{position:relative;padding-left:15px;font-size:13px;font-weight:800;line-height:1.5;color:#e3edfb;overflow-wrap:anywhere}
+  .aiop li::before{content:"·";position:absolute;left:4px;top:0;color:#8fe3c0;font-weight:900}
+  .aiop.warn li::before{color:#fcd34d}
+  .aiop.alert li::before{color:#fca5a5}
+  .aiop details{margin-top:10px;border-top:1px solid rgba(255,255,255,.12);padding-top:9px}
+  .aiop summary{cursor:pointer;font-size:11.5px;font-weight:900;color:#a3b6d2}
+  .aiop summary:focus-visible{outline:3px solid var(--cy);outline-offset:2px;border-radius:8px}
+  .aiop .kv{margin-top:8px}
+  .aiop .kv .row{grid-template-columns:minmax(72px,.7fr) 1.5fr;gap:8px;padding:6px 0}
+  .aiop .kv .k{font-size:11.5px}
+  .aiop .kv .v{font-size:11.5px;line-height:1.45;color:#cfdcef}
+  .aiop .af{margin:9px 0 0;font-size:11px;font-weight:800;color:#8fa2c4;line-height:1.5}
   .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:2px 0 4px}
   .tile{
     border-radius:15px;border:1px solid var(--line);background:var(--card);
@@ -3038,6 +3073,52 @@
     return h + '</div>';
   }
 
+  /* 🧠 한울₁ AI 소견 — 서울 서버가 매시 :15 에 스스로 점검해 남긴 글 */
+  function agoText(min){
+    if (min === null || min === undefined || isNaN(min)) return '-';
+    min = Math.max(0, Math.round(min));
+    if (min < 1) return '방금';
+    if (min < 60) return min + '분 전';
+    var h = Math.floor(min / 60), m = min % 60;
+    if (h < 24) return m ? h + '시간 ' + m + '분 전' : h + '시간 전';
+    var d = Math.floor(h / 24), hh = h % 24;
+    return hh ? d + '일 ' + hh + '시간 전' : d + '일 전';
+  }
+  function aiopHTML(op){
+    if (!op || !op.lines || !op.lines.length) return '';
+    var v = op.verdict === 'alert' ? 'alert' : (op.verdict === 'warn' ? 'warn' : 'ok');
+    var cls = v === 'ok' ? '' : ' ' + v;
+    var badge = op.badge || (v === 'alert' ? '경보' : v === 'warn' ? '확인 필요' : '정상');
+    var h = '<div class="aiop' + cls + '" role="status">';
+    h += '<div class="ah"><span class="e" aria-hidden="true">🧠</span><b>한울₁ AI 소견</b>';
+    h += '<span class="ab">' + esc(badge) + '</span></div>';
+    var when = [];
+    if (op.at) when.push(op.at + ' 점검');
+    if (op.next_at) when.push('다음 ' + op.next_at);
+    if (when.length) h += '<p class="at">' + esc(when.join(' · ')) + '</p>';
+    h += '<ul>';
+    op.lines.forEach(function(x){ h += '<li>' + esc(x) + '</li>'; });
+    h += '</ul>';
+    if (op.checks && op.checks.length){
+      h += '<details><summary>점검 항목 ' + op.checks.length + '개 보기</summary><div class="kv">';
+      op.checks.forEach(function(r){
+        h += '<div class="row"><span class="k">' + esc(r.k || '') + '</span><span class="v">' + esc(r.v || '') + '</span></div>';
+      });
+      h += '</div></details>';
+    }
+    var foot = [];
+    var cr = op.cross || {};
+    if (cr.public_ok && cr.public_age_min !== null && cr.public_age_min !== undefined){
+      foot.push('나미 현황판 ' + agoText(cr.public_age_min) + ' 갱신');
+    } else if (cr.public_ok === false){
+      foot.push('나미 현황판 확인 못 함');
+    }
+    if (op.model) foot.push(String(op.model).indexOf('규칙') >= 0 ? '규칙 기반 요약' : 'AI ' + op.model);
+    foot.push('읽기 전용 — 상품·결제·고객 발송은 건드리지 않음');
+    h += '<p class="af">' + esc(foot.join(' · ')) + '</p>';
+    return h + '</div>';
+  }
+
   function renderCeo(d){
     var box = document.getElementById('ceoBody');
     var note = document.getElementById('ceoNote');
@@ -3056,6 +3137,8 @@
     if (c.headline) h += '<p class="ch-t">' + esc(c.headline) + '</p>';
     if (c.sub) String(c.sub).split(/\n+/).forEach(function(par){ if (par.trim()) h += '<p class="ch-s">' + esc(par.trim()) + '</p>'; });
     h += '</div>';
+
+    h += aiopHTML(d.hanul_opinion);
 
     if (c.tiles && c.tiles.length){
       var hasTD = false;
