@@ -3036,7 +3036,7 @@
     h += '<div class="ceo-hero">';
     h += '<div class="ch-k">CEO BRIEF · ' + esc(c.updated_at || '-') + ' 기준</div>';
     if (c.headline) h += '<p class="ch-t">' + esc(c.headline) + '</p>';
-    if (c.sub) h += '<p class="ch-s">' + esc(c.sub) + '</p>';
+    if (c.sub) String(c.sub).split(/\n+/).forEach(function(par){ if (par.trim()) h += '<p class="ch-s">' + esc(par.trim()) + '</p>'; });
     h += '</div>';
 
     if (c.tiles && c.tiles.length){
