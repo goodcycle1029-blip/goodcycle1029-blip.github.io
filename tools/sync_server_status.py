@@ -7,8 +7,9 @@
 
 company.html 은 status.json 의 `ceo.server` 를 읽어 「🛰️ 서울 클라우드」 섹션과
 「한눈에」 첫 칸의 '최근 정상 점검'(src=server_head) 을 채운다.
-서울 서버가 남긴 AI 소견(`state/hanul_ai_opinion.json`)은 `hanul_opinion` 칸으로 옮겨 담는다 —
-company.html 이 CEO 브리프 아래 「🧠 한울₁ AI 소견」 카드로 그린다.
+서울 서버가 남긴 AI 소견(`state/hanul_ai_opinion.json`)은 `hanul_opinion` 칸으로,
+도쿄 서버 가온₂가 남긴 AI 소견(`/opt/gcu/state/gaon_ai_opinion.json`)은 `gaon_opinion` 칸으로 옮겨 담는다 —
+company.html 이 CEO 브리프 아래 「🧠 한울₁ AI 소견」·「🗼 가온₂ AI 소견」 카드로 나란히 그린다.
 IP·계정·키·메일주소는 공개 페이지에 넣지 않는다.
 """
 from __future__ import annotations
@@ -23,6 +24,7 @@ from datetime import datetime
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATUS = os.path.join(HERE, "status.json")
 SSH_RUN = os.environ.get("GCU_SSH_RUN", "/workspace/cloud/gcu_seoul_server/ssh_run.py")
+TOKYO_SSH_RUN = os.environ.get("GCU_TOKYO_SSH_RUN", "/workspace/cloud/gcu_tokyo_server/ssh_run.py")
 
 REMOTE_SCRIPT = r'''
 import json, os, re, subprocess
@@ -199,6 +201,32 @@ def fetch() -> dict:
     return json.loads(line)
 
 
+REMOTE_GAON_SCRIPT = r'''
+import json
+out = {}
+try:
+    out["gaon_opinion"] = json.load(open("/opt/gcu/state/gaon_ai_opinion.json"))
+except Exception as e:
+    out["gaon_opinion"] = {}
+    out["gaon_error"] = str(e)
+print(json.dumps(out, ensure_ascii=False))
+'''
+
+
+def fetch_tokyo() -> dict:
+    """도쿄 가온₂의 AI 소견을 받아 온다(읽기 전용·도쿄 전용 키). 실패해도 서울 쪽은 계속 간다."""
+    try:
+        r = subprocess.run([sys.executable, TOKYO_SSH_RUN, "--stdin", "/opt/gcu/.venv/bin/python -"],
+                           input=REMOTE_GAON_SCRIPT, capture_output=True, text=True, timeout=180)
+        if r.returncode != 0:
+            raise RuntimeError((r.stderr or r.stdout).strip()[:400])
+        line = [x for x in r.stdout.strip().splitlines() if x.startswith("{")][-1]
+        return json.loads(line)
+    except Exception as e:  # noqa: BLE001
+        print("[gaon] 소견을 받지 못했습니다:", str(e)[:200])
+        return {"gaon_opinion": {}, "gaon_error": str(e)[:200]}
+
+
 def promo_row(d: dict) -> str:
     """서버가 만든 마지막 홍보 묶음 한 줄."""
     p = d.get("promo") or {}
@@ -339,20 +367,28 @@ def public_opinion(op: dict):
         if isinstance(r, dict) and str(r.get("k") or "").strip():
             checks.append({"k": clean(r.get("k"), 40), "v": clean(r.get("v"))})
     cross = op.get("cross") or {}
+    cross_out = {
+        "public_ok": bool(cross.get("public_ok")),
+        "public_age_min": cross.get("public_age_min"),
+        "public_at": clean(cross.get("public_at"), 40),
+    }
+    for key in ("gaon_ok", "gaon_age_min", "gaon_verdict", "hanul_ok", "hanul_age_min", "hanul_verdict"):
+        if key in cross and cross.get(key) not in (None, ""):
+            val = cross.get(key)
+            cross_out[key] = val if isinstance(val, (bool, int, float)) else clean(val, 40)
     model = pretty_model(op.get("model"))
     return {
         "at": clean(op.get("at"), 30),
         "at_iso": clean(op.get("at_iso"), 40),
+        "node": clean(op.get("node"), 40),
         "verdict": verdict,
         "badge": clean(op.get("badge") or {"ok": "정상", "warn": "확인 필요", "alert": "경보"}[verdict], 20),
         "model": model,
         "lines": lines,
         "checks": checks,
-        "cross": {"public_ok": bool(cross.get("public_ok")),
-                  "public_age_min": cross.get("public_age_min"),
-                  "public_at": clean(cross.get("public_at"), 40)},
+        "cross": cross_out,
         "next_at": clean(op.get("next_at"), 10),
-        "scope": "읽기·진단·기록·알림 전용 — 마켓 변경·결제·고객 발송 없음",
+        "scope": clean(op.get("scope") or "읽기·진단·기록·알림 전용 — 마켓 변경·결제·고객 발송 없음", 80),
     }
 
 
@@ -360,7 +396,9 @@ def main() -> int:
     check = "--check" in sys.argv
     d = fetch()
     sv = build(d)
+    d2 = fetch_tokyo()
     print(json.dumps(d, ensure_ascii=False, indent=1))
+    print(json.dumps(d2, ensure_ascii=False, indent=1))
     print(json.dumps(sv, ensure_ascii=False, indent=1))
     if check:
         return 0
@@ -373,6 +411,9 @@ def main() -> int:
     op = public_opinion(d.get("hanul_opinion") or {})
     if op:
         st["hanul_opinion"] = op
+    op2 = public_opinion(d2.get("gaon_opinion") or {})
+    if op2:
+        st["gaon_opinion"] = op2
     ceo["updated_at"] = now.strftime("%Y-%m-%d %H:%M")
     qn = d.get("qna") or {}
     ceo["headline"] = (f"서울 클라우드는 지금 {d.get('streak', d.get('runs_since'))}회 연속 정상으로 돌고 있고(누적 실행 "
