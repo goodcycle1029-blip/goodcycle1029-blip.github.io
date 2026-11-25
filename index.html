@@ -498,8 +498,7 @@ a.mk:hover .ar{color:var(--ink)}
     grid.innerHTML = list.map(function(p, k){
       var url = 'https://smartstore.naver.com/japanmartbox/products/' + p.id;
       return '<a class="card" href="' + url + '" target="_blank" rel="noopener noreferrer">' +
-        '<span class="ph"><img src="./' + p.i + '?v=2" width="800" height="800" alt="' + esc(p.n) + '"' +
-        (k < 3 ? '' : ' loading="lazy"') + '></span>' +
+        '<span class="ph"><img src="./' + p.i + '?v=3" width="800" height="800" alt="' + esc(p.n) + '"></span>' +
         '<span class="cat">' + esc(GROUP[p.c] || p.c) + '</span>' +
         '<h3 class="nm">' + esc(p.n) + '</h3>' +
         '<p class="pr">' + won(p.p) + '</p>' +
