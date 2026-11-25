@@ -3,242 +3,205 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#070A16">
-<title>재팬마트박스 놀이터 · 미니게임 3종 + 일본 초보여행 해결사</title>
-<meta name="description" content="풍선 톡톡·고양이 타워 쌓기·숫자 콤보 팡, 그리고 일본 초보여행 원클릭 해결사까지 — 한 번의 탭으로 바로 시작. 모두 무료, 설치 없이.">
-<meta property="og:title" content="재팬마트박스 놀이터 · 한 번의 탭으로 바로 시작">
-<meta property="og:description" content="미니게임 3종 + 일본 초보여행 원클릭 해결사. 모두 무료, 설치 없이.">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#fcf9f4">
+<title>재팬마트박스 · 미니게임 3종 + 일본 초보여행 해결사</title>
+<meta name="description" content="풍선 톡톡·고양이 타워 쌓기·숫자 콤보 팡, 일본 초보여행 원클릭 해결사, 손그림 이모티콘 메이커 — 모두 무료, 설치 없이.">
+<meta property="og:title" content="재팬마트박스 · 한 번의 탭으로 바로 시작">
+<meta property="og:description" content="미니게임 3종 · 일본 초보여행 해결사 · 손그림 이모티콘 메이커. 모두 무료, 설치 없이.">
 <meta property="og:type" content="website">
+<meta property="og:image" content="https://goodcycle1029-blip.github.io/assets/banner_jmb_v1.jpg">
 <link rel="manifest" href="./manifest-portal.json">
+<link rel="icon" href="./icon-portal-192.png">
 <link rel="apple-touch-icon" href="./icon-portal-192.png">
 <style>
-  :root{
-    --ink:#eaf0ff;
-    --dim:#9fb0d0;
-    --line:rgba(255,255,255,.13);
-    --cy:#7ee0ff;
-    --vi:#a98bff;
-    --pk:#ff8fc0;
-    --mn:#8ff0c0;
-    --r:16px;
-  }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html{background:#070a16}
-  body{
-    margin:0;color:var(--ink);background:#070a16;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,"Liberation Sans","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR","Hiragino Sans","Yu Gothic","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
-    -webkit-font-smoothing:antialiased;
-    min-height:100vh;min-height:100dvh;
-    display:flex;flex-direction:column;
-    padding:calc(10px + env(safe-area-inset-top)) 14px calc(10px + env(safe-area-inset-bottom));
-    overflow-x:hidden;
-  }
-  /* 배경: 어두운 남색 + 은은한 오로라 (움직임은 최소) */
-  body::before{
-    content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-    background:
-      radial-gradient(46% 32% at 12% -4%, rgba(126,224,255,.18), transparent 70%),
-      radial-gradient(40% 30% at 92% 4%, rgba(169,139,255,.16), transparent 72%),
-      radial-gradient(60% 34% at 50% 104%, rgba(255,143,192,.10), transparent 70%),
-      linear-gradient(180deg,#080c19,#070a16 55%,#070a16);
-  }
-  .shell{position:relative;z-index:1;display:flex;flex-direction:column;gap:10px;flex:1;min-height:0;max-width:1080px;width:100%;margin:0 auto}
+/* ==========================================================================
+   재팬마트박스 대문 — 디자인 시스템 jmb-editorial-1
+   (documents/재팬마트박스_디자인시스템_스펙_2026-11-24.md §3 · §7)
+   · 흰 바탕 + 먹빛 + 주홍 1점 · 구분은 1px 선 · 그림자 없음 · 숫자는 tabular
+   ========================================================================== */
+:root{
+  --bg:#fcf9f4; --bg2:#f6f3ee; --card:#ffffff;
+  --ink:#101e3c; --ink-black:#00051a; --body:#1c1c19; --muted:#45464e; --label:#75777e;
+  --acc:#b02f1a; --acc2:#8e2515; --acc-soft:#ffdad3;
+  --line:#e6e1d8; --line-strong:#d8d2c6;
+  --r-card:18px; --r-input:8px;
+  --sans:"Pretendard","Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",Roboto,system-ui,sans-serif;
+  --num:ui-monospace,"Space Grotesk",SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--body);
+  font-family:var(--sans);font-size:15px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  padding:0 0 calc(28px + env(safe-area-inset-bottom));
+}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
 
-  /* ---------- 상단: 브랜드 + 언어 ---------- */
-  .top{display:flex;align-items:center;gap:10px;flex:none}
-  .brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;min-width:0}
-  .brand-ico{
-    width:34px;height:34px;flex:none;border-radius:11px;display:grid;place-items:center;font-size:17px;
-    background:linear-gradient(140deg,rgba(126,224,255,.3),rgba(169,139,255,.3));
-    border:1px solid rgba(255,255,255,.18);box-shadow:0 6px 18px -10px rgba(126,224,255,.9)
-  }
-  .brand-t{display:flex;flex-direction:column;min-width:0}
-  .brand-t b{font-size:13.5px;font-weight:900;letter-spacing:-.01em;line-height:1.15;white-space:nowrap}
-  .brand-t i{font-style:normal;font-size:9.5px;font-weight:800;color:var(--dim);letter-spacing:.08em;white-space:nowrap}
-  .lang{margin-left:auto;display:flex;gap:4px;flex:none}
-  .lg{
-    -webkit-appearance:none;appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.05);
-    color:var(--ink);border-radius:10px;min-height:34px;padding:5px 8px;font:inherit;font-size:11.5px;font-weight:900;
-    letter-spacing:.04em;line-height:1;display:flex;align-items:center;gap:5px;cursor:pointer;
-    transition:background .15s,border-color .15s,transform .1s
-  }
-  .lg .nm{display:none;white-space:nowrap;font-weight:800;letter-spacing:0}
-  .lg:active{transform:scale(.95)}
-  .lg.on{
-    background:linear-gradient(120deg,rgba(126,224,255,.3),rgba(169,139,255,.26));
-    border-color:rgba(126,224,255,.6);box-shadow:0 0 0 1px rgba(126,224,255,.18) inset
-  }
+/* ── 상단 ─────────────────────────────────────────────── */
+.top{
+  display:flex;align-items:center;gap:12px;
+  padding:calc(14px + env(safe-area-inset-top)) 0 14px;
+  border-bottom:1px solid var(--line);
+}
+.brand{display:flex;flex-direction:column;gap:3px;min-width:0}
+.brand b{
+  font-family:var(--num);font-size:12.5px;font-weight:700;letter-spacing:.16em;
+  color:var(--ink-black);text-transform:uppercase;line-height:1;white-space:nowrap
+}
+.brand span{font-size:11px;font-weight:600;color:var(--label);letter-spacing:.02em;line-height:1.2;white-space:nowrap}
+.lang{margin-left:auto;display:flex;gap:2px;flex:none}
+.lg{
+  -webkit-appearance:none;appearance:none;border:0;background:transparent;
+  color:var(--label);font:inherit;font-size:11.5px;font-weight:700;letter-spacing:.06em;
+  padding:9px 9px;border-radius:var(--r-input);min-height:40px;min-width:40px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;transition:color .15s,background .15s
+}
+.lg .nm{display:none}
+.lg:hover{color:var(--ink);background:var(--bg2)}
+.lg.on{color:var(--ink);background:var(--bg2);box-shadow:inset 0 -2px 0 var(--ink)}
+.lg:active{transform:scale(.96)}
 
-  /* ---------- 소개 문구 ---------- */
-  .hero{flex:none;margin:2px 0 0}
-  .hero h1{
-    margin:0;font-size:clamp(19px,5.3vw,26px);font-weight:900;letter-spacing:-.03em;line-height:1.2;
-    background:linear-gradient(96deg,#eaf0ff 8%,var(--cy) 42%,var(--vi) 74%,var(--pk) 96%);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-    overflow-wrap:anywhere
-  }
-  .hero p{margin:6px 0 0;font-size:12px;font-weight:700;color:var(--dim);line-height:1.4;overflow-wrap:anywhere}
+/* ── 히어로 ───────────────────────────────────────────── */
+.hero{padding:34px 0 30px;border-bottom:1px solid var(--line)}
+.eyebrow{
+  margin:0 0 14px;font-family:var(--num);font-size:11px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--label)
+}
+.hero h1{
+  margin:0;color:var(--ink-black);
+  font-size:clamp(28px,7.2vw,40px);line-height:1.12;letter-spacing:-.02em;font-weight:700;
+  overflow-wrap:anywhere
+}
+.hero h1 mark{
+  background:linear-gradient(transparent 62%,var(--acc-soft) 62%);
+  color:inherit;padding:0 .04em
+}
+.hero p{margin:14px 0 0;max-width:34em;font-size:14.5px;line-height:1.62;color:var(--muted);overflow-wrap:anywhere}
 
-  /* ---------- 4개 서비스 카드 ---------- */
-  .menu{
-    flex:1 1 auto;min-height:0;display:grid;gap:8px;align-content:center;
-    grid-template-columns:1fr;grid-template-rows:repeat(5,minmax(64px,auto))
-  }
-  .card{
-    position:relative;display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:var(--r);
-    text-decoration:none;color:inherit;overflow:hidden;isolation:isolate;
-    background:rgba(255,255,255,.045);border:1px solid var(--line);
-    box-shadow:0 14px 34px -26px rgba(0,0,0,.9);
-    transition:transform .12s ease,border-color .18s ease,background .18s ease
-  }
-  .card::after{
-    content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
-    background:radial-gradient(120% 120% at 0% 0%,var(--tint,rgba(255,255,255,.06)),transparent 62%)
-  }
-  .card:hover{border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.07)}
-  .card:active{transform:scale(.985)}
-  .card:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
-  .card[data-k="pop"]{--tint:rgba(255,143,192,.26)}
-  .card[data-k="tower"]{--tint:rgba(126,224,255,.24)}
-  .card[data-k="drop"]{--tint:rgba(143,240,192,.22)}
-  .card[data-k="japan"]{--tint:rgba(150,160,255,.26)}
-  .card[data-k="emo"]{--tint:rgba(255,150,190,.26)}
-  .card[data-k="company"]{--tint:rgba(255,216,138,.26);border-color:rgba(255,216,138,.3);background:linear-gradient(100deg,rgba(255,216,138,.10),rgba(255,255,255,.04) 62%)}
-  .card[data-k="company"] .chip{display:none}
-  .card .ico{
-    width:50px;height:50px;flex:none;border-radius:15px;display:grid;place-items:center;font-size:25px;
-    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14)
-  }
-  .card .txt{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
-  .card .nm{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-  .card .nm b{font-size:16px;font-weight:900;letter-spacing:-.02em;line-height:1.22;overflow-wrap:anywhere}
-  .card .chip{
-    font-style:normal;font-size:9.5px;font-weight:900;letter-spacing:.04em;padding:2px 7px;border-radius:999px;
-    background:rgba(255,255,255,.13);color:rgba(235,242,255,.86);white-space:nowrap
-  }
-  .card .ds{font-size:11.5px;font-weight:700;color:var(--dim);line-height:1.32;overflow-wrap:anywhere}
-  .card .go{
-    margin-left:auto;flex:none;width:27px;height:27px;border-radius:9px;display:grid;place-items:center;
-    font-size:13px;font-weight:900;color:rgba(255,255,255,.78);background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.1)
-  }
+/* ── 공통 섹션 ─────────────────────────────────────────── */
+.sec{padding:30px 0}
+.sec-head{display:flex;align-items:baseline;gap:10px;margin-bottom:16px}
+.sec-head h2{margin:0;font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+.sec-head .rule{flex:1;height:1px;background:var(--line)}
+.sec-head .cnt{font-family:var(--num);font-size:11px;color:var(--label);letter-spacing:.06em}
 
-  /* ---------- 광고: 재팬마트박스 배너 + 협찬 문의 슬롯 ---------- */
-  .ads{flex:none;display:grid;gap:7px}
-  .promo{
-    position:relative;display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:14px;
-    text-decoration:none;color:#22102A;overflow:hidden;
-    background:linear-gradient(100deg,#FFD9E9,#FFC0DB 46%,#C8B4FF);
-    border:1px solid rgba(255,255,255,.4);box-shadow:0 12px 26px -20px rgba(255,143,192,.9)
-  }
-  .promo .pico{
-    width:32px;height:32px;flex:none;border-radius:10px;display:grid;place-items:center;font-size:17px;
-    background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.7)
-  }
-  .promo .ptx{display:flex;flex-direction:column;min-width:0}
-  .promo .ptx b{font-size:12.5px;font-weight:900;letter-spacing:-.02em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .promo .ptx i{font-style:normal;font-size:10px;font-weight:800;color:rgba(34,16,42,.64);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .promo .pcta{
-    margin-left:auto;flex:none;font-size:10.5px;font-weight:900;padding:6px 10px;border-radius:9px;
-    background:#2c1442;color:#fff;white-space:nowrap
-  }
-  .adtag{
-    position:absolute;top:3px;right:7px;font-size:6.5px;font-weight:900;letter-spacing:.1em;
-    color:rgba(34,16,42,.42);pointer-events:none
-  }
-  .inq{
-    position:relative;display:flex;flex-direction:column;gap:4px;padding:9px 11px;border-radius:14px;
-    border:1px dashed rgba(140,172,222,.42);background:rgba(10,18,36,.52)
-  }
-  .inq-a{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink)}
-  .inq-a .iico{width:29px;height:29px;flex:none;border-radius:9px;display:grid;place-items:center;font-size:14px;background:rgba(255,255,255,.08)}
-  .inq-tx{display:flex;flex-direction:column;min-width:0}
-  .inq-tx b{font-size:12px;font-weight:900;letter-spacing:-.01em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .inq-tx i{font-style:normal;font-size:9.5px;font-weight:700;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .inq .icta{margin-left:auto;flex:none;font-size:10px;font-weight:900;padding:5px 9px;border-radius:8px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.12);color:#fff;white-space:nowrap}
-  .inq .adtag{color:rgba(200,214,240,.45)}
-  .inq-mail{display:flex;align-items:center;gap:6px;font-size:9.5px;font-weight:700;color:rgba(180,196,226,.62);padding-left:1px;flex-wrap:wrap}
-  .inq-mail button{
-    -webkit-appearance:none;appearance:none;font:inherit;font-size:9px;font-weight:800;cursor:pointer;
-    border:1px solid rgba(255,255,255,.22);background:transparent;color:rgba(255,255,255,.72);
-    border-radius:7px;padding:1px 7px
-  }
-  .inq-mail button:active{transform:scale(.96)}
+/* ── 도구 목록 ─────────────────────────────────────────── */
+.tools{display:grid;gap:10px;grid-template-columns:1fr}
+.tool{
+  display:flex;align-items:flex-start;gap:14px;min-height:76px;padding:16px 16px;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);
+  transition:border-color .16s,background .16s
+}
+.tool:hover{border-color:var(--line-strong);background:#fffdfa}
+.tool:active{background:var(--bg2)}
+.tool:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.tool .n{
+  flex:none;font-family:var(--num);font-size:11px;font-weight:600;letter-spacing:.06em;
+  color:var(--acc);padding-top:3px;font-variant-numeric:tabular-nums
+}
+.tool .tx{flex:1;min-width:0}
+.tool .nm{display:flex;align-items:center;gap:7px; flex-wrap:wrap}
+.tool .nm b{font-size:16px;font-weight:600;letter-spacing:-.015em;color:var(--ink);line-height:1.32}
+.tool .chip{
+  font-style:normal;font-size:10.5px;font-weight:600;color:var(--label);
+  border:1px solid var(--line);border-radius:999px;padding:1px 8px;white-space:nowrap;line-height:1.6
+}
+.tool .ds{display:block;margin-top:4px;font-size:13px;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}
+.tool .go{
+  flex:none;align-self:center;font-family:var(--num);font-size:15px;color:var(--label);
+  transition:color .16s,transform .16s
+}
+.tool:hover .go{color:var(--ink);transform:translateX(2px)}
 
-  /* ---------- 아래 문구 ---------- */
-  .foot{
-    flex:none;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;
-    font-size:9.5px;font-weight:700;color:rgba(159,176,208,.62);text-align:center;padding-top:1px
-  }
-  .foot b{font-weight:800}
-  .foot span.dot{opacity:.5}
+/* ── 재팬마트박스 (쇼핑몰) ─────────────────────────────── */
+.store{
+  border:1px solid var(--line);border-radius:var(--r-card);background:var(--card);
+  padding:18px 16px 16px;margin-top:2px
+}
+.store-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px}
+.store-top .eyebrow{margin:0}
+.store-top .host{font-family:var(--num);font-size:10px;color:var(--label);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.store h3{margin:0 0 8px;font-size:20px;line-height:1.25;letter-spacing:-.02em;font-weight:600;color:var(--ink)}
+.store .desc{margin:0 0 16px;font-size:13px;line-height:1.6;color:var(--muted)}
+.steps{margin:0;padding:14px 0 0;list-style:none;display:grid;gap:10px;border-top:1px solid var(--line)}
+.steps li{display:flex;gap:10px;align-items:flex-start}
+.steps .sn{flex:none;font-family:var(--num);font-size:11px;font-weight:600;color:var(--label);padding-top:1px;font-variant-numeric:tabular-nums}
+.steps b{display:block;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.35}
+.steps span{display:block;font-size:12px;color:var(--label);line-height:1.4;margin-top:1px}
+.store-cta{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  margin-top:16px;width:100%;min-height:48px;padding:12px 16px;
+  border:1px solid var(--ink);border-radius:999px;background:var(--ink);color:#fff;
+  font-size:13.5px;font-weight:600;letter-spacing:-.01em;transition:background .16s,border-color .16s
+}
+.store-cta:hover{background:var(--ink-black);border-color:var(--ink-black)}
+.store-cta .arw{font-family:var(--num);font-size:13px}
+.adtag{
+  display:inline-block;font-family:var(--num);font-size:9px;font-weight:600;letter-spacing:.12em;
+  color:var(--label);border:1px solid var(--line);border-radius:var(--r-input);
+  padding:1px 5px;margin-left:6px;vertical-align:middle
+}
 
-  /* ---------- 넓은 화면: 2×2 카드 + 오른쪽 광고 기둥 ---------- */
-  @media (min-width:820px){
-    body{padding:26px 28px 22px}
-    .shell{
-      display:grid;grid-template-columns:minmax(0,1fr) 300px;
-      grid-template-areas:"top top" "hero ads" "menu ads" "foot foot";
-      column-gap:22px;row-gap:14px;flex:0 0 auto;margin:auto;align-content:start
-    }
-    .top{grid-area:top}
-    .hero{grid-area:hero;margin-bottom:2px}
-    .hero h1{font-size:30px}
-    .hero p{font-size:13.5px}
-    .menu{grid-area:menu;grid-template-columns:1fr 1fr;grid-template-rows:repeat(2,minmax(140px,190px)) auto;align-content:start}
-    .card[data-k="company"]{grid-column:1/-1;min-height:92px}
-    .ads{grid-area:ads;align-self:stretch;display:flex;flex-direction:column;gap:10px;align-content:start}
-    .inq{display:flex;flex-direction:column;justify-content:space-between;flex:1;min-height:150px}
-    .foot{grid-area:foot;margin-top:6px;font-size:10.5px}
-    .lg .nm{display:inline}
-    .lg{min-height:36px;font-size:12px;padding:6px 10px}
-    .card{padding:18px;gap:14px}
-    .card .ico{width:56px;height:56px;border-radius:17px;font-size:28px}
-    .card .nm b{font-size:18px}
-    .card .ds{font-size:12.5px}
-    .card .chip{font-size:10.5px;padding:2px 8px}
-    .card .go{width:32px;height:32px;font-size:14px}
-    .promo{padding:14px;border-radius:16px}
-    .promo .pico{width:38px;height:38px;font-size:19px;border-radius:12px}
-    .promo .ptx b{font-size:14.5px}
-    .promo .ptx i{font-size:11px}
-    .promo .pcta{font-size:11.5px;padding:7px 11px}
-    .inq{padding:14px;border-radius:16px}
-    .inq-a .iico{width:34px;height:34px;font-size:16px;border-radius:11px}
-    .inq-tx b{font-size:13.5px}
-    .inq-tx i{font-size:11px}
-    .inq-mail{font-size:10.5px;margin-top:2px}
+/* ── 광고·협찬 자리 ────────────────────────────────────── */
+.inq{
+  margin:10px 0 0;padding:16px;border:1px dashed var(--line-strong);border-radius:var(--r-card);
+  background:transparent
+}
+.inq .t{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:var(--ink)}
+.inq .s{margin:5px 0 12px;font-size:12.5px;color:var(--label)}
+.inq .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.inq .mail{font-family:var(--num);font-size:11.5px;color:var(--muted);overflow-wrap:anywhere}
+.inq button{
+  -webkit-appearance:none;appearance:none;font:inherit;font-family:var(--num);font-size:11px;font-weight:600;
+  letter-spacing:.04em;color:var(--ink);background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r-input);padding:7px 11px;min-height:36px;cursor:pointer
+}
+.inq button:active{transform:scale(.97)}
+
+/* ── 아래 ──────────────────────────────────────────────── */
+.foot{
+  border-top:1px solid var(--line);margin-top:8px;padding:18px 0 0;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap
+}
+.foot .wm{font-family:var(--num);font-size:11px;font-weight:600;letter-spacing:.16em;color:var(--ink);text-transform:uppercase}
+.foot .mt{font-size:11.5px;color:var(--label);line-height:1.5}
+
+/* ── 넓은 화면 ─────────────────────────────────────────── */
+@media (min-width:640px){
+  .tools{grid-template-columns:1fr 1fr;gap:12px}
+  .hero{padding:44px 0 36px}
+  .hero p{font-size:15.5px}
+  .lg .nm{display:inline;margin-left:6px;font-weight:600;letter-spacing:0;font-size:11.5px}
+  .lg{min-width:0;padding:9px 12px}
+}
+@media (min-width:960px){
+  .wrap{
+    display:grid;grid-template-columns:minmax(0,1fr) 320px;
+    grid-template-areas:"top top" "hero rail" "tools rail" "foot foot";
+    column-gap:44px;align-items:start
   }
-  /* 화면이 낮은 휴대폰: 카드가 조금 낮아져도 네 개가 한 화면에 */
-  @media (max-width:819px) and (max-height:720px){
-    .hero p{font-size:11.5px}
-    .menu{grid-template-rows:repeat(5,minmax(52px,auto));gap:6px}
-    .card{padding:10px 12px}
-    .card .ico{width:44px;height:44px;border-radius:13px;font-size:22px}
-    .card .nm b{font-size:15px}
-    .card .ds{font-size:11px}
-    .promo{padding:8px 10px}
-    .promo .pico{width:28px;height:28px;font-size:15px}
-    .promo .ptx b{font-size:12px}
-    .promo .ptx i{font-size:9.5px}
-    .inq{padding:8px 10px}
-    .inq-a .iico{width:26px;height:26px;font-size:13px}
-    .inq-tx b{font-size:11.5px}
-    .inq-tx i{font-size:9px}
-    .foot{font-size:9px}
-  }
-  @media (prefers-reduced-motion:reduce){
-    *{transition:none!important}
-  }
+  .top{grid-area:top}
+  .hero{grid-area:hero;padding:52px 0 34px}
+  .sec{grid-area:tools;padding:26px 0 0}
+  .rail{grid-area:rail;padding:26px 0 0;position:sticky;top:20px}
+  .foot{grid-area:foot;margin-top:36px}
+  .hero h1{font-size:40px;line-height:48px}
+  .store{padding:20px}
+  .store h3{font-size:22px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
-<div class="shell">
+<div class="wrap">
 
   <header class="top">
-    <a class="brand" href="./index.html" aria-label="재팬마트박스 놀이터">
-      <span class="brand-ico" aria-hidden="true">📦</span>
-      <span class="brand-t"><b data-i18n="brand">재팬마트박스</b><i data-i18n="brandSub">미니게임 놀이터</i></span>
+    <a class="brand" href="./index.html" aria-label="재팬마트박스 대문">
+      <b>Japan Mart Box</b>
+      <span data-i18n="brandSub">미니게임 놀이터</span>
     </a>
     <div class="lang" id="langBar" role="group" aria-label="언어">
       <button type="button" class="lg on" data-lang="ko" aria-label="한국어" title="한국어">KO<span class="nm">한국어</span></button>
@@ -249,102 +212,115 @@
   </header>
 
   <section class="hero">
-    <h1 data-i18n="h1">한 번의 탭으로, 바로 시작</h1>
-    <p data-i18n="sub">미니게임 3종 + 일본 초보여행 해결사 · 모두 무료, 설치 없이</p>
+    <p class="eyebrow" data-i18n="eyebrow">Free tools · No install</p>
+    <h1><mark data-i18n="h1a">한 번의 탭으로</mark><span data-i18n="sep">,</span> <span data-i18n="h1b">바로 시작</span></h1>
+    <p data-i18n="sub">미니게임 3종 · 일본 초보여행 해결사 · 손그림 이모티콘 메이커 — 모두 무료, 설치 없이.</p>
   </section>
 
-  <main class="menu" aria-label="서비스 목록">
-    <a class="card" data-k="pop" href="./pop.html" data-aria="c1n">
-      <span class="ico" aria-hidden="true">🎈</span>
-      <span class="txt">
-        <span class="nm"><b data-i18n="c1n">30초 풍선 톡톡</b><em class="chip" data-i18n="c1c">30초</em></span>
-        <span class="ds" data-i18n="c1d">떠오르는 풍선을 30초 동안 톡톡</span>
-      </span>
-      <span class="go" aria-hidden="true">→</span>
-    </a>
+  <main class="sec" aria-labelledby="toolsHead">
+    <div class="sec-head">
+      <h2 id="toolsHead" data-i18n="toolsHead">도구</h2>
+      <span class="rule" aria-hidden="true"></span>
+      <span class="cnt">06</span>
+    </div>
 
-    <a class="card" data-k="tower" href="./tower.html" data-aria="c2n">
-      <span class="ico" aria-hidden="true">🐱</span>
-      <span class="txt">
-        <span class="nm"><b data-i18n="c2n">고양이 타워 쌓기</b><em class="chip" data-i18n="c2c">무한</em></span>
-        <span class="ds" data-i18n="c2d">한 번씩 톡 — 타이밍에 맞춰 블록 쌓기</span>
-      </span>
-      <span class="go" aria-hidden="true">→</span>
-    </a>
+    <div class="tools">
+      <a class="tool" href="./pop.html" data-k="c1">
+        <span class="n">01</span>
+        <span class="tx">
+          <span class="nm"><b data-i18n="c1n">30초 풍선 톡톡</b><i class="chip" data-i18n="c1c">30초</i></span>
+          <span class="ds" data-i18n="c1d">떠오르는 풍선을 30초 동안 톡톡</span>
+        </span>
+        <span class="go" aria-hidden="true">→</span>
+      </a>
 
-    <a class="card" data-k="drop" href="./drop.html" data-aria="c3n">
-      <span class="ico" aria-hidden="true">💥</span>
-      <span class="txt">
-        <span class="nm"><b data-i18n="c3n">숫자 콤보 팡!</b><em class="chip" data-i18n="c3c">타임어택</em></span>
-        <span class="ds" data-i18n="c3d">같은 숫자를 이어 터뜨려 콤보</span>
-      </span>
-      <span class="go" aria-hidden="true">→</span>
-    </a>
+      <a class="tool" href="./tower.html" data-k="c2">
+        <span class="n">02</span>
+        <span class="tx">
+          <span class="nm"><b data-i18n="c2n">고양이 타워 쌓기</b><i class="chip" data-i18n="c2c">무한</i></span>
+          <span class="ds" data-i18n="c2d">한 번씩 톡 — 타이밍에 맞춰 블록 쌓기</span>
+        </span>
+        <span class="go" aria-hidden="true">→</span>
+      </a>
 
-    <a class="card" data-k="japan" href="./japan.html" data-aria="c4n">
-      <span class="ico" aria-hidden="true">🇯🇵</span>
-      <span class="txt">
-        <span class="nm"><b data-i18n="c4n">일본 초보여행 원클릭 해결사</b><em class="chip" data-i18n="c4c">여행</em></span>
-        <span class="ds" data-i18n="c4d">표·환승·말하기·쇼핑 한 화면</span>
-      </span>
-      <span class="go" aria-hidden="true">→</span>
-    </a>
+      <a class="tool" href="./drop.html" data-k="c3">
+        <span class="n">03</span>
+        <span class="tx">
+          <span class="nm"><b data-i18n="c3n">숫자 콤보 팡!</b><i class="chip" data-i18n="c3c">타임어택</i></span>
+          <span class="ds" data-i18n="c3d">같은 숫자를 이어 터뜨려 콤보</span>
+        </span>
+        <span class="go" aria-hidden="true">→</span>
+      </a>
 
-    <a class="card" data-k="emo" href="./emo-maker.html" data-aria="c6n">
-      <span class="ico" aria-hidden="true">🎨</span>
-      <span class="txt">
-        <span class="nm"><b data-i18n="c6n">손그림 이모티콘 메이커</b><em class="chip" data-i18n="c6c">만들기</em></span>
-        <span class="ds" data-i18n="c6d">그림 한 장 → 카카오·OGQ 규격 변환</span>
-      </span>
-      <span class="go" aria-hidden="true">→</span>
-    </a>
+      <a class="tool" href="./japan.html" data-k="c4">
+        <span class="n">04</span>
+        <span class="tx">
+          <span class="nm"><b data-i18n="c4n">일본 초보여행 원클릭 해결사</b><i class="chip" data-i18n="c4c">여행</i></span>
+          <span class="ds" data-i18n="c4d">표·환승·말하기·쇼핑 한 화면</span>
+        </span>
+        <span class="go" aria-hidden="true">→</span>
+      </a>
 
-    <a class="card" data-k="company" href="./company.html" data-aria="c5n">
-      <span class="ico" aria-hidden="true">🏢</span>
-      <span class="txt">
-        <span class="nm"><b data-i18n="c5n">굳사이클 AI 컴퍼니 본사</b><em class="chip" data-i18n="c5c">조직도·매뉴얼</em></span>
-        <span class="ds" data-i18n="c5d">조직도·보관 위치·혼자 운영 매뉴얼</span>
-      </span>
-      <span class="go" aria-hidden="true">→</span>
-    </a>
+      <a class="tool" href="./emo-maker.html" data-k="c5">
+        <span class="n">05</span>
+        <span class="tx">
+          <span class="nm"><b data-i18n="c5n">손그림 이모티콘 메이커</b><i class="chip" data-i18n="c5c">만들기</i></span>
+          <span class="ds" data-i18n="c5d">그림 한 장 → 카카오·OGQ 규격 변환</span>
+        </span>
+        <span class="go" aria-hidden="true">→</span>
+      </a>
+
+      <a class="tool" href="./company.html" data-k="c6">
+        <span class="n">06</span>
+        <span class="tx">
+          <span class="nm"><b data-i18n="c6n">굳사이클 AI 컴퍼니 본사</b><i class="chip" data-i18n="c6c">조직도·매뉴얼</i></span>
+          <span class="ds" data-i18n="c6d">조직도·보관 위치·혼자 운영 매뉴얼</span>
+        </span>
+        <span class="go" aria-hidden="true">→</span>
+      </a>
+    </div>
   </main>
 
-  <aside class="ads">
-    <a class="promo" href="https://smartstore.naver.com/japanmartbox" target="_blank" rel="noopener noreferrer sponsored">
-      <span class="adtag" aria-hidden="true">AD</span>
-      <span class="pico" aria-hidden="true">📦</span>
-      <span class="ptx"><b data-i18n="promoTitle">재팬마트박스</b><i data-i18n="promoDesc">일본 인기 상품 · 구매대행</i></span>
-      <span class="pcta" data-i18n="promoCta">구경하기 →</span>
-    </a>
+  <aside class="rail">
+    <section class="store" aria-labelledby="storeHead">
+      <div class="store-top">
+        <p class="eyebrow" data-i18n="storeEyebrow">Japan Mart Box<span class="adtag">AD</span></p>
+        <span class="host">smartstore.naver.com/japanmartbox</span>
+      </div>
+      <h3 id="storeHead" data-i18n="storeTitle">일본 현지 구매대행</h3>
+      <p class="desc" data-i18n="storeDesc">주문하신 상품을 일본 현지에서 사서, 검수와 통관을 거쳐 보내 드립니다.</p>
+      <ol class="steps">
+        <li><span class="sn">01</span><span><b data-i18n="s1t">현지 구매</b><span data-i18n="s1d">일본 판매처에서 직접</span></span></li>
+        <li><span class="sn">02</span><span><b data-i18n="s2t">검수 후 발송</b><span data-i18n="s2d">배대지 입고·검수</span></span></li>
+        <li><span class="sn">03</span><span><b data-i18n="s3t">관부가세 안내</b><span data-i18n="s3d">결제 전 미리 확인</span></span></li>
+      </ol>
+      <a class="store-cta" href="https://smartstore.naver.com/japanmartbox" target="_blank" rel="noopener noreferrer sponsored">
+        <span data-i18n="storeCta">스마트스토어에서 보기</span><span class="arw" aria-hidden="true">→</span>
+      </a>
+    </section>
 
     <div class="inq">
-      <span class="adtag" aria-hidden="true">AD</span>
-      <a class="inq-a" id="inqLink" href="mailto:goodcycle1029@gmail.com?subject=%5BAD%5D%20%EA%B4%91%EA%B3%A0%C2%B7%ED%98%91%EC%B0%AC%20%EB%AC%B8%EC%9D%98" rel="noopener">
-        <span class="iico" aria-hidden="true">📢</span>
-        <span class="inq-tx"><b data-i18n="inq">AD · 광고·협찬 문의</b><i data-i18n="inqSub">이 자리에 광고가 들어갑니다</i></span>
-        <span class="icta" data-i18n="inqCta">메일 →</span>
-      </a>
-      <div class="inq-mail">
-        <span>goodcycle1029@gmail.com</span>
+      <div class="t"><span data-i18n="inq">광고·협찬 문의</span><span class="adtag">AD</span></div>
+      <p class="s" data-i18n="inqSub">이 자리에 광고가 들어갑니다.</p>
+      <div class="row">
+        <a class="mail" href="mailto:goodcycle1029@gmail.com?subject=%5BAD%5D%20%EA%B4%91%EA%B3%A0%C2%B7%ED%98%91%EC%B0%AC%20%EB%AC%B8%EC%9D%98" rel="noopener">goodcycle1029@gmail.com</a>
         <button type="button" id="copyMail" data-mail="goodcycle1029@gmail.com" data-i18n="copy">복사</button>
       </div>
     </div>
   </aside>
 
   <footer class="foot">
-    <span data-i18n="foot">무료 · 설치 없이 · 기록은 이 기기에 저장</span>
-    <span class="dot" aria-hidden="true">·</span>
-    <span>© <b data-i18n="brand">재팬마트박스</b></span>
+    <span class="wm">Japan Mart Box</span>
+    <span class="mt" data-i18n="foot">무료 · 설치 없이 · 기록은 이 기기에 저장</span>
   </footer>
 
 </div>
 
 <script>
 /* ==========================================================================
-   대문 메뉴판 다국어 (한국어 · English · 日本語 · 中文)
-   · 미니게임 3종과 같은 키(localStorage 'mg.lang.v1')를 써서, 여기서 고른 언어가
-     게임 화면에서도 그대로 이어집니다.
-   · HTML을 그대로 열어도(자바스크립트 없이) 한국어 메뉴는 정상 동작합니다.
+   대문 다국어 (한국어 · English · 日本語 · 中文)
+   · 미니게임과 같은 키(localStorage 'mg.lang.v1')를 써서 고른 언어가 이어집니다.
+   · 자바스크립트가 없어도 한국어 화면은 그대로 동작합니다.
    ========================================================================== */
 (function (w, d) {
   'use strict';
@@ -352,68 +328,92 @@
   var ORDER = ['ko', 'en', 'ja', 'zh'];
   var I18N = {
     ko: {
-      brand: '재팬마트박스', brandSub: '미니게임 놀이터',
-      h1: '한 번의 탭으로, 바로 시작',
-      sub: '미니게임 3종 + 일본 초보여행 해결사 + 본사 대시보드 · 모두 무료, 설치 없이',
+      brandSub: '미니게임 놀이터', eyebrow: 'Free tools · No install',
+      h1a: '한 번의 탭으로', sep: ',', h1b: '바로 시작',
+      sub: '미니게임 3종 · 일본 초보여행 해결사 · 손그림 이모티콘 메이커 — 모두 무료, 설치 없이.',
+      toolsHead: '도구',
       c1n: '30초 풍선 톡톡', c1c: '30초', c1d: '떠오르는 풍선을 30초 동안 톡톡',
       c2n: '고양이 타워 쌓기', c2c: '무한', c2d: '한 번씩 톡 — 타이밍에 맞춰 블록 쌓기',
       c3n: '숫자 콤보 팡!', c3c: '타임어택', c3d: '같은 숫자를 이어 터뜨려 콤보',
       c4n: '일본 초보여행 원클릭 해결사', c4c: '여행', c4d: '표·환승·말하기·쇼핑 한 화면',
-      c5n: '굳사이클 AI 컴퍼니 본사', c5c: '조직도·매뉴얼', c5d: '조직도·보관 위치·혼자 운영 매뉴얼',
-      c6n: '손그림 이모티콘 메이커', c6c: '만들기', c6d: '그림 한 장 → 카카오·OGQ 규격 변환',
-      promoTitle: '재팬마트박스', promoDesc: '일본 인기 상품 · 구매대행', promoCta: '구경하기 →',
-      inq: 'AD · 광고·협찬 문의', inqSub: '이 자리에 광고가 들어갑니다', inqCta: '메일 →',
+      c5n: '손그림 이모티콘 메이커', c5c: '만들기', c5d: '그림 한 장 → 카카오·OGQ 규격 변환',
+      c6n: '굳사이클 AI 컴퍼니 본사', c6c: '조직도·매뉴얼', c6d: '조직도·보관 위치·혼자 운영 매뉴얼',
+      storeEyebrow: 'Japan Mart Box', storeTitle: '일본 현지 구매대행',
+      storeDesc: '주문하신 상품을 일본 현지에서 사서, 검수와 통관을 거쳐 보내 드립니다.',
+      s1t: '현지 구매', s1d: '일본 판매처에서 직접',
+      s2t: '검수 후 발송', s2d: '배대지 입고·검수',
+      s3t: '관부가세 안내', s3d: '결제 전 미리 확인',
+      storeCta: '스마트스토어에서 보기',
+      inq: '광고·협찬 문의', inqSub: '이 자리에 광고가 들어갑니다.',
       copy: '복사', copied: '복사했어요',
       foot: '무료 · 설치 없이 · 기록은 이 기기에 저장',
-      lang: '언어', menu: '서비스 목록', go: '바로 시작'
+      lang: '언어', go: '바로 시작'
     },
     en: {
-      brand: 'Japan Mart Box', brandSub: 'MINI GAME PLAYGROUND',
-      h1: 'One tap, straight into it',
-      sub: '3 mini games + a Japan first-timer helper · all free, no install',
+      brandSub: 'MINI GAME PLAYGROUND', eyebrow: 'Free tools · No install',
+      h1a: 'One tap', sep: ',', h1b: 'straight into it',
+      sub: '3 mini games · a Japan first-timer helper · a hand-drawn emoticon maker — all free, no install.',
+      toolsHead: 'Tools',
       c1n: 'Balloon Pop 30', c1c: '30 sec', c1d: 'Pop the rising balloons for 30 seconds',
       c2n: 'Cat Tower Stack', c2c: 'Endless', c2d: 'One tap — stack blocks with the right timing',
       c3n: 'Number Combo Bang!', c3c: 'Time attack', c3d: 'Link matching numbers and blow them up',
       c4n: 'Japan First-Timer Helper', c4c: 'Travel', c4d: 'Tickets, transfers, phrases and shopping in one screen',
-      c5n: 'Goodcycle AI Company HQ', c5c: 'Org & manual', c5d: 'Org chart, where files live, run-it-alone manual',
-      c6n: 'Hand-drawn Emoticon Maker', c6c: 'Create', c6d: 'One drawing → Kakao · OGQ sized files',
-      promoTitle: 'Japan Mart Box', promoDesc: 'Popular Japan goods · buying service', promoCta: 'Browse →',
-      inq: 'AD / Sponsor Slot', inqSub: 'Ad space available here', inqCta: 'Contact →',
+      c5n: 'Hand-drawn Emoticon Maker', c5c: 'Create', c5d: 'One drawing → Kakao · OGQ sized files',
+      c6n: 'Goodcycle AI Company HQ', c6c: 'Org & manual', c6d: 'Org chart, where files live, run-it-alone manual',
+      storeEyebrow: 'Japan Mart Box', storeTitle: 'Buying service from Japan',
+      storeDesc: 'We buy it at a Japanese shop, inspect it, clear customs and send it to you.',
+      s1t: 'Bought in Japan', s1d: 'Straight from the seller',
+      s2t: 'Checked and shipped', s2d: 'Inspected at our forwarder',
+      s3t: 'Duties up front', s3d: 'Confirmed before you pay',
+      storeCta: 'Open the Smart Store',
+      inq: 'Ad · sponsorship', inqSub: 'This space can hold your ad.',
       copy: 'Copy', copied: 'Copied',
       foot: 'Free · no install · scores stay on this device',
-      lang: 'Language', menu: 'Services', go: 'Start'
+      lang: 'Language', go: 'Start'
     },
     ja: {
-      brand: 'Japan Mart Box', brandSub: 'ミニゲーム プレイグラウンド',
-      h1: 'ワンタップですぐスタート',
-      sub: 'ミニゲーム3種＋日本の初めて旅行ガイド・すべて無料、インストール不要',
+      brandSub: 'ミニゲーム プレイグラウンド', eyebrow: 'Free tools · No install',
+      h1a: 'ワンタップで', sep: '、', h1b: 'すぐスタート',
+      sub: 'ミニゲーム3種 · 日本の初めて旅行ガイド · 手描き絵文字メーカー — すべて無料、インストール不要。',
+      toolsHead: 'ツール',
       c1n: '30秒バルーンぽんぽん', c1c: '30秒', c1d: '上がってくる風船を30秒ぽんぽん',
       c2n: 'ねこタワーつみ', c2c: 'エンドレス', c2d: 'ワンタップ — タイミングよくブロックを積む',
       c3n: '数字コンボパン！', c3c: 'タイムアタック', c3d: '同じ数字をつないでパンと消す',
       c4n: '日本の初めて旅行ガイド', c4c: '旅行', c4d: '切符・乗換・会話・買い物を1画面に',
-      c5n: 'グッドサイクル AI カンパニー本社', c5c: '組織図・マニュアル', c5d: '組織図・保管場所・ひとり運営マニュアル',
-      c6n: '手描き絵文字メーカー', c6c: '作成', c6d: '1枚の絵からカカオ・OGQ規格のファイルへ',
-      promoTitle: 'Japan Mart Box', promoDesc: '日本の人気商品・購入代行', promoCta: '見てみる →',
-      inq: 'AD / スポンサー枠', inqSub: 'ここに広告を掲載できます', inqCta: '問い合わせ →',
+      c5n: '手描き絵文字メーカー', c5c: '作成', c5d: '1枚の絵からカカオ・OGQ規格のファイルへ',
+      c6n: 'グッドサイクル AI カンパニー本社', c6c: '組織図・マニュアル', c6d: '組織図・保管場所・ひとり運営マニュアル',
+      storeEyebrow: 'Japan Mart Box', storeTitle: '日本現地バイヤー代行',
+      storeDesc: 'ご注文の品を日本の販売店で購入し、検品と通関を経てお届けします。',
+      s1t: '現地で購入', s1d: '日本の販売店から直接',
+      s2t: '検品して発送', s2d: '転送倉庫で入荷・検品',
+      s3t: '関税のご案内', s3d: 'お支払い前に確認',
+      storeCta: 'ストアを見る',
+      inq: '広告・スポンサー枠', inqSub: 'ここに広告を掲載できます。',
       copy: 'コピー', copied: 'コピーしました',
       foot: '無料・インストール不要・記録はこの端末に保存',
-      lang: '言語', menu: 'サービス一覧', go: 'スタート'
+      lang: '言語', go: 'スタート'
     },
     zh: {
-      brand: 'Japan Mart Box', brandSub: '小游戏乐园',
-      h1: '一点即玩，立刻开始',
-      sub: '3 款小游戏 ＋ 日本新手旅行助手 · 全部免费，免安装',
+      brandSub: '小游戏乐园', eyebrow: 'Free tools · No install',
+      h1a: '一点即玩', sep: '，', h1b: '立刻开始',
+      sub: '3 款小游戏 · 日本新手旅行助手 · 手绘表情包制作 — 全部免费，免安装。',
+      toolsHead: '工具',
       c1n: '30秒气球弹弹', c1c: '30秒', c1d: '30 秒内点掉升起的气球',
       c2n: '猫咪叠塔', c2c: '无尽', c2d: '一点一下 — 看准时机叠方块',
       c3n: '数字连击砰！', c3c: '限时', c3d: '连接相同数字，砰地炸开',
       c4n: '日本新手旅行助手', c4c: '旅行', c4d: '买票·换乘·对话·购物一屏搞定',
-      c5n: 'Goodcycle AI 公司总部', c5c: '组织图·手册', c5d: '组织图·存放位置·单人运营手册',
-      c6n: '手绘表情包制作', c6c: '制作', c6d: '一张图 → 卡考·OGQ 规格文件',
-      promoTitle: 'Japan Mart Box', promoDesc: '日本人气商品 · 代购服务', promoCta: '去看看 →',
-      inq: 'AD / 赞助位', inqSub: '此处可投放广告', inqCta: '咨询 →',
+      c5n: '手绘表情包制作', c5c: '制作', c5d: '一张图 → 卡考·OGQ 规格文件',
+      c6n: 'Goodcycle AI 公司总部', c6c: '组织图·手册', c6d: '组织图·存放位置·单人运营手册',
+      storeEyebrow: 'Japan Mart Box', storeTitle: '日本本地代购',
+      storeDesc: '在日本门店购买，经检查与清关后寄给您。',
+      s1t: '本地购买', s1d: '直接从日本店家购买',
+      s2t: '检查后发货', s2d: '转运仓收货·检查',
+      s3t: '关税说明', s3d: '付款前先确认',
+      storeCta: '去商店看看',
+      inq: 'AD · 广告赞助', inqSub: '此处可投放广告。',
       copy: '复制', copied: '已复制',
       foot: '免费 · 免安装 · 成绩保存在本设备',
-      lang: '语言', menu: '服务列表', go: '开始'
+      lang: '语言', go: '开始'
     }
   };
 
@@ -448,12 +448,17 @@
       var k = nodes[i].getAttribute('data-i18n');
       if (T[k] != null) nodes[i].textContent = T[k];
     }
-    /* 카드의 읽어 주는 이름: "서비스 이름 — 바로 시작" */
-    var cards = d.querySelectorAll('.card[data-aria]');
+    /* 쇼핑몰 카드의 AD 표지는 번역 뒤 다시 붙입니다 */
+    var se = d.querySelector('.store-top .eyebrow');
+    if (se && !se.querySelector('.adtag')) {
+      var at = d.createElement('span');
+      at.className = 'adtag'; at.textContent = 'AD';
+      se.appendChild(at);
+    }
+    var cards = d.querySelectorAll('.tool');
     for (var j = 0; j < cards.length; j++) {
-      var key = cards[j].getAttribute('data-aria');
-      var name = T[key] || '';
-      cards[j].setAttribute('aria-label', name + ' — ' + T.go);
+      var nameEl = cards[j].querySelector('.nm b');
+      if (nameEl) cards[j].setAttribute('aria-label', nameEl.textContent + ' — ' + T.go);
     }
     var bar = d.getElementById('langBar');
     if (bar) {
@@ -469,7 +474,6 @@
     try { w.localStorage.setItem(KEY, lang); } catch (e) {}
   }
 
-  /* 언어 버튼 */
   var bar = d.getElementById('langBar');
   if (bar) {
     bar.addEventListener('click', function (e) {
@@ -485,8 +489,7 @@
   var cp = d.getElementById('copyMail');
   if (cp) {
     cp.addEventListener('click', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       var mail = cp.getAttribute('data-mail');
       var T = I18N[lang] || I18N.ko;
       var back = null;
@@ -496,7 +499,6 @@
         back = setTimeout(function () { cp.textContent = T.copy; }, 1800);
       };
       var show = function () {
-        /* 복사가 막힌 브라우저: 주소를 버튼 자리에 잠깐 보여 줘 손으로 선택할 수 있게 */
         cp.textContent = mail;
         clearTimeout(back);
         back = setTimeout(function () { cp.textContent = T.copy; }, 2600);
