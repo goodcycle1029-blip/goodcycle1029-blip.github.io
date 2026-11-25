@@ -8,7 +8,7 @@
 <title>재팬마트박스 | 일본 현지 구매대행 공식몰</title>
 <meta name="description" content="재팬마트박스는 일본 현지에서 직접 구매해 검수한 뒤 보내드리는 구매대행 브랜드입니다. 대표 상품 여섯 가지를 한 화면에서 보고, 스마트스토어·쿠팡에서 바로 구매하세요.">
 <meta property="og:title" content="재팬마트박스 | 일본 현지 구매대행">
-<meta property="og:description" content="도쿄에서 고른 물건을, 한국 문 앞까지. 일본 현지 구매 · 검수 후 발송 · 관부가세 안내.">
+<meta property="og:description" content="일본에서 고른 물건을, 한국 문 앞까지. 일본 현지 구매 · 검수 후 발송 · 관부가세 안내.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://goodcycle1029-blip.github.io/assets/banner_jmb_v1.jpg">
 <link rel="canonical" href="https://goodcycle1029-blip.github.io/">
@@ -303,10 +303,10 @@ a.mk:hover .ar{color:var(--ink)}
       <div class="hero-copy">
         <p class="eyebrow">Japan Mart Box · 일본 현지 구매대행</p>
         <h1 id="heroTitle">
-          <span class="rv-line"><span>도쿄에서 고른 물건을,</span></span>
+          <span class="rv-line"><span>일본에서 고른 물건을,</span></span>
           <span class="rv-line"><span><span class="mark">한국 문 앞까지</span>.</span></span>
         </h1>
-        <p class="lead">일본 현지 판매처에서 직접 사고, 구성과 상태를 확인한 뒤 보내드립니다. 지금 네 곳의 마켓에서 <b><span data-stat="total">6,368</span>개</b> 상품을 판매하고 있습니다.</p>
+        <p class="lead">일본 현지 판매처에서 직접 사고, 구성과 상태를 확인한 뒤 보내드립니다. 지금 네 곳의 마켓에서 <b><span data-stat="total">2,613</span>종</b>의 일본 정품을 판매하고 있습니다.</p>
       </div>
 
       <figure class="hero-fig">
@@ -319,11 +319,11 @@ a.mk:hover .ar{color:var(--ink)}
           <a class="btn ghost" href="https://smartstore.naver.com/japanmartbox" target="_blank" rel="noopener noreferrer">스마트스토어<span class="ar" aria-hidden="true">↗</span></a>
         </div>
         <dl class="stats">
-          <div><dt>판매중 상품</dt><dd><span data-count="6368">0</span><small>개</small></dd></div>
+          <div><dt>취급 품목</dt><dd><span data-count="2613">0</span><small>종</small></dd></div>
           <div><dt>입점 마켓</dt><dd><span data-count="4">0</span><small>곳</small></dd></div>
           <div><dt>취급 카테고리</dt><dd><span data-count="5">0</span><small>개</small></dd></div>
         </dl>
-        <p class="stat-note">2026년 11월 25일 기준 · 스마트스토어·쿠팡·G마켓·옥션 합산</p>
+        <p class="stat-note">2026년 11월 25일 기준 · 4대 마켓 중복 제외 단일 품목 수</p>
       </div>
     </div>
   </section>
@@ -511,27 +511,21 @@ a.mk:hover .ar{color:var(--ink)}
     });
   }
 
-  /* 실시간 판매중 수치(status.json)로 보정 */
+  /* 실시간 단일 품목 수치(status.json unique_items)로 보정 — 마켓 합산값(중복 포함)은 쓰지 않는다 */
   function syncTotal(done){
     var finish = function(){ if (done){ var d = done; done = null; d(); } };
     if (!window.fetch){ finish(); return; }
     var settled = false;
     var guard = setTimeout(function(){ settled = true; finish(); }, 900);
     fetch('./status.json', {cache:'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
-      if (d){
-        var text = '';
-        if (typeof d.headline === 'string') text += d.headline + ' ';
-        if (d.ceo && typeof d.ceo.sub === 'string') text += d.ceo.sub;
-        var m = text.match(/판매중\s*합\s*([\d,]+)/) || text.match(/판매중은\s*([\d,]+)/);
-        if (m){
-          var n = parseInt(m[1].replace(/,/g, ''), 10);
-          if (n && n >= 100){
-            Array.prototype.forEach.call(document.querySelectorAll('[data-stat="total"]'), function(el){
-              el.textContent = n.toLocaleString('ko-KR');
-            });
-            var dd = document.querySelector('.stats [data-count]');
-            if (dd) dd.setAttribute('data-count', String(n));
-          }
+      if (d && d.unique_items){
+        var n = parseInt(d.unique_items, 10);
+        if (n && n >= 100){
+          Array.prototype.forEach.call(document.querySelectorAll('[data-stat="total"]'), function(el){
+            el.textContent = n.toLocaleString('ko-KR');
+          });
+          var dd = document.querySelector('.stats [data-count]');
+          if (dd) dd.setAttribute('data-count', String(n));
         }
       }
     }).catch(function(){}).then(function(){
