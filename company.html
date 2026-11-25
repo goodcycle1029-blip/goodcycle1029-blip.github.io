@@ -3095,6 +3095,9 @@
     var when = [];
     if (op.at) when.push(op.at + ' 점검');
     if (op.next_at) when.push('다음 ' + op.next_at);
+    var ageMin = null;
+    if (op.at_iso){ var t0 = Date.parse(op.at_iso); if (!isNaN(t0)) ageMin = Math.round((Date.now() - t0) / 60000); }
+    if (ageMin !== null && ageMin > 150) when.push('⚠ ' + agoText(ageMin) + ' 소견');
     if (when.length) h += '<p class="at">' + esc(when.join(' · ')) + '</p>';
     h += '<ul>';
     op.lines.forEach(function(x){ h += '<li>' + esc(x) + '</li>'; });
