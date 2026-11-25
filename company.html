@@ -3632,11 +3632,20 @@
       b.addEventListener('click', function(){
         var v = b.getAttribute('data-gem').split(':');
         if (v[0] !== gemNowMode) hoMode(v[0], true);
-        if (gemRole) gemRole.value = v[1];
-        var use = document.getElementById('gemUse');
-        if (use) use.click();
-        if (gemMsg) gemMsg.focus();
-        if (!gGet()) toast('키를 먼저 넣으면 여기서 바로 대화할 수 있어요');
+        if (gGet()){
+          if (gemRole) gemRole.value = v[1];
+          var use = document.getElementById('gemUse');
+          if (use) use.click();
+          if (gemMsg) gemMsg.focus();
+          return;
+        }
+        var pre = document.getElementById('ho-' + v[0] + '-' + v[1] + '-txt');
+        var txt = pre ? pre.textContent : '';
+        if (txt && navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(txt).catch(function(){});
+        }
+        toast('지시서 복사 완료! 제미나이가 열리면 붙여넣기만 하세요');
+        window.open('https://gemini.google.com/app', '_blank', 'noopener');
       });
     });
     if (gemRole) gemRole.addEventListener('change', function(){ gemSys = ''; gemHist = []; if (gemLog) gemLog.innerHTML = ''; });
