@@ -1,7 +1,7 @@
 {
-  "name": "재팬마트박스 놀이터 · 미니게임 3종 + 일본 초보여행 해결사",
+  "name": "재팬마트박스 · 일본 현지 구매대행 공식몰",
   "short_name": "재팬마트박스",
-  "description": "풍선 톡톡·고양이 타워 쌓기·숫자 콤보 팡, 그리고 일본 초보여행 원클릭 해결사까지 한 화면에서.",
+  "description": "일본 현지에서 직접 구매해 검수한 뒤 보내드리는 구매대행 브랜드. 주방·도자기, 문구·다이어리, 공구, 캠핑, 낚시, 시계까지 대표 상품을 한 화면에서.",
   "lang": "ko",
   "start_url": "./index.html",
   "scope": "./",
@@ -24,20 +24,16 @@
   ],
   "shortcuts": [
     {
-      "name": "🎈 30초 풍선 톡톡",
-      "url": "./pop.html"
+      "name": "대표 상품",
+      "url": "./index.html#catalog"
     },
     {
-      "name": "🐱 고양이 타워 쌓기",
-      "url": "./tower.html"
+      "name": "구매 안내",
+      "url": "./index.html#guide"
     },
     {
-      "name": "💥 숫자 콤보 팡!",
-      "url": "./drop.html"
-    },
-    {
-      "name": "🇯🇵 일본 초보여행 원클릭 해결사",
-      "url": "./japan.html"
+      "name": "입점 마켓",
+      "url": "./index.html#markets"
     }
   ]
 }
