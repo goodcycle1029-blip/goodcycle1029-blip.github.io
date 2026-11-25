@@ -516,9 +516,14 @@ a.mk:hover .ar{color:var(--ink)}
       render();
     });
   });
+  function resetChips(){
+    chips.forEach(function(x){ x.setAttribute('aria-pressed', String(x.getAttribute('data-cat') === '전체')); });
+  }
   if (input){
     input.addEventListener('input', function(){
       state.q = input.value.trim();
+      /* 검색어를 넣으면 분류를 풀고 전체에서 찾습니다 */
+      if (state.q && state.cat !== '전체'){ state.cat = '전체'; resetChips(); }
       render();
     });
   }
