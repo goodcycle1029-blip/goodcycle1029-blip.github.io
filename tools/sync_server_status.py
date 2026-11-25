@@ -124,6 +124,55 @@ except Exception as e:
     out["qna_error"] = str(e)
 
 try:
+    _jp = json.load(open("/opt/gcu/state/jp_stock_latest.json"))
+    out["jp_stock"] = {"total_watch": _jp.get("total_watch"), "checked": _jp.get("checked"),
+                       "out_of_stock": _jp.get("out_of_stock"), "checked_at": _jp.get("checked_at", "")}
+except Exception as e:
+    out["jp_stock_error"] = str(e)
+
+try:
+    out["detail"] = json.load(open("/opt/gcu/state/coupang_detail_status.json"))
+except Exception as e:
+    out["detail"] = {}
+    out["detail_error"] = str(e)
+
+try:
+    import glob
+    runs = sorted(glob.glob("/opt/gcu/state/sourcing_candidates_tokyo/runs/*/manifest.json"))
+    if runs:
+        m = json.load(open(runs[-1]))
+        out["tokyo"] = {
+            "run": os.path.basename(os.path.dirname(runs[-1])),
+            "at": m.get("collected_at", ""),
+            "fetched": m.get("fetched"),
+            "passed": m.get("passed"),
+            "verified": m.get("verified"),
+            "sites_ok": m.get("sites_ok"),
+            "sites_total": m.get("sites_total"),
+            "jp_stock": m.get("jp_stock") or {},
+        }
+except Exception as e:
+    out["tokyo_error"] = str(e)
+
+try:
+    today = datetime.now().date()
+    ok, last = 0, {}
+    for line in open("/opt/gcu/state/sourcing_swap/log.jsonl", encoding="utf-8"):
+        line = line.strip()
+        if not line:
+            continue
+        j = json.loads(line)
+        at = str(j.get("at") or "")
+        if j.get("result") == "ok" and at[:10] == today.isoformat():
+            ok += 1
+            last = {"at": at, "old": j.get("old_name", ""), "new": j.get("new_name", ""),
+                    "margin": j.get("margin")}
+    out["swap_today"] = {"ok": ok, "last": last}
+except Exception as e:
+    out["swap_today"] = {}
+    out["swap_error"] = str(e)
+
+try:
     out["kernel"] = os.uname().release
 except Exception:
     pass
@@ -151,6 +200,24 @@ def promo_row(d: dict) -> str:
     sz = f" · 영상 {size / 1e6:.1f}MB" if isinstance(size, (int, float)) and size else ""
     return (f"월·수·금 07:30 자동 · 최근 {at[5:16]} {p.get('item', '')}"
             f" (검수 {p.get('score', '-')}점{sz})")
+
+
+def tile_by(tiles: list, *names: str):
+    """타일 이름으로 찾는다 — 표기가 바뀌어도('서울 클라우드' → '한울₁') 찾도록 부분 일치."""
+    for t in tiles or []:
+        lab = str(t.get("label") or "")
+        if any(n and n in lab for n in names):
+            return t
+    return None
+
+
+def day_label(at: str) -> str:
+    """수집 시각이 오늘이면 '오늘', 아니면 '11/24'처럼 날짜를 돌려준다."""
+    try:
+        day = datetime.strptime(at[:10], "%Y-%m-%d").date()
+    except (TypeError, ValueError):
+        return "최근"
+    return "오늘" if day == datetime.now().date() else day.strftime("%m/%d")
 
 
 def build(d: dict) -> dict:
@@ -239,38 +306,99 @@ def main() -> int:
     if qn:
         ceo["headline"] += (f" 지금 답변 초안 대기 {qn.get('drafts_ready', 0)}건 · 보낸 답변 "
                             f"{qn.get('sent_total', 0)}건입니다.")
+    streak = d.get("streak", d.get("runs_since"))
     tiles = ceo.get("tiles") or []
-    for t in tiles:
-        if t.get("label") == "서울 클라우드":
-            t["value"] = "정상 가동"
-            t["sub"] = (f"{d.get('streak', d.get('runs_since'))}회 연속 정상 · 주문 5분 · 문의 10분"
-                        + " · 매일 08:30 마진")
-            t["tone"] = "reg"
-            rows = (t.get("d") or {}).get("rows") or []
-            by_key = {r.get("k"): r for r in rows}
-            fresh = {r["k"]: r["v"] for r in sv["rows"]}
-            # 이미 있는 줄은 값만 갱신(대표가 손으로 다듬은 문구는 살린다)
-            for k in ("최근 정상 점검", "감시 주기", "감시 대상",
-                      "고객문의 자동 감지", "고객문의 답변 초안"):
-                if k in by_key and k in fresh:
-                    by_key[k]["v"] = fresh[k]
-                    by_key[k].pop("src", None)
-            # 없던 줄(고객문의)은 '감시 대상' 바로 뒤에 넣는다
-            insert_at = next((i + 1 for i, r in enumerate(rows)
-                              if r.get("k") == "감시 대상"), len(rows))
-            for k in ("고객문의 자동 감지", "고객문의 답변 초안"):
-                if k in fresh and k not in by_key:
-                    rows.insert(insert_at, {"k": k, "v": fresh[k]})
-                    by_key[k] = rows[insert_at]
-                    insert_at += 1
-            dd = t.setdefault("d", {})
-            dd["sum"] = (f"사람 없이 24시간 도는 주문·문의 감시 서버입니다. 지금 {d.get('streak', d.get('runs_since'))}회 연속 정상이고, "
-                         "스마트스토어와 쿠팡 주문을 5분마다, 고객문의를 10분마다 함께 보고 있습니다. "
-                         "문의는 답변 초안과 메일 알림까지만 하고, 실제 전송은 대표가 확인한 뒤에 합니다.")
-            dd.setdefault("note", "아래 「🛰️ 서울 클라우드」 섹션에 점검 항목이 더 있습니다. "
-                                  "여기 시각은 서버가 마지막으로 남긴 기록 기준입니다.")
+
+    # ① 한울₁ (서울 클라우드) 타일 — 예전 이름 '서울 클라우드'도 함께 찾는다
+    t = tile_by(tiles, "한울", "서울 클라우드")
+    if t:
+        t["value"] = "정상 가동" if d.get("health_ok") else "확인 필요"
+        t["sub"] = (f"{streak}회 연속 정상 · 주문 5분 · 문의 10분"
+                    " · 매일 08:30 마진 · 일일장부 30분 자동 기록")
+        t["tone"] = "reg" if d.get("health_ok") else "wait"
+        rows = (t.get("d") or {}).get("rows") or []
+        by_key = {r.get("k"): r for r in rows}
+        fresh = {r["k"]: r["v"] for r in sv["rows"]}
+        # 쿠팡 상세 진행줄은 서버 상태 파일 실측으로 맞춘다(공개 브리지와 같은 문구)
+        det = d.get("detail") or {}
+        if det.get("applied") is not None and "쿠팡 상세 자동 보강" in by_key:
+            by_key["쿠팡 상세 자동 보강"]["v"] = (
+                "780×4,600px 이하 공식몰형 상세 이미지를 만들어 쿠팡 상품수정 API 로 교체 — "
+                f"지금까지 {det.get('applied')}건 · 남은 {det.get('remaining')}건 · "
+                "매일 4회(09·13·17·21시 40분) 8건씩 무인 교체")
+        scan = det.get("reject_scan") or {}
+        if scan and "쿠팡 반려 원인 분류" in by_key:
+            parts = " · ".join(f"{a} {b}" for a, b in scan.items())
+            by_key["쿠팡 반려 원인 분류"]["v"] = (
+                f"승인반려 {det.get('coupang_rejected', 0)}건을 상태이력으로 확인 — {parts} "
+                "(이미지 규격 건부터 우선 교체)")
+        # 이미 있는 줄은 값만 갱신(대표가 손으로 다듬은 문구는 살린다)
+        for k in ("최근 정상 점검", "감시 주기", "감시 대상",
+                  "고객문의 자동 감지", "고객문의 답변 초안", "마진 자동 점검",
+                  "지금까지 실행", "스마트스토어 API", "쿠팡 Open API",
+                  "감사로그 무결성", "상품 매핑", "새 주문 알림", "서버 자원",
+                  "홍보 자동 제작"):
+            if k in by_key and k in fresh:
+                by_key[k]["v"] = fresh[k]
+                by_key[k].pop("src", None)
+        # 없던 줄(고객문의·지금까지 실행)은 '감시 대상' 바로 뒤에 넣는다
+        insert_at = next((i + 1 for i, r in enumerate(rows)
+                          if r.get("k") == "감시 대상"), len(rows))
+        for k in ("고객문의 자동 감지", "고객문의 답변 초안"):
+            if k in fresh and k not in by_key:
+                rows.insert(insert_at, {"k": k, "v": fresh[k]})
+                by_key[k] = rows[insert_at]
+                insert_at += 1
+        # 수집기·자동 교체 줄도 마지막 실행 실측으로 맞춘다
+        if tk_ := (d.get("tokyo") or {}):
+            if "전문몰 자동 수집기" in by_key and tk_.get("verified") is not None:
+                by_key["전문몰 자동 수집기"]["v"] = (
+                    "도쿄 2호기가 일본 IP로 수집·상세검증 → 서울이 04:50 검증 후 05:00 교체에 바로 사용 "
+                    f"({day_label(str(tk_.get('at') or ''))} 검증후보 {tk_['verified']}건)")
+        sw = d.get("swap_today") or {}
+        if "자동 교체" in by_key and sw.get("ok") is not None:
+            last = sw.get("last") or {}
+            tail = f"({day_label(str(last.get('at') or ''))} {sw['ok']}건"
+            if last.get("new"):
+                tail += f": {last['new']}"
+            by_key["자동 교체"]["v"] = (
+                "매일 05:00 — 10% 미만·과열 1~5위·저수익(순익 1만원 미만) 순익 낮은 순부터, "
+                "전문몰 30%+ / 아마존·라쿠텐 인기도 30~60% 중위권 틈새로 1:1 교체 " + tail + ")")
+        dd = t.setdefault("d", {})
+        dd["sum"] = (f"사람 없이 24시간 도는 주문·문의 감시 서버입니다. 지금 {streak}회 연속 정상이고, "
+                     "스마트스토어와 쿠팡 주문을 5분마다, 고객문의를 10분마다 함께 보고 있습니다. "
+                     "문의는 답변 초안과 메일 알림까지만 하고, 실제 전송은 대표가 확인한 뒤에 합니다. "
+                     "그리고 주문이 들어오거나 운송장·배송비가 확정되면 일일장부에 30분 안에 한 줄을 자동으로 적습니다.")
+        dd.setdefault("note", "아래 「🛰️ 한울₁」 섹션에 점검 항목이 더 있습니다. "
+                              "여기 시각은 서버가 마지막으로 남긴 기록 기준입니다.")
+
+    # ② 한울₂ (도쿄 수집) 타일 — 서버가 넘긴 마지막 수집 결과로 맞춘다
+    tk = d.get("tokyo") or {}
+    t2 = tile_by(tiles, "가온")
+    if t2 and tk.get("fetched") is not None:
+        day = day_label(str(tk.get("at") or ""))
+        t2["value"] = "정상 가동"
+        t2["sub"] = f"{day} {tk['fetched']:,}건 수집 · 상세검증 {tk.get('verified', 0)}건"
+        t2["tone"] = "reg"
+        rows2 = (t2.get("d") or {}).get("rows") or []
+        jp = dict(tk.get("jp_stock") or {})
+        jp.update({k: v for k, v in (d.get("jp_stock") or {}).items() if v is not None})
+        for r in rows2:
+            k = str(r.get("k") or "")
+            if k in ("오늘 수집", "최근 수집", f"{day} 수집"):
+                r["k"] = f"{day} 수집"
+                r["v"] = (f"{tk['fetched']:,}건 확인 → 후보 {tk.get('passed', 0):,}건 · "
+                           f"상세페이지 대조 통과 {tk.get('verified', 0)}건 · "
+                           f"{tk.get('sites_ok', '-')}/{tk.get('sites_total', '-')}개 몰 성공")
+            elif k == "재고·원가 점검" and jp.get("checked") is not None:
+                total = jp.get("total_watch")
+                scope = f"등록 상품 {total:,}건 중 하루 80건씩 돌아가며 확인 " if total else "하루 80건씩 돌아가며 확인 "
+                r["v"] = (scope + f"({day} {jp['checked']}건 확인·품절 {jp.get('out_of_stock', 0)}건)")
+
+    st["updated_at"] = now.strftime("%Y-%m-%d %H:%M")
+    st["updated_iso"] = now.strftime("%Y-%m-%dT%H:%M:%S+09:00")
     with open(STATUS, "w", encoding="utf-8") as f:
-        json.dump(st, f, ensure_ascii=False, indent=1)   # 기존 파일과 같은 1칸 들여쓰기
+        f.write(json.dumps(st, ensure_ascii=False, indent=2))   # 기존 파일과 같은 2칸 들여쓰기(끝 줄바꿈 없음)
     print("status.json 갱신 완료:", STATUS)
     return 0
 
