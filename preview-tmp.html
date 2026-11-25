@@ -17,6 +17,7 @@
   var q = new URLSearchParams(location.search);
   var w = parseInt(q.get('w') || '390', 10);
   var f = document.getElementById('f');
+  f.setAttribute('src', './index.html?t=' + Date.now());
   document.getElementById('box').style.width = w + 'px';
   f.setAttribute('width', w);
   f.style.width = w + 'px';
