@@ -17,7 +17,10 @@
   var p = new URLSearchParams(location.search);
   var w = parseInt(p.get('w'), 10) || 390;
   var h = parseInt(p.get('h'), 10) || 4800;
+  var ok = { 'index.html': 1, 'preview-coupang.html': 1 };
+  var src = p.get('src') || 'preview-coupang.html';
   var f = document.getElementById('f');
+  if (ok[src]) f.src = './' + src;
   f.style.width = w + 'px';
   f.style.height = h + 'px';
 </script>
