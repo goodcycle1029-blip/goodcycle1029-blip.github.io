@@ -924,7 +924,7 @@
       <span class="bico" aria-hidden="true">🏢</span>
       <span class="btx">
         <b>굳사이클 AI 컴퍼니</b>
-        <i>본사 대시보드 · 2026.11.24</i>
+        <i id="brandDate">본사 대시보드</i>
       </span>
     </div>
     <a class="back" href="./index.html">← 놀이터</a>
@@ -2821,6 +2821,8 @@
 
   function renderStatus(d){
     lastStatus = d;
+    var bd = document.getElementById('brandDate');
+    if (bd) bd.textContent = '본사 대시보드' + (d.updated_at ? ' · ' + String(d.updated_at).slice(0, 10).replace(/-/g, '.') : '');
     var up = document.getElementById('stUpdated');
     var head = document.getElementById('stHeadline');
     var mk = document.getElementById('stMarkets');
