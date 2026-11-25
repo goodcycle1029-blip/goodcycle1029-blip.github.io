@@ -171,19 +171,21 @@ button{font:inherit;color:inherit}
 
 /* ── 구매 안내 ────────────────────────────────────────── */
 .guide{display:grid;gap:0}
+#guide .sec-head h2{font-size:clamp(23px,5.6vw,32px)}
+#guide .sec-head p{font-size:14.5px;line-height:1.66}
 .steps{list-style:none;margin:0;padding:0;display:grid;gap:0}
-.steps li{display:flex;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.steps li{display:flex;gap:14px;padding:18px 0;border-top:1px solid var(--line)}
 .steps li:first-child{border-top:0;padding-top:0}
 .steps .sn{
-  flex:none;font-family:var(--num);font-size:11px;font-weight:700;color:var(--acc);
-  letter-spacing:.02em;padding-top:2px;font-variant-numeric:tabular-nums
+  flex:none;font-family:var(--num);font-size:15px;font-weight:700;color:var(--acc);
+  letter-spacing:.02em;padding-top:3px;margin-top:0;font-variant-numeric:tabular-nums
 }
-.steps b{display:block;font-size:14px;font-weight:650;color:var(--ink);letter-spacing:-.02em;line-height:1.4}
-.steps span{display:block;margin-top:2px;font-size:12.5px;line-height:1.6;color:var(--muted);word-break:keep-all}
-.trust{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.steps b{display:block;font-size:18px;font-weight:650;color:var(--ink);letter-spacing:-.025em;line-height:1.42}
+.steps span{display:block;margin-top:4px;font-size:15.5px;line-height:1.66;color:var(--body);word-break:keep-all}
+.trust{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
 .trust em{
-  font-style:normal;font-size:10.5px;font-weight:600;color:var(--muted);
-  border:1px solid var(--line);border-radius:999px;padding:4px 9px;background:var(--card)
+  font-style:normal;font-size:12.5px;font-weight:600;color:var(--ink);
+  border:1px solid var(--line-strong);border-radius:999px;padding:7px 13px;background:var(--card)
 }
 
 /* ── 입점 마켓 ────────────────────────────────────────── */
@@ -252,6 +254,14 @@ a.mk:hover .ar{color:var(--ink)}
   .guide .sec-head{margin-bottom:0}
   .foot .biz{font-size:11.5px}
   .sec-head p{font-size:14.5px}
+  #guide .sec-head h2{font-size:clamp(26px,2.6vw,34px)}
+  #guide .sec-head p{font-size:15px}
+  .steps li{padding:20px 0}
+  .steps .sn{font-size:16px}
+  .steps b{font-size:19px}
+  .steps span{font-size:16px;line-height:1.68}
+  .trust{gap:9px;margin-top:24px}
+  .trust em{font-size:13px;padding:7px 14px}
   .card .nm{font-size:14px}
   .card .pr{font-size:17px}
   .band .cap{padding:14px 40px}
