@@ -8,8 +8,8 @@
 company.html 은 status.json 의 `ceo.server` 를 읽어 「🛰️ 서울 클라우드」 섹션과
 「한눈에」 첫 칸의 '최근 정상 점검'(src=server_head) 을 채운다.
 서울 서버가 남긴 AI 소견(`state/hanul_ai_opinion.json`)은 `hanul_opinion` 칸으로,
-도쿄 서버 가온₂가 남긴 AI 소견(`/opt/gcu/state/gaon_ai_opinion.json`)은 `gaon_opinion` 칸으로 옮겨 담는다 —
-company.html 이 CEO 브리프 아래 「🧠 한울₁ AI 소견」·「🗼 가온₂ AI 소견」 카드로 나란히 그린다.
+도쿄 서버(도쿄 이)가 남긴 AI 소견(`/opt/gcu/state/gaon_ai_opinion.json`)은 `gaon_opinion` 칸으로 옮겨 담는다 —
+company.html 이 CEO 브리프 아래 「🧠 서울 일 AI 소견」·「🗼 도쿄 이 AI 소견」 카드로 나란히 그린다.
 IP·계정·키·메일주소는 공개 페이지에 넣지 않는다.
 """
 from __future__ import annotations
@@ -214,7 +214,7 @@ print(json.dumps(out, ensure_ascii=False))
 
 
 def fetch_tokyo() -> dict:
-    """도쿄 가온₂의 AI 소견을 받아 온다(읽기 전용·도쿄 전용 키). 실패해도 서울 쪽은 계속 간다."""
+    """도쿄 이의 AI 소견을 받아 온다(읽기 전용·도쿄 전용 키). 실패해도 서울 쪽은 계속 간다."""
     try:
         r = subprocess.run([sys.executable, TOKYO_SSH_RUN, "--stdin", "/opt/gcu/.venv/bin/python -"],
                            input=REMOTE_GAON_SCRIPT, capture_output=True, text=True, timeout=180)
@@ -240,7 +240,7 @@ def promo_row(d: dict) -> str:
 
 
 def tile_by(tiles: list, *names: str):
-    """타일 이름으로 찾는다 — 표기가 바뀌어도('서울 클라우드' → '한울₁') 찾도록 부분 일치."""
+    """타일 이름으로 찾는다 — 표기가 바뀌어도('서울 클라우드' → '한울₁' → '서울 일') 찾도록 부분 일치."""
     for t in tiles or []:
         lab = str(t.get("label") or "")
         if any(n and n in lab for n in names):
@@ -455,8 +455,8 @@ def main() -> int:
     streak = d.get("streak", d.get("runs_since"))
     tiles = ceo.get("tiles") or []
 
-    # ① 한울₁ (서울 클라우드) 타일 — 예전 이름 '서울 클라우드'도 함께 찾는다
-    t = tile_by(tiles, "한울", "서울 클라우드")
+    # ① 서울 일 (서울 클라우드) 타일 — 예전 이름 '한울'·'서울 클라우드'도 함께 찾는다
+    t = tile_by(tiles, "서울 일", "한울", "서울 클라우드")
     if t:
         t["value"] = "정상 가동" if d.get("health_ok") else "확인 필요"
         t["sub"] = (f"{streak}회 연속 정상 · 주문 5분 · 문의 10분"
@@ -515,12 +515,12 @@ def main() -> int:
                      "스마트스토어와 쿠팡 주문을 5분마다, 고객문의를 10분마다 함께 보고 있습니다. "
                      "문의는 답변 초안과 메일 알림까지만 하고, 실제 전송은 대표가 확인한 뒤에 합니다. "
                      "그리고 주문이 들어오거나 운송장·배송비가 확정되면 일일장부에 30분 안에 한 줄을 자동으로 적습니다.")
-        dd.setdefault("note", "아래 「🛰️ 한울₁」 섹션에 점검 항목이 더 있습니다. "
+        dd.setdefault("note", "아래 「🛰️ 서울 일」 섹션에 점검 항목이 더 있습니다. "
                               "여기 시각은 서버가 마지막으로 남긴 기록 기준입니다.")
 
-    # ② 한울₂ (도쿄 수집) 타일 — 서버가 넘긴 마지막 수집 결과로 맞춘다
+    # ② 도쿄 이 (도쿄 수집) 타일 — 서버가 넘긴 마지막 수집 결과로 맞춘다
     tk = d.get("tokyo") or {}
-    t2 = tile_by(tiles, "가온")
+    t2 = tile_by(tiles, "도쿄 이", "가온")
     if t2 and tk.get("fetched") is not None:
         day = day_label(str(tk.get("at") or ""))
         t2["value"] = "정상 가동"
