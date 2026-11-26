@@ -3083,6 +3083,22 @@
     h += '<ul>';
     op.lines.forEach(function(x){ h += '<li>' + esc(x) + '</li>'; });
     h += '</ul>';
+    if (op.impact){
+      h += '<p class="at">📌 새 소식 영향: ' + esc(op.impact) + '</p>';
+    }
+    if (op.ideas && op.ideas.length){
+      h += '<p class="at">💡 다음에 해볼 제안</p><ul>';
+      op.ideas.forEach(function(it){
+        var t = (it.kind ? '[' + it.kind + '] ' : '') + (it.title || '');
+        h += '<li><b>' + esc(t) + '</b>' + (it.action ? ' — ' + esc(it.action) : '') + '</li>';
+      });
+      h += '</ul>';
+    }
+    if (op.learning && op.learning.count){
+      h += '<p class="at">🧠 누적 학습 ' + op.learning.count + '건';
+      if (op.learning.top && op.learning.top.length) h += ' · ' + esc(op.learning.top[0]);
+      h += '</p>';
+    }
     if (op.checks && op.checks.length){
       h += '<details><summary>점검 항목 ' + op.checks.length + '개 보기</summary><div class="kv">';
       op.checks.forEach(function(r){

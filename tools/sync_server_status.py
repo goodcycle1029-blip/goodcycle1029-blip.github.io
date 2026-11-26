@@ -352,7 +352,7 @@ def public_opinion(op: dict):
         s = re.sub(r"\b\d{1,3}(?:\.\d{1,3}){3}\b", "서버", s)
         s = re.sub(r"[\w.+-]+@[\w-]+\.[\w.]+", "메일 주소", s)
         s = re.sub(r"/opt/[\w./-]*", "서버 내부", s)
-        s = re.sub(r"\d[\d,]*\s*원", "해당 금액", s)
+        s = re.sub(r"\b\d{1,3}(?:,\d{3})+\s*원|\b\d{5,}\s*원", "해당 금액", s)
         s = re.sub(r"\b[A-Za-z0-9_-]{28,}\b", "키", s)
         return s.strip()[:limit]
 
@@ -363,7 +363,7 @@ def public_opinion(op: dict):
     if not lines:
         return None
     checks = []
-    for r in (op.get("checks") or [])[:8]:
+    for r in (op.get("checks") or [])[:12]:   # 새 소식·엔화·기준 문서 줄까지 보이게
         if isinstance(r, dict) and str(r.get("k") or "").strip():
             checks.append({"k": clean(r.get("k"), 40), "v": clean(r.get("v"))})
     cross = op.get("cross") or {}
@@ -377,6 +377,32 @@ def public_opinion(op: dict):
             val = cross.get(key)
             cross_out[key] = val if isinstance(val, (bool, int, float)) else clean(val, 40)
     model = pretty_model(op.get("model"))
+    # 새 소식 영향·아이디어·학습 요약 — 대표 화면에 그대로 보이는 칸(가림 처리 후)
+    ideas = []
+    for it in (op.get("ideas") or [])[:2]:
+        if not isinstance(it, dict):
+            continue
+        kind = str(it.get("kind") or "").strip()
+        if kind not in ("매출", "리스크", "효율"):
+            kind = "효율"
+        title = clean(it.get("title"), 60)
+        action = clean(it.get("action"), 160)
+        if not (title or action):
+            continue
+        ideas.append({"kind": kind, "title": title or action[:40],
+                      "why": clean(it.get("why"), 120), "action": action})
+    learning = {}
+    ln = op.get("learning") or {}
+    if isinstance(ln, dict) and (ln.get("count") or ln.get("runs")):
+        learning = {"count": int(ln.get("count") or 0), "runs": int(ln.get("runs") or 0),
+                    "top": [clean(x, 120) for x in (ln.get("top") or [])[:2] if str(x).strip()]}
+    nw = op.get("news") or {}
+    news_out = {}
+    if isinstance(nw, dict) and (nw.get("count") or nw.get("fx")):
+        fx = nw.get("fx") or {}
+        news_out = {"count": int(nw.get("count") or 0),
+                    "fx_rate": fx.get("rate"),
+                    "fx_7d": fx.get("pct_7d")}
     return {
         "at": clean(op.get("at"), 30),
         "at_iso": clean(op.get("at_iso"), 40),
@@ -385,6 +411,10 @@ def public_opinion(op: dict):
         "badge": clean(op.get("badge") or {"ok": "정상", "warn": "확인 필요", "alert": "경보"}[verdict], 20),
         "model": model,
         "lines": lines,
+        "impact": clean(op.get("impact"), 140),
+        "ideas": ideas,
+        "learning": learning,
+        "news": news_out,
         "checks": checks,
         "cross": cross_out,
         "next_at": clean(op.get("next_at"), 10),
