@@ -592,6 +592,20 @@ def sync_orders(st: dict, d: dict) -> None:
                      "단계는 서울 서버 기록과 현장에서 확정한 사실로 매시간 자동 갱신됩니다."),
         }
 
+    # 「한눈에」 주문 타일도 같은 값으로 — 예전 '첫 주문 3/4'처럼 멈춰 있지 않게
+    for t in ((st.get("ceo") or {}).get("tiles") or []):
+        lab = str(t.get("label") or "")
+        if not any(x in lab for x in ("첫 주문", "주문 진행")) and (t.get("d") or {}).get("ref") != "order":
+            continue
+        if not act:
+            t.update({"label": "주문 진행", "value": "0/6", "sub": "아직 주문 없음", "tone": "reg"})
+            continue
+        t["label"] = "주문 진행"
+        t["value"] = f"{act.get('done')}/6"
+        t["sub"] = f"{act.get('no')} {act.get('product')} — {act.get('state_label')}"
+        t["tone"] = "bad" if act.get("state") == "hold" else ("sale" if act.get("state") == "finished" else "wait")
+        t.setdefault("d", {})["ref"] = "order"
+
     # 막힌 곳 목록에도 보류 주문을 올린다(자동 생성분만 매회 교체, 손으로 쓴 항목은 그대로)
     blocked = [b for b in (st.get("blocked") or []) if not (isinstance(b, dict) and b.get("auto") == "orders")]
     for o in built:
