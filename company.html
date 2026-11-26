@@ -839,12 +839,21 @@
     vertical-align:1.5px;white-space:nowrap
   }
   .ops-flow .tx i{display:block;margin-top:2px;font-style:normal;font-size:12.5px;font-weight:800;color:#c9d8ef;line-height:1.45;overflow-wrap:anywhere}
-  .ops-flow .ol{display:grid;gap:3px;margin-top:5px}
-  .ops-flow .ol span{position:relative;padding-left:10px;font-size:12.5px;font-weight:800;color:#e3edfb;line-height:1.4;overflow-wrap:anywhere}
-  .ops-flow .ol span::before{content:"";position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:#ffb7d0}
-  .ops-flow .ol span.b1::before{background:#6ee7b7}
-  .ops-flow .ol span.b2::before{background:#fca5a5}
-  .ops-flow .ol span.b3::before{background:#fcd34d}
+  .ops-more{border-top:1px solid rgba(255,255,255,.1)}
+  .ops-more > summary{
+    list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px;
+    min-height:38px;padding:7px 13px;font-size:12px;font-weight:900;color:#a7f3d0
+  }
+  .ops-more > summary::-webkit-details-marker{display:none}
+  .ops-more > summary::after{content:"▾";margin-left:auto;font-size:11px;color:#8fa2c4;transition:transform .18s}
+  .ops-more[open] > summary::after{transform:rotate(180deg)}
+  .ops-more > summary:focus-visible{outline:3px solid var(--cy);outline-offset:-3px}
+  .ops-b{padding:0 13px 10px;display:grid;gap:5px}
+  .ops-b p{margin:0;position:relative;padding-left:10px;font-size:12.5px;font-weight:800;color:#e3edfb;line-height:1.45;overflow-wrap:anywhere}
+  .ops-b p::before{content:"";position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:#ffb7d0}
+  .ops-b p.b1::before{background:#6ee7b7}
+  .ops-b p.b2::before{background:#fca5a5}
+  .ops-b p.b3::before{background:#fcd34d}
   .ops-ft{
     display:flex;align-items:flex-start;gap:7px;margin:0;padding:9px 13px 12px;
     border-top:1px solid rgba(255,255,255,.1);font-size:12px;font-weight:800;color:#b6e9d3;line-height:1.45
@@ -1112,47 +1121,21 @@
         <span class="ver">v1.0</span>
       </div>
       <ol class="ops-flow">
-        <li>
-          <span class="n" aria-hidden="true">1</span>
-          <span class="tx">
-            <b>🔎 소싱 <em>도쿄 이</em></b>
-            <i>일본 전문몰에서 고마진(30%+) 상품 발굴 · 규제·위험품은 자동 차단</i>
-          </span>
-        </li>
-        <li>
-          <span class="n" aria-hidden="true">2</span>
-          <span class="tx">
-            <b>📝 등록 <em>표준 틀 v2.2</em></b>
-            <i>순백 여백 + 생활 연출컷 4장 · 큰 글씨 · $150 관부가세 자동 분기 · 제주/도서산간 배송비</i>
-          </span>
-        </li>
-        <li>
-          <span class="n" aria-hidden="true">3</span>
-          <span class="tx">
-            <b>🛒 주문 <em>서울 일 5분</em></b>
-            <i>결제완료 즉시 상품준비중 전환 · PCCC 검증 · 6단계 실시간 표시</i>
-          </span>
-        </li>
-        <li>
-          <span class="n" aria-hidden="true">4</span>
-          <span class="tx">
-            <b>🧾 재고·대체처 → 자동 마무리 <em>나미</em></b>
-            <span class="ol">
-              <span class="b1">재고 있고 흑자 → 부재중·야간 무관 자동 카드결제 + 엘덱스 접수</span>
-              <span class="b2">대체처 없고 역마진·품절 확정 → 자동 품절 취소(고객 안내) + 전 마켓 판매중지 후 보고</span>
-              <span class="b3">OTP·본인인증·PCCC 오류일 때만 대표님 호출</span>
-            </span>
-          </span>
-        </li>
-        <li>
-          <span class="n" aria-hidden="true">5</span>
-          <span class="tx">
-            <b>🔁 피드백 순환 <em>일·이·나미</em></b>
-            <i>실전에서 잘된 점·막힌 점을 데이터로 짚어 이 틀을 계속 고칩니다</i>
-          </span>
-        </li>
+        <li><span class="n" aria-hidden="true">1</span><span class="tx"><b>🔎 소싱 <em>도쿄 이</em></b><i>일본 전문몰 고마진 30%+ 발굴 · 규제·위험품 자동 차단</i></span></li>
+        <li><span class="n" aria-hidden="true">2</span><span class="tx"><b>📝 등록 <em>표준 틀 v2.2</em></b><i>연출컷 4장·큰 글씨 · $150 관부가세 분기 · 제주·도서산간 배송비</i></span></li>
+        <li><span class="n" aria-hidden="true">3</span><span class="tx"><b>🛒 주문 <em>서울 일 5분</em></b><i>결제완료 즉시 상품준비중 · PCCC 검증 · 6단계 표시</i></span></li>
+        <li><span class="n" aria-hidden="true">4</span><span class="tx"><b>🧾 재고·대체처 → 자동 마무리 <em>나미</em></b><i>흑자면 자동 결제·엘덱스 / 역마진·품절이면 자동 취소·전 마켓 중지</i></span></li>
+        <li><span class="n" aria-hidden="true">5</span><span class="tx"><b>🔁 피드백 순환 <em>일·이·나미</em></b><i>잘된 점·막힌 점을 데이터로 짚어 이 틀을 계속 보완</i></span></li>
       </ol>
-      <p class="ops-ft"><span aria-hidden="true">👤</span><span>대표님이 말하지 않아도 이 다섯 단계가 돕니다. <b>잘된 점·막힌 점만 대화로 얹으면</b> 그대로 다음 판에 반영합니다.</span></p>
+      <details class="ops-more">
+        <summary>4단계 자동 마무리 — 세부 규칙</summary>
+        <div class="ops-b">
+          <p class="b1">재고 있고 흑자 → 부재중·야간 무관 <b>자동 카드결제 + 엘덱스 접수</b></p>
+          <p class="b2">대체처 없고 역마진·품절 확정 → <b>자동 품절 취소(고객 안내) + 전 마켓 판매중지</b> 후 결과 보고</p>
+          <p class="b3">OTP·본인인증·PCCC 오류일 때만 <b>대표님 호출</b></p>
+        </div>
+      </details>
+      <p class="ops-ft"><span aria-hidden="true">👤</span><span>대표님이 말하지 않아도 이 다섯 단계가 돕니다. <b>잘된 점·막힌 점만 대화로 얹으면</b> 다음 판에 반영합니다.</span></p>
     </section>
 
     <div id="ceoBody" aria-live="polite">
