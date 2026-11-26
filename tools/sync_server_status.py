@@ -422,6 +422,48 @@ def public_opinion(op: dict):
     }
 
 
+def sync_staff(st: dict, d: dict, tk: dict) -> None:
+    """'실시간 현황' 직원 카드의 숫자도 서버 실측으로 맞춘다(이름·역할 문구는 손대지 않는다).
+
+    카드를 손으로 적어 두면 동기화가 타일만 고쳐서, 같은 화면에서 카드와 브리프 숫자가
+    서로 어긋난다(2026-11-26 649회 vs 653회). 서울 일·도쿄 이 카드의 진행 줄만 갱신한다.
+    """
+    staff = st.get("staff") or []
+    if not staff:
+        return
+    streak = d.get("streak", d.get("runs_since"))
+    runs, errs = d.get("runs_since"), d.get("errors_since")
+    det = d.get("detail") or {}
+    qna = d.get("qna") or {}
+    for s in staff:
+        name = str(s.get("name") or "")
+        try:
+            if name == "서울 일":
+                bits = []
+                if streak is not None:
+                    bits.append(f"{streak}회 연속 정상"
+                                + (f"(누적 {runs}회·실패 {errs}회)" if runs is not None else ""))
+                if det.get("applied") is not None:
+                    bits.append(f"쿠팡 상세 {det['applied']}건 교체·남은 {det.get('remaining')}건")
+                if qna:
+                    bits.append(f"문의 초안 대기 {qna.get('drafts_ready', 0)}건")
+                if bits:
+                    s["detail"] = " · ".join(bits)
+            elif name == "도쿄 이" and tk.get("fetched") is not None:
+                day = day_label(str(tk.get("at") or ""))
+                s["current_task"] = (f"🗼 {day} 04:30 수집 — 일본 전문몰 {tk['fetched']:,}건 확인 → "
+                                     f"후보 {tk.get('passed', 0):,}건")
+                jp = dict(tk.get("jp_stock") or {})
+                jp.update({k: v for k, v in (d.get("jp_stock") or {}).items() if v is not None})
+                bits = [f"상세검증 {tk.get('verified', 0)}건",
+                        f"{tk.get('sites_ok', '-')}/{tk.get('sites_total', '-')}개 몰 성공"]
+                if jp.get("checked") is not None:
+                    bits.append(f"재고 {jp['checked']}건 점검 중 품절 {jp.get('out_of_stock', 0)}건")
+                s["detail"] = " · ".join(bits)
+        except Exception as e:  # noqa: BLE001 — 카드 한 줄 때문에 동기화를 멈추지 않는다
+            print("[staff] 카드 갱신 건너뜀:", name, str(e)[:100])
+
+
 def main() -> int:
     check = "--check" in sys.argv
     d = fetch()
@@ -540,6 +582,11 @@ def main() -> int:
                 total = jp.get("total_watch")
                 scope = f"등록 상품 {total:,}건 중 하루 80건씩 돌아가며 확인 " if total else "하루 80건씩 돌아가며 확인 "
                 r["v"] = (scope + f"({day} {jp['checked']}건 확인·품절 {jp.get('out_of_stock', 0)}건)")
+
+    try:
+        sync_staff(st, d, tk)
+    except Exception as e:  # noqa: BLE001
+        print("[staff] 카드 숫자 갱신 건너뜀:", str(e)[:120])
 
     st["updated_at"] = now.strftime("%Y-%m-%d %H:%M")
     st["updated_iso"] = now.strftime("%Y-%m-%dT%H:%M:%S+09:00")
