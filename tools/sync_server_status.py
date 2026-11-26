@@ -856,12 +856,12 @@ def main() -> int:
         st["gaon_opinion"] = op2
     ceo["updated_at"] = now.strftime("%Y-%m-%d %H:%M")
     qn = d.get("qna") or {}
-    ceo["headline"] = (f"서울 클라우드는 지금 {d.get('streak', d.get('runs_since'))}회 연속 정상으로 돌고 있고(누적 실행 "
-                       f"{d.get('runs_since')}회·실패 {d.get('errors_since')}회), 주문은 5분마다·고객문의는 10분마다 "
-                       "함께 보고 있습니다. 고객문의는 답변 초안과 메일 알림까지만 자동이고, 실제 전송은 대표가 확인한 뒤에 합니다.")
+    ceo["headline"] = (f"서울 클라우드 {d.get('streak', d.get('runs_since'))}회 연속 정상"
+                       f"(누적 {d.get('runs_since')}회·실패 {d.get('errors_since')}회) · 주문 5분·고객문의 10분 감시")
     if qn:
-        ceo["headline"] += (f" 지금 답변 초안 대기 {qn.get('drafts_ready', 0)}건 · 보낸 답변 "
-                            f"{qn.get('sent_total', 0)}건입니다.")
+        ceo["headline"] += (f" · 답변 초안 대기 {qn.get('drafts_ready', 0)}건 · 보낸 답변 "
+                            f"{qn.get('sent_total', 0)}건")
+    ceo["headline"] += " — 답변 전송은 대표님 확인 뒤"
     streak = d.get("streak", d.get("runs_since"))
     tiles = ceo.get("tiles") or []
 
