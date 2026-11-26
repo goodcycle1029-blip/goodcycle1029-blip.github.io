@@ -94,7 +94,8 @@ def main() -> None:
         f'</div>'
     )
     page2 = (HEAD.format(title="전기제품 전용 · 일본 100V 변압기 안내 미리보기 | 굳사이클")
-             + localize(intro, product) + v100 + TAIL)
+             + localize(intro, product)
+             + f'<div style="{kit.WRAP}">{v100}</div>' + TAIL)
     open(os.path.join(ROOT, "sample-detail-100v.html"), "w", encoding="utf-8").write(page2)
 
     print(json.dumps({
