@@ -405,6 +405,48 @@
   .md-ord li b{display:inline;font-size:11px;font-weight:900;color:#cbd5e1}
   .md-ord.sale li b{color:#6ee7b7}
 
+  /* ---------- 📦 주문 진행 6단계 (status.json > orders_progress) ---------- */
+  .op{display:grid;gap:9px;margin:0 0 10px}
+  .op-at{font-size:11px;font-weight:800;color:#8fa2c4;white-space:nowrap}
+  .opcard{border-radius:16px;border:1px solid var(--line);background:var(--card);padding:11px 12px;border-left:3px solid rgba(148,163,184,.85)}
+  .opcard.s-running{border-left-color:rgba(56,189,248,.92)}
+  .opcard.s-hold{border-left-color:rgba(245,158,11,.95)}
+  .opcard.s-finished{border-left-color:rgba(16,185,129,.92)}
+  .op-h{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap}
+  .op-no{flex:none;height:19px;padding:0 7px;border-radius:6px;background:rgba(148,163,184,.22);color:#dbe7ff;font-size:11px;font-weight:900;line-height:19px}
+  .opcard.s-running .op-no{background:rgba(56,189,248,.26);color:#c7ecff}
+  .opcard.s-hold .op-no{background:rgba(245,158,11,.26);color:#ffe6b8}
+  .opcard.s-finished .op-no{background:rgba(16,185,129,.24);color:#9df3cf}
+  .op-nm{flex:1;min-width:0;font-size:15px;font-weight:900;line-height:1.3;letter-spacing:-.02em;overflow-wrap:anywhere}
+  .op-nm .op-meta{display:block;margin-top:2px;font-size:11px;font-weight:800;color:#8fa2c4;letter-spacing:0}
+  .op-bar{display:flex;gap:3px;margin:9px 0 0}
+  .op-bar i{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.13)}
+  .op-bar i.done{background:var(--sale2)}
+  .op-bar i.now{background:var(--cy)}
+  .op-bar i.hold{background:var(--hold2)}
+  .op-sum{margin:7px 0 0;font-size:12.5px;font-weight:800;color:#dce7f7;line-height:1.5;overflow-wrap:anywhere}
+  .op-next{margin:6px 0 0;padding:6px 9px;border-radius:9px;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.32);font-size:11.5px;font-weight:800;color:#cfe9ff;line-height:1.45;overflow-wrap:anywhere}
+  .op-steps{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px}
+  .op-step{display:flex;gap:7px;align-items:flex-start;padding:5px 8px;border-radius:9px;background:rgba(255,255,255,.035);border:1px solid transparent}
+  .op-step .ic{flex:none;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:9.5px;line-height:1;background:rgba(148,163,184,.24);color:#cbd5e1}
+  .op-step .tx{min-width:0;flex:1}
+  .op-step b{display:block;font-size:12.5px;font-weight:900;line-height:1.35;color:#e8f0fb;overflow-wrap:anywhere}
+  .op-step b em{font-style:normal;font-size:10.5px;font-weight:900;color:#8fa2c4;margin-left:5px}
+  .op-step span{display:block;font-size:11.5px;font-weight:700;color:#a9b9d4;line-height:1.45;overflow-wrap:anywhere}
+  .op-step.done .ic{background:rgba(16,185,129,.3);color:#a7f3d0}
+  .op-step.now{background:rgba(56,189,248,.1);border-color:rgba(56,189,248,.4)}
+  .op-step.now .ic{background:rgba(56,189,248,.3);color:#bae6fd}
+  .op-step.hold{background:rgba(245,158,11,.11);border-color:rgba(245,158,11,.45)}
+  .op-step.hold .ic{background:rgba(245,158,11,.32);color:#fde68a}
+  .op-step.wait b{color:#b6c4d8}
+  .op-step.wait span{color:#94a6c6}
+  .op-fold{margin:8px 0 0}
+  .op-fold>summary{cursor:pointer;font-size:11.5px;font-weight:900;color:#9fb1d2;padding:2px 0;list-style:none}
+  .op-fold>summary::-webkit-details-marker{display:none}
+  .op-fold>summary::before{content:'▸ ';color:#7f92b4}
+  .op-fold[open]>summary::before{content:'▾ '}
+  .op-stale{margin:6px 0 0;font-size:11px;font-weight:800;color:#c7b58a;line-height:1.4}
+
   .md-iss{display:grid;gap:6px;margin:0 0 9px}
   .md-isshint{margin:0 0 6px;font-size:10.5px;font-weight:900;letter-spacing:.02em;color:#93a5c6}
 
@@ -1044,6 +1086,19 @@
     </div>
 
     <p class="lead" id="stHeadline">현황을 불러오는 중…</p>
+
+    <div class="secrow">
+      <h2 class="sec">📦 주문 진행 상황 — 6단계</h2>
+      <span class="op-at" id="stOrdersAt"></span>
+    </div>
+    <p class="fine" style="margin:-2px 0 8px">주문이 들어오면 <b>① 접수 → ② 상품준비중 → ③ 재고·마진 심사 → ④ 통관부호 검증 → ⑤ 일본 결제 → ⑥ 엘덱스 출고</b> 중 어디까지 왔는지 여기에 바로 뜹니다. 서울 서버 기록과 확정된 진행 사실로 매시간 자동 갱신되고, 고객 이름·주소·통관부호·주문번호·금액은 넣지 않습니다.</p>
+    <div class="op" id="stOrders" aria-live="polite"></div>
+    <div class="cblog" aria-label="주문 단계 색 의미">
+      <span>✅ 완료</span>
+      <span>🔄 지금 진행 중</span>
+      <span>⏸ 보류(확인 필요)</span>
+      <span>⬜ 아직 차례 전</span>
+    </div>
 
     <div class="secrow">
       <h2 class="sec">마켓별 상세 현황</h2>
@@ -2696,9 +2751,70 @@
   }
   function orderIsSale(o){
     if (!o) return false;
+    if (o.tone) return o.tone === 'sale';
     var v = String(o.value || '');
     if (/없음|아직/.test(v)) return false;
     return !isZeroVal(v);
+  }
+
+  /* ---------- 📦 주문 진행 6단계 ---------- */
+  var OP_IC = { done: '✅', now: '🔄', hold: '⏸', wait: '⬜' };
+  var OP_CHIP = { running: ['run', '진행 중'], hold: ['hold', '보류'], finished: ['done', '완료'], waiting: ['hold', '대기'] };
+
+  function opStepsHTML(steps, hidden){
+    var h = '<ul class="op-steps"' + (hidden ? ' hidden' : '') + '>';
+    (steps || []).forEach(function(s){
+      var k = s.state || 'wait';
+      h += '<li class="op-step ' + esc(k) + '"><span class="ic" aria-hidden="true">' + (OP_IC[k] || '⬜') + '</span>';
+      h += '<span class="tx"><b>' + (s.no ? esc(s.no) + '. ' : '') + esc(s.label || '')
+        + (s.at ? '<em>' + esc(s.at) + '</em>' : '') + '</b>';
+      if (s.note) h += '<span>' + esc(s.note) + '</span>';
+      h += '</span></li>';
+    });
+    return h + '</ul>';
+  }
+
+  function opCardHTML(o, i){
+    var state = o.state || 'running';
+    var chip = OP_CHIP[state] || OP_CHIP.running;
+    var steps = o.steps || [];
+    var done = 0;
+    steps.forEach(function(s){ if (s.state === 'done') done++; });
+    var h = '<article class="opcard s-' + esc(state) + '">';
+    h += '<div class="op-h"><span class="op-no">' + esc(o.no || (i + 1) + '호') + '</span>';
+    h += '<div class="op-nm">' + esc(o.product || '상품명 확인 중');
+    var meta = [o.market || '', o.received ? '접수 ' + o.received : ''].filter(function(x){ return x; }).join(' · ');
+    if (meta) h += '<span class="op-meta">' + esc(meta) + '</span>';
+    h += '</div>';
+    h += '<span class="chip ' + chip[0] + '">' + chip[1] + ' ' + done + '/6</span>';
+    h += '</div>';
+    if (steps.length){
+      h += '<div class="op-bar" aria-hidden="true">';
+      steps.forEach(function(s){ h += '<i class="' + esc(s.state || 'wait') + '"></i>'; });
+      h += '</div>';
+    }
+    if (o.summary) h += '<p class="op-sum">' + esc(o.summary) + '</p>';
+    if (o.next) h += '<p class="op-next"><b>다음</b> · ' + esc(o.next) + '</p>';
+    if (state === 'finished') h += '<details class="op-fold"><summary>6단계 전체 보기</summary>' + opStepsHTML(steps, false) + '</details>';
+    else h += opStepsHTML(steps, false);
+    if (o.stale) h += '<p class="op-stale">서버 주문 목록에서 빠진 건입니다 — 마지막 확인 시점 기준으로 보여 줍니다.</p>';
+    return h + '</article>';
+  }
+
+  function renderOrdersProgress(d){
+    var box = document.getElementById('stOrders');
+    if (!box) return;
+    var op = d.orders_progress;
+    var at = document.getElementById('stOrdersAt');
+    if (at) at.textContent = (op && op.updated_at) ? '확인 ' + op.updated_at : '';
+    if (!op || !(op.orders || []).length){
+      box.innerHTML = '<div class="box"><p>아직 이 화면에 올릴 주문이 없습니다. 새 주문이 들어오면 6단계로 바로 뜹니다.</p></div>';
+      return;
+    }
+    var h = '';
+    if (op.head) h += '<p class="fine" style="margin:0 0 2px">' + esc(op.head) + '</p>';
+    op.orders.forEach(function(o, i){ h += opCardHTML(o, i); });
+    box.innerHTML = h;
   }
 
   /* 손볼 곳 한 건 — 누르면 왜 문제인지 · 대상 상품 · 지금 상태 · 다음 할 일이 펼쳐집니다 */
@@ -2785,8 +2901,14 @@
              '<div class="bar"><i style="width:' + mp + '%"></i></div></div>';
       }
       if (m.stats && m.stats.length){
-        h += '<div class="md-stats">';
+        var seenStat = {}, uniq = [];
         m.stats.forEach(function(s){
+          var k = String((s && s.label) || '').trim();
+          if (!k || seenStat[k]) return;   /* 같은 이름 타일이 두 번 오면 하나만 */
+          seenStat[k] = 1; uniq.push(s);
+        });
+        h += '<div class="md-stats">';
+        uniq.forEach(function(s){
           h += '<div class="' + esc(statClass(s)) + '"><i>' + esc(s.label) + '</i><b>' + esc(s.value) + '</b></div>';
         });
         h += '</div>';
@@ -2866,6 +2988,7 @@
 
     if (mk){
       renderMarkets(d);
+      renderOrdersProgress(d);
     }
 
     if (stf){
@@ -3201,7 +3324,7 @@
     }
 
     if (c.order){
-      h += '<h2 class="sec">🛒 오늘 첫 주문 진행 현황</h2>';
+      h += '<h2 class="sec">🛒 지금 주문 진행 현황 — 6단계</h2>';
       h += orderHTML(c.order);
     }
 

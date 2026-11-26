@@ -10,7 +10,11 @@ company.html 은 status.json 의 `ceo.server` 를 읽어 「🛰️ 서울 클�
 서울 서버가 남긴 AI 소견(`state/hanul_ai_opinion.json`)은 `hanul_opinion` 칸으로,
 도쿄 서버(도쿄 이)가 남긴 AI 소견(`/opt/gcu/state/gaon_ai_opinion.json`)은 `gaon_opinion` 칸으로 옮겨 담는다 —
 company.html 이 CEO 브리프 아래 「🧠 서울 일 AI 소견」·「🗼 도쿄 이 AI 소견」 카드로 나란히 그린다.
-IP·계정·키·메일주소는 공개 페이지에 넣지 않는다.
+
+주문 진행은 `orders_progress` 칸으로 따로 담는다 — `state/seen_orders.json`·`ready_for_payment_orders.json`
+에서 1~4단계(접수·상품준비중·재고/마진·통관부호)를 매시간 다시 매기고, 5~6단계(일본 결제·엘덱스 접수/출고)는
+현장에서 확인한 사실을 `../company_site_state/orders_progress.json`(공개 저장소 밖 비공개 파일)에 적어 두면 이어 받는다.
+IP·계정·키·메일주소는 물론 고객 이름·주소·연락처·주문번호·통관부호·원가/마진 금액도 공개 페이지에 넣지 않는다.
 """
 from __future__ import annotations
 
@@ -187,6 +191,60 @@ try:
 except Exception as e:
     out["hanul_opinion"] = {}
     out["hanul_opinion_error"] = str(e)
+
+# 주문 진행 단계용 — 이름·주소·통관부호·주문번호·금액은 담지 않는다(단계 판단에 필요한 최소값만)
+try:
+    def _sign(v):
+        try:
+            v = float(v)
+        except Exception:
+            return None
+        return 1 if v > 0 else (-1 if v < 0 else 0)
+    _so = {}
+    try:
+        _so = json.load(open("/opt/gcu/state/seen_orders.json")).get("orders") or {}
+    except Exception:
+        pass
+    _rp = {}
+    try:
+        _rp = json.load(open("/opt/gcu/state/ready_for_payment_orders.json"))
+    except Exception:
+        pass
+    _now_orders = []
+    for _o in (_rp.get("orders") or []):
+        if not isinstance(_o, dict):
+            continue
+        _pid = str(_o.get("product_order_id") or "")
+        _s = _so.get(_pid) or {}
+        _pccc = _o.get("pccc") or {}
+        _src = _o.get("source") or {}
+        _mg = _o.get("margin") or {}
+        _rt = _o.get("routes") or {}
+        _profit = _mg.get("profit_krw")
+        if _profit is None:
+            _profit = (_rt.get("direct") or {}).get("profit")
+        _now_orders.append({
+            "key": _pid,
+            "market": _o.get("market") or "",
+            "market_label": _o.get("market_label") or "",
+            "name": _o.get("name") or "",
+            "option": _o.get("option") or "",
+            "order_at": _o.get("order_date") or "",
+            "paid_at": _o.get("payment_date") or "",
+            "status": _o.get("status") or "",
+            "confirm_ok": _s.get("confirm_result") == "ok",
+            "confirm_at": _s.get("confirm_at") or "",
+            "pccc_ok": bool(_pccc.get("ok")),
+            "pccc_verify": _pccc.get("verify_status") or "",
+            "source_ok": _src.get("available"),
+            "flags": [str(_f) for _f in (_o.get("flags") or [])][:8],
+            "profit_sign": _sign(_profit),
+            "updated_at": _o.get("updated_at") or "",
+        })
+    out["orders_now"] = _now_orders
+except Exception as e:
+    out["orders_now"] = []
+    out["orders_now_error"] = str(e)
 print(json.dumps(out, ensure_ascii=False))
 '''
 
@@ -255,6 +313,302 @@ def day_label(at: str) -> str:
     except (TypeError, ValueError):
         return "최근"
     return "오늘" if day == datetime.now().date() else day.strftime("%m/%d")
+
+
+# ---------------------------------------------------------------- 주문 진행 6단계
+# 공개 화면에 나가는 값만 만든다: 상품명·마켓·단계·시각·설명.
+# 고객 이름·주소·연락처·주문번호·통관부호·원가/마진 금액은 절대 담지 않는다.
+STAGE_NAMES = ["주문 접수", "상품준비중 전환", "재고·마진 심사",
+               "개인통관고유부호(PCCC) 검증", "일본 구매처 결제", "엘덱스 접수·출고"]
+STAGE_ICON = {"done": "✅", "now": "🔄", "hold": "⏸", "wait": "⬜"}
+STATE_LABEL = {"running": "진행 중", "hold": "보류", "waiting": "대기", "finished": "완료"}
+MAX_ORDERS = 8          # 화면에 남기는 주문 수(최근 순)
+KEEP_DAYS = 21          # 서버 목록에서 빠진 주문을 마지막 확인값으로 보여 주는 기간
+
+# 5·6단계(일본 결제·엘덱스 접수/출고)는 서울 서버 파일에 없다.
+# 현장에서 확인한 사실을 이 비공개 파일에 적어 두면 다음 동기화부터 화면에 반영된다.
+#   work/company_site_state/orders_progress.json  (공개 저장소 밖)
+PROGRESS_STATE = os.environ.get("GCU_COMPANY_STATE"
+                                ) or os.path.join(os.path.dirname(HERE), "company_site_state", "orders_progress.json")
+
+
+def _short_time(s) -> str:
+    """'2026-11-26T22:11:04+09:00' → '11/26 22:11' (모르면 빈 값)."""
+    m = re.match(r"(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})", str(s or ""))
+    return f"{m.group(2)}/{m.group(3)} {m.group(4)}:{m.group(5)}" if m else ""
+
+
+def _short_product(name, option="", limit: int = 46) -> str:
+    s = str(name or "").split(",")[0].strip()
+    if len(s) > limit:
+        s = s[:limit - 1].rstrip() + "…"
+    op = str(option or "").strip()
+    if op and op not in s and len(op) <= 14:
+        s = f"{s} ({op})"
+    return s
+
+
+def _sig(product, market) -> tuple:
+    """주문 동일성 판단용(공개 값만으로) — 주문번호는 저장하지 않는다."""
+    return (str(product or "")[:14], str(market or ""))
+
+
+def _step(no: int, state: str, at: str = "", note: str = "") -> dict:
+    return {"no": no, "label": STAGE_NAMES[no - 1], "state": state, "at": at, "note": note}
+
+
+def _auto_steps(rec: dict) -> dict:
+    """서울 서버 실측으로 매길 수 있는 1~4단계."""
+    flags = rec.get("flags") or []
+    st = {}
+    at1 = _short_time(rec.get("paid_at") or rec.get("order_at"))
+    st[1] = _step(1, "done", at1, f"{rec.get('market_label') or '마켓'} 결제완료로 접수")
+    if rec.get("confirm_ok"):
+        st[2] = _step(2, "done", _short_time(rec.get("confirm_at")) or at1, "자동 발주확인 — 상품준비중으로 넘겼습니다")
+    else:
+        st[2] = _step(2, "hold", "", "발주확인 전 — 상품준비중으로 넘기지 못했습니다")
+    if "NO_MAP" in flags or "NO_COST" in flags:
+        why = [x for x in ("일본 판매처 매핑 없음" if "NO_MAP" in flags else "",
+                           "등록 원가 없음" if "NO_COST" in flags else "") if x]
+        st[3] = _step(3, "hold", "", " · ".join(why) + " — 마진을 계산할 수 없어 멈칫습니다")
+    elif rec.get("source_ok") is False:
+        st[3] = _step(3, "now", "", "원상품 품절 — 대체 일본 판매처를 찾는 중")
+    elif rec.get("profit_sign") is not None:
+        sgn = rec.get("profit_sign")
+        st[3] = _step(3, "done" if sgn > 0 else "hold", "",
+                       {1: "원가·마진 확인 — 통과", 0: "마진 0원 — 보류", -1: "역마진 — 발주 보류"}.get(sgn, ""))
+    else:
+        st[3] = _step(3, "now", "", "재고·원가 확인 중")
+    if rec.get("pccc_ok") and str(rec.get("pccc_verify") or "").upper() == "VALID":
+        st[4] = _step(4, "done", "", "유니패스 검증 통과 · 엘덱스 신청서와 일치")
+    elif "NO_PCCC" in flags or not rec.get("pccc_ok"):
+        st[4] = _step(4, "hold", "", "통관부호가 없거나 형식이 달라 구매자 확인이 필요")
+    else:
+        st[4] = _step(4, "now", "", "통관부호 확인 중")
+    st[5] = _step(5, "wait", "", "중간 단계가 풀리면 바로 결제")
+    st[6] = _step(6, "wait", "")
+    return st
+
+
+def _load_progress_state() -> dict:
+    try:
+        with open(PROGRESS_STATE, encoding="utf-8") as f:
+            return json.load(f) or {}
+    except Exception:
+        return {}
+
+
+def _entry(product, market, market_key, received, steps: dict, extra: dict) -> dict:
+    """6단계를 묶어 화면용 주문 한 건으로 만든다."""
+    order_steps = [steps[i] for i in sorted(steps)]
+    done = [s for s in order_steps if s["state"] == "done"]
+    holds = [s for s in order_steps if s["state"] == "hold"]
+    nows = [s for s in order_steps if s["state"] == "now"]
+    if extra.get("state"):
+        state = extra["state"]
+    elif len(done) == 6:
+        state = "finished"
+    elif holds:
+        state = "hold"
+    elif nows:
+        state = "running"
+    else:
+        state = "waiting"
+    if extra.get("summary"):
+        summary = str(extra["summary"])
+    elif state == "finished":
+        summary = "6단계 모두 완료" + (" — " + order_steps[-1]["note"] if order_steps[-1].get("note") else "")
+    elif holds:
+        summary = f"{len(done)}단계까지 완료 · {holds[0]['no']}단계 보류 — {holds[0].get('note') or '확인 필요'}"
+    elif nows:
+        summary = f"{len(done)}단계 완료 · {nows[0]['no']}단계 진행 중 — {nows[0].get('note') or ''}".strip(" —")
+    else:
+        summary = f"{len(done)}단계까지 완료 · 다음 단계 대기"
+    nxt = extra.get("next")
+    if not nxt:
+        pend = next((s for s in order_steps if s["state"] in ("hold", "now", "wait")), None)
+        nxt = (f"{pend['label']} — {pend.get('note')}" if pend and pend.get("note") else (pend["label"] if pend else ""))
+    return {
+        "product": product, "market": market, "market_key": market_key,
+        "received": received, "state": state, "state_label": STATE_LABEL.get(state, ""),
+        "done": len(done), "total": 6, "summary": summary, "next": nxt,
+        "steps": order_steps,
+        "last_seen": datetime.now().strftime("%Y-%m-%d %H:%M"),
+    }
+
+
+def _age_days(at: str) -> float:
+    try:
+        d0 = datetime.strptime(str(at)[:16], "%Y-%m-%d %H:%M")
+    except (TypeError, ValueError):
+        return 9999
+    return (datetime.now() - d0).total_seconds() / 86400
+
+
+def _card_order(o: dict) -> dict:
+    """마켓 카드 안의 진행 박스 — 6단계를 한 줄씩."""
+    steps = [{"time": STAGE_ICON.get(s["state"], "⬜"),
+              "text": s["label"] + (f" · {s['at']}" if s.get("at") else "")}
+             for s in o.get("steps") or []]
+    tone = "sale" if o.get("state") == "finished" else ("hold" if o.get("state") == "hold" else "run")
+    return {"tag": "주문 진행",
+            "value": f"{o.get('done', 0)}/6단계 · {o.get('state_label', '')}",
+            "note": o.get("summary", ""), "steps": steps, "tone": tone}
+
+
+def sync_orders(st: dict, d: dict) -> None:
+    """orders_progress + 마켓 카드 진행 박스 + CEO 첫 주문 칸을 한 번에 맞춘다."""
+    prev = st.get("orders_progress") or {}
+    prev_orders = [o for o in (prev.get("orders") or []) if isinstance(o, dict)]
+    prev_seq, prev_sig = {}, {}
+    for p in prev_orders:
+        if p.get("seq"):
+            prev_seq[_sig(p.get("product"), p.get("market"))] = int(p["seq"])
+        prev_sig[_sig(p.get("product"), p.get("market"))] = p
+    extras = {k: v for k, v in (_load_progress_state().get("orders") or {}).items() if isinstance(v, dict)}
+    used = set()
+    built = []
+
+    for rec in (d.get("orders_now") or []):
+        key = str(rec.get("key") or "")
+        extra = extras.get(key) or {}
+        if extra:
+            used.add(key)
+        market = extra.get("market") or rec.get("market_label") or ""
+        market_key = extra.get("market_key") or {"coupang": "coupang", "naver": "smartstore"}.get(rec.get("market"), rec.get("market") or "")
+        steps = _auto_steps(rec)
+        for n, ov in (extra.get("stages") or {}).items():
+            try:
+                i = int(n)
+            except (TypeError, ValueError):
+                continue
+            if i in steps and isinstance(ov, dict):
+                steps[i].update({k: v for k, v in ov.items() if v not in (None, "")})
+        o = _entry(extra.get("product") or _short_product(rec.get("name"), rec.get("option")),
+                   market, market_key,
+                   extra.get("received") or _short_time(rec.get("paid_at") or rec.get("order_at")),
+                   steps, extra)
+        o["_sort"] = str(rec.get("paid_at") or rec.get("order_at") or "")[:19]
+        built.append(o)
+
+    for key, extra in extras.items():            # 서버 목록에 더 이상 없는 과거 주문
+        if key in used or extra.get("show") is False:
+            continue
+        steps = {i: _step(i, "wait") for i in range(1, 7)}
+        for n, ov in (extra.get("stages") or {}).items():
+            try:
+                i = int(n)
+            except (TypeError, ValueError):
+                continue
+            if i in steps and isinstance(ov, dict):
+                steps[i].update({k: v for k, v in ov.items() if v not in (None, "")})
+        o = _entry(extra.get("product") or "상품", extra.get("market") or "",
+                   extra.get("market_key") or "", extra.get("received") or "", steps, extra)
+        o["_sort"] = str(extra.get("received_ts") or "")
+        built.append(o)
+
+    have = {_sig(o["product"], o["market"]) for o in built}
+    for p in prev_orders:                        # 서버에서 빠졌지만 최근까지 보던 주문
+        sig = _sig(p.get("product"), p.get("market"))
+        if sig in have or _age_days(p.get("last_seen")) > KEEP_DAYS:
+            continue
+        steps = {int(s["no"]): dict(s) for s in (p.get("steps") or []) if isinstance(s, dict) and s.get("no")}
+        if len(steps) != 6:
+            continue
+        q = dict(p)
+        q["steps"] = [steps[i] for i in sorted(steps)]
+        q["stale"] = True
+        q["_sort"] = q.get("_sort") or ""
+        built.append(q)
+        have.add(sig)
+
+    # 화면 수 조절 — 최근 것부터 MAX_ORDERS 건(대표가 keep 으로 표시한 건은 유지)
+    built.sort(key=lambda o: o.get("_sort") or "")
+    keep_sigs = {_sig(v.get("product"), v.get("market")) for v in extras.values() if v.get("keep")}
+    if len(built) > MAX_ORDERS:
+        drop = len(built) - MAX_ORDERS
+        rest = []
+        for o in built:
+            if drop > 0 and _sig(o["product"], o["market"]) not in keep_sigs:
+                drop -= 1
+                continue
+            rest.append(o)
+        built = rest
+
+    # 번호(1호·2호…)는 한 번 붙은 뒤 바뀌지 않게 기존 값을 이어받는다
+    taken = set()
+    for o in built:
+        s = prev_seq.get(_sig(o["product"], o["market"]))
+        if s:
+            o["seq"] = s
+            taken.add(s)
+    nxt = max(taken | {0}) + 1
+    for o in built:
+        if not o.get("seq"):
+            o["seq"] = nxt
+            taken.add(nxt)
+            nxt += 1
+    for o in built:
+        o["no"] = f"{o['seq']}호"
+
+    built.sort(key=lambda o: o.get("_sort") or "", reverse=True)
+    for o in built:
+        o.pop("_sort", None)
+        o.pop("seq", None)
+
+    cnt = {k: 0 for k in ("running", "hold", "waiting", "finished")}
+    for o in built:
+        cnt[o.get("state") or "running"] = cnt.get(o.get("state") or "running", 0) + 1
+    bits = [f"{STATE_LABEL[k]} {cnt[k]}건" for k in ("running", "hold", "waiting", "finished") if cnt.get(k)]
+    head = " · ".join(bits) + (" — 6단계(접수 → 출고) 중 어디까지 왔는지 바로 보입니다" if built else "")
+    if cnt.get("hold"):
+        head += " · 보류 건은 아래 「지금 막힌 곳」에도 올렸습니다"
+    st["orders_progress"] = {
+        "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "head": head,
+        "total": len(built),
+        "orders": built,
+    }
+
+    # 마켓 카드 안 진행 박스
+    for m in (st.get("markets_detail") or []):
+        key = m.get("key")
+        cand = [o for o in built if o.get("market_key") == key]
+        if key in ("coupang", "smartstore", "gmarket", "auction", "11st", "lotteon"):
+            m["order"] = _card_order(cand[0]) if cand else m.get("order")
+
+    # CEO 탭 「지금 주문 진행 현황」 — 진행·보류 건을 우선
+    act = next((o for o in built if o.get("state") in ("hold", "running", "waiting")), None) \
+        or (built[0] if built else None)
+    if act:
+        st.setdefault("ceo", {})["order"] = {
+            "product": act["product"], "market": act["market"],
+            "state": act.get("summary", ""),
+            "steps": [{"t": f"{s['no']}. {s['label']}",
+                       "s": "done" if s["state"] == "done" else "next",
+                       "n": " · ".join(x for x in (s.get("at"), s.get("note")) if x) or "아직"}
+                      for s in act.get("steps") or []],
+            "note": ("고객 이름·주소·통관부호·주문번호·금액 없이 상품명과 6단계만 보여 줍니다. "
+                     "단계는 서울 서버 기록과 현장에서 확정한 사실로 매시간 자동 갱신됩니다."),
+        }
+
+    # 막힌 곳 목록에도 보류 주문을 올린다(자동 생성분만 매회 교체, 손으로 쓴 항목은 그대로)
+    blocked = [b for b in (st.get("blocked") or []) if not (isinstance(b, dict) and b.get("auto") == "orders")]
+    for o in built:
+        if o.get("state") != "hold":
+            continue
+        holds = [s for s in o.get("steps") or [] if s["state"] == "hold"]
+        blocked.insert(0, {
+            "icon": "📦",
+            "title": f"{o.get('no')} 주문 {o.get('product')} — {o.get('done')}/6단계에서 멈춤",
+            "detail": " / ".join(f"{s['no']}단계 {s['label']}: {s.get('note')}" for s in holds)[:300],
+            "impact": "이 주문은 일본 결제로 넘어가지 못했습니다 — 확인 후 다시 진행" if holds else "",
+            "owner": "나미",
+            "state": "막힘",
+            "auto": "orders",
+        })
+    if blocked or st.get("blocked"):
+        st["blocked"] = blocked
 
 
 def build(d: dict) -> dict:
@@ -587,6 +941,16 @@ def main() -> int:
         sync_staff(st, d, tk)
     except Exception as e:  # noqa: BLE001
         print("[staff] 카드 숫자 갱신 건너뜀:", str(e)[:120])
+
+    try:
+        sync_orders(st, d)
+        op = st.get("orders_progress") or {}
+        print("[orders]", op.get("head") or "주문 없음")
+        for o in op.get("orders") or []:
+            print("   -", o.get("no"), o.get("market"), o.get("product"),
+                  f"{o.get('done')}/6", o.get("state"), "|", o.get("summary"))
+    except Exception as e:  # noqa: BLE001 — 주문 칸 때문에 동기화 전체를 멈추지 않는다
+        print("[orders] 주문 진행 갱신 건너뜀:", str(e)[:160])
 
     st["updated_at"] = now.strftime("%Y-%m-%d %H:%M")
     st["updated_iso"] = now.strftime("%Y-%m-%dT%H:%M:%S+09:00")
