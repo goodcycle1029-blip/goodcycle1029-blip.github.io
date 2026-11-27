@@ -838,6 +838,7 @@
     background:rgba(255,255,255,.85);border-radius:6px;padding:1px 6px;margin-left:4px;
     vertical-align:1.5px;white-space:nowrap
   }
+  .ops-flow .tx b em.lg{font-size:10.5px;padding:1px 5px;background:rgba(255,183,208,.92)}
   .ops-flow .tx i{display:block;margin-top:2px;font-style:normal;font-size:12.5px;font-weight:800;color:#c9d8ef;line-height:1.45;overflow-wrap:anywhere}
   .ops-more{border-top:1px solid rgba(255,255,255,.1)}
   .ops-more > summary{
@@ -1111,17 +1112,17 @@
       <button class="rf" type="button" id="ceoRefresh">🔄 새로고침</button>
     </div>
 
-    <!-- ⚙️ 굳사이클 운영 기본 틀 v1.0 (2026-11-27 대표님 지시) — status.json 을 다시 그려도 지워지지 않도록 ceoBody 밖에 고정합니다 -->
+    <!-- ⚙️ 굳사이클 운영 기본 틀 v1.1 (2026-11-27 대표님 지시 · 4번 일·이 대행 권한 반영) — status.json 을 다시 그려도 지워지지 않도록 ceoBody 밖에 고정합니다 -->
     <section class="ops" aria-labelledby="opsTitle">
       <div class="ops-hd">
         <b id="opsTitle">⚙️ 굳사이클 운영 기본 틀</b>
-        <span class="ver">v1.0</span>
+        <span class="ver">v1.1</span>
       </div>
       <ol class="ops-flow">
         <li><span class="n" aria-hidden="true">1</span><span class="tx"><b>🔎 소싱 <em>도쿄 이</em></b><i>일본 전문몰 고마진 · 위험품 자동 차단</i></span></li>
         <li><span class="n" aria-hidden="true">2</span><span class="tx"><b>📝 등록 <em>표준 틀 v2.2</em></b><i>연출컷 4장 · $150 관부가세 분기</i></span></li>
         <li><span class="n" aria-hidden="true">3</span><span class="tx"><b>🛒 주문 <em>서울 일 5분</em></b><i>결제완료 즉시 상품준비중 · PCCC 검증</i></span></li>
-        <li><span class="n" aria-hidden="true">4</span><span class="tx"><b>🧾 재고·대체처 마무리 <em>나미</em></b><i>흑자면 자동 결제 / 역마진이면 자동 취소</i></span></li>
+        <li><span class="n" aria-hidden="true">4</span><span class="tx"><b>🧾 재고·대체처 마무리 <em class="lg">나미 · 부재시 일·이</em></b><i>흑자는 결제 직전까지 / 품절·역마진은 판매중지</i></span></li>
         <li><span class="n" aria-hidden="true">5</span><span class="tx"><b>🔁 피드백 순환 <em>일·이·나미</em></b><i>잘된 점·막힌 점으로 계속 보완</i></span></li>
       </ol>
       <details class="ops-more">
@@ -1130,10 +1131,11 @@
           <p class="b1"><b>1 소싱 · 도쿄 이</b> — 일본 전문몰·고마진(30%+)·비칼류/패브릭 중심 발굴, 규제·위험품 자동 차단</p>
           <p class="b2"><b>2 등록 · 표준 틀 v2.2</b> — 순백 여백+생활 연출컷 4장, 큰 글씨, $150 관부가세 자동 분기, 제주/도서산간 배송비</p>
           <p class="b3"><b>3 주문 · 서울 일 5분</b> — 결제완료 즉시 상품준비중 전환 + PCCC 검증 + 6단계 실시간 표시</p>
-          <p class="b4"><b>4 재고·대체처 → 자동 마무리 · 나미</b></p>
-          <p class="b4">└ 재고 있고 흑자 → 부재중·야간 무관 자동 카드결제 + 엘덱스 접수</p>
-          <p class="b4">└ 대체처 없고 역마진·품절 확정 → 자동 품절 취소(고객 안내) + 전 마켓 판매중지 후 결과 보고</p>
-          <p class="b4">└ OTP·본인인증·PCCC 오류 시에만 대표님 호출</p>
+          <p class="b4"><b>4 재고·대체처 → 마무리 · 나미 (부재 시 일·이 대행)</b></p>
+          <p class="b4">└ <b>도쿄 이</b> — 일본 원몰 실시간 재고·엔화가 재확인(일본 IP, 1회 8건). 품절이면 다른 판매처 URL·옵션·원가 후보 올림 — 마진 판정은 서울 몫</p>
+          <p class="b4">└ <b>서울 일</b> — 흑자면 상품준비중 + 결제 직전 파일(ready:true), 품절·역마진이면 쿠팡·ESM·스마트스토어 판매중지 + 고객 안내 문안, 끝나면 폰 알림(ntfy)</p>
+          <p class="b4">└ <b>서버가 못 하는 것</b> — 카드 3D·OTP 결제, 엘덱스 자동 접수, 주문 취소 집행, ESM 세션 없을 때 지마켓·옥션 → 이때만 대표님 호출(ntfy)</p>
+          <p class="b4">└ PCCC 오류·주소 불일치·고객 클레임도 대표님 판단</p>
           <p class="b5"><b>5 피드백 순환 · 일·이·나미</b> — 실전에서 잘된 점·막힌 점을 데이터로 짚어 기본 틀을 계속 보완</p>
           <p class="b5">↻ 대표님이 말하지 않아도 이 다섯 단계가 돕니다 — 잘된 점·막힌 점만 대화로 얹으면 다음 판에 반영</p>
         </div>
@@ -1231,7 +1233,7 @@
   <!-- ============ 1. 조직도 ============ -->
   <section class="panel" id="p1" role="tabpanel" aria-labelledby="t1" tabindex="0">
 
-    <p class="lead">실전은 <b>3인</b>입니다. 대표가 말로 지시하면 <b>총괄 비서 나미</b>가 일을 나누고, 두 서버의 실장이 24시간 직접 돌립니다 — <b>서울 실장 일</b>은 주문·고객문의·장부·마진·쿠팡 상세를, <b>도쿄 팀장 이</b>는 일본 IP 수집과 원가·재고를 맡습니다. 두 서버는 매시간 서로의 소견과 상태를 교차 확인합니다.</p>
+    <p class="lead">실전은 <b>3인</b>입니다. 대표가 말로 지시하면 <b>총괄 비서 나미</b>가 일을 나누고, 두 서버의 실장이 24시간 직접 돌립니다 — <b>서울 실장 일</b>은 주문·고객문의·장부·마진·쿠팡 상세를, <b>도쿄 팀장 이</b>는 일본 IP 수집과 원가·재고를 맡습니다. 두 서버는 매시간 서로의 소견과 상태를 교차 확인합니다. <b>4번(재고·대체처 마무리)</b>는 나미 담당이지만, 나미가 없으면 <b>일·이가 나눠 대행</b>합니다.</p>
 
     <div class="tbar">
       <button type="button" class="tbtn" id="orgWide">↔️ 가로 계통도로 보기</button>
@@ -1268,6 +1270,7 @@
                   <ul class="t-duties">
                     <li>주문 5분 · 고객문의 10분 자동 감시</li>
                     <li>역마진 0원 점검 · 일일장부 · 쿠팡 상세</li>
+                    <li>나미 부재 시 <b>4번 대행</b> — 순익 판정·전 마켓 판매중지·폰 알림</li>
                     <li>매시 :15 AI 소견 + 도쿄 이 교차 확인</li>
                   </ul>
                 </li>
@@ -1279,6 +1282,7 @@
                   <ul class="t-duties">
                     <li>일본 IP로 전문몰 수집 (매일 04:30)</li>
                     <li>아마존·라쿠텐 원가·재고 80건 점검</li>
+                    <li>나미 부재 시 <b>4번 대행</b> — 원몰 재고·가격 재확인·대체처 후보</li>
                     <li>매시 :45 AI 소견 + 서울 일 교차 확인</li>
                   </ul>
                 </li>
@@ -1295,7 +1299,7 @@
     </div>
 
     <div class="box">
-      <p><b>선 읽는 법</b> — 대표 → <b>나미</b>(총괄 비서) → <b>서울 일</b>·<b>도쿄 이</b> 순으로 내려갑니다. 나미가 일을 나누고 검수하며, 두 서버는 사람 없이 24시간 돌면서 매시간 자기 점검 소견을 남깁니다.</p>
+      <p><b>선 읽는 법</b> — 대표 → <b>나미</b>(총괄 비서) → <b>서울 일</b>·<b>도쿄 이</b> 순으로 내려갑니다. 나미가 일을 나누고 검수하며, 두 서버는 사람 없이 24시간 돌면서 매시간 자기 점검 소견을 남깁니다. 나미가 없을 때 <b>4번(재고·대체처)</b>은 도쿄 이가 재확인·후보를, 서울 일이 판정·판매중지·알림을 맡고, <b>실제 결제·주문 취소만 대표님</b>이 합니다.</p>
       <p><b>서로를 감시하는 고리</b> — 서울 일은 도쿄 이의 수집 상태와 소견을, 도쿄 이는 나미 현황판과 서울 일 소견을 매시간 확인합니다. 한쪽 소견이 <b>2시간 반</b> 넘게 묵으면 다른 쪽이 <b>경보</b>를 내고 대표 메일로 알립니다. 두 서버 모두 <b>읽기·진단·기록·알림만</b> 하고 상품·가격·결제·고객 발송은 건드리지 않습니다.</p>
     </div>
 
@@ -1555,6 +1559,15 @@
       <span class="hj-go">열기 →</span>
     </button>
 
+    <h2 class="sec">4번 재고·대체처 — 나미가 없을 때 누가 하나</h2>
+    <p class="fine" style="margin:-2px 0 8px">대표님 지시(2026-11-27)로 4번은 나미 부재 시 <b>서울 일</b>과 <b>도쿄 이</b>가 나눠 대행합니다. 되는 것과 안 되는 것을 사실대로 적었습니다.</p>
+    <div class="kv box">
+      <div class="row"><div class="k">🗼 도쿄 이</div><div class="v"><b>재확인·후보</b> — 일본 원몰의 <b>지금 재고·엔화가</b>를 일본 IP로 다시 읽습니다(1회 8건). 품절이면 다른 일본 판매처의 <b>URL·옵션·원가</b> 후보를 올립니다. 마진 판정은 하지 않습니다(서울 몫).</div></div>
+      <div class="row"><div class="k">🛰️ 서울 일</div><div class="v"><b>판정·방어·보고</b> — 후보 원가로 순익을 따져 흑자면 <b>상품준비중 + 결제 직전 상태</b>까지, 품절·역마진이면 <b>쿠팡·지마켓·옥션·스마트스토어 판매중지</b> + 고객 안내 문안까지 마치고 <b>폰 알림(ntfy)</b>을 쏩니다.</div></div>
+      <div class="row"><div class="k">👤 대표님</div><div class="v"><b>실제 결제·주문 취소</b>만 하시면 됩니다. 카드 3D·OTP·본인인증과 엘덱스 결제는 서버가 대신 못 하므로, 알림이 오면 <b>결제 직전 1건</b>이 서 있는 상태입니다. 지마켓·옥션은 서버에 로그인 세션이 없어 아직 판매중지가 안 됩니다.</div></div>
+    </div>
+    <p class="fine">실측 2026-11-27 14:50 — 쿠팡 판매상태 API 200 정상 · 도쿄 실시간 재고 창구 정상(라쿠텐 743엔·재고 있음) · 엘덱스 자동 신청은 미연동(로그인 정보 없음). 주문이 없을 때 임의 취소·결제 시험은 하지 않습니다.</p>
+
     <h2 class="sec">마켓에 안 올라갈 때 (반려 5가지)</h2>
 
     <details class="acc">
@@ -1628,6 +1641,12 @@
   <section class="panel" id="p5" role="tabpanel" aria-labelledby="t5" tabindex="0">
 
     <p class="lead">나미(실장)가 <b>사용량 한도로 멈췄을 때</b> 쓰는 비상 인수인계입니다.<br>외부 AI(Manus Studio · Gemini · ChatGPT)에 <b>지시서를 그대로 붙여넣기만</b> 하면 오늘 일이 이어집니다.</p>
+
+    <div class="box">
+      <p><b>🧾 4번(재고·대체처)은 나미 없이도 돕니다</b> — 나미가 멈춰도 <b>도쿄 이</b>가 원몰 재고·가격을 다시 확인하고 <b>서울 일</b>이 순익 판정·전 마켓 판매중지·폰 알림까지 합니다. 외부 AI 지시서와 상관없이 서버가 직접 도는 부분이고, <b>실제 결제·주문 취소만 대표님</b> 몫입니다.</p>
+      <p><b>서버가 못 하는 것</b> — 카드 3D·OTP 결제, 엘덱스 자동 접수, 주문 취소 집행, 세션 없는 지마켓·옥션 판매중지. 알림(ntfy)이 오면 <b>결제 직전 1건</b>만 서 있습니다.</p>
+      <button type="button" class="rf" data-go="p4">4번 대행 권한·한계 보기 →</button>
+    </div>
 
     <div class="ho3">
       <div class="ho3i"><b>1</b><span>외부 AI를 연다<small>Manus Studio · Gemini · ChatGPT 중 아무거나</small></span></div>
