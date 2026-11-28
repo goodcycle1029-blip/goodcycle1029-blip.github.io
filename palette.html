@@ -400,7 +400,7 @@ footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:cente
 
   <section id="songs" aria-label="PALETTE 곡 목록">
 
-    <article class="song" data-genre="jazz" data-audio="audio/01_coffee.mp3" data-ver="버전 2" data-dur="3:07">
+    <article class="song" data-genre="jazz" data-audio="audio/01_coffee.mp3" data-ver="버전 2" data-dur="3:08">
       <div class="song-top"><span class="no">01</span><span class="chip jazz">재즈·커피</span></div>
       <div class="song-main">
         <div class="art jazz" aria-hidden="true"><span>♪</span></div>
@@ -411,8 +411,8 @@ footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:cente
         </div>
       </div>
       <div class="vers">
-        <button class="play p1 jsPlay" type="button" aria-label="새벽 두 시의 커피 바로 듣기, 버전 2, 3분 7초" aria-pressed="false">
-          <span class="tri" aria-hidden="true"></span><span class="lab">바로 듣기</span><span class="dur">3:07</span>
+        <button class="play p1 jsPlay" type="button" aria-label="새벽 두 시의 커피 바로 듣기, 버전 2, 3분 8초" aria-pressed="false">
+          <span class="tri" aria-hidden="true"></span><span class="lab">바로 듣기</span><span class="dur">3:08</span>
         </button>
       </div>
       <div class="suno-row"><span class="suno-lbl">SUNO</span>
@@ -421,7 +421,7 @@ footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:cente
       </div>
     </article>
 
-    <article class="song" data-genre="jazz" data-audio="audio/02_latte.mp3" data-ver="버전 1" data-dur="2:46">
+    <article class="song" data-genre="jazz" data-audio="audio/02_latte.mp3" data-ver="버전 1" data-dur="2:47">
       <div class="song-top"><span class="no">02</span><span class="chip jazz">재즈·커피</span></div>
       <div class="song-main">
         <div class="art jazz" aria-hidden="true"><span>♪</span></div>
@@ -432,8 +432,8 @@ footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:cente
         </div>
       </div>
       <div class="vers">
-        <button class="play p1 jsPlay" type="button" aria-label="겨울밤 따뜻한 라떼 한 잔 바로 듣기, 버전 1, 2분 46초" aria-pressed="false">
-          <span class="tri" aria-hidden="true"></span><span class="lab">바로 듣기</span><span class="dur">2:46</span>
+        <button class="play p1 jsPlay" type="button" aria-label="겨울밤 따뜻한 라떼 한 잔 바로 듣기, 버전 1, 2분 47초" aria-pressed="false">
+          <span class="tri" aria-hidden="true"></span><span class="lab">바로 듣기</span><span class="dur">2:47</span>
         </button>
       </div>
       <div class="suno-row"><span class="suno-lbl">SUNO</span>
@@ -505,7 +505,7 @@ footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:cente
       </div>
     </article>
 
-    <article class="song" data-genre="indie" data-audio="audio/06_nov_wind.mp3" data-ver="버전 1" data-dur="2:15">
+    <article class="song" data-genre="indie" data-audio="audio/06_nov_wind.mp3" data-ver="버전 1" data-dur="2:16">
       <div class="song-top"><span class="no">06</span><span class="chip indie">인디·어쿠스틱</span></div>
       <div class="song-main">
         <div class="art indie" aria-hidden="true"><span>♪</span></div>
@@ -516,8 +516,8 @@ footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:cente
         </div>
       </div>
       <div class="vers">
-        <button class="play p1 jsPlay" type="button" aria-label="11월의 바람 바로 듣기, 버전 1, 2분 15초" aria-pressed="false">
-          <span class="tri" aria-hidden="true"></span><span class="lab">바로 듣기</span><span class="dur">2:15</span>
+        <button class="play p1 jsPlay" type="button" aria-label="11월의 바람 바로 듣기, 버전 1, 2분 16초" aria-pressed="false">
+          <span class="tri" aria-hidden="true"></span><span class="lab">바로 듣기</span><span class="dur">2:16</span>
         </button>
       </div>
       <div class="suno-row"><span class="suno-lbl">SUNO</span>
@@ -719,6 +719,10 @@ footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:cente
       pNo.textContent = (cur + 1) + '/' + tracks.length;
       pTitle.textContent = active.title;
       pTitle.title = active.title + ' · ' + active.ver;
+    }
+    /* 락스크린·차량 블루투스에 재생 상태를 알린다 */
+    if ('mediaSession' in navigator) {
+      try { navigator.mediaSession.playbackState = playing ? 'playing' : (cur >= 0 ? 'paused' : 'none'); } catch (e) {}
     }
   }
 
