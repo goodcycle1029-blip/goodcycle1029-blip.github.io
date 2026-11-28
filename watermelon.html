@@ -1036,8 +1036,8 @@ function physics(dt) {
         var minD = a.r + b.r;
         if (Math.abs(dx) > minD || Math.abs(dy) > minD) continue;
         d = Math.sqrt(dx * dx + dy * dy);
-        if (d > 0.0001 && d < minD) {
-          pen = (minD - d) * 0.62;
+        if (d > 0.0001 && d < minD + 0.12) {
+          pen = Math.max(0, minD - d) * 0.62;
           nx = dx / d; ny = dy / d;
           totInv = a.m + b.m;
           a.x -= nx * pen * (b.m / totInv);
@@ -1051,9 +1051,9 @@ function physics(dt) {
         }
       }
       /* 벽 */
-      if (a.x - a.r < 0) { a.x = a.r; a.touch = 1; }
-      if (a.x + a.r > WORLD_W) { a.x = WORLD_W - a.r; a.touch = 1; }
-      if (a.y + a.r > WORLD_H) { a.y = WORLD_H - a.r; a.touch = 1; }
+      if (a.x - a.r < 0.12) { a.x = Math.max(a.x, a.r); a.touch = 1; }
+      if (a.x + a.r > WORLD_W - 0.12) { a.x = Math.min(a.x, WORLD_W - a.r); a.touch = 1; }
+      if (a.y + a.r > WORLD_H - 0.12) { a.y = Math.min(a.y, WORLD_H - a.r); a.touch = 1; }
       if (a.y - a.r < -WORLD_H * 0.6) a.y = -WORLD_H * 0.6 + a.r;
     }
   }
@@ -1065,9 +1065,9 @@ function physics(dt) {
     f.vy = (f.y - f.py) / dt * 1.0;
     /* 닿아 있으면 마찰로 굴러가다 멈추게 */
     if (f.touch) {
-      f.vx *= 0.90;
-      f.vy *= 0.86;
-      if (f.vy > 0) f.vy *= 0.9;
+      f.vx *= 0.86;
+      f.vy *= 0.9;
+      if (f.vx > 320) f.vx = 320; else if (f.vx < -320) f.vx = -320;
     } else {
       f.vx *= 0.9998;
     }
