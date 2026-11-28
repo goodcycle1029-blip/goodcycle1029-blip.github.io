@@ -47,7 +47,7 @@
   out.push('fonts        h1 ' + getComputedStyle(doc.querySelector('h1')).fontSize + '  body ' + getComputedStyle(doc.body).fontSize + '  status ' + doc.fonts.status);
   out.push('theme        ' + de.dataset.theme + '  themeBtn ' + doc.getElementById('themeLbl').textContent);
 
-  var checks = ['./manifest-palette.json', './palette-icon.svg', './icon-palette-192.png', './icon-palette-512.png', './icon-palette-icon.png'];
+  var checks = ['./manifest-palette.json', './palette-icon.svg', './icon-palette-192.png', './icon-palette-512.png', './icon-palette-maskable-512.png'];
   for (var i = 0; i < checks.length; i++) {
     try {
       var res = await fetch(checks[i], { cache: 'no-store' });
@@ -69,6 +69,20 @@
   errs.slice(0, 8).forEach(function (e) { out.push('  · ' + e); });
 
   document.getElementById('report').textContent = out.join('\n');
+
+  // 이후 상호작용 중 발생하는 오류도 계속 집계해 보여준다
+  var live = document.createElement('div');
+  live.id = 'live';
+  live.style.cssText = 'position:absolute;left:410px;bottom:10px;color:#9ee6a8;font:14px/1.6 ui-monospace,monospace';
+  live.textContent = 'live errors: 0';
+  document.body.appendChild(live);
+  function bump(e) {
+    errs.push('LIVE ' + (e && (e.message || e.reason || e)));
+    live.textContent = 'live errors: ' + errs.length + (errs.length ? '  last: ' + errs[errs.length - 1] : '');
+    live.style.color = errs.length ? '#ff9b9b' : '#9ee6a8';
+  }
+  w.addEventListener('error', bump, true);
+  w.addEventListener('unhandledrejection', bump);
 
   if (location.hash === '#cards') {
     var songs = doc.querySelector('#songs');
