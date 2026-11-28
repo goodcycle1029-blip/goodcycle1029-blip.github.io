@@ -948,7 +948,7 @@ function drawResFruit() {
   c.setTransform(dpr, 0, 0, dpr, 0, 0);
   c.clearRect(0, 0, w, h);
   drawFruit(c, G.maxLevel, w / 2, h / 2 + 1, 9, 0, true);
-  document.getElementById('resFruitName').textContent = G.merges ? fruitName(G.maxLevel) : '—';
+  document.getElementById('resFruitName').textContent = fruitName(G.maxLevel);
 }
 
 /* ---------------------------------------------------------------- 크기 */
@@ -1689,29 +1689,6 @@ function boot() {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
 else boot();
-
-/* 검증용 (주소에 ?debug=1 을 붙였을 때만) — 일반 방문자에게는 아무것도 노출하지 않음 */
-if (/[?&]debug=1/.test(location.search)) {
-  window.__wm = {
-    G: G, FR: FR, view: view, STATE: function () { return G.state; },
-    lang: function () { return lang; },
-    audit: function () {
-      var out = { n: G.fruits.length, maxOverlap: 0, belowFloor: 0, aboveTop: 0, score: G.score, state: G.state, merges: G.merges };
-      for (var i = 0; i < G.fruits.length; i++) {
-        var a = G.fruits[i];
-        if (a.y + a.r > WORLD_H + 0.6) out.belowFloor++;
-        if (a.y - a.r < -0.6) out.aboveTop++;
-        for (var j = i + 1; j < G.fruits.length; j++) {
-          var b = G.fruits[j];
-          var d = Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
-          var ov = (a.r + b.r) - d;
-          if (ov > out.maxOverlap) out.maxOverlap = Math.round(ov * 10) / 10;
-        }
-      }
-      return out;
-    }
-  };
-}
 
 })();
 </script>
