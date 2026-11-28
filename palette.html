@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="night">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#100d0b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fbf3e7" media="(prefers-color-scheme: light)">
+<meta name="description" content="PALETTE의 작은 음악실. 네오소울 재즈부터 80s 시티팝, 초겨울 인디까지 — 여섯 곡 열두 트랙을 한 번에 듣고 골라 들어요.">
+<meta property="og:title" content="PALETTE · 작은 음악실">
+<meta property="og:description" content="따뜻한 커피 한 잔 옆에 두는 여섯 곡, 열두 가지 목소리. 곡을 누르면 Suno에서 바로 재생돼요.">
+<meta property="og:type" content="music.playlist">
+<meta property="og:url" content="https://goodcycle1029-blip.github.io/palette.html">
+<meta property="og:site_name" content="PALETTE">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PALETTE">
+<meta name="application-name" content="PALETTE">
+<title>PALETTE · 작은 음악실</title>
+<link rel="canonical" href="https://goodcycle1029-blip.github.io/palette.html">
+<link rel="icon" type="image/svg+xml" href="./palette-icon.svg">
+<link rel="apple-touch-icon" href="./icon-palette-192.png">
+<link rel="manifest" href="./manifest-palette.json">
+<script>
+  /* 테마를 첫 페인트 전에 정해 깜빡임을 막는다 */
+  try {
+    var saved = localStorage.getItem('palette-theme');
+    if (saved === 'cream' || saved === 'night') document.documentElement.dataset.theme = saved;
+  } catch (e) {}
+</script>
+<style>
+/* ==========================================================================
+   PALETTE · 작은 음악실
+   따뜻한 재즈 카페 감성 · 큰 글씨 · 큼직한 버튼 · 한 손으로 누르기 쉽게
+   ========================================================================== */
+:root{
+  --wrap: 560px;
+  --r-card: 22px;
+  --tap: 56px;
+  --ease: cubic-bezier(.22,.8,.28,1);
+}
+:root[data-theme="night"]{
+  --bg:#100d0b; --bg-glow1:rgba(198,120,58,.20); --bg-glow2:rgba(126,86,178,.16);
+  --card:#1d1713; --card2:#241c17; --card-hi:rgba(255,226,190,.05);
+  --ink:#fdf5e9; --body:#e7d9c7; --muted:#b3a191; --dim:#8d7d6e;
+  --line:rgba(255,233,208,.13); --line-2:rgba(255,233,208,.22);
+  --chip-bg:rgba(255,233,208,.08);
+  --btn-bg:#f0b678; --btn-ink:#23150a;
+  --btn2-bg:rgba(255,236,212,.07); --btn2-ink:#f6ebdb;
+  --shadow:0 18px 40px -28px rgba(0,0,0,.95);
+  --bar:rgba(16,13,11,.82);
+  --banner-bg:rgba(240,182,120,.13); --banner-line:rgba(240,182,120,.34); --banner-ink:#f7d7b4;
+  --focus:#ffcf9c;
+}
+:root[data-theme="cream"]{
+  --bg:#fbf3e7; --bg-glow1:rgba(226,163,96,.30); --bg-glow2:rgba(178,152,208,.20);
+  --card:#fffdf8; --card2:#fdf6ea; --card-hi:rgba(255,255,255,.9);
+  --ink:#241a11; --body:#4b3c2e; --muted:#7f6c59; --dim:#9a8874;
+  --line:rgba(108,74,40,.14); --line-2:rgba(108,74,40,.26);
+  --chip-bg:rgba(108,74,40,.07);
+  --btn-bg:#2d1e12; --btn-ink:#fdf3e4;
+  --btn2-bg:rgba(108,74,40,.06); --btn2-ink:#3a2a1c;
+  --shadow:0 16px 36px -30px rgba(90,60,30,.75);
+  --bar:rgba(251,243,231,.88);
+  --banner-bg:rgba(198,125,48,.10); --banner-line:rgba(168,106,40,.30); --banner-ink:#7d4a13;
+  --focus:#8a4f16;
+}
+:root[data-theme="night"]{ color-scheme: dark; }
+:root[data-theme="cream"]{ color-scheme: light; }
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; min-height:100dvh; color:var(--body); background:var(--bg);
+  font-family:"Pretendard","Pretendard Variable","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",Roboto,system-ui,sans-serif;
+  font-size:17px; line-height:1.6; letter-spacing:-.012em;
+  -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
+  overscroll-behavior-y:contain;
+  transition:background-color .35s var(--ease), color .35s var(--ease);
+}
+body::before{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(120% 55% at 8% -6%, var(--bg-glow1), transparent 62%),
+    radial-gradient(110% 55% at 100% 4%, var(--bg-glow2), transparent 60%),
+    radial-gradient(90% 60% at 50% 104%, rgba(240,182,120,.08), transparent 70%);
+}
+a{color:inherit; text-decoration:none}
+button{font:inherit; color:inherit; background:none; border:0; padding:0; cursor:pointer}
+h1,h2,h3,p{margin:0}
+:focus-visible{outline:3px solid var(--focus); outline-offset:3px; border-radius:8px}
+.wrap{max-width:var(--wrap); margin:0 auto; padding:0 18px}
+.skip{position:absolute; left:-9999px; top:0; padding:14px 20px; background:var(--btn-bg); color:var(--btn-ink); font-weight:800; border-radius:0 0 14px 0; z-index:100}
+.skip:focus{left:0}
+
+/* ---------- 상단 바 ---------- */
+.topbar{
+  position:sticky; top:0; z-index:40;
+  background:var(--bar); backdrop-filter:blur(16px) saturate(1.2); -webkit-backdrop-filter:blur(16px) saturate(1.2);
+  border-bottom:1px solid var(--line);
+}
+.topbar .wrap{display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:66px; padding-top:6px; padding-bottom:6px}
+.brand{display:flex; align-items:center; gap:11px; min-height:52px; text-align:left}
+.brand-mark{width:38px; height:38px; flex:none; border-radius:50%;
+  background:
+    radial-gradient(circle at 32% 30%, #f7c896 0 18%, transparent 19%),
+    radial-gradient(circle at 62% 24%, #ef9db2 0 14%, transparent 15%),
+    radial-gradient(circle at 74% 52%, #b79bea 0 14%, transparent 15%),
+    radial-gradient(circle at 56% 72%, #9cc9a8 0 14%, transparent 15%),
+    radial-gradient(circle at 30% 58%, #f0d79b 0 12%, transparent 13%),
+    linear-gradient(150deg,#5c4230,#2e2117);
+  box-shadow:0 8px 22px -14px rgba(240,182,120,.9), inset 0 0 0 1px rgba(255,236,212,.22);
+}
+.brand-txt{display:flex; flex-direction:column; line-height:1.12}
+.brand-txt b{font-size:17px; font-weight:900; letter-spacing:.2em; color:var(--ink)}
+.brand-txt span{font-size:11.5px; font-weight:700; letter-spacing:.06em; color:var(--muted)}
+.themebtn{min-width:52px; min-height:52px; padding:0 14px; border-radius:16px;
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  border:1px solid var(--line-2); background:var(--chip-bg); color:var(--body);
+  font-size:13.5px; font-weight:800; letter-spacing:.02em;
+  transition:transform .18s var(--ease), background-color .2s var(--ease)}
+.themebtn:active{transform:scale(.96)}
+.themebtn .dot{width:12px; height:12px; border-radius:50%; background:var(--btn-bg); box-shadow:0 0 0 3px rgba(240,182,120,.18)}
+
+/* ---------- 히어로 ---------- */
+.hero{padding:26px 0 4px}
+.kicker{display:flex; align-items:center; gap:9px; font-size:12px; font-weight:800; letter-spacing:.22em; color:var(--muted); text-transform:uppercase}
+.kicker::before{content:""; width:26px; height:1px; background:var(--line-2)}
+h1{margin-top:10px; font-size:clamp(32px, 9.4vw, 42px); line-height:1.12; letter-spacing:-.045em; font-weight:900; color:var(--ink)}
+h1 em{font-style:normal; background:linear-gradient(96deg,#f3c189,#eaa2b3 55%,#b8a1e6); -webkit-background-clip:text; background-clip:text; color:transparent}
+.hero-sub{margin-top:12px; font-size:16.5px; color:var(--body); max-width:30ch}
+.hero-sub b{color:var(--ink); font-weight:800}
+.stats{display:flex; flex-wrap:wrap; gap:8px; margin-top:18px}
+.stat{display:inline-flex; align-items:baseline; gap:6px; padding:9px 15px; border-radius:999px;
+  border:1px solid var(--line); background:var(--chip-bg); font-size:12.5px; font-weight:800; color:var(--muted)}
+.stat b{font-size:15px; color:var(--ink); letter-spacing:-.02em}
+.swatches{display:flex; gap:7px; margin-top:20px}
+.swatches i{width:10px; height:10px; border-radius:50%; opacity:.85}
+.swatches i:nth-child(1){background:#f0b678}
+.swatches i:nth-child(2){background:#d79a6a}
+.swatches i:nth-child(3){background:#ef9db2}
+.swatches i:nth-child(4){background:#b79bea}
+.swatches i:nth-child(5){background:#9cc9a8}
+.swatches i:nth-child(6){background:#e8d49b}
+
+/* ---------- 홈 화면 추가 안내 (1줄) ---------- */
+.install[hidden]{display:none}
+.install{display:flex; align-items:center; gap:8px; margin-top:20px; padding:11px 12px 11px 14px;
+  border:1px solid var(--banner-line); background:var(--banner-bg); border-radius:14px; color:var(--banner-ink)}
+.install-txt{flex:1; min-width:0; font-size:13px; font-weight:700; letter-spacing:-.01em;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.install-txt b{font-weight:900}
+.install-x{flex:none; width:34px; height:34px; border-radius:10px; display:grid; place-items:center;
+  font-size:14px; font-weight:800; color:var(--banner-ink); background:rgba(0,0,0,.10); border:1px solid var(--banner-line)}
+:root[data-theme="cream"] .install-x{background:rgba(255,255,255,.55)}
+
+/* ---------- 장르 필터 ---------- */
+.filters{position:sticky; top:66px; z-index:30; background:var(--bar);
+  backdrop-filter:blur(16px) saturate(1.2); -webkit-backdrop-filter:blur(16px) saturate(1.2);
+  border-bottom:1px solid var(--line); margin-top:22px}
+.filters .wrap{display:flex; gap:9px; overflow-x:auto; padding-top:12px; padding-bottom:12px;
+  scrollbar-width:none; -webkit-overflow-scrolling:touch}
+.filters .wrap::-webkit-scrollbar{display:none}
+.tab{flex:none; min-height:52px; padding:0 19px; border-radius:999px; border:1px solid var(--line-2);
+  background:var(--chip-bg); color:var(--body); font-size:16px; font-weight:800; letter-spacing:-.02em;
+  display:inline-flex; align-items:center; gap:8px; transition:transform .16s var(--ease), background-color .22s var(--ease), color .22s var(--ease)}
+.tab:active{transform:scale(.97)}
+.tab .n{font-size:12.5px; font-weight:800; color:var(--dim); letter-spacing:0}
+.tab[aria-pressed="true"]{background:var(--btn-bg); border-color:transparent; color:var(--btn-ink); box-shadow:0 10px 26px -18px rgba(0,0,0,.9)}
+.tab[aria-pressed="true"] .n{color:var(--btn-ink); opacity:.72}
+
+/* ---------- 곡 목록 ---------- */
+.listhead{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:26px 0 14px}
+.listhead h2{font-size:20px; font-weight:900; letter-spacing:-.03em; color:var(--ink)}
+.listhead .cnt{display:block; margin-top:3px; font-size:13px; font-weight:700; color:var(--muted); letter-spacing:0}
+.dice{min-height:52px; padding:0 16px; border-radius:15px; border:1px solid var(--line-2); background:var(--chip-bg);
+  color:var(--body); font-size:14.5px; font-weight:800; display:inline-flex; align-items:center; gap:8px; white-space:nowrap;
+  transition:transform .16s var(--ease)}
+.dice:active{transform:scale(.97)}
+
+.song{position:relative; margin-bottom:14px; padding:17px 17px 16px; border-radius:var(--r-card);
+  background:linear-gradient(158deg, var(--card), var(--card2));
+  border:1px solid var(--line); box-shadow:var(--shadow); overflow:hidden;
+  animation:rise .42s var(--ease) both}
+.song::after{content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:radial-gradient(120% 70% at 0% 0%, var(--card-hi), transparent 58%)}
+.song[hidden]{display:none}
+@keyframes rise{from{opacity:0; transform:translateY(9px)}to{opacity:1; transform:none}}
+
+.song-top{display:flex; align-items:center; gap:10px; position:relative; z-index:1}
+.no{font-size:12px; font-weight:900; letter-spacing:.1em; color:var(--dim); font-variant-numeric:tabular-nums}
+.chip{margin-left:auto; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:800; letter-spacing:-.01em;
+  border:1px solid transparent; white-space:nowrap}
+.chip.jazz{color:#f5c289; background:rgba(201,138,75,.16); border-color:rgba(240,182,120,.28)}
+.chip.citypop{color:#d9c3f7; background:rgba(138,91,214,.18); border-color:rgba(183,155,234,.30)}
+.chip.indie{color:#bfe0c9; background:rgba(111,159,127,.18); border-color:rgba(156,201,168,.30)}
+:root[data-theme="cream"] .chip.jazz{color:#8a4f16; background:rgba(226,163,96,.22); border-color:rgba(168,106,40,.26)}
+:root[data-theme="cream"] .chip.citypop{color:#5b3b93; background:rgba(150,116,214,.16); border-color:rgba(120,90,190,.24)}
+:root[data-theme="cream"] .chip.indie{color:#2f6440; background:rgba(111,159,127,.18); border-color:rgba(80,140,100,.24)}
+
+.song-main{display:flex; align-items:flex-start; gap:14px; margin-top:13px; position:relative; z-index:1}
+.art{flex:none; width:66px; height:66px; border-radius:18px; position:relative; overflow:hidden;
+  display:grid; place-items:center; box-shadow:inset 0 0 0 1px rgba(255,255,255,.14), 0 10px 24px -18px rgba(0,0,0,.9)}
+.art::before{content:""; position:absolute; width:34px; height:34px; border-radius:50%;
+  background:radial-gradient(circle, rgba(0,0,0,.42) 0 17%, transparent 18% 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.22), inset 0 0 0 6px rgba(0,0,0,.12), inset 0 0 0 7px rgba(255,255,255,.10)}
+.art span{position:relative; font-size:22px; color:rgba(255,255,255,.9); text-shadow:0 1px 6px rgba(0,0,0,.4)}
+.art.jazz{background:linear-gradient(150deg,#8a4f2a,#d99a63 55%,#f4cfa2)}
+.art.citypop{background:linear-gradient(150deg,#3f2a63,#8a5bd6 52%,#ef8fb0)}
+.art.indie{background:linear-gradient(150deg,#2c4a38,#6f9f7f 55%,#cdd9a6)}
+.song-txt{min-width:0; flex:1}
+.song-title{font-size:22px; line-height:1.3; font-weight:900; letter-spacing:-.035em; color:var(--ink);
+  word-break:keep-all; overflow-wrap:anywhere}
+.song-meta{margin-top:5px; font-size:13.5px; font-weight:700; color:var(--muted); letter-spacing:-.01em; word-break:keep-all}
+.song-mood{margin-top:9px; font-size:14.5px; line-height:1.55; color:var(--body); opacity:.9; word-break:keep-all}
+
+.vers{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px; position:relative; z-index:1}
+.play{min-height:var(--tap); padding:0 14px; border-radius:16px; display:flex; align-items:center; justify-content:center; gap:9px;
+  font-size:16px; font-weight:900; letter-spacing:-.02em; text-align:center;
+  border:1px solid transparent;
+  transition:transform .16s var(--ease), filter .2s var(--ease)}
+.play .tri{width:0; height:0; border-left:9px solid currentColor; border-top:6.5px solid transparent; border-bottom:6.5px solid transparent; flex:none}
+.play .dur{font-size:13px; font-weight:800; opacity:.72; font-variant-numeric:tabular-nums; letter-spacing:0}
+.play:active{transform:scale(.975)}
+.play.p1{background:var(--btn-bg); color:var(--btn-ink); box-shadow:0 12px 26px -20px rgba(0,0,0,.95)}
+.play.p2{background:var(--btn2-bg); color:var(--btn2-ink); border-color:var(--line-2)}
+.play.p2 .dur{opacity:.62}
+
+/* ---------- 안내 & 푸터 ---------- */
+.note{margin-top:6px; padding:16px 16px 15px; border-radius:18px; border:1px dashed var(--line-2);
+  background:var(--chip-bg); font-size:13.5px; line-height:1.6; color:var(--muted); word-break:keep-all}
+.note b{color:var(--body); font-weight:800}
+footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:center}
+.foot-mark{font-size:14px; font-weight:900; letter-spacing:.24em; color:var(--ink)}
+.foot-sub{margin-top:8px; font-size:12.5px; font-weight:600; color:var(--dim); line-height:1.7; word-break:keep-all}
+.empty{display:none; padding:34px 16px; text-align:center; color:var(--muted); font-size:15px; font-weight:700}
+.empty.on{display:block}
+.noscript{margin:16px 0; padding:14px 16px; border-radius:14px; background:var(--chip-bg); border:1px solid var(--line); font-size:14px; color:var(--body)}
+
+@media (max-width:360px){
+  body{font-size:16.5px}
+  .song{padding:15px 14px}
+  .vers{grid-template-columns:1fr; gap:9px}
+  .art{width:58px; height:58px; border-radius:16px}
+  .song-title{font-size:20.5px}
+  .tab{padding:0 15px; font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important; transition:none !important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#songs">곡 목록으로 바로 가기</a>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="./palette.html" aria-label="PALETTE 작은 음악실 처음으로">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-txt"><b>PALETTE</b><span>작은 음악실</span></span>
+    </a>
+    <button class="themebtn" id="themeBtn" type="button" aria-pressed="false" aria-label="밝은 크림 테마로 바꾸기">
+      <span class="dot" aria-hidden="true"></span><span id="themeLbl">크림</span>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+<div class="wrap">
+  <section class="hero" aria-labelledby="heroTitle">
+    <p class="kicker">Coffee · Vinyl · Neon</p>
+    <h1 id="heroTitle">PALETTE의<br><em>작은 음악실</em></h1>
+    <p class="hero-sub">따뜻한 커피 한 잔 옆에 두는 <b>여섯 곡</b>, <b>열두 가지 목소리</b>. 듣고 싶은 버전을 크게 눌러 바로 들어보세요.</p>
+    <div class="stats" aria-label="수록 정보">
+      <span class="stat"><b>6</b>곡</span>
+      <span class="stat"><b>12</b>트랙</span>
+      <span class="stat"><b>35</b>분</span>
+      <span class="stat">Suno <b>V6</b></span>
+    </div>
+    <div class="swatches" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+    <div class="install" id="installBar" role="note">
+      <span class="install-txt">📲 <b>홈 화면에 추가</b>하면 앱처럼 열려요 — 크롬 오른쪽 위 ⋮ → ‘홈 화면에 추가’</span>
+      <button class="install-x" id="installClose" type="button" aria-label="홈 화면 추가 안내 닫기">✕</button>
+    </div>
+  </section>
+</div>
+
+<nav class="filters" aria-label="장르별로 골라 보기">
+  <div class="wrap">
+    <button class="tab" type="button" data-filter="all" aria-pressed="true">전체 <span class="n">6</span></button>
+    <button class="tab" type="button" data-filter="jazz" aria-pressed="false">재즈·커피 <span class="n">2</span></button>
+    <button class="tab" type="button" data-filter="citypop" aria-pressed="false">시티팝 <span class="n">2</span></button>
+    <button class="tab" type="button" data-filter="indie" aria-pressed="false">인디·어쿠스틱 <span class="n">2</span></button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="listhead">
+    <h2>곡 목록<span class="cnt" id="cnt" aria-live="polite">12트랙 · 약 35분</span></h2>
+    <button class="dice" id="diceBtn" type="button">🎲 한 곡 뽑기</button>
+  </div>
+
+  <noscript><p class="noscript">자바스크립트를 켜면 장르별로 골라 볼 수 있어요. 곡 재생 버튼은 지금도 모두 눌러서 들을 수 있습니다.</p></noscript>
+
+  <section id="songs" aria-label="PALETTE 곡 목록">
+
+    <article class="song" data-genre="jazz">
+      <div class="song-top"><span class="no">01</span><span class="chip jazz">재즈·커피</span></div>
+      <div class="song-main">
+        <div class="art jazz" aria-hidden="true"><span>♪</span></div>
+        <div class="song-txt">
+          <h3 class="song-title">새벽 두 시의 커피</h3>
+          <p class="song-meta">네오소울 R&B · 허스키 여성 보컬</p>
+          <p class="song-mood">잠이 오지 않는 새벽, 식어 가는 잔을 손에 쥔 채 듣는 노래.</p>
+        </div>
+      </div>
+      <div class="vers">
+        <a class="play p1" href="https://suno.com/song/11405df5-ff06-46a7-b362-ab5c09d7bc84" target="_blank" rel="noopener noreferrer" aria-label="새벽 두 시의 커피 버전 1, 2분 49초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 1 <span class="dur">2:49</span></a>
+        <a class="play p2" href="https://suno.com/song/a0de3f5c-13d6-449c-8b84-01934051f304" target="_blank" rel="noopener noreferrer" aria-label="새벽 두 시의 커피 버전 2, 3분 8초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 2 <span class="dur">3:08</span></a>
+      </div>
+    </article>
+
+    <article class="song" data-genre="jazz">
+      <div class="song-top"><span class="no">02</span><span class="chip jazz">재즈·커피</span></div>
+      <div class="song-main">
+        <div class="art jazz" aria-hidden="true"><span>♪</span></div>
+        <div class="song-txt">
+          <h3 class="song-title">겨울밤, 따뜻한 라떼 한 잔</h3>
+          <p class="song-meta">재즈 R&B · 허스키 여성 보컬 · V6</p>
+          <p class="song-mood">문을 밀고 들어선 카페의 노란 불빛, 그 온기로 하루를 천천히 녹이는 곡.</p>
+        </div>
+      </div>
+      <div class="vers">
+        <a class="play p1" href="https://suno.com/song/18bec33d-98fb-48f0-a2fd-f2b097881b90" target="_blank" rel="noopener noreferrer" aria-label="겨울밤 따뜻한 라떼 한 잔 버전 1, 2분 47초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 1 <span class="dur">2:47</span></a>
+        <a class="play p2" href="https://suno.com/song/49e713b8-e62c-4701-8907-2a12f7892f24" target="_blank" rel="noopener noreferrer" aria-label="겨울밤 따뜻한 라떼 한 잔 버전 2, 2분 57초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 2 <span class="dur">2:57</span></a>
+      </div>
+    </article>
+
+    <article class="song" data-genre="citypop">
+      <div class="song-top"><span class="no">03</span><span class="chip citypop">시티팝</span></div>
+      <div class="song-main">
+        <div class="art citypop" aria-hidden="true"><span>♫</span></div>
+        <div class="song-txt">
+          <h3 class="song-title">12월의 네온 드라이브</h3>
+          <p class="song-meta">80s 시티팝 · 청량 여성 보컬 · V6</p>
+          <p class="song-mood">차가운 공기에 시동을 걸고, 빨강 파랑 불빛이 흐르는 도로를 달리는 밤.</p>
+        </div>
+      </div>
+      <div class="vers">
+        <a class="play p1" href="https://suno.com/song/179f9a0b-7d74-4c3c-8ccd-480ba8a8eb57" target="_blank" rel="noopener noreferrer" aria-label="12월의 네온 드라이브 버전 1, 3분 25초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 1 <span class="dur">3:25</span></a>
+        <a class="play p2" href="https://suno.com/song/1031a88a-117f-495a-865a-95e1cb6e0e6b" target="_blank" rel="noopener noreferrer" aria-label="12월의 네온 드라이브 버전 2, 3분 32초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 2 <span class="dur">3:32</span></a>
+      </div>
+    </article>
+
+    <article class="song" data-genre="indie">
+      <div class="song-top"><span class="no">04</span><span class="chip indie">인디·어쿠스틱</span></div>
+      <div class="song-main">
+        <div class="art indie" aria-hidden="true"><span>♪</span></div>
+        <div class="song-txt">
+          <h3 class="song-title">첫눈이 오기 전에</h3>
+          <p class="song-meta">초겨울 인디 어쿠스틱 · 남성 보컬 · V6</p>
+          <p class="song-mood">옷깃을 여미며 걷는 골목, 눈이 길을 덮기 전에 전하고 싶은 안부.</p>
+        </div>
+      </div>
+      <div class="vers">
+        <a class="play p1" href="https://suno.com/song/dcdd6c0e-60c4-4158-9e9f-4ccafb292f0d" target="_blank" rel="noopener noreferrer" aria-label="첫눈이 오기 전에 버전 1, 3분 37초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 1 <span class="dur">3:37</span></a>
+        <a class="play p2" href="https://suno.com/song/b42c7fac-01a8-4bec-b65c-d4ec01ebd738" target="_blank" rel="noopener noreferrer" aria-label="첫눈이 오기 전에 버전 2, 3분 3초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 2 <span class="dur">3:03</span></a>
+      </div>
+    </article>
+
+    <article class="song" data-genre="citypop">
+      <div class="song-top"><span class="no">05</span><span class="chip citypop">시티팝</span></div>
+      <div class="song-main">
+        <div class="art citypop" aria-hidden="true"><span>♫</span></div>
+        <div class="song-txt">
+          <h3 class="song-title">네온빛 드라이브</h3>
+          <p class="song-meta">80s 시티팝 · 레트로 신스</p>
+          <p class="song-mood">PALETTE의 첫 시티팝. 네온이 번지는 거리를 가볍게 달리는 기분.</p>
+        </div>
+      </div>
+      <div class="vers">
+        <a class="play p1" href="https://suno.com/song/b87d394b-caf2-495b-9285-c4f4a45e4f4b" target="_blank" rel="noopener noreferrer" aria-label="네온빛 드라이브 버전 1, 2분 42초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 1 <span class="dur">2:42</span></a>
+        <a class="play p2" href="https://suno.com/song/4f8b49cb-fc70-4c75-bf83-2ac985e00fb5" target="_blank" rel="noopener noreferrer" aria-label="네온빛 드라이브 버전 2, 2분 38초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 2 <span class="dur">2:38</span></a>
+      </div>
+    </article>
+
+    <article class="song" data-genre="indie">
+      <div class="song-top"><span class="no">06</span><span class="chip indie">인디·어쿠스틱</span></div>
+      <div class="song-main">
+        <div class="art indie" aria-hidden="true"><span>♪</span></div>
+        <div class="song-txt">
+          <h3 class="song-title">11월의 바람</h3>
+          <p class="song-meta">어쿠스틱 인디 팝 · V6</p>
+          <p class="song-mood">찬 바람이 불어올 때, 창가에 앉아 조용히 듣기 좋은 첫 곡.</p>
+        </div>
+      </div>
+      <div class="vers">
+        <a class="play p1" href="https://suno.com/song/aacc6a6b-6a89-4da2-ab19-51c8a4227a57" target="_blank" rel="noopener noreferrer" aria-label="11월의 바람 버전 1, 2분 16초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 1 <span class="dur">2:16</span></a>
+        <a class="play p2" href="https://suno.com/song/3af7a40a-2831-4af8-a036-95eefcf5e630" target="_blank" rel="noopener noreferrer" aria-label="11월의 바람 버전 2, 2분 27초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 2 <span class="dur">2:27</span></a>
+      </div>
+    </article>
+
+    <p class="empty" id="empty">이 장르의 곡을 준비하고 있어요.</p>
+  </section>
+
+  <p class="note"><b>듣는 방법</b> — 버전 버튼을 누르면 Suno 앱이나 새 탭에서 바로 재생돼요. 같은 곡이라도 버전마다 목소리와 편곡이 조금씩 달라요. 마음에 드는 쪽을 골라 두세요.</p>
+
+  <footer>
+    <p class="foot-mark">PALETTE</p>
+    <p class="foot-sub">작은 음악실 · 여섯 곡, 열두 트랙<br>모든 곡은 Suno V6로 만들었어요.</p>
+  </footer>
+</div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var themeBtn = document.getElementById('themeBtn');
+  var themeLbl = document.getElementById('themeLbl');
+
+  function themeMeta(theme) {
+    var metas = document.querySelectorAll('meta[name="theme-color"]');
+    for (var i = 0; i < metas.length; i++) metas[i].setAttribute('content', theme === 'cream' ? '#fbf3e7' : '#100d0b');
+  }
+  function applyTheme(theme, remember) {
+    root.dataset.theme = theme;
+    themeBtn.setAttribute('aria-pressed', theme === 'cream' ? 'true' : 'false');
+    themeBtn.setAttribute('aria-label', theme === 'cream' ? '어두운 카페 테마로 바꾸기' : '밝은 크림 테마로 바꾸기');
+    themeLbl.textContent = theme === 'cream' ? '다크' : '크림';
+    themeMeta(theme);
+    if (remember) { try { localStorage.setItem('palette-theme', theme); } catch (e) {} }
+  }
+  applyTheme(root.dataset.theme === 'cream' ? 'cream' : 'night', false);
+  themeBtn.addEventListener('click', function () {
+    applyTheme(root.dataset.theme === 'cream' ? 'night' : 'cream', true);
+  });
+
+  /* 홈 화면 추가 안내: 한 번 닫으면 다시 띄우지 않는다 */
+  var bar = document.getElementById('installBar');
+  try {
+    var installed = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (installed || localStorage.getItem('palette-install-hidden') === '1') bar.hidden = true;
+  } catch (e) {}
+  document.getElementById('installClose').addEventListener('click', function () {
+    bar.hidden = true;
+    try { localStorage.setItem('palette-install-hidden', '1'); } catch (e) {}
+  });
+
+  /* 장르 필터 */
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  var songs = Array.prototype.slice.call(document.querySelectorAll('.song'));
+  var cnt = document.getElementById('cnt');
+  var empty = document.getElementById('empty');
+  var names = { all: '전체', jazz: '재즈·커피', citypop: '시티팝', indie: '인디·어쿠스틱' };
+  var label = { all: '12트랙 · 약 35분', jazz: '2곡 · 4트랙 · 약 12분', citypop: '2곡 · 4트랙 · 약 12분', indie: '2곡 · 4트랙 · 약 11분' };
+
+  function applyFilter(key) {
+    var shown = 0;
+    songs.forEach(function (s) {
+      var on = key === 'all' || s.dataset.genre === key;
+      s.hidden = !on;
+      if (on) shown++;
+    });
+    tabs.forEach(function (t) { t.setAttribute('aria-pressed', t.dataset.filter === key ? 'true' : 'false'); });
+    cnt.textContent = label[key] || (shown + '곡');
+    empty.classList.toggle('on', shown === 0);
+  }
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () { applyFilter(t.dataset.filter); });
+  });
+
+  /* 한 곡 뽑기: 지금 보이는 곡 중에서 무작위로 한 트랙을 새 탭에 연다 */
+  document.getElementById('diceBtn').addEventListener('click', function () {
+    var pool = [];
+    songs.forEach(function (s) { if (!s.hidden) pool = pool.concat(Array.prototype.slice.call(s.querySelectorAll('.play'))); });
+    if (!pool.length) return;
+    var pick = pool[Math.floor(Math.random() * pool.length)];
+    var a = document.createElement('a');
+    a.href = pick.href; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+})();
+</script>
+</body>
+</html>
