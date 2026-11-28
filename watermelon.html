@@ -318,7 +318,6 @@ main{flex:1;display:flex;flex-direction:column;min-height:0}
         </div>
         <p class="note" id="rankNote" data-i18n="rankNote">실시간 순위는 준비 중이에요. 지금은 이 기기 기록만 남아요.</p>
 
-        <div class="adslot" id="resultAd"></div>
         <p class="note" data-i18n="recordNote">기록은 이 기기(브라우저)에만 저장돼요.</p>
       </div>
     </section>
@@ -403,7 +402,7 @@ var STR = {
     how3t: '선을 넘으면 끝', how3: '점선 위로 과일이 2초 넘게 머무르면 게임이 끝나요. 수박 두 개가 만나면 사라지며 보너스!',
     tip: '가장 큰 과일은 한쪽 구석에 모아 두면 훨씬 오래 갈 수 있어요.',
     score: 'SCORE', next: 'NEXT', playHint: '좌우로 끌어 놓기 · 손을 떼면 떨어져요',
-    overBadge: '상자가 가득 찼어요', scoreLabel: '이번 판 점수', newRecord: '🎉 새 최고 기록!',
+    overBadge: '상자가 가득 찼어요', quitBadge: '여기서 그만뒀어요', scoreLabel: '이번 판 점수', newRecord: '🎉 새 최고 기록!',
     merges: '합체', bestFruit: '가장 큰 과일', again: '한 번 더', share: '점수 공유', toHome: '홈으로',
     topTitle: '오늘의 TOP 5', rankNote: '실시간 순위는 준비 중이에요. 지금은 이 기기 기록만 남아요.',
     recordNote: '기록은 이 기기(브라우저)에만 저장돼요.',
@@ -429,7 +428,7 @@ var STR = {
     how3t: 'Cross the line, game over', how3: 'Fruit resting above the dotted line for 2 seconds ends the game. Two watermelons pop for a bonus!',
     tip: 'Keep your biggest fruits in one corner — you will last much longer.',
     score: 'SCORE', next: 'NEXT', playHint: 'Drag left/right · lift to drop',
-    overBadge: 'The box is full', scoreLabel: 'Score this run', newRecord: '🎉 New best!',
+    overBadge: 'The box is full', quitBadge: 'Stopped here', scoreLabel: 'Score this run', newRecord: '🎉 New best!',
     merges: 'Merges', bestFruit: 'Biggest', again: 'Play again', share: 'Share score', toHome: 'Home',
     topTitle: "Today's TOP 5", rankNote: 'Live ranking is being prepared. For now only this device keeps your record.',
     recordNote: 'Your record is saved on this device only.',
@@ -455,7 +454,7 @@ var STR = {
     how3t: '線を越えたら終了', how3: '点線より上に2秒以上とどまるとゲーム終了。すいか2つが合わさると消えてボーナス！',
     tip: '一番大きい果物は片隅にまとめると、長く続けられます。',
     score: 'SCORE', next: 'NEXT', playHint: '左右にドラッグ · 離すと落ちる',
-    overBadge: '箱がいっぱいです', scoreLabel: '今回のスコア', newRecord: '🎉 自己ベスト更新！',
+    overBadge: '箱がいっぱいです', quitBadge: 'ここでやめました', scoreLabel: '今回のスコア', newRecord: '🎉 自己ベスト更新！',
     merges: '合体', bestFruit: '最大の果物', again: 'もう一回', share: 'スコア共有', toHome: 'ホーム',
     topTitle: '今日のTOP 5', rankNote: 'リアルタイム順位は準備中です。今はこの端末の記録だけ残ります。',
     recordNote: '記録はこの端末（ブラウザ）にだけ保存されます。',
@@ -481,7 +480,7 @@ var STR = {
     how3t: '超过线就结束', how3: '水果在虚线以上停留超过2秒，游戏结束。两个西瓜相碰会消失并加分！',
     tip: '把最大的水果集中在一个角落，可以玩得更久。',
     score: 'SCORE', next: 'NEXT', playHint: '左右拖动 · 松手落下',
-    overBadge: '箱子满了', scoreLabel: '本局得分', newRecord: '🎉 新纪录！',
+    overBadge: '箱子满了', quitBadge: '到这里结束', scoreLabel: '本局得分', newRecord: '🎉 新纪录！',
     merges: '合并', bestFruit: '最大水果', again: '再来一局', share: '分享成绩', toHome: '首页',
     topTitle: '今日 TOP 5', rankNote: '实时排名正在准备中，目前只保存本设备的记录。',
     recordNote: '记录只保存在本设备（浏览器）中。',
@@ -531,15 +530,12 @@ function adInquiryHTML() {
 }
 function renderAds() {
   var bar = document.getElementById('adbarIn');
-  var rbox = document.getElementById('resultAd');
   if (AD_CONFIG.mode === 'none') {
     document.getElementById('adbar').hidden = true;
-    if (rbox) rbox.innerHTML = '';
     return;
   }
   /* 하단 고정: 한국어는 브랜드 홍보 + 광고 문의 / 다른 언어는 광고 슬롯(문의)만 */
   if (bar) bar.innerHTML = (lang === 'ko' ? adBrandHTML() : '') + adInquiryHTML();
-  if (rbox) rbox.innerHTML = (lang === 'ko' ? adBrandHTML() : '') + '<div style="width:100%;margin-top:8px">' + adInquiryHTML() + '</div>';
 }
 
 /* ---------------------------------------------------------------- 소리 */
@@ -1201,12 +1197,16 @@ function dropFruit() {
   pickNext();
 }
 
-function gameOver() {
+function gameOver(reason) {
   if (G.state !== 'play' && G.state !== 'paused') return;
   G.state = 'result';
   G.shake = 0;
   Sound.over();
   G.plays++;
+  var badgeKey = reason === 'quit' ? 'quitBadge' : 'overBadge';
+  var badge = document.getElementById('resBadge');
+  badge.setAttribute('data-i18n', badgeKey);
+  badge.textContent = T(badgeKey);
   var isNew = G.score > (G.bestAtStart || 0) && G.score > 0;
   if (G.score > G.best) G.best = G.score;
   if (G.maxLevel > G.bestFruit) G.bestFruit = G.maxLevel;
@@ -1626,7 +1626,7 @@ function bind() {
   document.getElementById('resumeBtn').addEventListener('click', function () { togglePause(false); });
   document.getElementById('quitBtn').addEventListener('click', function () {
     document.getElementById('pauseOv').hidden = true;
-    if (G.score > 0) { G.state = 'play'; gameOver(); }
+    if (G.score > 0) { G.state = 'play'; gameOver('quit'); }
     else { G.state = 'home'; goHome(); }
   });
   document.getElementById('helpBtn').addEventListener('click', function () {
