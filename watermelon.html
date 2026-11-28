@@ -196,8 +196,9 @@ main{flex:1;display:flex;flex-direction:column;min-height:0}
 .adbrand .txt b{font-size:12.5px;font-weight:800;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .adbrand .txt i{font-style:normal;font-size:9.5px;font-weight:700;color:#8a7563;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .adbrand .cta{margin-left:auto;flex:none;font-size:10.5px;font-weight:900;padding:5px 8px;border-radius:8px;background:#2f8f46;color:#fff;white-space:nowrap}
-.adin{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
-  height:50px;padding:0 9px;border-radius:13px;border:1px dashed #dcc9b2;background:#fff;color:#7d7265;text-decoration:none}
+.adin{flex:none;width:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  height:50px;padding:0 6px;border-radius:13px;border:1px dashed #dcc9b2;background:#fff;color:#7d7265;text-decoration:none}
+.adbar-in .adin:only-child{flex:1;width:auto}
 .adslot .adin{width:100%}
 .adin b{font-size:9.5px;font-weight:900;letter-spacing:-.01em;white-space:nowrap}
 .adin span{font-size:8px;font-weight:700;color:#a89a89;white-space:nowrap}
@@ -413,7 +414,7 @@ var STR = {
     gotIt: '알겠어요', danger: '위험!', shareDone: '점수 문구를 복사했어요',
     watermelonDone: '🍉 수박 완성!', pop: '수박 두 개가 만나 사라졌어요 +100',
     adBrand: '재팬마트박스', adDesc: '일본 인기 상품 · 구매대행', adCta: '구경하기',
-    adInq: '광고·협찬 문의', adInqSub: '이 자리에 광고',
+    adInq: '광고·협찬 문의', adInqSub: '이 자리에 광고', adInqShort: '광고 문의',
     f0: '체리', f10: '수박',
     fruitNames: ['체리','딸기','포도','한라봉','감','사과','배','복숭아','파인애플','멜론','수박']
   },
@@ -439,7 +440,7 @@ var STR = {
     gotIt: 'Got it', danger: 'Careful!', shareDone: 'Score text copied',
     watermelonDone: '🍉 Watermelon made!', pop: 'Two watermelons popped +100',
     adBrand: 'Japan Mart Box', adDesc: 'Japanese goods · proxy buying', adCta: 'Visit',
-    adInq: 'Ad / Sponsorship', adInqSub: 'This spot is open',
+    adInq: 'Ad / Sponsorship', adInqSub: 'This spot is open', adInqShort: 'Ad contact',
     f0: 'Cherry', f10: 'Watermelon',
     fruitNames: ['Cherry','Strawberry','Grape','Dekopon','Persimmon','Apple','Pear','Peach','Pineapple','Melon','Watermelon']
   },
@@ -465,7 +466,7 @@ var STR = {
     gotIt: 'わかりました', danger: '危険！', shareDone: 'スコア文をコピーしました',
     watermelonDone: '🍉 すいか完成！', pop: 'すいか2つが消えました +100',
     adBrand: 'Japan Mart Box', adDesc: '日本の人気商品・代理購入', adCta: '見る',
-    adInq: '広告・協賛', adInqSub: 'この枠に広告',
+    adInq: '広告・協賛', adInqSub: 'この枠に広告', adInqShort: '広告問合せ',
     f0: 'さくらんぼ', f10: 'すいか',
     fruitNames: ['さくらんぼ','いちご','ぶどう','デコポン','かき','りんご','なし','もも','パイナップル','メロン','すいか']
   },
@@ -491,7 +492,7 @@ var STR = {
     gotIt: '知道了', danger: '小心！', shareDone: '成绩文字已复制',
     watermelonDone: '🍉 西瓜完成！', pop: '两个西瓜消失了 +100',
     adBrand: 'Japan Mart Box', adDesc: '日本人气商品 · 代购', adCta: '去看看',
-    adInq: '广告·赞助', adInqSub: '此位可投广告',
+    adInq: '广告·赞助', adInqSub: '此位可投广告', adInqShort: '广告咨询',
     f0: '樱桃', f10: '西瓜',
     fruitNames: ['樱桃','草莓','葡萄','不知火橘','柿子','苹果','梨','桃子','菠萝','甜瓜','西瓜']
   }
@@ -525,8 +526,9 @@ function adBrandHTML() {
 }
 function adInquiryHTML() {
   var q = AD_CONFIG.inquiry;
-  return '<a class="adin" href="mailto:' + q.email + '?subject=' + encodeURIComponent(q.subject) + '" rel="noopener">'
-    + '<b>' + T('adInq') + '</b><span>' + T('adInqSub') + '</span></a>';
+  return '<a class="adin" href="mailto:' + q.email + '?subject=' + encodeURIComponent(q.subject) + '" rel="noopener"'
+    + ' aria-label="' + T('adInq') + '">'
+    + '<b>AD</b><span>' + T('adInqShort') + '</span></a>';
 }
 function renderAds() {
   var bar = document.getElementById('adbarIn');
