@@ -1385,7 +1385,7 @@ function frame(now) {
     if (pp.t >= pp.life) G.pops.splice(k, 1);
   }
 
-  if (maxOver > 1.7 && !G.over) {
+  if (maxOver > 30 && !G.over) {
     G.over = true;
     G.shake = 6;
     setTimeout(function () { gameOver(); }, 160);
