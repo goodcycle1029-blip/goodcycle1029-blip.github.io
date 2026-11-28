@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>PALETTE 390×844 QA (임시)</title>
+<style>
+  html,body{margin:0;background:#221b17;color:#f2e7d8;font:13px/1.6 ui-monospace,Menlo,monospace}
+  #stage{position:absolute;left:0;top:0;width:390px;height:844px;border:0;background:#100d0b}
+  #report{position:absolute;left:410px;top:10px;width:700px;white-space:pre-wrap;margin:0}
+</style>
+</head>
+<body>
+<iframe id="stage" title="PALETTE 390x844 검증"></iframe>
+<pre id="report">측정 중…</pre>
+<script>
+(async function () {
+  var out = [], errs = [];
+  var frame = document.getElementById('stage');
+  var w = frame.contentWindow;
+  w.addEventListener('error', function (e) {
+    if (e.target && e.target !== w && e.target.tagName) errs.push('RESOURCE ' + e.target.tagName + ' ' + (e.target.src || e.target.href || ''));
+    else errs.push('ERROR ' + (e.message || '?') + ' @' + (e.lineno || '?') + ':' + (e.colno || '?'));
+  }, true);
+  w.addEventListener('unhandledrejection', function (e) { errs.push('REJECT ' + e.reason); });
+
+  var html = await (await fetch('./palette.html?qa=' + Date.now())).text();
+  var d = frame.contentDocument;
+  d.open();
+  d.write(html.replace('<head>', '<head><base href="' + location.origin + '/">'));
+  d.close();
+
+  await new Promise(function (r) { setTimeout(r, 2500); });
+
+  var doc = frame.contentDocument, win = frame.contentWindow, de = doc.documentElement;
+  function r(sel) { var el = doc.querySelector(sel); if (!el) return 'n/a'; var b = el.getBoundingClientRect(); return Math.round(b.width) + '×' + Math.round(b.height); }
+  var bar = doc.querySelector('#installBar');
+  var bt = bar ? bar.querySelector('.install-txt') : null;
+
+  out.push('URL          ' + doc.URL.replace('https://goodcycle1029-blip.github.io', ''));
+  out.push('viewport     ' + win.innerWidth + '×' + win.innerHeight + '  dpr ' + win.devicePixelRatio);
+  out.push('scroll       ' + de.scrollWidth + '×' + de.scrollHeight + '  horizontal overflow: ' + (de.scrollWidth > win.innerWidth ? 'YES' : 'no'));
+  out.push('cards        ' + doc.querySelectorAll('.song').length + '   play links: ' + doc.querySelectorAll('a.play').length);
+  out.push('heights      tab ' + r('.tab') + '  play ' + r('.play') + '  banner ' + r('#installBar') + '  skin ' + r('.song'));
+  out.push('banner 1line ' + (bt ? (bt.scrollWidth <= bt.clientWidth + 1 ? 'yes' : 'NO') + ' (' + bt.clientWidth + '/' + bt.scrollWidth + ')' : 'n/a'));
+  out.push('fonts        h1 ' + getComputedStyle(doc.querySelector('h1')).fontSize + '  body ' + getComputedStyle(doc.body).fontSize + '  status ' + doc.fonts.status);
+  out.push('theme        ' + de.dataset.theme + '  themeBtn ' + doc.getElementById('themeLbl').textContent);
+
+  var checks = ['./manifest-palette.json', './palette-icon.svg', './icon-palette-192.png', './icon-palette-512.png', './icon-palette-icon.png'];
+  for (var i = 0; i < checks.length; i++) {
+    try {
+      var res = await fetch(checks[i], { cache: 'no-store' });
+      out.push('fetch        ' + res.status + '  ' + res.headers.get('content-type') + '  ' + checks[i]);
+    } catch (e) { out.push('fetch        FAIL ' + checks[i] + ' ' + e); }
+  }
+  try {
+    var mf = await (await fetch('./manifest-palette.json', { cache: 'no-store' })).json();
+    out.push('manifest     ' + mf.name + ' / ' + mf.start_url + ' / icons ' + mf.icons.length + ' / display ' + mf.display);
+    var missing = [];
+    for (var j = 0; j < mf.icons.length; j++) {
+      var ir = await fetch(mf.icons[j].src, { cache: 'no-store' });
+      if (!ir.ok) missing.push(mf.icons[j].src);
+    }
+    out.push('manifest icons missing: ' + (missing.length ? missing.join(',') : 'none'));
+  } catch (e) { out.push('manifest     PARSE FAIL ' + e); }
+
+  out.push('JS errors    ' + errs.length);
+  errs.slice(0, 8).forEach(function (e) { out.push('  · ' + e); });
+
+  document.getElementById('report').textContent = out.join('\n');
+
+  if (location.hash === '#cards') {
+    var songs = doc.querySelector('#songs');
+    win.scrollTo(0, songs.getBoundingClientRect().top + win.scrollY - 90);
+  }
+})();
+</script>
+</body>
+</html>
