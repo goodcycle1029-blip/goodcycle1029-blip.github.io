@@ -984,7 +984,7 @@ function Fruit(level, x, y, vx, vy) {
   this.vx = vx || 0; this.vy = vy || 0;
   this.spin = 0; this.w = 0;
   this.age = 0; this.over = 0; this.dead = false;
-  this.born = 0; this.scale = 0.35;
+  this.born = 0; this.scale = 0.35; this.touch = 0;
 }
 function addFruit(level, x, y, vx, vy) {
   var f = new Fruit(level, x, y, vx, vy);
@@ -1004,6 +1004,7 @@ function physics(dt) {
     f.px = f.x; f.py = f.y;
     f.x += f.vx * dt;
     f.y += f.vy * dt;
+    f.touch = 0;
     /* 속도 제한 */
     if (f.vx > 2400) f.vx = 2400; else if (f.vx < -2400) f.vx = -2400;
     if (f.vy > 2800) f.vy = 2800;
@@ -1043,14 +1044,16 @@ function physics(dt) {
           a.y -= ny * pen * (b.m / totInv);
           b.x += nx * pen * (a.m / totInv);
           b.y += ny * pen * (a.m / totInv);
+          a.touch = 1; b.touch = 1;
         } else if (d <= 0.0001) {
           a.x -= 0.5; b.x += 0.5;
+          a.touch = 1; b.touch = 1;
         }
       }
       /* 벽 */
-      if (a.x - a.r < 0) a.x = a.r;
-      if (a.x + a.r > WORLD_W) a.x = WORLD_W - a.r;
-      if (a.y + a.r > WORLD_H) a.y = WORLD_H - a.r;
+      if (a.x - a.r < 0) { a.x = a.r; a.touch = 1; }
+      if (a.x + a.r > WORLD_W) { a.x = WORLD_W - a.r; a.touch = 1; }
+      if (a.y + a.r > WORLD_H) { a.y = WORLD_H - a.r; a.touch = 1; }
       if (a.y - a.r < -WORLD_H * 0.6) a.y = -WORLD_H * 0.6 + a.r;
     }
   }
@@ -1060,6 +1063,16 @@ function physics(dt) {
     if (f.dead) continue;
     f.vx = (f.x - f.px) / dt * 0.985;
     f.vy = (f.y - f.py) / dt * 1.0;
+    /* 닿아 있으면 마찰로 굴러가다 멈추게 */
+    if (f.touch) {
+      f.vx *= 0.90;
+      f.vy *= 0.86;
+      if (f.vy > 0) f.vy *= 0.9;
+    } else {
+      f.vx *= 0.9998;
+    }
+    /* 바닥에서 튀어오르는 높이 제한 */
+    if (f.touch && f.vy < -220) f.vy *= 0.45;
     /* 구르는 느낌 */
     f.w = f.vx / Math.max(10, f.r);
     f.spin += f.w * dt;
