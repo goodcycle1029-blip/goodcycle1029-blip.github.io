@@ -2840,5 +2840,104 @@
         ]
       }
     ]
+  },
+  "youtube": {
+    "updated_at": "2026-11-29 00:11",
+    "name": "PALETTE",
+    "handle": "@palette_kr",
+    "url": "https://www.youtube.com/@palette_kr/shorts",
+    "subscribers": 5,
+    "videos_public": 12,
+    "shorts_public": 12,
+    "total_views": 1555,
+    "average_views": 130,
+    "headline": "구독자 5명 · 공개 쇼츠 12편 · 합산 조회 1,555회",
+    "note": "유튜브 채널 페이지에서 직접 읽은 값입니다. 조회수는 유튜브 집계가 조금 늦게 반영돼 새로 볼 때마다 몇 회씩 달라질 수 있습니다. 비공개로 올려 둔 12곡 합본 영상은 공개 수치에 들어가지 않습니다.",
+    "items": [
+      {
+        "rank": 1,
+        "title": "🍂 11월의 바람 🍃",
+        "views": 219,
+        "url": "https://www.youtube.com/shorts/ntZm5PMQa54",
+        "id": "ntZm5PMQa54"
+      },
+      {
+        "rank": 2,
+        "title": "❄️ 겨울밤, 따뜻한 라떼 한 잔 ☕",
+        "views": 209,
+        "url": "https://www.youtube.com/shorts/AsIMyQLEF4Y",
+        "id": "AsIMyQLEF4Y"
+      },
+      {
+        "rank": 3,
+        "title": "🌨️ 첫눈이 오기 전에 🧣",
+        "views": 208,
+        "url": "https://www.youtube.com/shorts/lPxSMIqa_Xs",
+        "id": "lPxSMIqa_Xs"
+      },
+      {
+        "rank": 4,
+        "title": "🌈 모든 일이 다 잘 될 거야 ✨",
+        "views": 193,
+        "url": "https://www.youtube.com/shorts/1VZojiovBhE",
+        "id": "1VZojiovBhE"
+      },
+      {
+        "rank": 5,
+        "title": "🪟 창문만 열어둘게 (New Ver.) 🌤️",
+        "views": 170,
+        "url": "https://www.youtube.com/shorts/Wp1eKM3wP6s",
+        "id": "Wp1eKM3wP6s"
+      },
+      {
+        "rank": 6,
+        "title": "🌃 12월의 네온 드라이브 ✨",
+        "views": 151,
+        "url": "https://www.youtube.com/shorts/S8TTJTvOKIs",
+        "id": "S8TTJTvOKIs"
+      },
+      {
+        "rank": 7,
+        "title": "☕ 새벽 두 시의 커피 🌙",
+        "views": 140,
+        "url": "https://www.youtube.com/shorts/GI7MzD5ww0U",
+        "id": "GI7MzD5ww0U"
+      },
+      {
+        "rank": 8,
+        "title": "🚗 네온빛 드라이브 🌆",
+        "views": 137,
+        "url": "https://www.youtube.com/shorts/u3b-hBdo0jM",
+        "id": "u3b-hBdo0jM"
+      },
+      {
+        "rank": 9,
+        "title": "🪟 창문만 열어둘게 ☁️",
+        "views": 126,
+        "url": "https://www.youtube.com/shorts/RiOK3uv6x4c",
+        "id": "RiOK3uv6x4c"
+      },
+      {
+        "rank": 10,
+        "title": "🎧 아무 일도 없는 오후 (New Ver.) ☕",
+        "views": 1,
+        "url": "https://www.youtube.com/shorts/kt6JNYAyFoo",
+        "id": "kt6JNYAyFoo"
+      },
+      {
+        "rank": 11,
+        "title": "🎸 심장이 먼저 뛰어 🔥",
+        "views": 1,
+        "url": "https://www.youtube.com/shorts/fpJJjpCaXas",
+        "id": "fpJJjpCaXas"
+      },
+      {
+        "rank": 12,
+        "title": "🌙 발끝으로 걷는 밤 ✨",
+        "views": 0,
+        "url": "https://www.youtube.com/shorts/CWnwYArsxZ4",
+        "id": "CWnwYArsxZ4"
+      }
+    ]
   }
 }

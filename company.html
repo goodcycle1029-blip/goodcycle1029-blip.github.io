@@ -1055,6 +1055,21 @@
   footer a{color:#cfe0ff}
   .fine{font-size:13px;color:rgba(167,182,212,.8);line-height:1.6;margin-top:8px}
 
+  /* ---------- 📺 PALETTE 유튜브 현황 (status.json > youtube) ---------- */
+  .yt-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 9px}
+  .yt-stat{border-radius:14px;border:1px solid var(--line);background:linear-gradient(160deg,rgba(255,99,132,.13),rgba(255,255,255,.035));padding:10px 8px;text-align:center;min-width:0}
+  .yt-stat .n{display:block;font-size:21px;font-weight:900;line-height:1.1;letter-spacing:-.02em;color:#fff;overflow-wrap:anywhere}
+  .yt-stat .l{display:block;font-size:12.5px;font-weight:800;color:var(--dim2);margin-top:4px;line-height:1.3}
+  .yt-list{border-radius:16px;border:1px solid var(--line);background:var(--card);padding:4px 12px;margin:0}
+  .yt-row{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:9px;align-items:center;padding:9px 0;border-top:1px solid rgba(255,255,255,.08);text-decoration:none;color:inherit;min-height:46px}
+  .yt-row:first-child{border-top:0}
+  .yt-row .rk{font-size:13px;font-weight:900;color:var(--dim2);text-align:center}
+  .yt-row .tt{font-size:15px;font-weight:800;line-height:1.35;color:#e8effc;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+  .yt-row .vv{font-size:14.5px;font-weight:900;color:var(--mn);white-space:nowrap}
+  .yt-row.yt-hot .rk{color:var(--gd)}
+  .yt-row.yt-hot .tt{color:#fff}
+  .yt-watch{display:inline-block;margin:9px 0 0;font-size:14.5px;font-weight:900;color:#cfe0ff;text-decoration:none;border:1px solid var(--line);background:rgba(255,255,255,.07);border-radius:12px;padding:11px 15px;min-height:44px}
+
   @media (min-width:720px){
     body{font-size:18px}
     .tabs{grid-template-columns:repeat(7,1fr)}
@@ -3381,6 +3396,40 @@
     return h;
   }
 
+  /* ---------- 📺 PALETTE 유튜브 현황 (status.json > youtube) ---------- */
+  /* 유튜브 채널에서 직접 읽은 공개 숫자만 그립니다.
+     구독자·공개 영상 수·쇼츠 조회수와 조회수 순위(누르면 유튜브로 이동)입니다. */
+  function youtubeHTML(yt){
+    var h = '';
+    h += '<h2 class="sec">📺 PALETTE 유튜브 현황</h2>';
+    h += '<p class="fine" style="margin:-2px 0 8px">' + esc(yt.handle || '@palette_kr') + ' · 유튜브 채널에서 직접 읽은 값 · ' + esc(yt.updated_at || '-') + ' 기준</p>';
+    h += '<div class="yt-stats">';
+    h += '<div class="yt-stat"><span class="n">' + esc(num(yt.subscribers)) + '</span><span class="l">구독자</span></div>';
+    h += '<div class="yt-stat"><span class="n">' + esc(num(yt.videos_public != null ? yt.videos_public : yt.shorts_public)) + '</span><span class="l">공개 영상(쇼츠)</span></div>';
+    h += '<div class="yt-stat"><span class="n">' + esc(num(yt.total_views)) + '</span><span class="l">쇼츠 합산 조회</span></div>';
+    h += '</div>';
+    var it = yt.items || [];
+    if (it.length){
+      h += '<div class="yt-list">';
+      it.forEach(function(v){
+        var u = v.url || ('https://www.youtube.com/shorts/' + (v.id || ''));
+        var hot = (v.rank || 99) <= 3;
+        h += '<a class="yt-row' + (hot ? ' yt-hot' : '') + '" href="' + esc(u) + '" target="_blank" rel="noopener">';
+        h += '<span class="rk">' + esc(v.rank == null ? '' : v.rank) + '</span>';
+        h += '<span class="tt">' + esc(v.title || '') + '</span>';
+        h += '<span class="vv">' + esc(num(v.views)) + '회</span>';
+        h += '</a>';
+      });
+      h += '</div>';
+      h += '<p class="fine" style="margin:6px 0 0">조회수 많은 순입니다 · 제목을 누르면 유튜브에서 바로 열립니다';
+      if (yt.average_views != null) h += ' · 편당 평균 ' + esc(num(yt.average_views)) + '회';
+      h += '</p>';
+    }
+    if (yt.url) h += '<a class="yt-watch" href="' + esc(yt.url) + '" target="_blank" rel="noopener">▶ PALETTE 채널 열기</a>';
+    if (yt.note) h += '<p class="fine" style="margin:8px 0 0">' + esc(yt.note) + '</p>';
+    return h;
+  }
+
   function renderCeo(d){
     var box = document.getElementById('ceoBody');
     var note = document.getElementById('ceoNote');
@@ -3430,6 +3479,8 @@
     }
 
     if (d.traffic && d.traffic.markets && d.traffic.markets.length) h += trafficHTML(d.traffic);
+
+    if (d.youtube) h += youtubeHTML(d.youtube);
 
     if (c.issues && c.issues.length){
       h += '<h2 class="sec">🚩 지금 손볼 곳 · 문제점</h2>';
