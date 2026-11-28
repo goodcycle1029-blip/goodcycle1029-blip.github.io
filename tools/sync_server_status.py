@@ -29,6 +29,9 @@ HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATUS = os.path.join(HERE, "status.json")
 SSH_RUN = os.environ.get("GCU_SSH_RUN", "/workspace/cloud/gcu_seoul_server/ssh_run.py")
 TOKYO_SSH_RUN = os.environ.get("GCU_TOKYO_SSH_RUN", "/workspace/cloud/gcu_tokyo_server/ssh_run.py")
+# 1·2호기가 넘긴 대표 알림(ceo_notices)은 공개 저장소 밖에만 쌓인다 — `tools/ceo_notices.py` 가 모은다.
+NOTICE_INBOX = os.environ.get("GCU_NOTICE_INBOX", os.path.join(
+    os.path.dirname(HERE), "company_site_state", "ceo_notices_inbox.json"))
 
 REMOTE_SCRIPT = r'''
 import json, os, re, subprocess
@@ -971,6 +974,22 @@ def main() -> int:
     with open(STATUS, "w", encoding="utf-8") as f:
         f.write(json.dumps(st, ensure_ascii=False, indent=2))   # 기존 파일과 같은 2칸 들여쓰기(끝 줄바꿈 없음)
     print("status.json 갱신 완료:", STATUS)
+
+    # 대표 알림 — 아직 보고하지 않은 이득·주의·소재가 있는지 한 줄로 알린다(읽기만 한다)
+    try:
+        box = json.load(open(NOTICE_INBOX, encoding="utf-8"))
+        pend = [r for r in (box.get("items") or [])
+                if isinstance(r, dict) and not r.get("reported")]
+        if pend:
+            print("[ceo_notices] 보고 대기 {}건 — {}".format(
+                len(pend), " / ".join("[{}] {}".format(r.get("kind"), r.get("title"))
+                                      for r in pend[:5])))
+        else:
+            print("[ceo_notices] 보고 대기 없음(받은 편지함 {}건)".format(len(box.get("items") or [])))
+    except FileNotFoundError:
+        pass
+    except Exception as e:  # noqa: BLE001 — 알림 칸 때문에 동기화를 멈추지 않는다
+        print("[ceo_notices] 받은 편지함을 읽지 못했습니다:", str(e)[:120])
     return 0
 
 
