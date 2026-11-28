@@ -68,6 +68,25 @@
   out.push('JS errors    ' + errs.length);
   errs.slice(0, 8).forEach(function (e) { out.push('  · ' + e); });
 
+  // 배너 문구 후보별 실제 폭 측정 (fallback 폰트 기준)
+  if (bt) {
+    var probe = doc.createElement('div');
+    var cs = getComputedStyle(bt);
+    probe.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;white-space:nowrap;display:inline-block';
+    probe.style.font = cs.font;
+    probe.style.letterSpacing = cs.letterSpacing;
+    doc.body.appendChild(probe);
+    var cands = [
+      '📲 크롬 ⋮ → 홈 화면에 추가하면 앱처럼 열려요',
+      '📲 크롬 ⋮ → 홈 화면에 추가 · 앱처럼 열려요',
+      '📲 크롬 ⋮ → 홈 화면에 추가',
+      '📲 홈 화면에 추가하면 앱처럼 열려요 (크롬 ⋮)'
+    ];
+    out.push('banner box   ' + bt.clientWidth + 'px');
+    cands.forEach(function (t) { probe.innerHTML = t; out.push('  ' + Math.round(probe.getBoundingClientRect().width) + 'px  ' + t); });
+    probe.remove();
+  }
+
   document.getElementById('report').textContent = out.join('\n');
 
   // 이후 상호작용 중 발생하는 오류도 계속 집계해 보여준다
