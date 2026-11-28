@@ -106,6 +106,8 @@
   if (location.hash === '#cards') {
     var songs = doc.querySelector('#songs');
     win.scrollTo(0, songs.getBoundingClientRect().top + win.scrollY - 90);
+  } else if (location.hash === '#bottom') {
+    win.scrollTo(0, de.scrollHeight);
   }
 })();
 </script>
