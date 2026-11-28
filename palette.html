@@ -6,9 +6,9 @@
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#100d0b" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#fbf3e7" media="(prefers-color-scheme: light)">
-<meta name="description" content="PALETTE의 작은 음악실. 네오소울 재즈부터 80s 시티팝, 초겨울 인디까지 — 여섯 곡 열두 트랙을 한 번에 듣고 골라 들어요.">
+<meta name="description" content="PALETTE의 작은 음악실. 네오소울 재즈부터 80s 시티팝, 초겨울 인디까지 여섯 곡 MP3를 페이지에서 바로 듣고, 한 번 누르면 6곡이 이어서 재생돼요.">
 <meta property="og:title" content="PALETTE · 작은 음악실">
-<meta property="og:description" content="따뜻한 커피 한 잔 옆에 두는 여섯 곡, 열두 가지 목소리. 곡을 누르면 Suno에서 바로 재생돼요.">
+<meta property="og:description" content="따뜻한 커피 한 잔 옆에 두는 여섯 곡. 페이지에서 바로 재생되고, 한 번 누르면 끝까지 이어져요.">
 <meta property="og:type" content="music.playlist">
 <meta property="og:url" content="https://goodcycle1029-blip.github.io/palette.html">
 <meta property="og:site_name" content="PALETTE">
@@ -93,6 +93,7 @@ h1,h2,h3,p{margin:0}
 .wrap{max-width:var(--wrap); margin:0 auto; padding:0 18px}
 .skip{position:absolute; left:-9999px; top:0; padding:14px 20px; background:var(--btn-bg); color:var(--btn-ink); font-weight:800; border-radius:0 0 14px 0; z-index:100}
 .skip:focus{left:0}
+.sr-only{position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0}
 
 /* ---------- 상단 바 ---------- */
 .topbar{
@@ -130,8 +131,26 @@ h1,h2,h3,p{margin:0}
 h1{margin-top:10px; font-size:clamp(32px, 9.4vw, 42px); line-height:1.12; letter-spacing:-.045em; font-weight:900; color:var(--ink); text-wrap:balance}
 h1 em{font-style:normal; background:linear-gradient(96deg,#f3c189,#eaa2b3 55%,#b8a1e6); -webkit-background-clip:text; background-clip:text; color:transparent}
 :root[data-theme="cream"] h1 em{background:linear-gradient(96deg,#a85c1f,#ab3f63 55%,#5b3fa0); -webkit-background-clip:text; background-clip:text; color:transparent}
-.hero-sub{margin-top:12px; font-size:16.5px; color:var(--body); max-width:30ch}
+.hero-sub{margin-top:12px; font-size:16.5px; color:var(--body); max-width:32ch}
 .hero-sub b{color:var(--ink); font-weight:800}
+
+/* 전체 연속 듣기 큰 버튼 */
+.heroplay-wrap{margin-top:20px}
+.heroplay{
+  display:flex; align-items:center; justify-content:center; gap:13px; width:100%;
+  min-height:76px; padding:0 20px; border-radius:22px;
+  background:var(--btn-bg); color:var(--btn-ink);
+  font-size:20px; font-weight:900; letter-spacing:-.03em;
+  box-shadow:0 18px 34px -24px rgba(0,0,0,.95), inset 0 1px 0 rgba(255,255,255,.22);
+  transition:transform .16s var(--ease), filter .2s var(--ease);
+}
+.heroplay:active{transform:scale(.985)}
+.heroplay .ico{width:17px; height:17px; flex:none; display:block; fill:currentColor}
+.heroplay .ico .bars{display:none}
+.heroplay.is-on .ico .tri{display:none}
+.heroplay.is-on .ico .bars{display:block}
+.heroplay-hint{margin-top:10px; text-align:center; font-size:13px; font-weight:700; color:var(--muted); letter-spacing:-.01em}
+
 .stats{display:flex; flex-wrap:wrap; gap:8px; margin-top:18px}
 .stat{display:inline-flex; align-items:baseline; gap:6px; padding:9px 15px; border-radius:999px;
   border:1px solid var(--line); background:var(--chip-bg); font-size:12.5px; font-weight:800; color:var(--muted)}
@@ -183,14 +202,17 @@ h1 em{font-style:normal; background:linear-gradient(96deg,#f3c189,#eaa2b3 55%,#b
 .song{position:relative; margin-bottom:14px; padding:17px 17px 16px; border-radius:var(--r-card);
   background:linear-gradient(158deg, var(--card), var(--card2));
   border:1px solid var(--line); box-shadow:var(--shadow); overflow:hidden;
-  animation:rise .42s var(--ease) both}
+  animation:rise .42s var(--ease) both;
+  transition:border-color .25s var(--ease), box-shadow .25s var(--ease)}
 .song::after{content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
   background:radial-gradient(120% 70% at 0% 0%, var(--card-hi), transparent 58%)}
 .song[hidden]{display:none}
+.song.is-on{border-color:var(--btn-bg); box-shadow:0 0 0 1px var(--btn-bg), var(--shadow)}
 @keyframes rise{from{opacity:0; transform:translateY(9px)}to{opacity:1; transform:none}}
 
 .song-top{display:flex; align-items:center; gap:10px; position:relative; z-index:1}
 .no{font-size:12px; font-weight:900; letter-spacing:.1em; color:var(--dim); font-variant-numeric:tabular-nums}
+.song.is-on .no{color:var(--btn-bg)}
 .chip{margin-left:auto; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:800; letter-spacing:-.01em;
   border:1px solid transparent; white-space:nowrap}
 .chip.jazz{color:#f5c289; background:rgba(201,138,75,.16); border-color:rgba(240,182,120,.28)}
@@ -216,17 +238,74 @@ h1 em{font-style:normal; background:linear-gradient(96deg,#f3c189,#eaa2b3 55%,#b
 .song-meta{margin-top:5px; font-size:14.5px; font-weight:700; color:var(--muted); letter-spacing:-.01em; word-break:keep-all}
 .song-mood{margin-top:9px; font-size:15px; line-height:1.55; color:var(--body); opacity:.9; word-break:keep-all}
 
-.vers{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px; position:relative; z-index:1}
+/* 카드 안: 바로 듣기(기본) + Suno 보조 링크 */
+.vers{display:grid; grid-template-columns:1fr; gap:10px; margin-top:15px; position:relative; z-index:1}
 .play{min-height:var(--tap); padding:0 14px; border-radius:16px; display:flex; align-items:center; justify-content:center; gap:9px;
-  font-size:16px; font-weight:900; letter-spacing:-.02em; text-align:center;
-  border:1px solid transparent;
-  transition:transform .16s var(--ease), filter .2s var(--ease)}
+  font-size:16.5px; font-weight:900; letter-spacing:-.02em; text-align:center;
+  border:1px solid transparent; width:100%;
+  transition:transform .16s var(--ease), filter .2s var(--ease), background-color .2s var(--ease)}
 .play .tri{width:0; height:0; border-left:9px solid currentColor; border-top:6.5px solid transparent; border-bottom:6.5px solid transparent; flex:none}
+.play.is-on .tri{width:4px; height:13px; border:0; background:currentColor; box-shadow:7px 0 0 currentColor}
 .play .dur{font-size:13px; font-weight:800; opacity:.72; font-variant-numeric:tabular-nums; letter-spacing:0}
 .play:active{transform:scale(.975)}
 .play.p1{background:var(--btn-bg); color:var(--btn-ink); box-shadow:0 12px 26px -20px rgba(0,0,0,.95)}
-.play.p2{background:var(--btn2-bg); color:var(--btn2-ink); border-color:var(--line-2)}
-.play.p2 .dur{opacity:.62}
+.play.p1.is-on{background:var(--btn2-bg); color:var(--btn2-ink); border-color:var(--line-2); box-shadow:none}
+.play.p1.is-on .dur{opacity:.62}
+.suno-row{display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:11px; position:relative; z-index:1}
+.suno-lbl{font-size:11px; font-weight:900; letter-spacing:.16em; color:var(--dim)}
+.suno{min-height:44px; padding:0 13px; border-radius:12px; display:inline-flex; align-items:center; gap:6px;
+  border:1px solid var(--line); background:transparent; color:var(--muted);
+  font-size:12.5px; font-weight:800; letter-spacing:-.01em; white-space:nowrap;
+  transition:transform .16s var(--ease), background-color .2s var(--ease)}
+.suno:active{transform:scale(.97)}
+.suno .up{font-size:11px; opacity:.7}
+.suno .same{font-size:10.5px; font-weight:900; color:var(--btn-bg); letter-spacing:-.01em}
+:root[data-theme="cream"] .suno .same{color:#a05a14}
+
+/* ---------- 하단 고정 플레이어 ---------- */
+.player{position:fixed; left:0; right:0; bottom:0; z-index:50;
+  background:var(--bar); backdrop-filter:blur(18px) saturate(1.25); -webkit-backdrop-filter:blur(18px) saturate(1.25);
+  border-top:1px solid var(--line-2); box-shadow:0 -20px 46px -34px rgba(0,0,0,.95);
+  padding:9px 0 calc(9px + env(safe-area-inset-bottom));
+  animation:slideup .28s var(--ease) both}
+.player[hidden]{display:none}
+@keyframes slideup{from{transform:translateY(102%)}to{transform:none}}
+.player .wrap{padding:0 14px}
+.p-top{display:flex; align-items:baseline; gap:8px; min-width:0}
+.p-no{flex:none; font-size:11.5px; font-weight:900; color:var(--btn-bg); font-variant-numeric:tabular-nums; letter-spacing:.02em}
+.p-title{flex:1; min-width:0; font-size:14.5px; font-weight:900; color:var(--ink); letter-spacing:-.02em;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.p-time{flex:none; font-size:11.5px; font-weight:800; color:var(--muted); font-variant-numeric:tabular-nums; letter-spacing:0}
+.p-msg{margin-top:2px; font-size:12px; font-weight:700; color:var(--banner-ink); line-height:1.35}
+.p-msg:empty{display:none}
+
+.p-seek{-webkit-appearance:none; appearance:none; display:block; width:100%; height:30px; margin:2px 0 0;
+  background:transparent; touch-action:none}
+.p-seek::-webkit-slider-runnable-track{height:8px; border-radius:999px;
+  background:linear-gradient(to right, var(--btn-bg) 0 var(--pct,0%), var(--line-2) var(--pct,0%) 100%)}
+.p-seek::-webkit-slider-thumb{-webkit-appearance:none; width:24px; height:24px; border-radius:50%; margin-top:-8px;
+  background:var(--ink); border:3px solid var(--btn-bg); box-shadow:0 4px 12px -4px rgba(0,0,0,.8)}
+.p-seek::-moz-range-track{height:8px; border-radius:999px; background:var(--line-2)}
+.p-seek::-moz-range-progress{height:8px; border-radius:999px; background:var(--btn-bg)}
+.p-seek::-moz-range-thumb{width:18px; height:18px; border-radius:50%; background:var(--ink); border:3px solid var(--btn-bg)}
+
+.p-ctrl{display:flex; align-items:center; justify-content:center; gap:8px; margin-top:2px}
+.p-btn{flex:none; min-width:54px; min-height:54px; border-radius:16px; display:inline-flex; align-items:center; justify-content:center;
+  gap:7px; border:1px solid var(--line); background:var(--chip-bg); color:var(--body);
+  font-size:13.5px; font-weight:900; letter-spacing:-.02em;
+  transition:transform .16s var(--ease), background-color .2s var(--ease)}
+.p-btn:active{transform:scale(.95)}
+.p-btn svg{width:20px; height:20px; display:block; fill:currentColor}
+.p-btn.p-main{min-width:66px; min-height:58px; background:var(--btn-bg); color:var(--btn-ink); border-color:transparent;
+  box-shadow:0 10px 24px -18px rgba(0,0,0,.95)}
+.p-btn.p-main svg{width:24px; height:24px}
+.p-btn.p-rep{flex:1 1 auto; max-width:132px; min-width:0; padding:0 12px; font-size:13px}
+.p-btn.p-rep .rp{font-size:15px; line-height:1}
+.p-btn.p-rep[aria-pressed="false"]{opacity:.55}
+.p-btn.p-rep[aria-pressed="true"]{border-color:var(--line-2); background:var(--chip-bg)}
+.p-btn.p-rep[aria-pressed="true"] .rp{color:var(--btn-bg)}
+
+body.has-player{padding-bottom:calc(var(--player-h, 152px) + 10px)}
 
 /* ---------- 안내 & 푸터 ---------- */
 .note{margin-top:6px; padding:16px 16px 15px; border-radius:18px; border:1px dashed var(--line-2);
@@ -242,10 +321,12 @@ footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:cente
 @media (max-width:360px){
   body{font-size:16.5px}
   .song{padding:15px 14px}
-  .vers{grid-template-columns:1fr; gap:9px}
   .art{width:58px; height:58px; border-radius:16px}
   .song-title{font-size:20.5px}
   .tab{padding:0 15px; font-size:15px}
+  .heroplay{font-size:18.5px; min-height:72px}
+  .p-btn{border-radius:14px}
+  .p-btn.p-main{min-width:60px}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation:none !important; transition:none !important}
@@ -272,11 +353,23 @@ footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:cente
   <section class="hero" aria-labelledby="heroTitle">
     <p class="kicker">Coffee · Vinyl · Neon</p>
     <h1 id="heroTitle">PALETTE의<br><em>작은 음악실</em></h1>
-    <p class="hero-sub">따뜻한 커피 한 잔 옆에 두는 <b>여섯 곡</b>, <b>열두 가지 목소리</b>. 듣고 싶은 버전을 크게 눌러 바로 들어보세요.</p>
+    <p class="hero-sub">따뜻한 커피 한 잔 옆에 두는 <b>여섯 곡</b>, <b>열두 가지 목소리</b>. 여기서 바로 듣고, 아래 버튼 하나로 끝까지 이어 들으세요.</p>
+
+    <div class="heroplay-wrap">
+      <button class="heroplay" id="heroPlay" type="button">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path class="tri" d="M7 4.5v15l13-7.5z"/>
+          <g class="bars"><rect x="6" y="4.5" width="4" height="15" rx="1.2"/><rect x="13" y="4.5" width="4" height="15" rx="1.2"/></g>
+        </svg>
+        <span id="heroPlayLbl">전체 연속 듣기</span>
+      </button>
+      <p class="heroplay-hint" id="heroHint">6곡 약 19분 · 한 번 누르면 다음 곡이 저절로 이어져요</p>
+    </div>
+
     <div class="stats" aria-label="수록 정보">
-      <span class="stat"><b>6</b>곡</span>
+      <span class="stat"><b>6</b>곡 바로 듣기</span>
       <span class="stat"><b>12</b>트랙</span>
-      <span class="stat"><b>35</b>분</span>
+      <span class="stat"><b>19</b>분 MP3</span>
       <span class="stat">Suno <b>V6</b></span>
     </div>
     <div class="swatches" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
@@ -299,47 +392,57 @@ footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:cente
 
 <div class="wrap">
   <div class="listhead">
-    <h2>곡 목록<span class="cnt" id="cnt" aria-live="polite">12트랙 · 약 35분</span></h2>
+    <h2>곡<span class="cnt" id="cnt" aria-live="polite">6곡 · MP3 약 19분</span></h2>
     <button class="dice" id="diceBtn" type="button">🎲 한 곡 뽑기</button>
   </div>
 
-  <noscript><p class="noscript">자바스크립트를 켜면 장르별로 골라 볼 수 있어요. 곡 재생 버튼은 지금도 모두 눌러서 들을 수 있습니다.</p></noscript>
+  <noscript><p class="noscript">자바스크립트를 켜면 이 자리에서 바로 재생되고 연속 재생돼요. 지금은 작은 <b>Suno</b> 링크로 들을 수 있습니다.</p></noscript>
 
   <section id="songs" aria-label="PALETTE 곡 목록">
 
-    <article class="song" data-genre="jazz">
+    <article class="song" data-genre="jazz" data-audio="audio/01_coffee.mp3" data-ver="버전 2" data-dur="3:07">
       <div class="song-top"><span class="no">01</span><span class="chip jazz">재즈·커피</span></div>
       <div class="song-main">
         <div class="art jazz" aria-hidden="true"><span>♪</span></div>
         <div class="song-txt">
           <h3 class="song-title">새벽 두 시의 커피</h3>
-          <p class="song-meta">네오소울 R&B · 허스키 여성 보컬</p>
+          <p class="song-meta">네오소울 R&amp;B · 허스키 여성 보컬</p>
           <p class="song-mood">잠이 오지 않는 새벽, 식어 가는 잔을 손에 쥔 채 듣는 노래.</p>
         </div>
       </div>
       <div class="vers">
-        <a class="play p1" href="https://suno.com/song/11405df5-ff06-46a7-b362-ab5c09d7bc84" target="_blank" rel="noopener noreferrer" aria-label="새벽 두 시의 커피 버전 1, 2분 49초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 1 <span class="dur">2:49</span></a>
-        <a class="play p2" href="https://suno.com/song/a0de3f5c-13d6-449c-8b84-01934051f304" target="_blank" rel="noopener noreferrer" aria-label="새벽 두 시의 커피 버전 2, 3분 8초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 2 <span class="dur">3:08</span></a>
+        <button class="play p1 jsPlay" type="button" aria-label="새벽 두 시의 커피 바로 듣기, 버전 2, 3분 7초" aria-pressed="false">
+          <span class="tri" aria-hidden="true"></span><span class="lab">바로 듣기</span><span class="dur">3:07</span>
+        </button>
+      </div>
+      <div class="suno-row"><span class="suno-lbl">SUNO</span>
+        <a class="suno" href="https://suno.com/song/11405df5-ff06-46a7-b362-ab5c09d7bc84" target="_blank" rel="noopener noreferrer">버전 1 · 2:49 <span class="up" aria-hidden="true">↗</span></a>
+        <a class="suno" href="https://suno.com/song/a0de3f5c-13d6-449c-8b84-01934051f304" target="_blank" rel="noopener noreferrer">버전 2 · 3:08 <span class="same">여기</span></a>
       </div>
     </article>
 
-    <article class="song" data-genre="jazz">
+    <article class="song" data-genre="jazz" data-audio="audio/02_latte.mp3" data-ver="버전 1" data-dur="2:46">
       <div class="song-top"><span class="no">02</span><span class="chip jazz">재즈·커피</span></div>
       <div class="song-main">
         <div class="art jazz" aria-hidden="true"><span>♪</span></div>
         <div class="song-txt">
           <h3 class="song-title">겨울밤, 따뜻한 라떼 한 잔</h3>
-          <p class="song-meta">재즈 R&B · 허스키 여성 보컬 · V6</p>
+          <p class="song-meta">재즈 R&amp;B · 허스키 여성 보컬 · V6</p>
           <p class="song-mood">문을 밀고 들어선 카페의 노란 불빛, 그 온기로 하루를 천천히 녹이는 곡.</p>
         </div>
       </div>
       <div class="vers">
-        <a class="play p1" href="https://suno.com/song/18bec33d-98fb-48f0-a2fd-f2b097881b90" target="_blank" rel="noopener noreferrer" aria-label="겨울밤 따뜻한 라떼 한 잔 버전 1, 2분 47초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 1 <span class="dur">2:47</span></a>
-        <a class="play p2" href="https://suno.com/song/49e713b8-e62c-4701-8907-2a12f7892f24" target="_blank" rel="noopener noreferrer" aria-label="겨울밤 따뜻한 라떼 한 잔 버전 2, 2분 57초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 2 <span class="dur">2:57</span></a>
+        <button class="play p1 jsPlay" type="button" aria-label="겨울밤 따뜻한 라떼 한 잔 바로 듣기, 버전 1, 2분 46초" aria-pressed="false">
+          <span class="tri" aria-hidden="true"></span><span class="lab">바로 듣기</span><span class="dur">2:46</span>
+        </button>
+      </div>
+      <div class="suno-row"><span class="suno-lbl">SUNO</span>
+        <a class="suno" href="https://suno.com/song/18bec33d-98fb-48f0-a2fd-f2b097881b90" target="_blank" rel="noopener noreferrer">버전 1 · 2:47 <span class="same">여기</span></a>
+        <a class="suno" href="https://suno.com/song/49e713b8-e62c-4701-8907-2a12f7892f24" target="_blank" rel="noopener noreferrer">버전 2 · 2:57 <span class="up" aria-hidden="true">↗</span></a>
       </div>
     </article>
 
-    <article class="song" data-genre="citypop">
+    <article class="song" data-genre="citypop" data-audio="audio/03_dec_neon.mp3" data-ver="버전 2" data-dur="3:32">
       <div class="song-top"><span class="no">03</span><span class="chip citypop">시티팝</span></div>
       <div class="song-main">
         <div class="art citypop" aria-hidden="true"><span>♫</span></div>
@@ -350,12 +453,17 @@ footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:cente
         </div>
       </div>
       <div class="vers">
-        <a class="play p1" href="https://suno.com/song/179f9a0b-7d74-4c3c-8ccd-480ba8a8eb57" target="_blank" rel="noopener noreferrer" aria-label="12월의 네온 드라이브 버전 1, 3분 25초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 1 <span class="dur">3:25</span></a>
-        <a class="play p2" href="https://suno.com/song/1031a88a-117f-495a-865a-95e1cb6e0e6b" target="_blank" rel="noopener noreferrer" aria-label="12월의 네온 드라이브 버전 2, 3분 32초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 2 <span class="dur">3:32</span></a>
+        <button class="play p1 jsPlay" type="button" aria-label="12월의 네온 드라이브 바로 듣기, 버전 2, 3분 32초" aria-pressed="false">
+          <span class="tri" aria-hidden="true"></span><span class="lab">바로 듣기</span><span class="dur">3:32</span>
+        </button>
+      </div>
+      <div class="suno-row"><span class="suno-lbl">SUNO</span>
+        <a class="suno" href="https://suno.com/song/179f9a0b-7d74-4c3c-8ccd-480ba8a8eb57" target="_blank" rel="noopener noreferrer">버전 1 · 3:25 <span class="up" aria-hidden="true">↗</span></a>
+        <a class="suno" href="https://suno.com/song/1031a88a-117f-495a-865a-95e1cb6e0e6b" target="_blank" rel="noopener noreferrer">버전 2 · 3:32 <span class="same">여기</span></a>
       </div>
     </article>
 
-    <article class="song" data-genre="indie">
+    <article class="song" data-genre="indie" data-audio="audio/04_first_snow.mp3" data-ver="버전 1" data-dur="3:37">
       <div class="song-top"><span class="no">04</span><span class="chip indie">인디·어쿠스틱</span></div>
       <div class="song-main">
         <div class="art indie" aria-hidden="true"><span>♪</span></div>
@@ -366,12 +474,17 @@ footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:cente
         </div>
       </div>
       <div class="vers">
-        <a class="play p1" href="https://suno.com/song/dcdd6c0e-60c4-4158-9e9f-4ccafb292f0d" target="_blank" rel="noopener noreferrer" aria-label="첫눈이 오기 전에 버전 1, 3분 37초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 1 <span class="dur">3:37</span></a>
-        <a class="play p2" href="https://suno.com/song/b42c7fac-01a8-4bec-b65c-d4ec01ebd738" target="_blank" rel="noopener noreferrer" aria-label="첫눈이 오기 전에 버전 2, 3분 3초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 2 <span class="dur">3:03</span></a>
+        <button class="play p1 jsPlay" type="button" aria-label="첫눈이 오기 전에 바로 듣기, 버전 1, 3분 37초" aria-pressed="false">
+          <span class="tri" aria-hidden="true"></span><span class="lab">바로 듣기</span><span class="dur">3:37</span>
+        </button>
+      </div>
+      <div class="suno-row"><span class="suno-lbl">SUNO</span>
+        <a class="suno" href="https://suno.com/song/dcdd6c0e-60c4-4158-9e9f-4ccafb292f0d" target="_blank" rel="noopener noreferrer">버전 1 · 3:37 <span class="same">여기</span></a>
+        <a class="suno" href="https://suno.com/song/b42c7fac-01a8-4bec-b65c-d4ec01ebd738" target="_blank" rel="noopener noreferrer">버전 2 · 3:03 <span class="up" aria-hidden="true">↗</span></a>
       </div>
     </article>
 
-    <article class="song" data-genre="citypop">
+    <article class="song" data-genre="citypop" data-audio="audio/05_neon_drive.mp3" data-ver="버전 1" data-dur="2:42">
       <div class="song-top"><span class="no">05</span><span class="chip citypop">시티팝</span></div>
       <div class="song-main">
         <div class="art citypop" aria-hidden="true"><span>♫</span></div>
@@ -382,12 +495,17 @@ footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:cente
         </div>
       </div>
       <div class="vers">
-        <a class="play p1" href="https://suno.com/song/b87d394b-caf2-495b-9285-c4f4a45e4f4b" target="_blank" rel="noopener noreferrer" aria-label="네온빛 드라이브 버전 1, 2분 42초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 1 <span class="dur">2:42</span></a>
-        <a class="play p2" href="https://suno.com/song/4f8b49cb-fc70-4c75-bf83-2ac985e00fb5" target="_blank" rel="noopener noreferrer" aria-label="네온빛 드라이브 버전 2, 2분 38초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 2 <span class="dur">2:38</span></a>
+        <button class="play p1 jsPlay" type="button" aria-label="네온빛 드라이브 바로 듣기, 버전 1, 2분 42초" aria-pressed="false">
+          <span class="tri" aria-hidden="true"></span><span class="lab">바로 듣기</span><span class="dur">2:42</span>
+        </button>
+      </div>
+      <div class="suno-row"><span class="suno-lbl">SUNO</span>
+        <a class="suno" href="https://suno.com/song/b87d394b-caf2-495b-9285-c4f4a45e4f4b" target="_blank" rel="noopener noreferrer">버전 1 · 2:42 <span class="same">여기</span></a>
+        <a class="suno" href="https://suno.com/song/4f8b49cb-fc70-4c75-bf83-2ac985e00fb5" target="_blank" rel="noopener noreferrer">버전 2 · 2:38 <span class="up" aria-hidden="true">↗</span></a>
       </div>
     </article>
 
-    <article class="song" data-genre="indie">
+    <article class="song" data-genre="indie" data-audio="audio/06_nov_wind.mp3" data-ver="버전 1" data-dur="2:15">
       <div class="song-top"><span class="no">06</span><span class="chip indie">인디·어쿠스틱</span></div>
       <div class="song-main">
         <div class="art indie" aria-hidden="true"><span>♪</span></div>
@@ -398,15 +516,20 @@ footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:cente
         </div>
       </div>
       <div class="vers">
-        <a class="play p1" href="https://suno.com/song/aacc6a6b-6a89-4da2-ab19-51c8a4227a57" target="_blank" rel="noopener noreferrer" aria-label="11월의 바람 버전 1, 2분 16초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 1 <span class="dur">2:16</span></a>
-        <a class="play p2" href="https://suno.com/song/3af7a40a-2831-4af8-a036-95eefcf5e630" target="_blank" rel="noopener noreferrer" aria-label="11월의 바람 버전 2, 2분 27초, Suno에서 듣기"><span class="tri" aria-hidden="true"></span>버전 2 <span class="dur">2:27</span></a>
+        <button class="play p1 jsPlay" type="button" aria-label="11월의 바람 바로 듣기, 버전 1, 2분 15초" aria-pressed="false">
+          <span class="tri" aria-hidden="true"></span><span class="lab">바로 듣기</span><span class="dur">2:15</span>
+        </button>
+      </div>
+      <div class="suno-row"><span class="suno-lbl">SUNO</span>
+        <a class="suno" href="https://suno.com/song/aacc6a6b-6a89-4da2-ab19-51c8a4227a57" target="_blank" rel="noopener noreferrer">버전 1 · 2:16 <span class="same">여기</span></a>
+        <a class="suno" href="https://suno.com/song/3af7a40a-2831-4af8-a036-95eefcf5e630" target="_blank" rel="noopener noreferrer">버전 2 · 2:27 <span class="up" aria-hidden="true">↗</span></a>
       </div>
     </article>
 
     <p class="empty" id="empty">이 장르의 곡을 준비하고 있어요.</p>
   </section>
 
-  <p class="note"><b>듣는 방법</b> — 버전 버튼을 누르면 Suno 앱이나 새 탭에서 바로 재생돼요. 같은 곡이라도 버전마다 목소리와 편곡이 조금씩 달라요. 마음에 드는 쪽을 골라 두세요.</p>
+  <p class="note"><b>듣는 방법</b> — 곡 카드의 <b>바로 듣기</b>를 누르면 이 페이지에서 바로 재생돼요. 위의 <b>전체 연속 듣기</b>를 누르면 6곡이 끝까지 저절로 이어지고(<b>🔁 연속</b>을 끄면 한 곡씩만 재생), 마지막 곡 뒤에는 다시 첫 곡으로 돌아와요. <b>Suno</b> 버튼은 같은 곡의 다른 버전을 앱에서 들을 때 쓰세요.</p>
 
   <footer>
     <p class="foot-mark">PALETTE</p>
@@ -414,6 +537,34 @@ footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:cente
   </footer>
 </div>
 </main>
+
+<audio id="au" preload="none" class="sr-only"></audio>
+
+<div class="player" id="player" hidden aria-label="PALETTE 재생기">
+  <div class="wrap">
+    <div class="p-top">
+      <span class="p-no" id="pNo">1/6</span>
+      <span class="p-title" id="pTitle">곡을 골라 주세요</span>
+      <span class="p-time" id="pTime">0:00 / 0:00</span>
+    </div>
+    <input class="p-seek" id="pSeek" type="range" min="0" max="1000" value="0" step="1" aria-label="재생 위치">
+    <p class="p-msg" id="pMsg" role="status" aria-live="polite"></p>
+    <div class="p-ctrl">
+      <button class="p-btn" id="pPrev" type="button" aria-label="이전 곡">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 5h2.4v14H6zM19 5v14l-9.6-7z"/></svg>
+      </button>
+      <button class="p-btn p-main" id="pToggle" type="button" aria-label="재생">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 4.5v15l13-7.5z"/></svg>
+      </button>
+      <button class="p-btn" id="pNext" type="button" aria-label="다음 곡">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15.6 5H18v14h-2.4zM5 5l9.6 7L5 19z"/></svg>
+      </button>
+      <button class="p-btn p-rep" id="pRepeat" type="button" aria-pressed="true" aria-label="전체 연속 재생 끄기">
+        <span class="rp" aria-hidden="true">🔁</span><span id="pRepeatLbl">연속</span>
+      </button>
+    </div>
+  </div>
+</div>
 
 <script>
 (function () {
@@ -455,8 +606,7 @@ footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:cente
   var songs = Array.prototype.slice.call(document.querySelectorAll('.song'));
   var cnt = document.getElementById('cnt');
   var empty = document.getElementById('empty');
-  var names = { all: '전체', jazz: '재즈·커피', citypop: '시티팝', indie: '인디·어쿠스틱' };
-  var label = { all: '12트랙 · 약 35분', jazz: '2곡 · 4트랙 · 약 12분', citypop: '2곡 · 4트랙 · 약 12분', indie: '2곡 · 4트랙 · 약 11분' };
+  var label = { all: '6곡 · MP3 약 19분', jazz: '2곡 · MP3 약 6분', citypop: '2곡 · MP3 약 7분', indie: '2곡 · MP3 약 6분' };
 
   function applyFilter(key) {
     var shown = 0;
@@ -473,16 +623,250 @@ footer{padding:30px 0 calc(38px + env(safe-area-inset-bottom)); text-align:cente
     t.addEventListener('click', function () { applyFilter(t.dataset.filter); });
   });
 
-  /* 한 곡 뽑기: 지금 보이는 곡 중에서 무작위로 한 트랙을 새 탭에 연다 */
+  /* ====================== 바로 듣기 플레이어 ====================== */
+  var au = document.getElementById('au');
+  var player = document.getElementById('player');
+  var heroPlay = document.getElementById('heroPlay');
+  var heroLbl = document.getElementById('heroPlayLbl');
+  var pNo = document.getElementById('pNo');
+  var pTitle = document.getElementById('pTitle');
+  var pTime = document.getElementById('pTime');
+  var pSeek = document.getElementById('pSeek');
+  var pMsg = document.getElementById('pMsg');
+  var pToggle = document.getElementById('pToggle');
+  var pPrev = document.getElementById('pPrev');
+  var pNext = document.getElementById('pNext');
+  var pRepeat = document.getElementById('pRepeat');
+  var pRepeatLbl = document.getElementById('pRepeatLbl');
+
+  var ICON_PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 4.5v15l13-7.5z"/></svg>';
+  var ICON_PAUSE = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6" y="4.5" width="4.2" height="15" rx="1.2"/><rect x="13.8" y="4.5" width="4.2" height="15" rx="1.2"/></svg>';
+
+  var tracks = songs.map(function (card) {
+    return {
+      card: card,
+      src: card.getAttribute('data-audio'),
+      ver: card.getAttribute('data-ver') || '',
+      dur: card.getAttribute('data-dur') || '0:00',
+      title: (card.querySelector('.song-title') || {}).textContent || 'PALETTE',
+      btn: card.querySelector('.jsPlay')
+    };
+  });
+  var cur = -1;
+  var playing = false;
+  var dragging = false;
+  var failing = false;
+  var cont = true;
+  try { cont = localStorage.getItem('palette-continue') !== '0'; } catch (e) {}
+
+  function toSec(t) {
+    var p = String(t).split(':');
+    return p.length === 2 ? (parseInt(p[0], 10) * 60 + parseInt(p[1], 10)) : 0;
+  }
+  function fmt(s) {
+    s = Math.max(0, Math.round(s || 0));
+    var m = Math.floor(s / 60), r = s % 60;
+    return m + ':' + (r < 10 ? '0' : '') + r;
+  }
+  function knownDur() {
+    var d = au.duration;
+    if (d && isFinite(d) && d > 0) return d;
+    return cur >= 0 ? toSec(tracks[cur].dur) : 0;
+  }
+  function setPct() {
+    pSeek.style.setProperty('--pct', (Number(pSeek.value) / 10) + '%');
+  }
+
+  function measurePlayer() {
+    if (player.hidden) return;
+    root.style.setProperty('--player-h', player.offsetHeight + 'px');
+  }
+  function showBar() {
+    if (player.hidden) {
+      player.hidden = false;
+      document.body.classList.add('has-player');
+    }
+    measurePlayer();
+  }
+
+  function paint() {
+    var active = cur >= 0 ? tracks[cur] : null;
+    tracks.forEach(function (t, i) {
+      var on = (i === cur);
+      t.card.classList.toggle('is-on', on);
+      t.btn.classList.toggle('is-on', on && playing);
+      t.btn.setAttribute('aria-pressed', (on && playing) ? 'true' : 'false');
+      var lab = t.btn.querySelector('.lab');
+      if (!lab) return;
+      if (on && playing) lab.textContent = '일시정지';
+      else if (on && au.currentTime > 0.2) lab.textContent = '이어 듣기';
+      else lab.textContent = '바로 듣기';
+    });
+
+    var heroOn = playing;
+    heroPlay.classList.toggle('is-on', heroOn);
+    if (heroOn) heroLbl.textContent = '일시정지';
+    else if (cur >= 0 && au.currentTime > 0.2) heroLbl.textContent = '이어서 듣기';
+    else heroLbl.textContent = '전체 연속 듣기';
+
+    pToggle.innerHTML = playing ? ICON_PAUSE : ICON_PLAY;
+    pToggle.setAttribute('aria-label', playing ? '일시정지' : '재생');
+    pRepeat.setAttribute('aria-pressed', cont ? 'true' : 'false');
+    pRepeat.setAttribute('aria-label', cont ? '전체 연속 재생 끄기' : '전체 연속 재생 켜기');
+    pRepeatLbl.textContent = cont ? '연속' : '한 곡';
+
+    if (active) {
+      pNo.textContent = (cur + 1) + '/' + tracks.length;
+      pTitle.textContent = active.title;
+      pTitle.title = active.title + ' · ' + active.ver;
+    }
+  }
+
+  function mediaMeta(i) {
+    if (!('mediaSession' in navigator) || typeof window.MediaMetadata !== 'function') return;
+    try {
+      navigator.mediaSession.metadata = new window.MediaMetadata({
+        title: tracks[i].title,
+        artist: 'PALETTE',
+        album: '작은 음악실 · ' + tracks[i].ver,
+        artwork: [
+          { src: './icon-palette-192.png', sizes: '192x192', type: 'image/png' },
+          { src: './icon-palette-512.png', sizes: '512x512', type: 'image/png' }
+        ]
+      });
+    } catch (e) {}
+  }
+  function mediaHandlers() {
+    if (!('mediaSession' in navigator) || typeof navigator.mediaSession.setActionHandler !== 'function') return;
+    var map = {
+      play: function () { au.play().catch(function () {}); },
+      pause: function () { au.pause(); },
+      previoustrack: function () { step(-1); },
+      nexttrack: function () { step(1); },
+      seekto: function (d) { if (d && typeof d.seekTime === 'number' && isFinite(au.duration)) au.currentTime = d.seekTime; }
+    };
+    Object.keys(map).forEach(function (k) {
+      try { navigator.mediaSession.setActionHandler(k, map[k]); } catch (e) {}
+    });
+  }
+
+  function playTrack(i, autoplay) {
+    var n = tracks.length;
+    i = ((i % n) + n) % n;
+    failing = false;
+    pMsg.textContent = '';
+    if (cur !== i) {
+      cur = i;
+      au.src = tracks[i].src;
+      if (tracks[i].card.hidden) applyFilter('all');
+      pSeek.value = 0; setPct();
+      pTime.textContent = '0:00 / ' + tracks[i].dur;
+      showBar();
+      mediaMeta(i);
+    }
+    showBar();
+    if (autoplay !== false) start();
+    paint();
+  }
+  function start() {
+    var pr = au.play();
+    if (pr && pr.catch) {
+      pr.catch(function () {
+        pMsg.textContent = '재생을 시작하지 못했어요. 가운데 ▶ 버튼을 한 번 더 눌러 주세요.';
+        playing = false; paint();
+      });
+    }
+  }
+  function togglePlay() {
+    if (cur < 0) { playTrack(0); return; }
+    if (au.paused) start(); else au.pause();
+  }
+  function step(dir) {
+    if (cur < 0) { playTrack(0); return; }
+    playTrack(cur + dir);
+  }
+
+  tracks.forEach(function (t, i) {
+    t.btn.addEventListener('click', function () {
+      if (cur === i && !au.paused) { au.pause(); }
+      else if (cur === i && au.paused && au.currentTime > 0.2) { start(); }
+      else { playTrack(i); }
+    });
+  });
+  heroPlay.addEventListener('click', togglePlay);
+  pToggle.addEventListener('click', togglePlay);
+  pNext.addEventListener('click', function () { step(1); });
+  pPrev.addEventListener('click', function () {
+    if (cur < 0) { playTrack(0); return; }
+    if (au.currentTime > 3) { au.currentTime = 0; pSeek.value = 0; setPct(); }
+    else step(-1);
+  });
+  pRepeat.addEventListener('click', function () {
+    cont = !cont;
+    try { localStorage.setItem('palette-continue', cont ? '1' : '0'); } catch (e) {}
+    paint();
+  });
+
+  au.addEventListener('play', function () { playing = true; pMsg.textContent = ''; paint(); });
+  au.addEventListener('pause', function () { playing = false; paint(); });
+  au.addEventListener('playing', function () { playing = true; failing = false; paint(); });
+  au.addEventListener('ended', function () {
+    playing = false;
+    if (cont && !failing) {
+      /* 마지막 곡 뒤에는 첫 곡으로 돌아와 6곡이 계속 이어진다 */
+      playTrack(cur + 1);
+    } else {
+      au.currentTime = 0;
+      pSeek.value = 0; setPct(); paint();
+    }
+  });
+  au.addEventListener('timeupdate', function () {
+    var d = knownDur();
+    if (!dragging && d) {
+      pSeek.value = Math.round((au.currentTime / d) * 1000);
+      setPct();
+    }
+    pTime.textContent = fmt(au.currentTime) + ' / ' + fmt(d);
+  });
+  au.addEventListener('loadedmetadata', function () {
+    pTime.textContent = '0:00 / ' + fmt(knownDur());
+  });
+  au.addEventListener('error', function () {
+    if (cur < 0) return;
+    failing = true;
+    playing = false;
+    pMsg.textContent = '음원을 불러오지 못했어요. 연결을 확인하고 다시 눌러 주세요.';
+    paint();
+  });
+
+  pSeek.addEventListener('input', function () {
+    dragging = true;
+    setPct();
+    var d = knownDur();
+    pTime.textContent = fmt((Number(pSeek.value) / 1000) * d) + ' / ' + fmt(d);
+  });
+  pSeek.addEventListener('change', function () {
+    var d = knownDur();
+    if (d) au.currentTime = (Number(pSeek.value) / 1000) * d;
+    dragging = false;
+  });
+  pSeek.addEventListener('pointerup', function () { dragging = false; });
+  pSeek.addEventListener('keyup', function () { dragging = false; });
+
+  /* 한 곡 뽑기: 지금 보이는 곡 중 한 곡을 이 페이지에서 바로 재생 */
   document.getElementById('diceBtn').addEventListener('click', function () {
     var pool = [];
-    songs.forEach(function (s) { if (!s.hidden) pool = pool.concat(Array.prototype.slice.call(s.querySelectorAll('.play'))); });
+    tracks.forEach(function (t, i) { if (!t.card.hidden) pool.push(i); });
     if (!pool.length) return;
-    var pick = pool[Math.floor(Math.random() * pool.length)];
-    var a = document.createElement('a');
-    a.href = pick.href; a.target = '_blank'; a.rel = 'noopener noreferrer';
-    document.body.appendChild(a); a.click(); a.remove();
+    playTrack(pool[Math.floor(Math.random() * pool.length)]);
+    var card = tracks[cur].card;
+    if (card && card.scrollIntoView) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
+
+  mediaHandlers();
+  window.addEventListener('resize', measurePlayer);
+  window.addEventListener('orientationchange', measurePlayer);
+  paint();
 })();
 </script>
 </body>
