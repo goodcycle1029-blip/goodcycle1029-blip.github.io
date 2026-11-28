@@ -28,7 +28,7 @@
   var html = await (await fetch('./palette.html?qa=' + Date.now())).text();
   var d = frame.contentDocument;
   d.open();
-  d.write(html.replace('<head>', '<head><base href="' + location.origin + '/">'));
+  d.write(html.replace('<head>', '<head><base href="' + location.origin + '/"><style>html{scrollbar-width:none}html::-webkit-scrollbar{display:none}</style>'));
   d.close();
 
   await new Promise(function (r) { setTimeout(r, 2500); });
