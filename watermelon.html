@@ -219,7 +219,7 @@ main{flex:1;display:flex;flex-direction:column;min-height:0}
 <body>
 <div id="app">
   <header class="topbar">
-    <button class="brand" id="brandBtn" type="button" aria-label="홈으로">
+    <button class="brand" id="brandBtn" type="button" aria-label="홈으로" data-i18n-aria="homeLabel">
       <span class="brand-mark" aria-hidden="true">🍉</span>
       <span class="brand-txt"><b data-i18n="brand">수박 만들기</b><span>WATERMELON 2048</span></span>
     </button>
@@ -233,8 +233,8 @@ main{flex:1;display:flex;flex-direction:column;min-height:0}
           <button type="button" data-lang="zh" role="menuitem"><span>🇨🇳</span>中文</button>
         </div>
       </div>
-      <button class="iconbtn" id="soundBtn" type="button" aria-pressed="true" aria-label="소리 끄기">🔊</button>
-      <button class="iconbtn" id="helpBtn" type="button" aria-label="게임 방법">❓</button>
+      <button class="iconbtn" id="soundBtn" type="button" aria-pressed="true" aria-label="소리 끄기" data-i18n-aria="soundOff">🔊</button>
+      <button class="iconbtn" id="helpBtn" type="button" aria-label="게임 방법" data-i18n-aria="helpLabel">❓</button>
     </div>
   </header>
 
@@ -279,7 +279,7 @@ main{flex:1;display:flex;flex-direction:column;min-height:0}
         <div class="box next"><span data-i18n="next">NEXT</span><canvas id="nextCv" width="44" height="44" aria-hidden="true"></canvas></div>
         <div class="box right">
           <span data-i18n="best">최고 점수</span>
-          <div class="row"><b id="bestV">0</b><button class="pausebtn" id="pauseBtn" type="button" aria-label="일시정지">⏸</button></div>
+          <div class="row"><b id="bestV">0</b><button class="pausebtn" id="pauseBtn" type="button" aria-label="일시정지" data-i18n-aria="pauseLabel">⏸</button></div>
         </div>
       </div>
       <canvas class="evobar" id="evoPlay" aria-hidden="true"></canvas>
@@ -412,6 +412,7 @@ var STR = {
     howTitle: '이렇게 해요',
     helpBody: '① 좌우로 끌어 자리를 정하고 손을 떼면 과일이 떨어져요.<br>② 같은 과일 두 개가 닿으면 한 단계 큰 과일이 돼요.<br>③ 점선 위로 과일이 2초 넘게 머무르면 게임이 끝나요.',
     gotIt: '알겠어요', danger: '위험!', shareDone: '점수 문구를 복사했어요',
+    pauseLabel: '일시정지', helpLabel: '게임 방법', homeLabel: '홈으로', soundOff: '소리 끄기', soundOn: '소리 켜기',
     watermelonDone: '🍉 수박 완성!', pop: '수박 두 개가 만나 사라졌어요 +100',
     adBrand: '재팬마트박스', adDesc: '일본 인기 상품 · 구매대행', adCta: '구경하기',
     adInq: '광고·협찬 문의', adInqSub: '이 자리에 광고', adInqShort: '광고 문의',
@@ -438,6 +439,7 @@ var STR = {
     howTitle: 'How to play',
     helpBody: '1. Drag left or right, then lift to drop.<br>2. Two fruits of the same step merge into a bigger one.<br>3. Resting above the dotted line for 2 seconds ends the game.',
     gotIt: 'Got it', danger: 'Careful!', shareDone: 'Score text copied',
+    pauseLabel: 'Pause', helpLabel: 'How to play', homeLabel: 'Home', soundOff: 'Mute', soundOn: 'Unmute',
     watermelonDone: '🍉 Watermelon made!', pop: 'Two watermelons popped +100',
     adBrand: 'Japan Mart Box', adDesc: 'Japanese goods · proxy buying', adCta: 'Visit',
     adInq: 'Ad / Sponsorship', adInqSub: 'This spot is open', adInqShort: 'Ad contact',
@@ -464,6 +466,7 @@ var STR = {
     howTitle: 'あそびかた',
     helpBody: '① 左右にドラッグして位置を決め、離すと果物が落ちます。<br>② 同じ果物が2つ触れると1段階大きくなります。<br>③ 点線より上に2秒以上とどまると終了です。',
     gotIt: 'わかりました', danger: '危険！', shareDone: 'スコア文をコピーしました',
+    pauseLabel: '一時停止', helpLabel: 'あそびかた', homeLabel: 'ホーム', soundOff: '音を消す', soundOn: '音を出す',
     watermelonDone: '🍉 すいか完成！', pop: 'すいか2つが消えました +100',
     adBrand: 'Japan Mart Box', adDesc: '日本の人気商品・代理購入', adCta: '見る',
     adInq: '広告・協賛', adInqSub: 'この枠に広告', adInqShort: '広告問合せ',
@@ -490,6 +493,7 @@ var STR = {
     howTitle: '玩法',
     helpBody: '① 左右拖动选好位置，松手水果就会落下。<br>② 两个相同的水果相碰会变成更大的水果。<br>③ 在虚线以上停留超过2秒就会结束。',
     gotIt: '知道了', danger: '小心！', shareDone: '成绩文字已复制',
+    pauseLabel: '暂停', helpLabel: '玩法', homeLabel: '首页', soundOff: '静音', soundOn: '取消静音',
     watermelonDone: '🍉 西瓜完成！', pop: '两个西瓜消失了 +100',
     adBrand: 'Japan Mart Box', adDesc: '日本人气商品 · 代购', adCta: '去看看',
     adInq: '广告·赞助', adInqSub: '此位可投广告', adInqShort: '广告咨询',
@@ -634,6 +638,12 @@ function applyLang(next, silent) {
     if (k === 'helpBody') nodes[i].innerHTML = v;
     else nodes[i].textContent = v;
   }
+  var ariaNodes = document.querySelectorAll('[data-i18n-aria]');
+  for (var a = 0; a < ariaNodes.length; a++) {
+    var ak = ariaNodes[a].getAttribute('data-i18n-aria');
+    if (STR.ko[ak] !== undefined) ariaNodes[a].setAttribute('aria-label', T(ak));
+  }
+  document.getElementById('soundBtn').setAttribute('aria-label', T(Sound.isMuted() ? 'soundOn' : 'soundOff'));
   document.getElementById('langBtn').textContent = dict === 'ko' ? '🇰🇷' : (dict === 'en' ? '🇺🇸' : (dict === 'ja' ? '🇯🇵' : '🇨🇳'));
   document.getElementById('langBtn').setAttribute('aria-label', dict === 'ko' ? '언어 선택' : 'Language');
   document.getElementById('startBtn').setAttribute('aria-label', T('start'));
@@ -1642,6 +1652,7 @@ function bind() {
     Sound.setMuted(m);
     this.setAttribute('aria-pressed', m ? 'false' : 'true');
     this.textContent = m ? '🔇' : '🔊';
+    this.setAttribute('aria-label', T(m ? 'soundOn' : 'soundOff'));
     if (!m) Sound.unlock();
   });
   var langBtn = document.getElementById('langBtn');
