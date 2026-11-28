@@ -3356,6 +3356,31 @@
     return h + '</div>';
   }
 
+  /* ---------- 👀 방문·조회·찜 (status.json > traffic) ---------- */
+  /* 마켓 판매자센터에서 직접 읽은 방문·조회 숫자만 그립니다.
+     원가·마진·고객정보는 담지 않습니다. */
+  function trafficHTML(tr){
+    var h = '';
+    h += '<h2 class="sec">👀 방문·조회·찜 — ' + esc(tr.window || '최근 7일') + '</h2>';
+    h += '<p class="fine" style="margin:-2px 0 8px">판매자센터에서 직접 읽은 값입니다 · ' + esc(tr.updated_at || '-') + ' 기준</p>';
+    (tr.markets || []).forEach(function(m){
+      h += '<div class="box" style="margin:0 0 10px">';
+      h += '<div class="kv">';
+      h += '<div class="row"><span class="k">' + esc((m.icon || '•') + ' ' + (m.name || '')) + '</span><span class="v"><b>' + esc(m.headline || '-') + '</b>' + (m.period ? ' · ' + esc(m.period) : '') + '</span></div>';
+      (m.rows || []).forEach(function(r){
+        h += '<div class="row"><span class="k">' + esc(r.k) + '</span><span class="v">' + esc(r.v) + '</span></div>';
+      });
+      if (m.top && m.top.length){
+        var tl = m.top.map(function(t){ return (t.no ? t.no + '. ' : '') + t.name + ' — ' + t.v; }).join(' / ');
+        h += '<div class="row"><span class="k">조회·방문 TOP</span><span class="v">' + esc(tl) + '</span></div>';
+      }
+      h += '</div>';
+      h += '</div>';
+    });
+    if (tr.note) h += '<p class="fine" style="margin:2px 0 0">' + esc(tr.note) + '</p>';
+    return h;
+  }
+
   function renderCeo(d){
     var box = document.getElementById('ceoBody');
     var note = document.getElementById('ceoNote');
@@ -3403,6 +3428,8 @@
       c.tiles.forEach(function(t, i){ phtml += tileDetailHTML(c, t, i); });
       if (phtml) h += '<div class="tile-pw">' + phtml + '</div>';
     }
+
+    if (d.traffic && d.traffic.markets && d.traffic.markets.length) h += trafficHTML(d.traffic);
 
     if (c.issues && c.issues.length){
       h += '<h2 class="sec">🚩 지금 손볼 곳 · 문제점</h2>';
